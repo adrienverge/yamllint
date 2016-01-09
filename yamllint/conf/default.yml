@@ -1,0 +1,39 @@
+---
+
+rules:
+  #block-sequence-indentation:
+  #  present: yes
+  colons:
+    max-spaces-before: 0
+    max-spaces-after: 1
+  #comma:
+  #  max-spaces-before: 0
+  #  max-spaces-after: 1
+  #comment:
+  #  min-spaces-after: 1
+  #  min-spaces-before: 2
+  document-end: disable
+  document-start:
+    level: warning
+    present: yes
+  empty-lines:
+    max: 2
+    max-start: 0
+    max-end: 0
+  hyphens:
+    max-spaces-after: 1
+  indentation:
+    spaces: 2
+    #comments: yes
+  line-length:
+    max: 80
+  new-line-at-end-of-file: {level: error}
+  new-lines:
+    type: unix
+  #spaces-in-brackets:  [ 1, 2 ]
+  #  min: 1
+  #  max: 1
+  #spaces-in-braces:  { df: d }
+  #  min: 1
+  #  max: 1
+  trailing-spaces: {}
