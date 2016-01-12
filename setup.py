@@ -44,7 +44,7 @@ setup(
     packages=find_packages(),
     scripts=['bin/yamllint'],
     package_data={'yamllint': ['conf/*.yml']},
-    install_requires=[
-        'pyyaml>=3'
-    ],
+    install_requires=['pyyaml'],
+    tests_require=['nose'],
+    test_suite='nose.collector',
 )

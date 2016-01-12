@@ -1,0 +1,18 @@
+---
+language: python
+python:
+  - 2.6
+  - 2.7
+  - 3.3
+  - 3.4
+  - 3.5
+  - nightly
+install:
+  - pip install pyyaml flake8 coveralls
+  - pip install .
+script:
+  - flake8 .
+  - yamllint $(git ls-files '*.yml')
+  - coverage run --source=yamllint setup.py test
+after_success:
+  coveralls
