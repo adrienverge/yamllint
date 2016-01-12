@@ -64,12 +64,6 @@ class DocumentEndTestCase(RuleTestCase):
                    '---\n'
                    'third: document\n'
                    '...\n', conf)
-        self.check('first: document\n'
-                   '...\n'
-                   'second: document\n'
-                   '...\n'
-                   'third: document\n'
-                   '...\n', conf)
         self.check('---\n'
                    'first: document\n'
                    '...\n'

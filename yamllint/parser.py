@@ -16,8 +16,6 @@
 
 import yaml
 
-from yamllint.errors import LintProblem
-
 
 class Line(object):
     def __init__(self, line_no, buffer, start, end):
@@ -85,11 +83,3 @@ def token_or_line_generator(buffer):
         else:
             yield token
             token = next(token_gen, None)
-
-
-def get_syntax_error(buffer):
-    try:
-        yaml.safe_load_all(buffer)
-    except yaml.error.MarkedYAMLError as e:
-        return LintProblem(e.problem_mark.line + 1, e.problem_mark.column + 1,
-                           'syntax error: ' + e.problem)
