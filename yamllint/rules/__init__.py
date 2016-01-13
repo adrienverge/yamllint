@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from yamllint.rules import (
+    brackets,
     colons,
     commas,
     document_end,
@@ -29,6 +30,7 @@ from yamllint.rules import (
 )
 
 _RULES = {
+    brackets.ID: brackets,
     colons.ID: colons,
     commas.ID: commas,
     document_end.ID: document_end,

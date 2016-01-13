@@ -16,7 +16,7 @@
 
 import yaml
 
-from yamllint.rules.common import max_spaces_after, max_spaces_before
+from yamllint.rules.common import spaces_after, spaces_before
 
 
 ID = 'colons'
@@ -27,12 +27,14 @@ CONF = {'max-spaces-before': int,
 
 def check(conf, token, prev, next):
     if isinstance(token, yaml.ValueToken):
-        problem = max_spaces_before(conf['max-spaces-before'], token, prev,
-                                    next, 'too many spaces before colon')
+        problem = spaces_before(token, prev, next,
+                                max=conf['max-spaces-before'],
+                                max_desc='too many spaces before colon')
         if problem is not None:
             yield problem
 
-        problem = max_spaces_after(conf['max-spaces-after'], token, prev, next,
-                                   'too many spaces after colon')
+        problem = spaces_after(token, prev, next,
+                               max=conf['max-spaces-after'],
+                               max_desc='too many spaces after colon')
         if problem is not None:
             yield problem

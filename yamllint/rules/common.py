@@ -17,18 +17,25 @@
 from yamllint.errors import LintProblem
 
 
-def max_spaces_after(nb, token, prev, next, description):
-    if (next is not None and token.end_mark.line == next.start_mark.line and
-            nb != - 1 and
-            next.start_mark.pointer - token.end_mark.pointer > nb):
-        return LintProblem(token.start_mark.line + 1, next.start_mark.column,
-                           description)
+def spaces_after(token, prev, next, min=-1, max=-1,
+                 min_desc=None, max_desc=None):
+    if next is not None and token.end_mark.line == next.start_mark.line:
+        spaces = next.start_mark.pointer - token.end_mark.pointer
+        if max != - 1 and spaces > max:
+            return LintProblem(token.start_mark.line + 1,
+                               next.start_mark.column, max_desc)
+        elif min != - 1 and spaces < min:
+            return LintProblem(token.start_mark.line + 1,
+                               next.start_mark.column + 1, min_desc)
 
 
-def max_spaces_before(nb, token, prev, next, description):
-    if (prev is not None and
-            prev.end_mark.line == token.start_mark.line and
-            nb != - 1 and
-            prev.end_mark.pointer + nb < token.start_mark.pointer):
-        return LintProblem(token.start_mark.line + 1, token.start_mark.column,
-                           description)
+def spaces_before(token, prev, next, min=-1, max=-1,
+                  min_desc=None, max_desc=None):
+    if prev is not None and prev.end_mark.line == token.start_mark.line:
+        spaces = token.start_mark.pointer - prev.end_mark.pointer
+        if max != - 1 and spaces > max:
+            return LintProblem(token.start_mark.line + 1,
+                               token.start_mark.column, max_desc)
+        elif min != - 1 and spaces < min:
+            return LintProblem(token.start_mark.line + 1,
+                               token.start_mark.column + 1, min_desc)

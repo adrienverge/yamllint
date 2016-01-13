@@ -32,7 +32,7 @@ class ColonTestCase(RuleTestCase):
                    '    val\n'
                    '  property   : value\n'
                    '  prop2      : val2\n'
-                   '  propriété  : [ valeur ]\n'
+                   '  propriété  : [valeur]\n'
                    '  o:\n'
                    '    k1: [v1, v2]\n'
                    '  p:\n'
@@ -54,7 +54,7 @@ class ColonTestCase(RuleTestCase):
                    '    val\n'
                    '  property:     value\n'
                    '  prop2:        val2\n'
-                   '  propriété:    [ valeur ]\n'
+                   '  propriété:    [valeur]\n'
                    '  o:\n'
                    '    k1:  [v1, v2]\n', conf)
         self.check('---\n'

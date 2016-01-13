@@ -3,6 +3,12 @@
 rules:
   #block-sequence-indentation:
   #  present: yes
+  brackets:
+    min-spaces-inside: 0
+    max-spaces-inside: 0
+  #braces:
+  #  min-spaces-inside: 0
+  #  max-spaces-inside: 0
   colons:
     max-spaces-before: 0
     max-spaces-after: 1
@@ -30,10 +36,4 @@ rules:
   new-line-at-end-of-file: {level: error}
   new-lines:
     type: unix
-  #spaces-in-brackets:  [ 1, 2 ]
-  #  min: 1
-  #  max: 1
-  #spaces-in-braces:  { df: d }
-  #  min: 1
-  #  max: 1
   trailing-spaces: {}

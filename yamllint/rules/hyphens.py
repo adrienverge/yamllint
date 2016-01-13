@@ -16,7 +16,7 @@
 
 import yaml
 
-from yamllint.rules.common import max_spaces_after
+from yamllint.rules.common import spaces_after
 
 
 ID = 'hyphens'
@@ -26,7 +26,8 @@ CONF = {'max-spaces-after': int}
 
 def check(conf, token, prev, next):
     if isinstance(token, yaml.BlockEntryToken):
-        problem = max_spaces_after(conf['max-spaces-after'], token, prev, next,
-                                   'too many spaces after hyphen')
+        problem = spaces_after(token, prev, next,
+                               max=conf['max-spaces-after'],
+                               max_desc='too many spaces after hyphen')
         if problem is not None:
             yield problem
