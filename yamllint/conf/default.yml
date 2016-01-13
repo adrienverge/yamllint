@@ -6,9 +6,9 @@ rules:
   colons:
     max-spaces-before: 0
     max-spaces-after: 1
-  #comma:
-  #  max-spaces-before: 0
-  #  max-spaces-after: 1
+  commas:
+    max-spaces-before: 0
+    max-spaces-after: 1
   #comment:
   #  min-spaces-after: 1
   #  min-spaces-before: 2

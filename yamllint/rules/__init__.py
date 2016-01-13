@@ -16,6 +16,7 @@
 
 from yamllint.rules import (
     colons,
+    commas,
     document_end,
     document_start,
     empty_lines,
@@ -29,6 +30,7 @@ from yamllint.rules import (
 
 _RULES = {
     colons.ID: colons,
+    commas.ID: commas,
     document_end.ID: document_end,
     document_start.ID: document_start,
     empty_lines.ID: empty_lines,
