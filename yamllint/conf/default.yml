@@ -3,12 +3,12 @@
 rules:
   #block-sequence-indentation:
   #  present: yes
+  braces:
+    min-spaces-inside: 0
+    max-spaces-inside: 0
   brackets:
     min-spaces-inside: 0
     max-spaces-inside: 0
-  #braces:
-  #  min-spaces-inside: 0
-  #  max-spaces-inside: 0
   colons:
     max-spaces-before: 0
     max-spaces-after: 1
