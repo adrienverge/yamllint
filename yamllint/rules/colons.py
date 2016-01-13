@@ -16,7 +16,7 @@
 
 import yaml
 
-from yamllint.errors import LintProblem
+from yamllint.rules.common import max_spaces_after, max_spaces_before
 
 
 ID = 'colons'
@@ -27,20 +27,12 @@ CONF = {'max-spaces-before': int,
 
 def check(conf, token, prev, next):
     if isinstance(token, yaml.ValueToken):
-        if (prev is not None and
-                prev.end_mark.line == token.start_mark.line and
-                conf['max-spaces-before'] != - 1 and
-                (prev.end_mark.pointer + conf['max-spaces-before'] <
-                 token.start_mark.pointer)):
-            yield LintProblem(token.start_mark.line + 1,
-                              token.start_mark.column,
-                              'too many spaces before colon')
+        problem = max_spaces_before(conf['max-spaces-before'], token, prev,
+                                    next, 'too many spaces before colon')
+        if problem is not None:
+            yield problem
 
-        if (next is not None and
-                token.end_mark.line == next.start_mark.line and
-                conf['max-spaces-after'] != - 1 and
-                (next.start_mark.pointer - token.end_mark.pointer >
-                 conf['max-spaces-after'])):
-            yield LintProblem(token.start_mark.line + 1,
-                              next.start_mark.column,
-                              'too many spaces after colon')
+        problem = max_spaces_after(conf['max-spaces-after'], token, prev, next,
+                                   'too many spaces after colon')
+        if problem is not None:
+            yield problem

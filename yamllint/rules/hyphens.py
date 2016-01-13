@@ -16,7 +16,7 @@
 
 import yaml
 
-from yamllint.errors import LintProblem
+from yamllint.rules.common import max_spaces_after
 
 
 ID = 'hyphens'
@@ -26,9 +26,7 @@ CONF = {'max-spaces-after': int}
 
 def check(conf, token, prev, next):
     if isinstance(token, yaml.BlockEntryToken):
-        if token.end_mark.line == next.start_mark.line:
-            if (next.start_mark.pointer - token.end_mark.pointer >
-                    conf['max-spaces-after']):
-                yield LintProblem(token.start_mark.line + 1,
-                                  next.start_mark.column,
-                                  'too many spaces after hyphen')
+        problem = max_spaces_after(conf['max-spaces-after'], token, prev, next,
+                                   'too many spaces after hyphen')
+        if problem is not None:
+            yield problem
