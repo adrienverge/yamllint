@@ -163,3 +163,15 @@ class CommentsTestCase(RuleTestCase):
                    problem5=(9, 2),
                    problem6=(10, 4),
                    problem7=(13, 30))
+
+    def test_empty_comment(self):
+        conf = ('comments:\n'
+                '  require-starting-space: yes\n'
+                '  min-spaces-from-content: 2\n')
+        self.check('---\n'
+                   '# This is paragraph 1.\n'
+                   '#\n'
+                   '# This is paragraph 2.\n', conf)
+        self.check('---\n'
+                   'inline: comment  #\n'
+                   '\n', conf)
