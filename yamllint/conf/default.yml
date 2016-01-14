@@ -1,8 +1,6 @@
 ---
 
 rules:
-  # block-sequence-indentation:
-  #   present: yes
   braces:
     min-spaces-inside: 0
     max-spaces-inside: 0
@@ -19,6 +17,8 @@ rules:
     level: warning
     require-starting-space: yes
     min-spaces-from-content: 2
+  comments-indentation:
+    level: warning
   document-end: disable
   document-start:
     level: warning
@@ -31,11 +31,12 @@ rules:
     max-spaces-after: 1
   indentation:
     spaces: 2
-    # indent-lists: yes
-    # check-comments: yes
   line-length:
     max: 80
   new-line-at-end-of-file: {level: error}
   new-lines:
     type: unix
+  #sequences-indentation:
+  #  level: warning
+  #  present: yes
   trailing-spaces: {}

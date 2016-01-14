@@ -14,67 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import yaml
-
 from tests.rules.common import RuleTestCase
-from yamllint.rules.inline_comments import (Comment,
-                                            get_comments_until_next_token)
 
 
 class CommentsTestCase(RuleTestCase):
     rule_id = 'comments'
 
-    def check_comments(self, buffer, *expected):
-        yaml_loader = yaml.BaseLoader(buffer)
-
-        comments = []
-
-        next = yaml_loader.peek_token()
-        while next is not None:
-            curr = yaml_loader.get_token()
-            next = yaml_loader.peek_token()
-            for comment in get_comments_until_next_token(curr, next):
-                comments.append(comment)
-
-        self.assertEqual(comments, list(expected))
-
-    def test_get_comments_until_next_token(self):
-        self.check_comments('# comment\n',
-                            Comment(1, 1, '# comment', 0))
-        self.check_comments('---\n'
-                            '# comment\n'
-                            '...\n',
-                            Comment(2, 1, '# comment', 0))
-        self.check_comments('---\n'
-                            '# no newline char',
-                            Comment(2, 1, '# no newline char', 0))
-        self.check_comments('\n'
-                            '   # indented comment\n',
-                            Comment(2, 4, '# indented comment', 0))
-        self.check_comments('\n'
-                            '# trailing spaces    \n',
-                            Comment(2, 1, '# trailing spaces    ', 0))
-        self.check_comments('# comment one\n'
-                            '\n'
-                            'key: val  # key=val\n'
-                            '\n'
-                            '# this is\n'
-                            '# a block     \n'
-                            '# comment\n'
-                            '\n'
-                            'other:\n'
-                            '  - foo  # equals\n'
-                            '         # bar\n',
-                            Comment(1, 1, '# comment one', 0),
-                            Comment(3, 11, '# key=val', 0),
-                            Comment(5, 1, '# this is', 0),
-                            Comment(6, 1, '# a block     ', 0),
-                            Comment(7, 1, '# comment', 0),
-                            Comment(10, 10, '# equals', 0),
-                            Comment(11, 10, '# bar', 0))
-
     def test_disabled(self):
-        conf = 'comments: disable'
+        conf = ('comments: disable\n'
+                'comments-indentation: disable\n')
         self.check('---\n'
                    '#comment\n'
                    '\n'
@@ -92,7 +40,8 @@ class CommentsTestCase(RuleTestCase):
     def test_starting_space(self):
         conf = ('comments:\n'
                 '  require-starting-space: yes\n'
-                '  min-spaces-from-content: -1\n')
+                '  min-spaces-from-content: -1\n'
+                'comments-indentation: disable\n')
         self.check('---\n'
                    '# comment\n'
                    '\n'
@@ -143,7 +92,8 @@ class CommentsTestCase(RuleTestCase):
     def test_both(self):
         conf = ('comments:\n'
                 '  require-starting-space: yes\n'
-                '  min-spaces-from-content: 2\n')
+                '  min-spaces-from-content: 2\n'
+                'comments-indentation: disable\n')
         self.check('---\n'
                    '#comment\n'
                    '\n'
@@ -174,4 +124,10 @@ class CommentsTestCase(RuleTestCase):
                    '# This is paragraph 2.\n', conf)
         self.check('---\n'
                    'inline: comment  #\n'
-                   '\n', conf)
+                   'foo: bar\n', conf)
+
+    def test_first_line(self):
+        conf = ('comments:\n'
+                '  require-starting-space: yes\n'
+                '  min-spaces-from-content: 2\n')
+        self.check('# comment\n', conf)

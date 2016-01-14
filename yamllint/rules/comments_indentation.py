@@ -20,25 +20,24 @@ from yamllint.errors import LintProblem
 from yamllint.rules.common import get_comments_between_tokens
 
 
-ID = 'comments'
+ID = 'comments-indentation'
 TYPE = 'token'
-CONF = {'require-starting-space': bool,
-        'min-spaces-from-content': int}
 
 
 def check(conf, token, prev, next):
-    for comment in get_comments_between_tokens(token, next):
-        if (conf['min-spaces-from-content'] != -1 and
-                not isinstance(token, yaml.StreamStartToken) and
-                comment.line == token.end_mark.line + 1 and
-                comment.pointer - token.end_mark.pointer <
-                conf['min-spaces-from-content']):
-            yield LintProblem(comment.line, comment.column,
-                              'too few spaces before comment')
+    if prev is None:
+        return
 
-        if (conf['require-starting-space'] and
-                comment.pointer + 1 < len(comment.buffer) and
-                comment.buffer[comment.pointer + 1] != ' ' and
-                comment.buffer[comment.pointer + 1] != '\n'):
-            yield LintProblem(comment.line, comment.column + 1,
-                              'missing starting space in comment')
+    token_indent = token.start_mark.column
+    if isinstance(token, yaml.StreamEndToken):
+        token_indent = 0
+
+    skip_first = True
+    if isinstance(prev, yaml.StreamStartToken):
+        skip_first = False
+
+    for comment in get_comments_between_tokens(prev, token,
+                                               skip_first_line=skip_first):
+        if comment.column != token_indent + 1:
+            yield LintProblem(comment.line, comment.column,
+                              'comment not intended like content')
