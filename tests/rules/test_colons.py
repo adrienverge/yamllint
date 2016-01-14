@@ -41,8 +41,8 @@ class ColonTestCase(RuleTestCase):
                    '    - o: {k1: v1}\n'
                    '    - p: kdjf\n'
                    '    - q: val0\n'
-                   '      q2:\n'
-                   '        - val1\n'
+                   '    - q2:\n'
+                   '      - val1\n'
                    '...\n', conf)
         self.check('---\n'
                    'object:\n'
@@ -66,8 +66,8 @@ class ColonTestCase(RuleTestCase):
                    '        val\n'
                    '    - o: {k1: v1}\n'
                    '    - o:  {k1: v1}\n'
-                   '      q2:\n'
-                   '        - val1\n'
+                   '    - q2:\n'
+                   '      - val1\n'
                    '...\n', conf)
         self.check('---\n'
                    'a: {b: {c:  d, e : f}}\n', conf)

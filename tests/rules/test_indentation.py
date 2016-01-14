@@ -118,7 +118,7 @@ class IndentationTestCase(RuleTestCase):
         self.check('---\n'
                    ' object:\n'
                    '     val: 1\n'
-                   '...\n', conf, problem=(2, 2))
+                   '...\n', conf, problem1=(2, 2), problem2=(3, 6))
         self.check('---\n'
                    '- el1\n'
                    '- el2:\n'
@@ -132,8 +132,9 @@ class IndentationTestCase(RuleTestCase):
         self.check('---\n'
                    '  - el1\n'
                    '  - el2:\n'
-                   '      - subel\n'
-                   '...\n', conf, problem1=(2, 3), problem2=(4, 7))
+                   '    - subel\n'
+                   '...\n', conf,
+                   problem1=(2, 3), problem2=(3, 3), problem3=(4, 5))
 
     def test_multi_lines(self):
         self.check('---\n'
@@ -154,18 +155,32 @@ class IndentationTestCase(RuleTestCase):
                    '...\n', None)
 
     def test_nested_collections(self):
+        conf = 'indentation: {spaces: 2}'
         self.check('---\n'
                    '- o:\n'
-                   '    k1: v1\n'
-                   '...\n', None)
+                   '  k1: v1\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   '- o:\n'
+                   ' k1: v1\n'
+                   '...\n', conf, problem=(3, 2))
         self.check('---\n'
                    '- o:\n'
                    '   k1: v1\n'
-                   '...\n', None, problem=(3, 4))
+                   '...\n', conf, problem=(3, 4))
+        conf = 'indentation: {spaces: 4}'
+        self.check('---\n'
+                   '- o:\n'
+                   '    k1: v1\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   '- o:\n'
+                   '   k1: v1\n'
+                   '...\n', conf, problem=(3, 4))
         self.check('---\n'
                    '- o:\n'
                    '     k1: v1\n'
-                   '...\n', None, problem=(3, 6))
+                   '...\n', conf, problem=(3, 6))
 
     def test_return(self):
         self.check('---\n'
@@ -189,3 +204,23 @@ class IndentationTestCase(RuleTestCase):
         #            '    c:\n'
         #            ' d:\n'
         #            '...\n', None, problem=(5, 2))
+
+    def test_first_line(self):
+        conf = ('indentation: {spaces: 2}\n'
+                'document-start: disable\n')
+        self.check('  a: 1\n', conf, problem=(1, 3))
+
+    def test_broken_inline_flows(self):
+        conf = 'indentation: {spaces: 2}'
+        self.check('---\n'
+                   'obj: {\n'
+                   '  a: 1,\n'
+                   '   b: 2,\n'
+                   ' c: 3\n'
+                   '}\n', conf, problem1=(4, 4), problem2=(5, 2))
+        self.check('---\n'
+                   'list: [\n'
+                   '  1,\n'
+                   '   2,\n'
+                   ' 3\n'
+                   ']\n', conf, problem1=(4, 4), problem2=(5, 2))

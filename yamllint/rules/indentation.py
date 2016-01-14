@@ -25,39 +25,46 @@ CONF = {'spaces': int}
 
 
 def check(conf, token, prev, next):
-    if isinstance(token, yaml.StreamEndToken):
+    if isinstance(token, (yaml.StreamStartToken, yaml.StreamEndToken)):
         return
 
-    if (prev is None or isinstance(prev, yaml.StreamStartToken) or
-            isinstance(prev, yaml.DirectiveToken) or
-            isinstance(prev, yaml.DocumentStartToken)):
-        if token.start_mark.column != 0:
-            yield LintProblem(
-                token.end_mark.line + 1, token.start_mark.column + 1,
-                'found indentation of %d instead of %d' %
-                (token.start_mark.column, 0))
+    # Check if first token in line
+    if (not isinstance(prev, (yaml.StreamStartToken, yaml.DirectiveToken)) and
+            token.start_mark.line == prev.end_mark.line):
         return
 
-    if token.start_mark.line > prev.end_mark.line:
+    if token.start_mark.column % conf['spaces'] != 0:
+        yield LintProblem(
+            token.end_mark.line + 1, token.start_mark.column + 1,
+            'indentation is not a multiple of %d' % conf['spaces'])
+        return
+
+    if isinstance(prev, (yaml.StreamStartToken,
+                         yaml.DirectiveToken,
+                         yaml.DocumentStartToken,
+                         yaml.DocumentEndToken)):
+        indent = 0
+    else:
         buffer = prev.end_mark.buffer
-
         start = buffer.rfind('\n', 0, prev.end_mark.pointer) + 1
-        prev_indent = 0
 
-        # YAML recognizes two white space characters: space and tab.
-        # http://yaml.org/spec/1.2/spec.html#id2775170
-        while buffer[start + prev_indent] in ' \t':
-            prev_indent += 1
+        indent = 0
+        while buffer[start + indent] == ' ':
+            indent += 1
 
-        # Discard any leading '- '
-        if (buffer[start + prev_indent:start + prev_indent + 2] == '- '):
-            prev_indent += 2
-            while buffer[start + prev_indent] in ' \t':
-                prev_indent += 1
+    if token.start_mark.column > indent:
+        if not isinstance(prev, (yaml.BlockSequenceStartToken,
+                                 yaml.BlockMappingStartToken,
+                                 yaml.FlowSequenceStartToken,
+                                 yaml.FlowMappingStartToken,
+                                 yaml.KeyToken,
+                                 yaml.ValueToken)):
+            yield LintProblem(
+                token.end_mark.line + 1, token.start_mark.column + 1,
+                'unexpected indentation')
 
-        if (token.start_mark.column > prev_indent and
-                token.start_mark.column != prev_indent + conf['spaces']):
+        elif token.start_mark.column != indent + conf['spaces']:
             yield LintProblem(
                 token.end_mark.line + 1, token.start_mark.column + 1,
                 'found indentation of %d instead of %d' %
-                (token.start_mark.column, prev_indent + conf['spaces']))
+                (token.start_mark.column, indent + conf['spaces']))
