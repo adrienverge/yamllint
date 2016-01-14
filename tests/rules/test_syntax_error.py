@@ -29,3 +29,9 @@ class YamlLintTestCase(RuleTestCase):
                    'this is an error: [\n'
                    '\n'
                    '...\n', None, problem=(6, 1))
+
+    def test_directives(self):
+        self.check('%YAML 1.2\n'
+                   '%TAG ! tag:clarkevans.com,2002:\n'
+                   'doc: ument\n'
+                   '...\n', None, problem=(3, 1))

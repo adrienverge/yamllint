@@ -85,6 +85,20 @@ class DocumentStartTestCase(RuleTestCase):
                    'third: document\n', conf, problem=(4, 1))
 
     def test_directives(self):
-        # TODO
-        # %YAML 1.2
-        pass
+        conf = 'document-start: {present: yes}'
+        self.check('%YAML 1.2\n'
+                   '---\n'
+                   'doc: ument\n'
+                   '...\n', conf)
+        self.check('%YAML 1.2\n'
+                   '%TAG ! tag:clarkevans.com,2002:\n'
+                   '---\n'
+                   'doc: ument\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   'doc: 1\n'
+                   '...\n'
+                   '%YAML 1.2\n'
+                   '---\n'
+                   'doc: 2\n'
+                   '...\n', conf)

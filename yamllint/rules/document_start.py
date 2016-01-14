@@ -24,15 +24,14 @@ TYPE = 'token'
 CONF = {'present': bool}
 
 
-# TODO: Don't fail if document contains directives such as
-# %YAML 1.2
-
 def check(conf, token, prev, next):
     if conf['present']:
-        if ((isinstance(prev, yaml.StreamStartToken) or
-             isinstance(prev, yaml.DocumentEndToken)) and
-            not (isinstance(token, yaml.DocumentStartToken) or
-                 isinstance(token, yaml.StreamEndToken))):
+        if (isinstance(prev, (yaml.StreamStartToken,
+                              yaml.DocumentEndToken,
+                              yaml.DirectiveToken)) and
+            not isinstance(token, (yaml.DocumentStartToken,
+                                   yaml.DirectiveToken,
+                                   yaml.StreamEndToken))):
             yield LintProblem(token.start_mark.line + 1, 1,
                               'missing document start "---"')
 
