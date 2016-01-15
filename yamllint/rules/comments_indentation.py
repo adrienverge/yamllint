@@ -40,4 +40,4 @@ def check(conf, token, prev, next):
                                                skip_first_line=skip_first):
         if comment.column != token_indent + 1:
             yield LintProblem(comment.line, comment.column,
-                              'comment not intended like content')
+                              'comment not indented like content')
