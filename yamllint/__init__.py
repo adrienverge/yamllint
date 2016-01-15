@@ -76,10 +76,14 @@ def _lint(buffer, conf):
         # Insert the syntax error (if any) at the right place...
         if (syntax_error and syntax_error.line <= problem.line and
                 syntax_error.column <= problem.column):
-            # ... unless there is already a yamllint error, in which case the
-            # syntax error is probably redundant.
+            # ... unless there is already a yamllint error at the same place,
+            # in which case the syntax error is probably redundant.
+            # In such a case, the yamllint problem is preferred, except if its
+            # level is not 'error' (because the script needs to exit with a
+            # failure status, the syntax error is preferred here).
             if (syntax_error.line != problem.line or
-                    syntax_error.column != problem.column):
+                    syntax_error.column != problem.column or
+                    problem.level != 'error'):
                 yield syntax_error
             syntax_error = None
 
