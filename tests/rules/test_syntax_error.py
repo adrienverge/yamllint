@@ -35,3 +35,17 @@ class YamlLintTestCase(RuleTestCase):
                    '%TAG ! tag:clarkevans.com,2002:\n'
                    'doc: ument\n'
                    '...\n', None, problem=(3, 1))
+
+    def test_mapping_between_sequences(self):
+        # This is valid YAML. See http://www.yaml.org/spec/1.2/spec.html,
+        # example 2.11
+        self.check('---\n'
+                   '? - Detroit Tigers\n'
+                   '  - Chicago cubs\n'
+                   ':\n'
+                   '  - 2001-07-23\n'
+                   '\n'
+                   '? [New York Yankees,\n'
+                   '   Atlanta Braves]\n'
+                   ': [2001-07-02, 2001-08-12,\n'
+                   '   2001-08-14]\n', None)

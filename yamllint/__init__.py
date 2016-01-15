@@ -58,7 +58,7 @@ def get_costemic_problems(buffer, conf):
 
 def get_syntax_error(buffer):
     try:
-        list(yaml.safe_load_all(buffer))
+        list(yaml.parse(buffer))
     except yaml.error.MarkedYAMLError as e:
         problem = LintProblem(e.problem_mark.line + 1,
                               e.problem_mark.column + 1,
