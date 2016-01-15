@@ -24,7 +24,7 @@ TYPE = 'token'
 CONF = {'spaces': int}
 
 
-def check(conf, token, prev, next):
+def check(conf, token, prev, next, context):
     if isinstance(token, (yaml.StreamStartToken, yaml.StreamEndToken)):
         return
 

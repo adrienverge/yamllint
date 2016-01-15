@@ -37,7 +37,7 @@ TYPE = 'token'
 #     # commented line 2
 #     current: line
 
-def check(conf, token, prev, next):
+def check(conf, token, prev, next, context):
     if prev is None:
         return
 

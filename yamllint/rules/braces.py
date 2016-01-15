@@ -25,7 +25,7 @@ CONF = {'min-spaces-inside': int,
         'max-spaces-inside': int}
 
 
-def check(conf, token, prev, next):
+def check(conf, token, prev, next, context):
     if isinstance(token, yaml.FlowMappingStartToken):
         problem = spaces_after(token, prev, next,
                                min=conf['min-spaces-inside'],

@@ -25,7 +25,7 @@ CONF = {'max-spaces-before': int,
         'max-spaces-after': int}
 
 
-def check(conf, token, prev, next):
+def check(conf, token, prev, next, context):
     if isinstance(token, yaml.ValueToken):
         problem = spaces_before(token, prev, next,
                                 max=conf['max-spaces-before'],

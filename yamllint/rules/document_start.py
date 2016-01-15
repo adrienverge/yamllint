@@ -24,7 +24,7 @@ TYPE = 'token'
 CONF = {'present': bool}
 
 
-def check(conf, token, prev, next):
+def check(conf, token, prev, next, context):
     if conf['present']:
         if (isinstance(prev, (yaml.StreamStartToken,
                               yaml.DocumentEndToken,

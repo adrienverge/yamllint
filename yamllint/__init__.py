@@ -38,12 +38,17 @@ def get_costemic_problems(buffer, conf):
     token_rules = [r for r in rules if r.TYPE == 'token']
     line_rules = [r for r in rules if r.TYPE == 'line']
 
+    context = {}
+    for rule in token_rules:
+        context[rule.ID] = {}
+
     for elem in parser.token_or_line_generator(buffer):
         if isinstance(elem, parser.Token):
             for rule in token_rules:
                 rule_conf = conf[rule.ID]
                 for problem in rule.check(rule_conf,
-                                          elem.curr, elem.prev, elem.next):
+                                          elem.curr, elem.prev, elem.next,
+                                          context[rule.ID]):
                     problem.rule = rule.ID
                     problem.level = rule_conf['level']
                     yield problem

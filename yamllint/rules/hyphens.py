@@ -24,7 +24,7 @@ TYPE = 'token'
 CONF = {'max-spaces-after': int}
 
 
-def check(conf, token, prev, next):
+def check(conf, token, prev, next, context):
     if isinstance(token, yaml.BlockEntryToken):
         problem = spaces_after(token, prev, next,
                                max=conf['max-spaces-after'],
