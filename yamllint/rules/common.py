@@ -64,6 +64,16 @@ class Comment(object):
                 str(self) == str(other))
 
 
+def get_line_indent(token):
+    """Finds the indent of the line the token starts in."""
+    start = token.start_mark.buffer.rfind('\n', 0,
+                                          token.start_mark.pointer) + 1
+    content = start
+    while token.start_mark.buffer[content] == ' ':
+        content += 1
+    return content - start
+
+
 def get_comments_between_tokens(token1, token2, skip_first_line=False):
     if token2 is None:
         buf = token1.end_mark.buffer[token1.end_mark.pointer:]

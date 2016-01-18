@@ -88,15 +88,39 @@ class CommentsIndentationTestCase(RuleTestCase):
         self.check('---\n'
                    'obj1:\n'
                    '  a: 1\n'
-                   '  # comments\n'
+                   '  # the following line is disabled\n'
+                   '  # b: 2\n', conf)
+        self.check('---\n'
+                   'obj1:\n'
+                   '  a: 1\n'
+                   '  # b: 2\n'
                    '\n'
                    'obj2:\n'
-                   '  b: 2\n', conf, problem=(4, 3))
+                   '  b: 2\n', conf)
+        self.check('---\n'
+                   'obj1:\n'
+                   '  a: 1\n'
+                   '  # b: 2\n'
+                   '# this object is useless\n'
+                   'obj2: no\n', conf)
+        self.check('---\n'
+                   'obj1:\n'
+                   '  a: 1\n'
+                   '# this object is useless\n'
+                   '  # b: 2\n'
+                   'obj2: no\n', conf, problem=(5, 3))
         self.check('---\n'
                    'obj1:\n'
                    '  a: 1\n'
                    '  # comments\n'
                    '  b: 2\n', conf)
+        self.check('---\n'
+                   'mylist:\n'
+                   '  - todo 1\n'
+                   '  - todo 2\n'
+                   '  # commented for now\n'
+                   '  # - todo 3\n'
+                   '...\n', conf)
 
     def test_first_line(self):
         conf = 'comments-indentation: {}'

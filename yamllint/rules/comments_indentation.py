@@ -17,27 +17,48 @@
 import yaml
 
 from yamllint.errors import LintProblem
-from yamllint.rules.common import get_comments_between_tokens
+from yamllint.rules.common import get_line_indent, get_comments_between_tokens
 
 
 ID = 'comments-indentation'
 TYPE = 'token'
 
 
+# Case A:
+#
+#     prev: line:
+#       # commented line
+#       current: line
+#
+# Case B:
+#
+#       prev: line
+#       # commented line 1
+#     # commented line 2
+#     current: line
+
 def check(conf, token, prev, next):
     if prev is None:
         return
 
-    token_indent = token.start_mark.column
+    curr_line_indent = token.start_mark.column
     if isinstance(token, yaml.StreamEndToken):
-        token_indent = 0
+        curr_line_indent = 0
 
-    skip_first = True
+    skip_first_line = True
     if isinstance(prev, yaml.StreamStartToken):
-        skip_first = False
+        skip_first_line = False
+        prev_line_indent = 0
+    else:
+        prev_line_indent = get_line_indent(prev)
 
-    for comment in get_comments_between_tokens(prev, token,
-                                               skip_first_line=skip_first):
-        if comment.column != token_indent + 1:
+    if prev_line_indent <= curr_line_indent:
+        prev_line_indent = -1  # disable it
+
+    for comment in get_comments_between_tokens(
+            prev, token, skip_first_line=skip_first_line):
+        if comment.column - 1 == curr_line_indent:
+            prev_line_indent = -1  # disable it
+        elif comment.column - 1 != prev_line_indent:
             yield LintProblem(comment.line, comment.column,
                               'comment not indented like content')

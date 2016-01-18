@@ -18,10 +18,32 @@ import unittest
 
 import yaml
 
-from yamllint.rules.common import Comment, get_comments_between_tokens
+from yamllint.rules.common import (Comment, get_line_indent,
+                                   get_comments_between_tokens)
 
 
 class CommonTestCase(unittest.TestCase):
+    def test_get_line_indent(self):
+        tokens = list(yaml.scan('a: 1\n'
+                                'b:\n'
+                                '  - c: [2, 3, {d: 4}]\n'))
+
+        self.assertEqual(tokens[3].value, 'a')
+        self.assertEqual(tokens[5].value, '1')
+        self.assertEqual(tokens[7].value, 'b')
+        self.assertEqual(tokens[13].value, 'c')
+        self.assertEqual(tokens[16].value, '2')
+        self.assertEqual(tokens[18].value, '3')
+        self.assertEqual(tokens[22].value, 'd')
+        self.assertEqual(tokens[24].value, '4')
+
+        for i in (3, 5):
+            self.assertEqual(get_line_indent(tokens[i]), 0)
+        for i in (7,):
+            self.assertEqual(get_line_indent(tokens[i]), 0)
+        for i in (13, 16, 18, 22, 24):
+            self.assertEqual(get_line_indent(tokens[i]), 2)
+
     def check_comments(self, buffer, *expected):
         yaml_loader = yaml.BaseLoader(buffer)
 
