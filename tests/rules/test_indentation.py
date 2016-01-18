@@ -55,6 +55,11 @@ class IndentationTestCase(RuleTestCase):
                    '  - a\n'
                    '  - b\n'
                    ' k2: v2\n'
+                   ' k3:\n'
+                   '  - name: Unix\n'
+                   '    date: 1969\n'
+                   '  - name: Linux\n'
+                   '    date: 1991\n'
                    '...\n', conf)
 
     def test_two_spaces(self):
@@ -65,6 +70,11 @@ class IndentationTestCase(RuleTestCase):
                    '    - a\n'
                    '    - b\n'
                    '  k2: v2\n'
+                   '  k3:\n'
+                   '    - name: Unix\n'
+                   '      date: 1969\n'
+                   '    - name: Linux\n'
+                   '      date: 1991\n'
                    '...\n', conf)
 
     def test_three_spaces(self):
@@ -75,6 +85,11 @@ class IndentationTestCase(RuleTestCase):
                    '      - a\n'
                    '      - b\n'
                    '   k2: v2\n'
+                   '   k3:\n'
+                   '      - name: Unix\n'
+                   '        date: 1969\n'
+                   '      - name: Linux\n'
+                   '        date: 1991\n'
                    '...\n', conf)
 
     def test_under_indented(self):
@@ -88,6 +103,12 @@ class IndentationTestCase(RuleTestCase):
                    '  k1:\n'
                    '   - a\n'
                    '...\n', conf, problem=(4, 4))
+        self.check('---\n'
+                   'object:\n'
+                   '  k3:\n'
+                   '    - name: Unix\n'
+                   '     date: 1969\n'
+                   '...\n', conf, problem=(5, 6, 'syntax'))
         conf = 'indentation: {spaces: 4}'
         self.check('---\n'
                    'object:\n'
@@ -98,6 +119,12 @@ class IndentationTestCase(RuleTestCase):
                    '- el2:\n'
                    '   - subel\n'
                    '...\n', conf, problem=(4, 4))
+        self.check('---\n'
+                   'object:\n'
+                   '    k3:\n'
+                   '        - name: Linux\n'
+                   '         date: 1991\n'
+                   '...\n', conf, problem=(5, 10, 'syntax'))
 
     def test_over_indented(self):
         conf = 'indentation: {spaces: 2}'
@@ -110,6 +137,12 @@ class IndentationTestCase(RuleTestCase):
                    '  k1:\n'
                    '     - a\n'
                    '...\n', conf, problem=(4, 6))
+        self.check('---\n'
+                   'object:\n'
+                   '  k3:\n'
+                   '    - name: Unix\n'
+                   '       date: 1969\n'
+                   '...\n', conf, problem=(5, 12, 'syntax'))
         conf = 'indentation: {spaces: 4}'
         self.check('---\n'
                    'object:\n'
@@ -118,7 +151,7 @@ class IndentationTestCase(RuleTestCase):
         self.check('---\n'
                    ' object:\n'
                    '     val: 1\n'
-                   '...\n', conf, problem1=(2, 2), problem2=(3, 6))
+                   '...\n', conf, problem=(2, 2))
         self.check('---\n'
                    '- el1\n'
                    '- el2:\n'
@@ -134,7 +167,13 @@ class IndentationTestCase(RuleTestCase):
                    '  - el2:\n'
                    '    - subel\n'
                    '...\n', conf,
-                   problem1=(2, 3), problem2=(3, 3), problem3=(4, 5))
+                   problem=(2, 3))
+        self.check('---\n'
+                   'object:\n'
+                   '    k3:\n'
+                   '        - name: Linux\n'
+                   '           date: 1991\n'
+                   '...\n', conf, problem=(5, 16, 'syntax'))
 
     def test_multi_lines(self):
         self.check('---\n'
@@ -154,6 +193,19 @@ class IndentationTestCase(RuleTestCase):
                    '      blah bla bla\n'
                    '...\n', None)
 
+    def test_empty_value(self):
+        conf = 'indentation: {spaces: 2}'
+        self.check('---\n'
+                   'key1:\n'
+                   'key2: not empty\n'
+                   'key3:\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   '-\n'
+                   '- item 2\n'
+                   '-\n'
+                   '...\n', conf)
+
     def test_nested_collections(self):
         conf = 'indentation: {spaces: 2}'
         self.check('---\n'
@@ -171,16 +223,16 @@ class IndentationTestCase(RuleTestCase):
         conf = 'indentation: {spaces: 4}'
         self.check('---\n'
                    '- o:\n'
-                   '    k1: v1\n'
+                   '      k1: v1\n'
                    '...\n', conf)
-        self.check('---\n'
-                   '- o:\n'
-                   '   k1: v1\n'
-                   '...\n', conf, problem=(3, 4))
         self.check('---\n'
                    '- o:\n'
                    '     k1: v1\n'
                    '...\n', conf, problem=(3, 6))
+        self.check('---\n'
+                   '- o:\n'
+                   '       k1: v1\n'
+                   '...\n', conf, problem=(3, 8))
 
     def test_return(self):
         self.check('---\n'

@@ -31,12 +31,10 @@ rules:
     max-spaces-after: 1
   indentation:
     spaces: 2
+    # indent-sequences: no
   line-length:
     max: 80
   new-line-at-end-of-file: {level: error}
   new-lines:
     type: unix
-  #sequences-indentation:
-  #  level: warning
-  #  present: yes
   trailing-spaces: {}

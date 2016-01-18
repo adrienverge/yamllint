@@ -36,6 +36,24 @@ class YamlLintTestCase(RuleTestCase):
                    'doc: ument\n'
                    '...\n', None, problem=(3, 1))
 
+    def test_explicit_mapping(self):
+        self.check('---\n'
+                   '? key\n'
+                   ': - value 1\n'
+                   '  - value 2\n'
+                   '...\n', None)
+        self.check('---\n'
+                   '?\n'
+                   '  key\n'
+                   ': {a: 1}\n'
+                   '...\n', None)
+        self.check('---\n'
+                   '?\n'
+                   '  key\n'
+                   ':\n'
+                   '  val\n'
+                   '...\n', None)
+
     def test_mapping_between_sequences(self):
         # This is valid YAML. See http://www.yaml.org/spec/1.2/spec.html,
         # example 2.11
