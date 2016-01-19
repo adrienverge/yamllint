@@ -31,7 +31,7 @@ rules:
     max-spaces-after: 1
   indentation:
     spaces: 2
-    # indent-sequences: no
+    indent-sequences: yes
   line-length:
     max: 80
   new-line-at-end-of-file: {level: error}

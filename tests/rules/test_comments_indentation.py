@@ -115,7 +115,7 @@ class CommentsIndentationTestCase(RuleTestCase):
                    '  # comments\n'
                    '  b: 2\n', conf)
         self.check('---\n'
-                   'mylist:\n'
+                   'my list for today:\n'
                    '  - todo 1\n'
                    '  - todo 2\n'
                    '  # commented for now\n'

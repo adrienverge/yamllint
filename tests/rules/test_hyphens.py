@@ -36,12 +36,12 @@ class HyphenTestCase(RuleTestCase):
                    '- elem2\n', conf)
         self.check('---\n'
                    'object:\n'
-                   '- elem1\n'
-                   '-  elem2\n', conf)
+                   '  - elem1\n'
+                   '  -  elem2\n', conf)
         self.check('---\n'
                    'object:\n'
-                   '-  elem1\n'
-                   '-  elem2\n', conf)
+                   '  -  elem1\n'
+                   '  -  elem2\n', conf)
         self.check('---\n'
                    'object:\n'
                    '  subobject:\n'
@@ -69,12 +69,12 @@ class HyphenTestCase(RuleTestCase):
                    '- elem2\n', conf, problem=(2, 3))
         self.check('---\n'
                    'object:\n'
-                   '- elem1\n'
-                   '-  elem2\n', conf, problem=(4, 3))
+                   '  - elem1\n'
+                   '  -  elem2\n', conf, problem=(4, 5))
         self.check('---\n'
                    'object:\n'
-                   '-  elem1\n'
-                   '-  elem2\n', conf, problem1=(3, 3), problem2=(4, 3))
+                   '  -  elem1\n'
+                   '  -  elem2\n', conf, problem1=(3, 5), problem2=(4, 5))
         self.check('---\n'
                    'object:\n'
                    '  subobject:\n'

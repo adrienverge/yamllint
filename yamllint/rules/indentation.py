@@ -22,7 +22,8 @@ from yamllint.rules.common import is_explicit_key
 
 ID = 'indentation'
 TYPE = 'token'
-CONF = {'spaces': int}
+CONF = {'spaces': int,
+        'indent-sequences': (True, False, 'whatever')}
 
 ROOT, MAP, B_SEQ, F_SEQ, KEY, VAL = range(6)
 
@@ -164,16 +165,21 @@ def check(conf, token, prev, next, context):
                 # yaml.scan()ning this:
                 #     '- lib:\n'
                 #     '  - var\n'
-                if next.start_mark.column == context['stack'][-1].indent:
-                    #   key:
-                    #   - e1
-                    #   - e2
+                if conf['indent-sequences'] is False:
                     indent = context['stack'][-1].indent
-                else:
-                    #   key:
-                    #     - e1
-                    #     - e2
+                elif conf['indent-sequences'] is True:
                     indent = context['stack'][-1].indent + conf['spaces']
+                else:  # 'whatever'
+                    if next.start_mark.column == context['stack'][-1].indent:
+                        #   key:
+                        #   - e1
+                        #   - e2
+                        indent = context['stack'][-1].indent
+                    else:
+                        #   key:
+                        #     - e1
+                        #     - e2
+                        indent = context['stack'][-1].indent + conf['spaces']
             else:
                 #   k:
                 #     value
