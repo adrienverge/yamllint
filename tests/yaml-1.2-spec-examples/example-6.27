@@ -1,0 +1,4 @@
+%TAG !e! tag:example,2000:app/
+---
+- !e! foo
+- !h!bar baz
