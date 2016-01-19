@@ -83,10 +83,16 @@ def parse_config(content):
                     raise YamlLintConfigError(
                         'invalid config: unknown option "%s" for rule "%s"' %
                         (optkey, id))
-                if type(conf['rules'][id][optkey]) != options[optkey]:
-                    raise YamlLintConfigError(
-                        'invalid config: option "%s" of "%s" should be %s' %
-                        (optkey, id, options[optkey].__name__))
+                if type(options[optkey]) == tuple:
+                    if conf['rules'][id][optkey] not in options[optkey]:
+                        raise YamlLintConfigError(
+                            ('invalid config: option "%s" of "%s" should be '
+                             'in %s') % (optkey, id, options[optkey]))
+                else:
+                    if type(conf['rules'][id][optkey]) != options[optkey]:
+                        raise YamlLintConfigError(
+                            ('invalid config: option "%s" of "%s" should be '
+                             '%s' % (optkey, id, options[optkey].__name__)))
                 rules[id][optkey] = conf['rules'][id][optkey]
         else:
             raise YamlLintConfigError(('invalid config: rule "%s": should be '
