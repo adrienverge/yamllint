@@ -33,7 +33,7 @@ class RuleTestCase(unittest.TestCase):
                 'rules': conf}
         return parse_config(yaml.safe_dump(conf))
 
-    def check(self, source, conf, line=None, column=None, **kwargs):
+    def check(self, source, conf, **kwargs):
         expected_problems = []
         for key in kwargs:
             assert key.startswith('problem')
