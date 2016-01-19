@@ -16,7 +16,7 @@
 
 import yaml
 
-from yamllint.rules.common import spaces_after, spaces_before
+from yamllint.rules.common import spaces_after, spaces_before, is_explicit_key
 
 
 ID = 'colons'
@@ -36,5 +36,12 @@ def check(conf, token, prev, next, context):
         problem = spaces_after(token, prev, next,
                                max=conf['max-spaces-after'],
                                max_desc='too many spaces after colon')
+        if problem is not None:
+            yield problem
+
+    if isinstance(token, yaml.KeyToken) and is_explicit_key(token):
+        problem = spaces_after(token, prev, next,
+                               max=conf['max-spaces-after'],
+                               max_desc='too many spaces after question mark')
         if problem is not None:
             yield problem

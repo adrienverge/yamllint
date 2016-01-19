@@ -17,6 +17,7 @@
 import yaml
 
 from yamllint.errors import LintProblem
+from yamllint.rules.common import is_explicit_key
 
 
 ID = 'indentation'
@@ -128,16 +129,7 @@ def check(conf, token, prev, next, context):
 
         context['stack'].append(Parent(KEY, indent))
 
-        # explicit key:
-        #   ? key
-        #   : v
-        # or
-        #   ?
-        #     key
-        #   : v
-        context['stack'][-1].explicit_key = (
-           token.start_mark.pointer < token.end_mark.pointer and
-           token.start_mark.buffer[token.start_mark.pointer] == '?')
+        context['stack'][-1].explicit_key = is_explicit_key(token)
 
     if context['stack'][-1].type == VAL:
         context['stack'].pop()

@@ -101,3 +101,15 @@ def get_comments_between_tokens(token1, token2, skip_first_line=False):
         pointer += len(line) + 1
         line_no += 1
         column_no = 1
+
+
+def is_explicit_key(token):
+    # explicit key:
+    #   ? key
+    #   : v
+    # or
+    #   ?
+    #     key
+    #   : v
+    return (token.start_mark.pointer < token.end_mark.pointer and
+            token.start_mark.buffer[token.start_mark.pointer] == '?')

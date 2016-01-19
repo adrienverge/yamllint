@@ -152,6 +152,21 @@ class ColonTestCase(RuleTestCase):
                    'a: {b: {c:  d, e :  f}}\n', conf,
                    problem1=(2, 12), problem2=(2, 20))
 
+    def test_after_enabled_question_mark(self):
+        conf = 'colons: {max-spaces-before: -1, max-spaces-after: 1}'
+        self.check('---\n'
+                   '? key\n'
+                   ': value\n', conf)
+        self.check('---\n'
+                   '?  key\n'
+                   ': value\n', conf, problem=(2, 3))
+        self.check('---\n'
+                   '?  key\n'
+                   ':  value\n', conf, problem1=(2, 3), problem2=(3, 3))
+        self.check('---\n'
+                   '- ?  key\n'
+                   '  :  value\n', conf, problem1=(2, 5), problem2=(3, 5))
+
     def test_after_max(self):
         conf = 'colons: {max-spaces-before: -1, max-spaces-after: 3}'
         self.check('---\n'
