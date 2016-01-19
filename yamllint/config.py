@@ -46,7 +46,11 @@ def extend_config(content):
         if 'extends' in conf:
             base = parse_config_from_file(get_extended_conf(conf['extends']))
 
-            base.update(conf['rules'])
+            for rule in conf['rules']:
+                if type(conf['rules'][rule]) == dict and rule in base:
+                    base[rule].update(conf['rules'][rule])
+                else:
+                    base[rule] = conf['rules'][rule]
             conf['rules'] = base
 
         return conf
