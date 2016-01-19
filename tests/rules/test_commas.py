@@ -152,3 +152,36 @@ class CommaTestCase(RuleTestCase):
                    problem1=(2, 12), problem2=(2, 16), problem3=(2, 31),
                    problem4=(2, 36), problem5=(2, 50), problem6=(4, 8),
                    problem7=(5, 11), problem8=(8, 13))
+
+    def test_comma_on_new_line(self):
+        conf = 'commas: {max-spaces-before: 0, max-spaces-after: 1}'
+        self.check('---\n'
+                   'flow-seq: [1, 2, 3\n'
+                   '           , 4, 5, 6]\n'
+                   '...\n', conf, problem=(3, 11))
+        self.check('---\n'
+                   'flow-map: {a: 1, b: 2\n'
+                   '           , c: 3}\n'
+                   '...\n', conf, problem=(3, 11))
+        conf = ('commas: {max-spaces-before: 0, max-spaces-after: 1}\n'
+                'indentation: disable\n')
+        self.check('---\n'
+                   'flow-seq: [1, 2, 3\n'
+                   '         , 4, 5, 6]\n'
+                   '...\n', conf, problem=(3, 9))
+        self.check('---\n'
+                   'flow-map: {a: 1, b: 2\n'
+                   '         , c: 3}\n'
+                   '...\n', conf, problem=(3, 9))
+        self.check('---\n'
+                   '[\n'
+                   '1,\n'
+                   '2\n'
+                   ', 3\n'
+                   ']\n', conf, problem=(5, 1))
+        self.check('---\n'
+                   '{\n'
+                   'a: 1,\n'
+                   'b: 2\n'
+                   ', c: 3\n'
+                   '}\n', conf, problem=(5, 1))

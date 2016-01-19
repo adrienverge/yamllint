@@ -16,6 +16,7 @@
 
 import yaml
 
+from yamllint.errors import LintProblem
 from yamllint.rules.common import spaces_after, spaces_before
 
 
@@ -27,11 +28,16 @@ CONF = {'max-spaces-before': int,
 
 def check(conf, token, prev, next, context):
     if isinstance(token, yaml.FlowEntryToken):
-        problem = spaces_before(token, prev, next,
-                                max=conf['max-spaces-before'],
-                                max_desc='too many spaces before comma')
-        if problem is not None:
-            yield problem
+        if prev is not None and prev.end_mark.line < token.start_mark.line:
+            yield LintProblem(token.start_mark.line + 1,
+                              max(1, token.start_mark.column),
+                              'too many spaces before comma')
+        else:
+            problem = spaces_before(token, prev, next,
+                                    max=conf['max-spaces-before'],
+                                    max_desc='too many spaces before comma')
+            if problem is not None:
+                yield problem
 
         problem = spaces_after(token, prev, next,
                                max=conf['max-spaces-after'],
