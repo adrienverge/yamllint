@@ -82,7 +82,7 @@ class DocumentStartTestCase(RuleTestCase):
                    '...\n'
                    'second: document\n'
                    '---\n'
-                   'third: document\n', conf, problem=(4, 1))
+                   'third: document\n', conf, problem=(4, 1, 'syntax'))
 
     def test_directives(self):
         conf = 'document-start: {present: yes}'

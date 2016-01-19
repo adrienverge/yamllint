@@ -37,8 +37,15 @@ class RuleTestCase(unittest.TestCase):
         expected_problems = []
         for key in kwargs:
             assert key.startswith('problem')
+            if len(kwargs[key]) > 2:
+                if kwargs[key][2] == 'syntax':
+                    rule_id = None
+                else:
+                    rule_id = kwargs[key][2]
+            else:
+                rule_id = self.rule_id
             expected_problems.append(
-                LintProblem(kwargs[key][0], kwargs[key][1], rule=self.rule_id))
+                LintProblem(kwargs[key][0], kwargs[key][1], rule=rule_id))
         expected_problems.sort()
 
         real_problems = list(lint(source, self.build_fake_config(conf)))

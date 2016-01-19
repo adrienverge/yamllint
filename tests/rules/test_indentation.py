@@ -163,7 +163,7 @@ class IndentationTestCase(RuleTestCase):
         self.check('---\n'
                    '- o:\n'
                    ' k1: v1\n'
-                   '...\n', conf, problem=(3, 2))
+                   '...\n', conf, problem=(3, 2, 'syntax'))
         self.check('---\n'
                    '- o:\n'
                    '   k1: v1\n'
@@ -192,18 +192,18 @@ class IndentationTestCase(RuleTestCase):
                    '      f:\n'
                    'g:\n'
                    '...\n', None)
-        # self.check('---\n'
-        #            'a:\n'
-        #            '  b:\n'
-        #            '    c:\n'
-        #            '   d:\n'
-        #            '...\n', None, problem=(5, 5))
-        # self.check('---\n'
-        #            'a:\n'
-        #            '  b:\n'
-        #            '    c:\n'
-        #            ' d:\n'
-        #            '...\n', None, problem=(5, 2))
+        self.check('---\n'
+                   'a:\n'
+                   '  b:\n'
+                   '    c:\n'
+                   '   d:\n'
+                   '...\n', None, problem=(5, 4, 'syntax'))
+        self.check('---\n'
+                   'a:\n'
+                   '  b:\n'
+                   '    c:\n'
+                   ' d:\n'
+                   '...\n', None, problem=(5, 2, 'syntax'))
 
     def test_first_line(self):
         conf = ('indentation: {spaces: 2}\n'
