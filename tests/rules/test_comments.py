@@ -131,3 +131,19 @@ class CommentsTestCase(RuleTestCase):
                 '  require-starting-space: yes\n'
                 '  min-spaces-from-content: 2\n')
         self.check('# comment\n', conf)
+
+    def test_multi_line_scalar(self):
+        conf = ('comments:\n'
+                '  require-starting-space: yes\n'
+                '  min-spaces-from-content: 2\n'
+                'trailing-spaces: disable\n')
+        self.check('---\n'
+                   'string: >\n'
+                   '  this is plain text\n'
+                   '\n'
+                   '# comment\n', conf)
+        self.check('---\n'
+                   '- string: >\n'
+                   '    this is plain text\n'
+                   '  \n'
+                   '  # comment\n', conf)

@@ -30,11 +30,13 @@ def check(conf, token, prev, next, context):
     for comment in get_comments_between_tokens(token, next):
         if (conf['min-spaces-from-content'] != -1 and
                 not isinstance(token, yaml.StreamStartToken) and
-                comment.line == token.end_mark.line + 1 and
-                comment.pointer - token.end_mark.pointer <
-                conf['min-spaces-from-content']):
-            yield LintProblem(comment.line, comment.column,
-                              'too few spaces before comment')
+                comment.line == token.end_mark.line + 1):
+            # Sometimes token end marks are on the next line
+            if token.end_mark.buffer[token.end_mark.pointer - 1] != '\n':
+                if (comment.pointer - token.end_mark.pointer <
+                        conf['min-spaces-from-content']):
+                    yield LintProblem(comment.line, comment.column,
+                                      'too few spaces before comment')
 
         if (conf['require-starting-space'] and
                 comment.pointer + 1 < len(comment.buffer) and
