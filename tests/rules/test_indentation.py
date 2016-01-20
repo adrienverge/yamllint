@@ -452,3 +452,39 @@ class IndentationTestCase(RuleTestCase):
                    '   2,\n'
                    ' 3\n'
                    ']\n', conf, problem1=(4, 4), problem2=(5, 2))
+
+    def test_explicit_block_mappings(self):
+        conf = 'indentation: {spaces: 4}'
+        self.check('---\n'
+                   'object:\n'
+                   '    ? key\n'
+                   '    :\n'
+                   '        value\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   'object:\n'
+                   '    ? key\n'
+                   '    :\n'
+                   '       value\n'
+                   '...\n', conf, problem=(5, 8))
+        self.check('---\n'
+                   'object:\n'
+                   '    ?\n'
+                   '        key\n'
+                   '    :\n'
+                   '        value\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   'object:\n'
+                   '    ?\n'
+                   '       key\n'
+                   '    :\n'
+                   '         value\n'
+                   '...\n', conf, problem1=(4, 8), problem2=(6, 10))
+        self.check('---\n'
+                   'object:\n'
+                   '    ?\n'
+                   '         key\n'
+                   '    :\n'
+                   '       value\n'
+                   '...\n', conf, problem1=(4, 10), problem2=(6, 8))
