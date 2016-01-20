@@ -118,7 +118,7 @@ class ColonTestCase(RuleTestCase):
                    '...\n', conf, problem=(3, 8))
 
     def test_before_with_explicit_block_mappings(self):
-        conf = 'colons: {max-spaces-before: 0, max-spaces-after: -1}'
+        conf = 'colons: {max-spaces-before: 0, max-spaces-after: 1}'
         self.check('---\n'
                    'object:\n'
                    '  ? key\n'
@@ -129,6 +129,30 @@ class ColonTestCase(RuleTestCase):
                    '  ? key\n'
                    '  : value\n'
                    '...\n', conf, problem=(2, 7))
+        self.check('---\n'
+                   '? >\n'
+                   '    multi-line\n'
+                   '    key\n'
+                   ': >\n'
+                   '    multi-line\n'
+                   '    value\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   '- ? >\n'
+                   '      multi-line\n'
+                   '      key\n'
+                   '  : >\n'
+                   '      multi-line\n'
+                   '      value\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   '- ? >\n'
+                   '      multi-line\n'
+                   '      key\n'
+                   '  :  >\n'
+                   '       multi-line\n'
+                   '       value\n'
+                   '...\n', conf, problem=(5, 5))
 
     def test_after_enabled(self):
         conf = 'colons: {max-spaces-before: -1, max-spaces-after: 1}'
