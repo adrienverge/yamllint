@@ -14,12 +14,16 @@ yamllint my_file.yml my_other_file.yaml ...
 ```
 
 ```sh
-yamllint -c ~/myconfig my_file.yml
+yamllint .
+```
+
+```sh
+yamllint -c ~/myconfig file.yml
 ```
 
 ```sh
 # To output a format parsable (by editors like Vim, emacs, etc.)
-yamllint -f parsable my_file.yml
+yamllint -f parsable file.yml
 ```
 
 ## Installation

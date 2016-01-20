@@ -27,6 +27,17 @@ from yamllint.errors import YamlLintConfigError
 from yamllint import lint
 
 
+def find_files_recursively(items):
+    for item in items:
+        if os.path.isdir(item):
+            for root, dirnames, filenames in os.walk(item):
+                for filename in [f for f in filenames
+                                 if f.endswith(('.yml', '.yaml'))]:
+                    yield os.path.join(root, filename)
+        else:
+            yield item
+
+
 class Format(object):
     @staticmethod
     def parsable(problem, filename):
@@ -55,7 +66,7 @@ class Format(object):
 def run(argv):
     parser = argparse.ArgumentParser(prog=APP_NAME,
                                      description=APP_DESCRIPTION)
-    parser.add_argument('files', metavar='FILES', nargs='+',
+    parser.add_argument('files', metavar='FILE_OR_DIR', nargs='+',
                         help='files to check')
     parser.add_argument('-c', '--config', dest='config_file', action='store',
                         help='path to a custom configuration')
@@ -82,7 +93,7 @@ def run(argv):
 
     return_code = 0
 
-    for file in args.files:
+    for file in find_files_recursively(args.files):
         if args.format != 'parsable':
             print('\033[4m%s\033[0m' % file)
 
