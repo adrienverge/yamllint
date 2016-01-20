@@ -35,6 +35,72 @@ class Parent(object):
         self.explicit_key = False
 
 
+def check_scalar_indentation(conf, token, context):
+    if token.start_mark.line == token.end_mark.line:
+        return
+
+    if token.plain:
+        expected_indent = token.start_mark.column
+    elif token.style in ('"', "'"):
+        expected_indent = token.start_mark.column + 1
+    elif token.style in ('>', '|'):
+        if context['stack'][-1].type == B_SEQ:
+            # - >
+            #     multi
+            #     line
+            expected_indent = token.start_mark.column + conf['spaces']
+        elif context['stack'][-1].type == KEY:
+            assert context['stack'][-1].explicit_key
+            # - ? >
+            #       multi-line
+            #       key
+            #   : >
+            #       multi-line
+            #       value
+            expected_indent = token.start_mark.column + conf['spaces']
+        elif context['stack'][-1].type == VAL:
+            if token.start_mark.line + 1 > context['cur_line']:
+                # - key:
+                #     >
+                #       multi
+                #       line
+                expected_indent = context['stack'][-1].indent + conf['spaces']
+            elif context['stack'][-2].explicit_key:
+                # - ? key
+                #   : >
+                #       multi-line
+                #       value
+                expected_indent = token.start_mark.column + conf['spaces']
+            else:
+                # - key: >
+                #     multi
+                #     line
+                expected_indent = context['stack'][-2].indent + conf['spaces']
+        else:
+            expected_indent = context['stack'][-1].indent + conf['spaces']
+
+    line_no = token.start_mark.line + 1
+
+    line_start = token.start_mark.pointer
+    while True:
+        line_start = token.start_mark.buffer.find(
+            '\n', line_start, token.end_mark.pointer - 1) + 1
+        if line_start == 0:
+            break
+        line_no += 1
+
+        indent = 0
+        while token.start_mark.buffer[line_start + indent] == ' ':
+            indent += 1
+        if token.start_mark.buffer[line_start + indent] == '\n':
+            continue
+
+        if indent != expected_indent:
+            yield LintProblem(line_no, indent + 1,
+                              'wrong indentation: expected %d but found %d' %
+                              (expected_indent, indent))
+
+
 def check(conf, token, prev, next, context):
     if 'stack' not in context:
         context['stack'] = [Parent(ROOT, 0)]
@@ -42,11 +108,13 @@ def check(conf, token, prev, next, context):
 
     # Step 1: Lint
 
-    if (not isinstance(token, (yaml.StreamStartToken, yaml.StreamEndToken)) and
-            not isinstance(token, yaml.BlockEndToken) and
-            not (isinstance(token, yaml.ScalarToken) and token.value == '') and
-            token.start_mark.line + 1 > context['cur_line']):
+    needs_lint = (
+        not isinstance(token, (yaml.StreamStartToken, yaml.StreamEndToken)) and
+        not isinstance(token, yaml.BlockEndToken) and
+        not (isinstance(token, yaml.ScalarToken) and token.value == '') and
+        token.start_mark.line + 1 > context['cur_line'])
 
+    if needs_lint:
         found_indentation = token.start_mark.column
         expected = context['stack'][-1].indent
 
@@ -63,10 +131,17 @@ def check(conf, token, prev, next, context):
                               'wrong indentation: expected %d but found %d' %
                               (expected, found_indentation))
 
+    if isinstance(token, yaml.ScalarToken):
+        for problem in check_scalar_indentation(conf, token, context):
+            yield problem
+
+    # Step 2.a:
+
+    if needs_lint:
         context['cur_line_indent'] = found_indentation
         context['cur_line'] = token.end_mark.line + 1
 
-    # Step 2: Update state
+    # Step 2.b: Update state
 
     if isinstance(token, yaml.BlockMappingStartToken):
         assert isinstance(next, yaml.KeyToken)

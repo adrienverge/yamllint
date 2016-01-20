@@ -488,3 +488,234 @@ class IndentationTestCase(RuleTestCase):
                    '    :\n'
                    '       value\n'
                    '...\n', conf, problem1=(4, 10), problem2=(6, 8))
+
+
+class ScalarIndentationTestCase(RuleTestCase):
+    rule_id = 'indentation'
+
+    def test_basics_plain(self):
+        conf = ('indentation: {spaces: 2}\n'
+                'document-start: disable\n')
+        self.check('multi\n'
+                   'line\n', conf)
+        self.check('multi\n'
+                   ' line\n', conf, problem=(2, 2))
+        self.check('- multi\n'
+                   '  line\n', conf)
+        self.check('- multi\n'
+                   '   line\n', conf, problem=(2, 4))
+        self.check('a key: multi\n'
+                   '       line\n', conf)
+        self.check('a key: multi\n'
+                   '        line\n', conf, problem=(2, 9))
+        self.check('a key:\n'
+                   '  multi\n'
+                   '  line\n', conf)
+        self.check('a key:\n'
+                   '  multi\n'
+                   '   line\n', conf, problem=(3, 4))
+
+    def test_basics_quoted(self):
+        conf = ('indentation: {spaces: 2}\n'
+                'document-start: disable\n')
+        self.check('"multi\n'
+                   ' line"\n', conf)
+        self.check('"multi\n'
+                   'line"\n', conf, problem=(2, 1))
+        self.check('"multi\n'
+                   '  line"\n', conf, problem=(2, 3))
+        self.check('- "multi\n'
+                   '   line"\n', conf)
+        self.check('- "multi\n'
+                   '  line"\n', conf, problem=(2, 3))
+        self.check('- "multi\n'
+                   '    line"\n', conf, problem=(2, 5))
+        self.check('a key: "multi\n'
+                   '        line"\n', conf)
+        self.check('a key: "multi\n'
+                   '       line"\n', conf, problem=(2, 8))
+        self.check('a key: "multi\n'
+                   '         line"\n', conf, problem=(2, 10))
+        self.check('a key:\n'
+                   '  "multi\n'
+                   '   line"\n', conf)
+        self.check('a key:\n'
+                   '  "multi\n'
+                   '  line"\n', conf, problem=(3, 3))
+        self.check('a key:\n'
+                   '  "multi\n'
+                   '    line"\n', conf, problem=(3, 5))
+
+    def test_basics_folded_style(self):
+        conf = ('indentation: {spaces: 2}\n'
+                'document-start: disable\n')
+        self.check('>\n'
+                   '  multi\n'
+                   '  line\n', conf)
+        self.check('- >\n'
+                   '    multi\n'
+                   '    line\n', conf)
+        self.check('- key: >\n'
+                   '    multi\n'
+                   '    line\n', conf)
+        self.check('- key:\n'
+                   '    >\n'
+                   '      multi\n'
+                   '      line\n', conf)
+        self.check('- ? >\n'
+                   '      multi-line\n'
+                   '      key\n'
+                   '  : >\n'
+                   '      multi-line\n'
+                   '      value\n', conf)
+        self.check('- ?\n'
+                   '    >\n'
+                   '      multi-line\n'
+                   '      key\n'
+                   '  :\n'
+                   '    >\n'
+                   '      multi-line\n'
+                   '      value\n', conf)
+
+    def test_basics_literal_style(self):
+        conf = ('indentation: {spaces: 2}\n'
+                'document-start: disable\n')
+        self.check('|\n'
+                   '  multi\n'
+                   '  line\n', conf)
+        self.check('- |\n'
+                   '    multi\n'
+                   '    line\n', conf)
+        self.check('- key: |\n'
+                   '    multi\n'
+                   '    line\n', conf)
+        self.check('- key:\n'
+                   '    |\n'
+                   '      multi\n'
+                   '      line\n', conf)
+        self.check('- ? |\n'
+                   '      multi-line\n'
+                   '      key\n'
+                   '  : |\n'
+                   '      multi-line\n'
+                   '      value\n', conf)
+        self.check('- ?\n'
+                   '    |\n'
+                   '      multi-line\n'
+                   '      key\n'
+                   '  :\n'
+                   '    |\n'
+                   '      multi-line\n'
+                   '      value\n', conf)
+
+    # The following "paragraph" examples are inspired from
+    # http://stackoverflow.com/questions/3790454/in-yaml-how-do-i-break-a-string-over-multiple-lines
+
+    def test_paragraph_plain(self):
+        conf = ('indentation: {spaces: 2}\n'
+                'document-start: disable\n')
+        self.check('- long text: very "long"\n'
+                   '             \'string\' with\n'
+                   '\n'
+                   '             paragraph gap, \\n and\n'
+                   '             spaces.\n', conf)
+        self.check('- long text: very "long"\n'
+                   '    \'string\' with\n'
+                   '\n'
+                   '    paragraph gap, \\n and\n'
+                   '    spaces.\n', conf,
+                   problem1=(2, 5), problem2=(4, 5), problem3=(5, 5))
+        self.check('- long text:\n'
+                   '    very "long"\n'
+                   '    \'string\' with\n'
+                   '\n'
+                   '    paragraph gap, \\n and\n'
+                   '    spaces.\n', conf)
+
+    def test_paragraph_double_quoted(self):
+        conf = ('indentation: {spaces: 2}\n'
+                'document-start: disable\n')
+        self.check('- long text: "very \\"long\\"\n'
+                   '              \'string\' with\n'
+                   '\n'
+                   '              paragraph gap, \\n and\n'
+                   '              spaces."\n', conf)
+        self.check('- long text: "very \\"long\\"\n'
+                   '    \'string\' with\n'
+                   '\n'
+                   '    paragraph gap, \\n and\n'
+                   '    spaces."\n', conf,
+                   problem1=(2, 5), problem2=(4, 5), problem3=(5, 5))
+        self.check('- long text: "very \\"long\\"\n'
+                   '\'string\' with\n'
+                   '\n'
+                   'paragraph gap, \\n and\n'
+                   'spaces."\n', conf,
+                   problem1=(2, 1), problem2=(4, 1), problem3=(5, 1))
+        self.check('- long text:\n'
+                   '    "very \\"long\\"\n'
+                   '     \'string\' with\n'
+                   '\n'
+                   '     paragraph gap, \\n and\n'
+                   '     spaces."\n', conf)
+
+    def test_paragraph_single_quoted(self):
+        conf = ('indentation: {spaces: 2}\n'
+                'document-start: disable\n')
+        self.check('- long text: \'very "long"\n'
+                   '              \'\'string\'\' with\n'
+                   '\n'
+                   '              paragraph gap, \\n and\n'
+                   '              spaces.\'\n', conf)
+        self.check('- long text: \'very "long"\n'
+                   '    \'\'string\'\' with\n'
+                   '\n'
+                   '    paragraph gap, \\n and\n'
+                   '    spaces.\'\n', conf,
+                   problem1=(2, 5), problem2=(4, 5), problem3=(5, 5))
+        self.check('- long text: \'very "long"\n'
+                   '\'\'string\'\' with\n'
+                   '\n'
+                   'paragraph gap, \\n and\n'
+                   'spaces.\'\n', conf,
+                   problem1=(2, 1), problem2=(4, 1), problem3=(5, 1))
+        self.check('- long text:\n'
+                   '    \'very "long"\n'
+                   '     \'\'string\'\' with\n'
+                   '\n'
+                   '     paragraph gap, \\n and\n'
+                   '     spaces.\'\n', conf)
+
+    def test_paragraph_folded(self):
+        conf = ('indentation: {spaces: 2}\n'
+                'document-start: disable\n')
+        self.check('- long text: >\n'
+                   '    very "long"\n'
+                   '    \'string\' with\n'
+                   '\n'
+                   '    paragraph gap, \\n and\n'
+                   '    spaces.\n', conf)
+        self.check('- long text: >\n'
+                   '    very "long"\n'
+                   '     \'string\' with\n'
+                   '\n'
+                   '      paragraph gap, \\n and\n'
+                   '       spaces.\n', conf,
+                   problem1=(3, 6), problem2=(5, 7), problem3=(6, 8))
+
+    def test_paragraph_literal(self):
+        conf = ('indentation: {spaces: 2}\n'
+                'document-start: disable\n')
+        self.check('- long text: |\n'
+                   '    very "long"\n'
+                   '    \'string\' with\n'
+                   '\n'
+                   '    paragraph gap, \\n and\n'
+                   '    spaces.\n', conf)
+        self.check('- long text: |\n'
+                   '    very "long"\n'
+                   '     \'string\' with\n'
+                   '\n'
+                   '      paragraph gap, \\n and\n'
+                   '       spaces.\n', conf,
+                   problem1=(3, 6), problem2=(5, 7), problem3=(6, 8))
