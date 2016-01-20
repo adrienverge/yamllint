@@ -94,24 +94,26 @@ def run(argv):
     return_code = 0
 
     for file in find_files_recursively(args.files):
-        if args.format != 'parsable':
-            print('\033[4m%s\033[0m' % file)
-
         try:
+            first = True
             with open(file) as f:
                 for problem in lint(f, conf):
                     if args.format == 'parsable':
                         print(Format.parsable(problem, file))
                     else:
+                        if first:
+                            print('\033[4m%s\033[0m' % file)
+                            first = False
+
                         print(Format.standard(problem, file))
 
                     if return_code == 0 and problem.level == 'error':
                         return_code = 1
+
+            if not first and args.format != 'parsable':
+                print('')
         except EnvironmentError as e:
             print(e)
             return_code = -1
-
-        if args.format != 'parsable':
-            print('')
 
     sys.exit(return_code)
