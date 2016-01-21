@@ -25,8 +25,8 @@ APP_NAME = 'yamllint'
 APP_VERSION = '0.4.0'
 APP_DESCRIPTION = 'A linter for YAML files.'
 
-__author__ = 'Adrien Vergé'
-__copyright__ = 'Copyright 2016, Adrien Vergé'
+__author__ = u'Adrien Vergé'
+__copyright__ = u'Copyright 2016, Adrien Vergé'
 __license__ = 'GPLv3'
 __version__ = APP_VERSION
 
