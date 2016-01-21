@@ -19,7 +19,7 @@ from yamllint.errors import LintProblem
 
 ID = 'new-lines'
 TYPE = 'line'
-CONF = {'type': str}
+CONF = {'type': ('unix', 'dos')}
 
 
 def check(conf, line):
