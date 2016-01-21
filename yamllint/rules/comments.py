@@ -14,6 +14,47 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Use this rule to control the position and formatting of comments.
+
+.. rubric:: Options
+
+* Use ``require-starting-space`` to require a space character right after the
+  ``#``. Set to ``yes`` to enable, ``no`` to disable.
+* ``min-spaces-from-content`` is used to visually separate inline comments from
+  content. It defines the minimal required number of spaces between a comment
+  and its preceding content.
+
+.. rubric:: Examples
+
+#. With ``comments: {require-starting-space: yes}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    # This sentence
+    # is a block comment
+
+   the following code snippet would **FAIL**:
+   ::
+
+    #This sentence
+    #is a block comment
+
+#. With ``comments: {min-spaces-from-content: 2}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    x = 2 ^ 127 - 1  # Mersenne prime number
+
+   the following code snippet would **FAIL**:
+   ::
+
+    x = 2 ^ 127 - 1 # Mersenne prime number
+"""
+
+
 import yaml
 
 from yamllint.errors import LintProblem

@@ -14,6 +14,67 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Use this rule to force comments to be indented like content.
+
+.. rubric:: Examples
+
+#. With ``comments-indentation: {}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    # Fibonacci
+    [0, 1, 1, 2, 3, 5]
+
+   the following code snippet would **FAIL**:
+   ::
+
+      # Fibonacci
+    [0, 1, 1, 2, 3, 5]
+
+   the following code snippet would **PASS**:
+   ::
+
+    list:
+        - 2
+        - 3
+        # - 4
+        - 5
+
+   the following code snippet would **FAIL**:
+   ::
+
+    list:
+        - 2
+        - 3
+    #    - 4
+        - 5
+
+   the following code snippet would **PASS**:
+   ::
+
+    # This is the first object
+    obj1:
+      - item A
+      # - item B
+    # This is the second object
+    obj2: []
+
+   the following code snippet would **PASS**:
+   ::
+
+    # This sentence
+    # is a block comment
+
+   the following code snippet would **FAIL**:
+   ::
+
+    # This sentence
+     # is a block comment
+"""
+
+
 import yaml
 
 from yamllint.errors import LintProblem

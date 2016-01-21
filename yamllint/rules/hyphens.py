@@ -14,6 +14,60 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Use this rule to control the number of spaces after hyphens (``-``).
+
+.. rubric:: Options
+
+* ``max-spaces-after`` defines the maximal number of spaces allowed after
+  hyphens.
+
+.. rubric:: Examples
+
+#. With ``hyphens: {max-spaces-after: 1}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    - first list:
+        - a
+        - b
+    - - 1
+      - 2
+      - 3
+
+   the following code snippet would **FAIL**:
+   ::
+
+    -  first list:
+         - a
+         - b
+
+   the following code snippet would **FAIL**:
+   ::
+
+    - - 1
+      -  2
+      - 3
+
+#. With ``hyphens: {max-spaces-after: 3}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    -   key
+    -  key2
+    - key42
+
+   the following code snippet would **FAIL**:
+   ::
+
+    -    key
+    -   key2
+    -  key42
+"""
+
+
 import yaml
 
 from yamllint.rules.common import spaces_after

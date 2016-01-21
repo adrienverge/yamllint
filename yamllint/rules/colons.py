@@ -14,6 +14,62 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Use this rule to control the number of spaces before and after colons (``:``).
+
+.. rubric:: Options
+
+* ``max-spaces-before`` defines the maximal number of spaces allowed before
+  colons (use ``-1`` to disable).
+* ``max-spaces-after`` defines the maximal number of spaces allowed after
+  colons (use ``-1`` to disable).
+
+.. rubric:: Examples
+
+#. With ``colons: {max-spaces-before: 0, max-spaces-after: 1}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    object:
+      - a
+      - b
+    key: value
+
+#. With ``colons: {max-spaces-before: 1}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    object :
+      - a
+      - b
+
+   the following code snippet would **FAIL**:
+   ::
+
+    object  :
+      - a
+      - b
+
+#. With ``colons: {max-spaces-after: 2}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    first:  1
+    second: 2
+    third:  3
+
+   the following code snippet would **FAIL**:
+   ::
+
+    first: 1
+    2nd:   2
+    third: 3
+"""
+
+
 import yaml
 
 from yamllint.rules.common import spaces_after, spaces_before, is_explicit_key

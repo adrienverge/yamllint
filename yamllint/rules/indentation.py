@@ -14,6 +14,122 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Use this rule to control the indentation.
+
+.. rubric:: Options
+
+* ``spaces`` defines the number of spaces that represent an indentation level.
+* ``indent-sequences`` defines whether block sequences should be indented or
+  not (when in a mapping, this indentation is not mandatory -- some people
+  perceive the ``-`` as part of the indentation). Possible values: ``yes``,
+  ``no`` and ``whatever`` (the latter means either indenting or not indenting
+  block sequences is OK.
+* ``check-multi-line-strings`` defines whether to lint indentation in
+  multi-line strings. Set to ``yes`` to enable, ``no`` to disable.
+
+.. rubric:: Examples
+
+#. With ``indentation: {spaces: 1}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    history:
+     - name: Unix
+       date: 1969
+     - name: Linux
+       date: 1991
+    nest:
+     recurse:
+      - haystack:
+         needle
+
+#. With ``indentation: {spaces: 4}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    history:
+        - name: Unix
+          date: 1969
+        - name: Linux
+          date: 1991
+    nest:
+        recurse:
+            - haystack:
+                  needle
+
+   the following code snippet would **FAIL**:
+   ::
+
+    history:
+      - name: Unix
+        date: 1969
+      - name: Linux
+        date: 1991
+    nest:
+      recurse:
+        - haystack:
+            needle
+
+#. With ``indentation: {spaces: 2, indent-sequences: no}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    list:
+    - flying
+    - spaghetti
+    - monster
+
+   the following code snippet would **FAIL**:
+   ::
+
+    list:
+      - flying
+      - spaghetti
+      - monster
+
+#. With ``indentation: {spaces: 2, indent-sequences: whatever}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    list:
+    - flying:
+      - spaghetti
+      - monster
+    - not flying:
+        - spaghetti
+        - sauce
+
+#. With ``indentation: {spaces: 4, check-multi-line-strings: yes}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    Blaise Pascal:
+        Je vous écris une longue lettre parce que
+        je n'ai pas le temps d'en écrire une courte.
+
+   the following code snippet would **FAIL**:
+   ::
+
+    C code:
+        void main() {
+            printf("foo");
+        }
+
+   the following code snippet would **PASS**:
+   ::
+
+    C code:
+        void main() {
+        printf("bar");
+        }
+"""
+
 import yaml
 
 from yamllint.errors import LintProblem

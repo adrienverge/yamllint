@@ -14,6 +14,66 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Use this rule to require or forbid the use of document end marker (``...``).
+
+.. rubric:: Options
+
+* Set ``present`` to ``yes`` when the document end marker is required, or to
+  ``no`` when it is forbidden.
+
+.. rubric:: Examples
+
+#. With ``document-end: {present: yes}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    ---
+    this:
+      is: [a, document]
+    ...
+    ---
+    - this
+    - is: another one
+    ...
+
+   the following code snippet would **FAIL**:
+   ::
+
+    ---
+    this:
+      is: [a, document]
+    ---
+    - this
+    - is: another one
+    ...
+
+#. With ``document-end: {present: no}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    ---
+    this:
+      is: [a, document]
+    ---
+    - this
+    - is: another one
+
+   the following code snippet would **FAIL**:
+   ::
+
+    ---
+    this:
+      is: [a, document]
+    ...
+    ---
+    - this
+    - is: another one
+"""
+
+
 import yaml
 
 from yamllint.errors import LintProblem

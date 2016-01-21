@@ -14,6 +14,55 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Use this rule to control the number of spaces inside brackets (``[`` and
+``]``).
+
+.. rubric:: Options
+
+* ``min-spaces-inside`` defines the minimal number of spaces required inside
+  brackets.
+* ``max-spaces-inside`` defines the maximal number of spaces allowed inside
+  brackets.
+
+.. rubric:: Examples
+
+#. With ``brackets: {min-spaces-inside: 0, max-spaces-inside: 0}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    object: [1, 2, abc]
+
+   the following code snippet would **FAIL**:
+   ::
+
+    object: [ 1, 2, abc ]
+
+#. With ``brackets: {min-spaces-inside: 1, max-spaces-inside: 3}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    object: [ 1, 2, abc ]
+
+   the following code snippet would **PASS**:
+   ::
+
+    object: [ 1, 2, abc   ]
+
+   the following code snippet would **FAIL**:
+   ::
+
+    object: [    1, 2, abc   ]
+
+   the following code snippet would **FAIL**:
+   ::
+
+    object: [1, 2, abc ]
+"""
+
+
 import yaml
 
 from yamllint.rules.common import spaces_after, spaces_before

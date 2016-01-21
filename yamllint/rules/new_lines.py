@@ -14,6 +14,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Use this rule to force the type of new line characters.
+
+.. rubric:: Options
+
+* Set ``type`` to ``unix`` to use UNIX-typed new line characters (``\\n``), or
+  ``dos`` to use DOS-typed new line characters (``\\r\\n``).
+"""
+
+
 from yamllint.errors import LintProblem
 
 

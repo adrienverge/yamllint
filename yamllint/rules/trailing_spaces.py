@@ -14,6 +14,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Use this rule to forbid trailing spaces at the end of lines.
+
+.. rubric:: Examples
+
+#. With ``trailing-spaces: {}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    this document doesn't contain
+    any trailing
+    spaces
+
+   the following code snippet would **FAIL**:
+   ::
+
+    this document contains     """ """
+    trailing spaces
+    on lines 1 and 3         """ """
+"""
+
+
 import string
 
 from yamllint.errors import LintProblem

@@ -14,6 +14,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Use this rule to set a maximal number of allowed consecutive blank lines.
+
+.. rubric:: Options
+
+* ``max`` defines the maximal number of empty lines allowed in the document.
+* ``max-start`` defines the maximal number of empty lines allowed at the
+  beginning of the file. This option takes precedence over ``max``.
+* ``max-end`` defines the maximal number of empty lines allowed at the end of
+  the file.  This option takes precedence over ``max``.
+
+.. rubric:: Examples
+
+#. With ``empty-lines: {max: 1}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    - foo:
+        - 1
+        - 2
+
+    - bar: [3, 4]
+
+   the following code snippet would **FAIL**:
+   ::
+
+    - foo:
+        - 1
+        - 2
+
+
+    - bar: [3, 4]
+"""
+
+
 from yamllint.errors import LintProblem
 
 

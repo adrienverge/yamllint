@@ -14,6 +14,54 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Use this rule to control the number of spaces before and after commas (``,``).
+
+.. rubric:: Options
+
+* ``max-spaces-before`` defines the maximal number of spaces allowed before
+  commas (use ``-1`` to disable).
+* ``max-spaces-after`` defines the maximal number of spaces allowed after
+  commas (use ``-1`` to disable).
+
+.. rubric:: Examples
+
+#. With ``commas: {max-spaces-before: 0, max-spaces-after: 1}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    strange var:
+      [10, 20, 30, {x: 1, y: 2}]
+
+   the following code snippet would **FAIL**:
+   ::
+
+    strange var:
+      [10, 20 , 30, {x: 1, y: 2}]
+
+   the following code snippet would **FAIL**:
+   ::
+
+    strange var:
+      [10, 20, 30, {x: 1,  y: 2}]
+
+#. With ``commas: {max-spaces-before: 2, max-spaces-after: 2}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    strange var:
+      [10  , 20 ,  30,  {x: 1  ,  y: 2}]
+
+   the following code snippet would **FAIL**:
+   ::
+
+    strange var:
+      [10  , 20 ,   30,  {x: 1  ,  y: 2}]
+"""
+
+
 import yaml
 
 from yamllint.errors import LintProblem

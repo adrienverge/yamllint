@@ -14,6 +14,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Use this rule to set a limit to lines length.
+
+.. rubric:: Options
+
+* ``max`` defines the maximal (inclusive) length of lines.
+
+.. rubric:: Examples
+
+#. With ``line-length: {max: 70}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    long sentence:
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+   the following code snippet would **FAIL**:
+   ::
+
+    long sentence:
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua.
+"""
+
+
 from yamllint.errors import LintProblem
 
 
