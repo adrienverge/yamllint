@@ -1,6 +1,8 @@
 yamllint documentation
 ======================
 
+A linter for YAML files.
+
 .. toctree::
    :maxdepth: 2
 
@@ -9,10 +11,3 @@ yamllint documentation
    rules
    development
    text_editors
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
