@@ -6,9 +6,14 @@ A linter for YAML files.
 .. image::
    https://travis-ci.org/adrienverge/yamllint.svg?branch=master
    :target: https://travis-ci.org/adrienverge/yamllint
+   :alt: CI tests status
 .. image::
    https://coveralls.io/repos/github/adrienverge/yamllint/badge.svg?branch=master
    :target: https://coveralls.io/github/adrienverge/yamllint?branch=master
+   :alt: Code coverage status
+.. image:: https://readthedocs.org/projects/yamllint/badge/?version=latest
+   :target: http://yamllint.readthedocs.org/en/latest/?badge=latest
+   :alt: Documentation status
 
 Compatible with Python 2 & 3.
 
