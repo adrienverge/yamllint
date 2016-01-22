@@ -16,10 +16,15 @@
 
 
 class LintProblem(object):
+    """Represents a linting problem found by yamllint."""
     def __init__(self, line, column, desc='<no description>', rule=None):
+        #: Line on which the problem was found (starting at 1)
         self.line = line
+        #: Column on which the problem was found (starting at 1)
         self.column = column
+        #: Human-readable description of the problem
         self.desc = desc
+        #: Identifier of the rule that detected the problem
         self.rule = rule
         self.level = None
 
