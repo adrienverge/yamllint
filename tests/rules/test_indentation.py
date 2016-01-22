@@ -494,60 +494,116 @@ class ScalarIndentationTestCase(RuleTestCase):
     rule_id = 'indentation'
 
     def test_basics_plain(self):
-        conf = ('indentation: {spaces: 2}\n'
+        conf = ('indentation: {spaces: 2, check-multi-line-strings: no}\n'
                 'document-start: disable\n')
         self.check('multi\n'
                    'line\n', conf)
         self.check('multi\n'
-                   ' line\n', conf, problem=(2, 2))
+                   ' line\n', conf)
         self.check('- multi\n'
                    '  line\n', conf)
         self.check('- multi\n'
-                   '   line\n', conf, problem=(2, 4))
+                   '   line\n', conf)
         self.check('a key: multi\n'
                    '       line\n', conf)
+        self.check('a key: multi\n'
+                   '  line\n', conf, problem=(2, 3))
+        self.check('a key: multi\n'
+                   '        line\n', conf)
+        self.check('a key:\n'
+                   '  multi\n'
+                   '  line\n', conf)
+        self.check('- C code: void main() {\n'
+                   '              printf("foo");\n'
+                   '          }\n', conf)
+        self.check('- C code:\n'
+                   '    void main() {\n'
+                   '        printf("foo");\n'
+                   '    }\n', conf)
+
+    def test_check_multi_line_plain(self):
+        conf = ('indentation: {spaces: 2, check-multi-line-strings: yes}\n'
+                'document-start: disable\n')
+        self.check('multi\n'
+                   ' line\n', conf, problem=(2, 2))
+        self.check('- multi\n'
+                   '   line\n', conf, problem=(2, 4))
         self.check('a key: multi\n'
                    '        line\n', conf, problem=(2, 9))
         self.check('a key:\n'
                    '  multi\n'
-                   '  line\n', conf)
-        self.check('a key:\n'
-                   '  multi\n'
                    '   line\n', conf, problem=(3, 4))
+        self.check('- C code: void main() {\n'
+                   '              printf("foo");\n'
+                   '          }\n', conf, problem=(2, 15))
+        self.check('- C code:\n'
+                   '    void main() {\n'
+                   '        printf("foo");\n'
+                   '    }\n', conf, problem=(3, 9))
 
     def test_basics_quoted(self):
-        conf = ('indentation: {spaces: 2}\n'
+        conf = ('indentation: {spaces: 2, check-multi-line-strings: no}\n'
                 'document-start: disable\n')
         self.check('"multi\n'
                    ' line"\n', conf)
         self.check('"multi\n'
                    'line"\n', conf, problem=(2, 1))
-        self.check('"multi\n'
-                   '  line"\n', conf, problem=(2, 3))
         self.check('- "multi\n'
                    '   line"\n', conf)
         self.check('- "multi\n'
                    '  line"\n', conf, problem=(2, 3))
-        self.check('- "multi\n'
-                   '    line"\n', conf, problem=(2, 5))
         self.check('a key: "multi\n'
                    '        line"\n', conf)
         self.check('a key: "multi\n'
-                   '       line"\n', conf, problem=(2, 8))
+                   '  line"\n', conf, problem=(2, 3))
         self.check('a key: "multi\n'
-                   '         line"\n', conf, problem=(2, 10))
+                   '       line"\n', conf, problem=(2, 8))
         self.check('a key:\n'
                    '  "multi\n'
                    '   line"\n', conf)
         self.check('a key:\n'
                    '  "multi\n'
                    '  line"\n', conf, problem=(3, 3))
+        self.check('- jinja2: "{% if ansible is defined %}\n'
+                   '             {{ ansible }}\n'
+                   '           {% else %}\n'
+                   '             {{ chef }}\n'
+                   '           {% endif %}"\n', conf)
+        self.check('- jinja2:\n'
+                   '    "{% if ansible is defined %}\n'
+                   '       {{ ansible }}\n'
+                   '     {% else %}\n'
+                   '       {{ chef }}\n'
+                   '     {% endif %}"\n', conf)
+
+    def test_check_multi_line_quoted(self):
+        conf = ('indentation: {spaces: 2, check-multi-line-strings: yes}\n'
+                'document-start: disable\n')
+        self.check('"multi\n'
+                   '  line"\n', conf, problem=(2, 3))
+        self.check('- "multi\n'
+                   '    line"\n', conf, problem=(2, 5))
+        self.check('a key: "multi\n'
+                   '         line"\n', conf, problem=(2, 10))
         self.check('a key:\n'
                    '  "multi\n'
                    '    line"\n', conf, problem=(3, 5))
+        self.check('- jinja2: "{% if ansible is defined %}\n'
+                   '             {{ ansible }}\n'
+                   '           {% else %}\n'
+                   '             {{ chef }}\n'
+                   '           {% endif %}"\n', conf,
+                   problem1=(2, 14), problem2=(4, 14))
+        self.check('- jinja2:\n'
+                   '    "{% if ansible is defined %}\n'
+                   '       {{ ansible }}\n'
+                   '     {% else %}\n'
+                   '       {{ chef }}\n'
+                   '     {% endif %}"\n', conf,
+                   problem1=(3, 8), problem2=(5, 8))
 
     def test_basics_folded_style(self):
-        conf = ('indentation: {spaces: 2}\n'
+        conf = ('indentation: {spaces: 2, check-multi-line-strings: no}\n'
                 'document-start: disable\n')
         self.check('>\n'
                    '  multi\n'
@@ -576,9 +632,55 @@ class ScalarIndentationTestCase(RuleTestCase):
                    '    >\n'
                    '      multi-line\n'
                    '      value\n', conf)
+        self.check('- jinja2: >\n'
+                   '    {% if ansible is defined %}\n'
+                   '      {{ ansible }}\n'
+                   '    {% else %}\n'
+                   '      {{ chef }}\n'
+                   '    {% endif %}\n', conf)
+
+    def test_check_multi_line_folded_style(self):
+        conf = ('indentation: {spaces: 2, check-multi-line-strings: yes}\n'
+                'document-start: disable\n')
+        self.check('>\n'
+                   '  multi\n'
+                   '   line\n', conf, problem=(3, 4))
+        self.check('- >\n'
+                   '    multi\n'
+                   '     line\n', conf, problem=(3, 6))
+        self.check('- key: >\n'
+                   '    multi\n'
+                   '     line\n', conf, problem=(3, 6))
+        self.check('- key:\n'
+                   '    >\n'
+                   '      multi\n'
+                   '       line\n', conf, problem=(4, 8))
+        self.check('- ? >\n'
+                   '      multi-line\n'
+                   '       key\n'
+                   '  : >\n'
+                   '      multi-line\n'
+                   '       value\n', conf,
+                   problem1=(3, 8), problem2=(6, 8))
+        self.check('- ?\n'
+                   '    >\n'
+                   '      multi-line\n'
+                   '       key\n'
+                   '  :\n'
+                   '    >\n'
+                   '      multi-line\n'
+                   '       value\n', conf,
+                   problem1=(4, 8), problem2=(8, 8))
+        self.check('- jinja2: >\n'
+                   '    {% if ansible is defined %}\n'
+                   '      {{ ansible }}\n'
+                   '    {% else %}\n'
+                   '      {{ chef }}\n'
+                   '    {% endif %}\n', conf,
+                   problem1=(3, 7), problem2=(5, 7))
 
     def test_basics_literal_style(self):
-        conf = ('indentation: {spaces: 2}\n'
+        conf = ('indentation: {spaces: 2, check-multi-line-strings: no}\n'
                 'document-start: disable\n')
         self.check('|\n'
                    '  multi\n'
@@ -607,12 +709,58 @@ class ScalarIndentationTestCase(RuleTestCase):
                    '    |\n'
                    '      multi-line\n'
                    '      value\n', conf)
+        self.check('- jinja2: |\n'
+                   '    {% if ansible is defined %}\n'
+                   '     {{ ansible }}\n'
+                   '    {% else %}\n'
+                   '      {{ chef }}\n'
+                   '    {% endif %}\n', conf)
+
+    def test_check_multi_line_literal_style(self):
+        conf = ('indentation: {spaces: 2, check-multi-line-strings: yes}\n'
+                'document-start: disable\n')
+        self.check('|\n'
+                   '  multi\n'
+                   '   line\n', conf, problem=(3, 4))
+        self.check('- |\n'
+                   '    multi\n'
+                   '     line\n', conf, problem=(3, 6))
+        self.check('- key: |\n'
+                   '    multi\n'
+                   '     line\n', conf, problem=(3, 6))
+        self.check('- key:\n'
+                   '    |\n'
+                   '      multi\n'
+                   '       line\n', conf, problem=(4, 8))
+        self.check('- ? |\n'
+                   '      multi-line\n'
+                   '       key\n'
+                   '  : |\n'
+                   '      multi-line\n'
+                   '       value\n', conf,
+                   problem1=(3, 8), problem2=(6, 8))
+        self.check('- ?\n'
+                   '    |\n'
+                   '      multi-line\n'
+                   '       key\n'
+                   '  :\n'
+                   '    |\n'
+                   '      multi-line\n'
+                   '       value\n', conf,
+                   problem1=(4, 8), problem2=(8, 8))
+        self.check('- jinja2: |\n'
+                   '    {% if ansible is defined %}\n'
+                   '      {{ ansible }}\n'
+                   '    {% else %}\n'
+                   '      {{ chef }}\n'
+                   '    {% endif %}\n', conf,
+                   problem1=(3, 7), problem2=(5, 7))
 
     # The following "paragraph" examples are inspired from
     # http://stackoverflow.com/questions/3790454/in-yaml-how-do-i-break-a-string-over-multiple-lines
 
     def test_paragraph_plain(self):
-        conf = ('indentation: {spaces: 2}\n'
+        conf = ('indentation: {spaces: 2, check-multi-line-strings: yes}\n'
                 'document-start: disable\n')
         self.check('- long text: very "long"\n'
                    '             \'string\' with\n'
@@ -633,7 +781,7 @@ class ScalarIndentationTestCase(RuleTestCase):
                    '    spaces.\n', conf)
 
     def test_paragraph_double_quoted(self):
-        conf = ('indentation: {spaces: 2}\n'
+        conf = ('indentation: {spaces: 2, check-multi-line-strings: yes}\n'
                 'document-start: disable\n')
         self.check('- long text: "very \\"long\\"\n'
                    '              \'string\' with\n'
@@ -660,7 +808,7 @@ class ScalarIndentationTestCase(RuleTestCase):
                    '     spaces."\n', conf)
 
     def test_paragraph_single_quoted(self):
-        conf = ('indentation: {spaces: 2}\n'
+        conf = ('indentation: {spaces: 2, check-multi-line-strings: yes}\n'
                 'document-start: disable\n')
         self.check('- long text: \'very "long"\n'
                    '              \'\'string\'\' with\n'
@@ -687,7 +835,7 @@ class ScalarIndentationTestCase(RuleTestCase):
                    '     spaces.\'\n', conf)
 
     def test_paragraph_folded(self):
-        conf = ('indentation: {spaces: 2}\n'
+        conf = ('indentation: {spaces: 2, check-multi-line-strings: yes}\n'
                 'document-start: disable\n')
         self.check('- long text: >\n'
                    '    very "long"\n'
@@ -704,7 +852,7 @@ class ScalarIndentationTestCase(RuleTestCase):
                    problem1=(3, 6), problem2=(5, 7), problem3=(6, 8))
 
     def test_paragraph_literal(self):
-        conf = ('indentation: {spaces: 2}\n'
+        conf = ('indentation: {spaces: 2, check-multi-line-strings: yes}\n'
                 'document-start: disable\n')
         self.check('- long text: |\n'
                    '    very "long"\n'

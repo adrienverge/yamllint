@@ -32,6 +32,7 @@ rules:
   indentation:
     spaces: 2
     indent-sequences: yes
+    check-multi-line-strings: no
   line-length:
     max: 80
   new-line-at-end-of-file: {level: error}

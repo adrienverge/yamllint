@@ -23,7 +23,8 @@ from yamllint.rules.common import is_explicit_key
 ID = 'indentation'
 TYPE = 'token'
 CONF = {'spaces': int,
-        'indent-sequences': (True, False, 'whatever')}
+        'indent-sequences': (True, False, 'whatever'),
+        'check-multi-line-strings': bool}
 
 ROOT, MAP, B_SEQ, F_SEQ, KEY, VAL = range(6)
 
@@ -95,7 +96,11 @@ def check_scalar_indentation(conf, token, context):
         if token.start_mark.buffer[line_start + indent] == '\n':
             continue
 
-        if indent != expected_indent:
+        if indent < expected_indent:
+            yield LintProblem(line_no, indent + 1,
+                              ('wrong indentation: expected at least %d but '
+                               'found %d') % (expected_indent, indent))
+        elif conf['check-multi-line-strings'] and indent > expected_indent:
             yield LintProblem(line_no, indent + 1,
                               'wrong indentation: expected %d but found %d' %
                               (expected_indent, indent))
