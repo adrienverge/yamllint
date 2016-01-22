@@ -20,6 +20,8 @@ Unless told otherwise, yamllint uses its ``default`` configuration:
 .. literalinclude:: ../yamllint/conf/default.yml
    :language: yaml
 
+Details on rules can be found on :doc:`the rules page <rules>`.
+
 Extending the default configuration
 -----------------------------------
 
