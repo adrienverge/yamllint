@@ -15,7 +15,7 @@ A linter for YAML files.
    :target: http://yamllint.readthedocs.org/en/latest/?badge=latest
    :alt: Documentation status
 
-Compatible with Python 2 & 3.
+Written in Python (compatible with Python 2 & 3).
 
 Documentation
 -------------
