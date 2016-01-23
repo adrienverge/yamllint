@@ -25,6 +25,12 @@ http://yamllint.readthedocs.org/
 Short overview
 --------------
 
+Screenshot
+^^^^^^^^^^
+
+.. image:: docs/screenshot.png
+   :alt: yamllint screenshot
+
 Installation
 ^^^^^^^^^^^^
 

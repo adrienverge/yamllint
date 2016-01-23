@@ -33,7 +33,7 @@ You can also lint all YAML files in a whole directory:
 
  yamllint .
 
-The output will look like (colors are not displayed here [#colored-output]_):
+The output will look like (colors are not displayed here):
 
 ::
 
@@ -70,8 +70,3 @@ option:
 
    If you have a ``.yamllint`` file in your working directory, it will be
    automatically loaded as configuration by yamllint.
-
-.. rubric:: Footnotes
-
-.. [#colored-output] The default output format is colored and inspired by
-   `eslint <http://eslint.org/>`_, a great linting tool for Javascript.
