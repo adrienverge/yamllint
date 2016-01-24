@@ -19,8 +19,7 @@ import unittest
 import yaml
 
 from yamllint.config import YamlLintConfig
-from yamllint.errors import LintProblem
-from yamllint import lint
+from yamllint import linter
 
 
 class RuleTestCase(unittest.TestCase):
@@ -44,9 +43,9 @@ class RuleTestCase(unittest.TestCase):
                     rule_id = kwargs[key][2]
             else:
                 rule_id = self.rule_id
-            expected_problems.append(
-                LintProblem(kwargs[key][0], kwargs[key][1], rule=rule_id))
+            expected_problems.append(linter.LintProblem(
+                kwargs[key][0], kwargs[key][1], rule=rule_id))
         expected_problems.sort()
 
-        real_problems = list(lint(source, self.build_fake_config(conf)))
+        real_problems = list(linter.run(source, self.build_fake_config(conf)))
         self.assertEqual(real_problems, expected_problems)
