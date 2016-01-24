@@ -62,7 +62,7 @@ class Format(object):
         return line
 
 
-def run(argv):
+def run(argv=None):
     parser = argparse.ArgumentParser(prog=APP_NAME,
                                      description=APP_DESCRIPTION)
     parser.add_argument('files', metavar='FILE_OR_DIR', nargs='+',

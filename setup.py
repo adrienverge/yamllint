@@ -42,7 +42,7 @@ setup(
     ],
 
     packages=find_packages(),
-    scripts=['bin/yamllint'],
+    entry_points={'console_scripts': ['yamllint=yamllint.cli:run']},
     package_data={'yamllint': ['conf/*.yml']},
     install_requires=['pyyaml'],
     tests_require=['nose'],
