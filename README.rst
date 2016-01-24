@@ -36,7 +36,7 @@ Installation
 
 .. code:: bash
 
- pip install yamllint
+ sudo pip install yamllint
 
 Usage
 ^^^^^
