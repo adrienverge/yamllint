@@ -16,7 +16,6 @@
 
 import yaml
 
-from yamllint import config
 from yamllint.errors import LintProblem
 from yamllint import parser
 
@@ -32,7 +31,7 @@ __version__ = APP_VERSION
 
 
 def get_costemic_problems(buffer, conf):
-    rules = config.get_enabled_rules(conf)
+    rules = conf.enabled_rules()
 
     # Split token rules from line rules
     token_rules = [r for r in rules if r.TYPE == 'token']
@@ -45,7 +44,7 @@ def get_costemic_problems(buffer, conf):
     for elem in parser.token_or_line_generator(buffer):
         if isinstance(elem, parser.Token):
             for rule in token_rules:
-                rule_conf = conf[rule.ID]
+                rule_conf = conf.rules[rule.ID]
                 for problem in rule.check(rule_conf,
                                           elem.curr, elem.prev, elem.next,
                                           context[rule.ID]):
@@ -54,7 +53,7 @@ def get_costemic_problems(buffer, conf):
                     yield problem
         elif isinstance(elem, parser.Line):
             for rule in line_rules:
-                rule_conf = conf[rule.ID]
+                rule_conf = conf.rules[rule.ID]
                 for problem in rule.check(rule_conf, elem):
                     problem.rule = rule.ID
                     problem.level = rule_conf['level']

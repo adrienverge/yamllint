@@ -18,7 +18,7 @@ import unittest
 
 import yaml
 
-from yamllint.config import parse_config
+from yamllint.config import YamlLintConfig
 from yamllint.errors import LintProblem
 from yamllint import lint
 
@@ -31,7 +31,7 @@ class RuleTestCase(unittest.TestCase):
             conf = yaml.safe_load(conf)
         conf = {'extends': 'default',
                 'rules': conf}
-        return parse_config(yaml.safe_dump(conf))
+        return YamlLintConfig(yaml.safe_dump(conf))
 
     def check(self, source, conf, **kwargs):
         expected_problems = []

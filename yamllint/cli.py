@@ -22,8 +22,7 @@ import sys
 import argparse
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
-from yamllint import config
-from yamllint.errors import YamlLintConfigError
+from yamllint.config import YamlLintConfig, YamlLintConfigError
 from yamllint import lint
 
 
@@ -82,11 +81,11 @@ def run(argv):
 
     try:
         if args.config_file is not None:
-            conf = config.parse_config_from_file(args.config_file)
+            conf = YamlLintConfig(file=args.config_file)
         elif os.path.isfile('.yamllint'):
-            conf = config.parse_config_from_file('.yamllint')
+            conf = YamlLintConfig(file='.yamllint')
         else:
-            conf = config.parse_config('extends: default')
+            conf = YamlLintConfig('extends: default')
     except YamlLintConfigError as e:
         print(e, file=sys.stderr)
         sys.exit(-1)

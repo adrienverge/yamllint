@@ -19,10 +19,109 @@ import os.path
 import yaml
 
 import yamllint.rules
-from yamllint.errors import YamlLintConfigError
 
 
-def get_extended_conf(name):
+class YamlLintConfigError(Exception):
+    pass
+
+
+class YamlLintConfig(object):
+    def __init__(self, content=None, file=None):
+        assert (content is None) ^ (file is None)
+
+        if file is not None:
+            with open(file) as f:
+                content = f.read()
+
+        self.parse(content)
+        self.validate()
+
+    def enabled_rules(self):
+        return [yamllint.rules.get(id) for id, val in self.rules.items()
+                if val is not False]
+
+    def extend(self, base_config):
+        assert isinstance(base_config, YamlLintConfig)
+
+        for rule in self.rules:
+            if (type(self.rules[rule]) == dict and
+                    rule in base_config.rules and
+                    base_config.rules[rule] is not False):
+                base_config.rules[rule].update(self.rules[rule])
+            else:
+                base_config.rules[rule] = self.rules[rule]
+
+        self.rules = base_config.rules
+
+    def parse(self, raw_content):
+        try:
+            conf = yaml.safe_load(raw_content)
+        except Exception as e:
+            raise YamlLintConfigError('invalid config: %s' % e)
+
+        self.rules = conf.get('rules', {})
+
+        # Does this conf override another conf that we need to load?
+        if 'extends' in conf:
+            path = get_extended_config_file(conf['extends'])
+            base = YamlLintConfig(file=path)
+            try:
+                self.extend(base)
+            except Exception as e:
+                raise YamlLintConfigError('invalid config: %s' % e)
+
+    def validate(self):
+        for id in self.rules:
+            try:
+                rule = yamllint.rules.get(id)
+            except Exception as e:
+                raise YamlLintConfigError('invalid config: %s' % e)
+
+            self.rules[id] = validate_rule_conf(rule, self.rules[id])
+
+
+def validate_rule_conf(rule, conf):
+    if conf is False or conf == 'disable':
+        return False
+
+    if type(conf) == dict:
+        if 'level' not in conf:
+            conf['level'] = 'error'
+        elif conf['level'] not in ('error', 'warning'):
+            raise YamlLintConfigError(
+                'invalid config: level should be "error" or "warning"')
+
+        options = getattr(rule, 'CONF', {})
+        for optkey in conf:
+            if optkey == 'level':
+                continue
+            if optkey not in options:
+                raise YamlLintConfigError(
+                    'invalid config: unknown option "%s" for rule "%s"' %
+                    (optkey, rule.ID))
+            if type(options[optkey]) == tuple:
+                if conf[optkey] not in options[optkey]:
+                    raise YamlLintConfigError(
+                        'invalid config: option "%s" of "%s" should be in %s'
+                        % (optkey, rule.ID, options[optkey]))
+            else:
+                if type(conf[optkey]) != options[optkey]:
+                    raise YamlLintConfigError(
+                        'invalid config: option "%s" of "%s" should be %s'
+                        % (optkey, rule.ID, options[optkey].__name__))
+        for optkey in options:
+            if optkey not in conf:
+                raise YamlLintConfigError(
+                    'invalid config: missing option "%s" for rule "%s"' %
+                    (optkey, rule.ID))
+    else:
+        raise YamlLintConfigError(('invalid config: rule "%s": should be '
+                                   'either "disable" or a dict') % rule.ID)
+
+    return conf
+
+
+def get_extended_config_file(name):
     # Is it a standard conf shipped with yamllint...
     if '/' not in name:
         std_conf = os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -33,81 +132,3 @@ def get_extended_conf(name):
 
     # or a custom conf on filesystem?
     return name
-
-
-def extend_config(content):
-    try:
-        conf = yaml.safe_load(content)
-
-        if 'rules' not in conf:
-            conf['rules'] = {}
-
-        # Does this conf override another conf that we need to load?
-        if 'extends' in conf:
-            base = parse_config_from_file(get_extended_conf(conf['extends']))
-
-            for rule in conf['rules']:
-                if type(conf['rules'][rule]) == dict and rule in base:
-                    base[rule].update(conf['rules'][rule])
-                else:
-                    base[rule] = conf['rules'][rule]
-            conf['rules'] = base
-
-        return conf
-    except Exception as e:
-        raise YamlLintConfigError('invalid config: %s' % e)
-
-
-def parse_config(content):
-    conf = extend_config(content)
-    rules = {}
-
-    for id in conf['rules']:
-        try:
-            rule = yamllint.rules.get(id)
-        except Exception as e:
-            raise YamlLintConfigError('invalid config: %s' % e)
-
-        if conf['rules'][id] == 'disable':
-            continue
-
-        rules[id] = {'level': 'error'}
-        if type(conf['rules'][id]) == dict:
-            if 'level' in conf['rules'][id]:
-                if conf['rules'][id]['level'] not in ('error', 'warning'):
-                    raise YamlLintConfigError(
-                        'invalid config: level should be "error" or "warning"')
-                rules[id]['level'] = conf['rules'][id]['level']
-
-            options = getattr(rule, 'CONF', {})
-            for optkey in conf['rules'][id]:
-                if optkey == 'level':
-                    continue
-                if optkey not in options:
-                    raise YamlLintConfigError(
-                        'invalid config: unknown option "%s" for rule "%s"' %
-                        (optkey, id))
-                if type(options[optkey]) == tuple:
-                    if conf['rules'][id][optkey] not in options[optkey]:
-                        raise YamlLintConfigError(
-                            ('invalid config: option "%s" of "%s" should be '
-                             'in %s') % (optkey, id, options[optkey]))
-                else:
-                    if type(conf['rules'][id][optkey]) != options[optkey]:
-                        raise YamlLintConfigError(
-                            ('invalid config: option "%s" of "%s" should be '
-                             '%s' % (optkey, id, options[optkey].__name__)))
-                rules[id][optkey] = conf['rules'][id][optkey]
-        else:
-            raise YamlLintConfigError(('invalid config: rule "%s": should be '
-                                       'either "disable" or a dict') % id)
-    return rules
-
-
-def parse_config_from_file(path):
-    with open(path) as f:
-        return parse_config(f.read())
-
-
-def get_enabled_rules(conf):
-    return [yamllint.rules.get(r) for r in conf.keys() if conf[r] is not False]
