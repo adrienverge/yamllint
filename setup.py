@@ -26,7 +26,7 @@ setup(
     author=__author__,
     description=APP_DESCRIPTION,
     license=__license__,
-    keywords=['yaml', 'lint', 'linter'],
+    keywords=['yaml', 'lint', 'linter', 'syntax', 'checker'],
     url='https://github.com/adrienverge/yamllint',
     classifiers=[
         'Development Status :: 4 - Beta',
