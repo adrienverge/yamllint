@@ -22,7 +22,7 @@ from yamllint import parser
 
 
 APP_NAME = 'yamllint'
-APP_VERSION = '0.5.0'
+APP_VERSION = '0.5.1'
 APP_DESCRIPTION = 'A linter for YAML files.'
 
 __author__ = u'Adrien Vergé'
