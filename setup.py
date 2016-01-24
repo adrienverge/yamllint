@@ -45,6 +45,8 @@ setup(
     scripts=['bin/yamllint'],
     package_data={'yamllint': ['conf/*.yml']},
     install_requires=['pyyaml'],
+    setup_requires=['pyyaml'],  # importing `yamllint` (for APP_NAME etc.)
+                                # requires importing `yaml`
     tests_require=['nose'],
     test_suite='nose.collector',
 )
