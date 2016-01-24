@@ -57,7 +57,7 @@ Use this rule to control the position and formatting of comments.
 
 import yaml
 
-from yamllint.errors import LintProblem
+from yamllint.linter import LintProblem
 from yamllint.rules.common import get_comments_between_tokens
 
 

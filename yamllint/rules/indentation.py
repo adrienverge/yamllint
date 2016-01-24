@@ -132,7 +132,7 @@ Use this rule to control the indentation.
 
 import yaml
 
-from yamllint.errors import LintProblem
+from yamllint.linter import LintProblem
 from yamllint.rules.common import is_explicit_key
 
 

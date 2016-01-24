@@ -64,7 +64,7 @@ Use this rule to control the number of spaces before and after commas (``,``).
 
 import yaml
 
-from yamllint.errors import LintProblem
+from yamllint.linter import LintProblem
 from yamllint.rules.common import spaces_after, spaces_before
 
 

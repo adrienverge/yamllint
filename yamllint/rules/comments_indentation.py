@@ -77,7 +77,7 @@ Use this rule to force comments to be indented like content.
 
 import yaml
 
-from yamllint.errors import LintProblem
+from yamllint.linter import LintProblem
 from yamllint.rules.common import get_line_indent, get_comments_between_tokens
 
 

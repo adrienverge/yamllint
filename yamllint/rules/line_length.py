@@ -41,7 +41,7 @@ Use this rule to set a limit to lines length.
 """
 
 
-from yamllint.errors import LintProblem
+from yamllint.linter import LintProblem
 
 
 ID = 'line-length'

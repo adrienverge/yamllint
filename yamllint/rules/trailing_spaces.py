@@ -39,7 +39,7 @@ Use this rule to forbid trailing spaces at the end of lines.
 
 import string
 
-from yamllint.errors import LintProblem
+from yamllint.linter import LintProblem
 
 
 ID = 'trailing-spaces'

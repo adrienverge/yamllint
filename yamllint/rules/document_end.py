@@ -76,7 +76,7 @@ Use this rule to require or forbid the use of document end marker (``...``).
 
 import yaml
 
-from yamllint.errors import LintProblem
+from yamllint.linter import LintProblem
 
 
 ID = 'document-end'

@@ -23,7 +23,7 @@ import argparse
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
 from yamllint.config import YamlLintConfig, YamlLintConfigError
-from yamllint import lint
+from yamllint import linter
 
 
 def find_files_recursively(items):
@@ -96,7 +96,7 @@ def run(argv):
         try:
             first = True
             with open(file) as f:
-                for problem in lint(f, conf):
+                for problem in linter.run(f, conf):
                     if args.format == 'parsable':
                         print(Format.parsable(problem, file))
                     else:

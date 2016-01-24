@@ -50,7 +50,7 @@ Use this rule to set a maximal number of allowed consecutive blank lines.
 """
 
 
-from yamllint.errors import LintProblem
+from yamllint.linter import LintProblem
 
 
 ID = 'empty-lines'

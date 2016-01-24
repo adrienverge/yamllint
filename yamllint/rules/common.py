@@ -16,7 +16,7 @@
 
 import yaml
 
-from yamllint.errors import LintProblem
+from yamllint.linter import LintProblem
 
 
 def spaces_after(token, prev, next, min=-1, max=-1,

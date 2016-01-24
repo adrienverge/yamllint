@@ -24,7 +24,7 @@ Use this rule to force the type of new line characters.
 """
 
 
-from yamllint.errors import LintProblem
+from yamllint.linter import LintProblem
 
 
 ID = 'new-lines'
