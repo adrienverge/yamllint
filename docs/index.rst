@@ -3,6 +3,9 @@ yamllint documentation
 
 A linter for YAML files.
 
+yamllint does not only check for syntax validity, but for common cosmetic
+conventions such as lines length, trailing spaces, indentation, etc.
+
 Screenshot
 ----------
 

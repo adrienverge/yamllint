@@ -16,7 +16,10 @@
 
 APP_NAME = 'yamllint'
 APP_VERSION = '0.5.2'
-APP_DESCRIPTION = 'A linter for YAML files.'
+APP_DESCRIPTION = """A linter for YAML files.
+
+yamllint does not only check for syntax validity, but for common cosmetic
+conventions such as lines length, trailing spaces, indentation, etc."""
 
 __author__ = u'Adrien Vergé'
 __copyright__ = u'Copyright 2016, Adrien Vergé'
