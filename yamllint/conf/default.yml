@@ -35,6 +35,7 @@ rules:
     check-multi-line-strings: no
   line-length:
     max: 80
+    allow-non-breakable-words: yes
   new-line-at-end-of-file: {level: error}
   new-lines:
     type: unix

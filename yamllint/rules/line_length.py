@@ -20,6 +20,9 @@ Use this rule to set a limit to lines length.
 .. rubric:: Options
 
 * ``max`` defines the maximal (inclusive) length of lines.
+* ``allow-non-breakable-words`` is used to allow non breakable words (without
+  spaces inside) to overflow the limit. This is useful for long URLs, for
+  instance. Use ``yes`` to allow, ``no`` to forbid.
 
 .. rubric:: Examples
 
@@ -38,6 +41,35 @@ Use this rule to set a limit to lines length.
     long sentence:
       Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
       tempor incididunt ut labore et dolore magna aliqua.
+
+#. With ``line-length: {max: 60, allow-non-breakable-words: yes}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    this:
+      is:
+        - a:
+            http://localhost/very/very/very/very/very/very/very/very/long/url
+
+    # this comment is too long,
+    # but hard to split:
+    # http://localhost/another/very/very/very/very/very/very/very/very/long/url
+
+   the following code snippet would **FAIL**:
+   ::
+
+    - this line is waaaaaaaaaaaaaay too long but could be easily splitted...
+
+#. With ``line-length: {max: 60, allow-non-breakable-words: no}``
+
+   the following code snippet would **FAIL**:
+   ::
+
+    this:
+      is:
+        - a:
+            http://localhost/very/very/very/very/very/very/very/very/long/url
 """
 
 
@@ -46,11 +78,24 @@ from yamllint.linter import LintProblem
 
 ID = 'line-length'
 TYPE = 'line'
-CONF = {'max': int}
+CONF = {'max': int,
+        'allow-non-breakable-words': bool}
 
 
 def check(conf, line):
     if line.end - line.start > conf['max']:
+        if conf['allow-non-breakable-words']:
+            start = line.start
+            while start < line.end and line.buffer[start] == ' ':
+                start += 1
+
+            if start != line.end:
+                if line.buffer[start] == '#':
+                    start += 2
+
+                if line.buffer.find(' ', start, line.end) == -1:
+                    return
+
         yield LintProblem(line.line_no, conf['max'] + 1,
                           'line too long (%d > %d characters)' %
                           (line.end - line.start, conf['max']))
