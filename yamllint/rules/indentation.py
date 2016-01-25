@@ -113,6 +113,18 @@ Use this rule to control the indentation.
         Je vous écris une longue lettre parce que
         je n'ai pas le temps d'en écrire une courte.
 
+   the following code snippet would **PASS**:
+   ::
+
+    Blaise Pascal: Je vous écris une longue lettre parce que
+                   je n'ai pas le temps d'en écrire une courte.
+
+   the following code snippet would **FAIL**:
+   ::
+
+    Blaise Pascal: Je vous écris une longue lettre parce que
+      je n'ai pas le temps d'en écrire une courte.
+
    the following code snippet would **FAIL**:
    ::
 
@@ -212,11 +224,7 @@ def check_scalar_indentation(conf, token, context):
         if token.start_mark.buffer[line_start + indent] == '\n':
             continue
 
-        if indent < expected_indent:
-            yield LintProblem(line_no, indent + 1,
-                              ('wrong indentation: expected at least %d but '
-                               'found %d') % (expected_indent, indent))
-        elif conf['check-multi-line-strings'] and indent > expected_indent:
+        if indent != expected_indent:
             yield LintProblem(line_no, indent + 1,
                               'wrong indentation: expected %d but found %d' %
                               (expected_indent, indent))
@@ -252,7 +260,8 @@ def check(conf, token, prev, next, context):
                               'wrong indentation: expected %d but found %d' %
                               (expected, found_indentation))
 
-    if isinstance(token, yaml.ScalarToken):
+    if (isinstance(token, yaml.ScalarToken) and
+            conf['check-multi-line-strings']):
         for problem in check_scalar_indentation(conf, token, context):
             yield problem
 

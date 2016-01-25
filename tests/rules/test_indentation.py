@@ -507,7 +507,7 @@ class ScalarIndentationTestCase(RuleTestCase):
         self.check('a key: multi\n'
                    '       line\n', conf)
         self.check('a key: multi\n'
-                   '  line\n', conf, problem=(2, 3))
+                   '  line\n', conf)
         self.check('a key: multi\n'
                    '        line\n', conf)
         self.check('a key:\n'
@@ -529,6 +529,8 @@ class ScalarIndentationTestCase(RuleTestCase):
         self.check('- multi\n'
                    '   line\n', conf, problem=(2, 4))
         self.check('a key: multi\n'
+                   '  line\n', conf, problem=(2, 3))
+        self.check('a key: multi\n'
                    '        line\n', conf, problem=(2, 9))
         self.check('a key:\n'
                    '  multi\n'
@@ -546,24 +548,13 @@ class ScalarIndentationTestCase(RuleTestCase):
                 'document-start: disable\n')
         self.check('"multi\n'
                    ' line"\n', conf)
-        self.check('"multi\n'
-                   'line"\n', conf, problem=(2, 1))
         self.check('- "multi\n'
                    '   line"\n', conf)
-        self.check('- "multi\n'
-                   '  line"\n', conf, problem=(2, 3))
         self.check('a key: "multi\n'
                    '        line"\n', conf)
-        self.check('a key: "multi\n'
-                   '  line"\n', conf, problem=(2, 3))
-        self.check('a key: "multi\n'
-                   '       line"\n', conf, problem=(2, 8))
         self.check('a key:\n'
                    '  "multi\n'
                    '   line"\n', conf)
-        self.check('a key:\n'
-                   '  "multi\n'
-                   '  line"\n', conf, problem=(3, 3))
         self.check('- jinja2: "{% if ansible is defined %}\n'
                    '             {{ ansible }}\n'
                    '           {% else %}\n'
@@ -580,11 +571,22 @@ class ScalarIndentationTestCase(RuleTestCase):
         conf = ('indentation: {spaces: 2, check-multi-line-strings: yes}\n'
                 'document-start: disable\n')
         self.check('"multi\n'
+                   'line"\n', conf, problem=(2, 1))
+        self.check('"multi\n'
+                   '  line"\n', conf, problem=(2, 3))
+        self.check('- "multi\n'
                    '  line"\n', conf, problem=(2, 3))
         self.check('- "multi\n'
                    '    line"\n', conf, problem=(2, 5))
         self.check('a key: "multi\n'
+                   '  line"\n', conf, problem=(2, 3))
+        self.check('a key: "multi\n'
+                   '       line"\n', conf, problem=(2, 8))
+        self.check('a key: "multi\n'
                    '         line"\n', conf, problem=(2, 10))
+        self.check('a key:\n'
+                   '  "multi\n'
+                   '  line"\n', conf, problem=(3, 3))
         self.check('a key:\n'
                    '  "multi\n'
                    '    line"\n', conf, problem=(3, 5))
