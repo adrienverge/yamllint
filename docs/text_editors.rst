@@ -14,7 +14,7 @@ is installed, add to your ``.vimrc``:
 
 ::
 
- TODO
+ let g:syntastic_yaml_checkers = ['yamllint']
 
 Neovim
 ------
