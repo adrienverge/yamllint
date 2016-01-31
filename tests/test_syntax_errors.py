@@ -14,13 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from tests.rules.common import RuleTestCase
+from tests.common import RuleTestCase
 
 
 class YamlLintTestCase(RuleTestCase):
     rule_id = None  # syntax error
 
-    def test_lint(self):
+    def test_syntax_errors(self):
         self.check('---\n'
                    'this is not: valid: YAML\n', None, problem=(2, 19))
         self.check('---\n'
@@ -29,8 +29,6 @@ class YamlLintTestCase(RuleTestCase):
                    'this is an error: [\n'
                    '\n'
                    '...\n', None, problem=(6, 1))
-
-    def test_directives(self):
         self.check('%YAML 1.2\n'
                    '%TAG ! tag:clarkevans.com,2002:\n'
                    'doc: ument\n'
