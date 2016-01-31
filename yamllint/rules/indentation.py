@@ -145,7 +145,7 @@ Use this rule to control the indentation.
 import yaml
 
 from yamllint.linter import LintProblem
-from yamllint.rules.common import is_explicit_key
+from yamllint.rules.common import is_explicit_key, get_real_end_line
 
 
 ID = 'indentation'
@@ -237,13 +237,14 @@ def check(conf, token, prev, next, context):
 
     # Step 1: Lint
 
-    needs_lint = (
+    is_visible = (
         not isinstance(token, (yaml.StreamStartToken, yaml.StreamEndToken)) and
         not isinstance(token, yaml.BlockEndToken) and
-        not (isinstance(token, yaml.ScalarToken) and token.value == '') and
-        token.start_mark.line + 1 > context['cur_line'])
+        not (isinstance(token, yaml.ScalarToken) and token.value == ''))
+    first_in_line = (is_visible and
+                     token.start_mark.line + 1 > context['cur_line'])
 
-    if needs_lint:
+    if first_in_line:
         found_indentation = token.start_mark.column
         expected = context['stack'][-1].indent
 
@@ -267,9 +268,10 @@ def check(conf, token, prev, next, context):
 
     # Step 2.a:
 
-    if needs_lint:
-        context['cur_line_indent'] = found_indentation
-        context['cur_line'] = token.end_mark.line + 1
+    if is_visible:
+        context['cur_line'] = get_real_end_line(token)
+        if first_in_line:
+            context['cur_line_indent'] = found_indentation
 
     # Step 2.b: Update state
 

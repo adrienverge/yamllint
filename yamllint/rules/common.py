@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import string
+
 import yaml
 
 from yamllint.linter import LintProblem
@@ -75,6 +77,25 @@ def get_line_indent(token):
     while token.start_mark.buffer[content] == ' ':
         content += 1
     return content - start
+
+
+def get_real_end_line(token):
+    """Finds the line on which the token really ends.
+
+    With pyyaml, scalar tokens often end on a next line.
+    """
+    end_line = token.end_mark.line + 1
+
+    if not isinstance(token, yaml.ScalarToken):
+        return end_line
+
+    pos = token.end_mark.pointer - 1
+    while (pos >= token.start_mark.pointer - 1 and
+           token.end_mark.buffer[pos] in string.whitespace):
+        if token.end_mark.buffer[pos] == '\n':
+            end_line -= 1
+        pos -= 1
+    return end_line
 
 
 def get_comments_between_tokens(token1, token2, skip_first_line=False):

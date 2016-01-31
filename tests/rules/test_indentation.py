@@ -611,6 +611,12 @@ class ScalarIndentationTestCase(RuleTestCase):
                    '     {% else %}\n'
                    '       {{ chef }}\n'
                    '     {% endif %}"\n', conf)
+        self.check('["this is a very long line\n'
+                   '  that needs to be split",\n'
+                   ' "other line"]\n', conf)
+        self.check('["multi\n'
+                   '  line 1", "multi\n'
+                   '            line 2"]\n', conf)
 
     def test_check_multi_line_quoted(self):
         conf = ('indentation: {spaces: 2, check-multi-line-strings: yes}\n'
@@ -648,6 +654,24 @@ class ScalarIndentationTestCase(RuleTestCase):
                    '       {{ chef }}\n'
                    '     {% endif %}"\n', conf,
                    problem1=(3, 8), problem2=(5, 8))
+        self.check('["this is a very long line\n'
+                   '  that needs to be split",\n'
+                   ' "other line"]\n', conf)
+        self.check('["this is a very long line\n'
+                   ' that needs to be split",\n'
+                   ' "other line"]\n', conf, problem=(2, 2))
+        self.check('["this is a very long line\n'
+                   '   that needs to be split",\n'
+                   ' "other line"]\n', conf, problem=(2, 4))
+        self.check('["multi\n'
+                   '  line 1", "multi\n'
+                   '            line 2"]\n', conf)
+        self.check('["multi\n'
+                   '  line 1", "multi\n'
+                   '           line 2"]\n', conf, problem=(3, 12))
+        self.check('["multi\n'
+                   '  line 1", "multi\n'
+                   '             line 2"]\n', conf, problem=(3, 14))
 
     def test_basics_folded_style(self):
         conf = ('indentation: {spaces: 2, check-multi-line-strings: no}\n'
