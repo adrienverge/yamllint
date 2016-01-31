@@ -489,6 +489,51 @@ class IndentationTestCase(RuleTestCase):
                    '       value\n'
                    '...\n', conf, problem1=(4, 10), problem2=(6, 8))
 
+    def test_clear_sequence_item(self):
+        conf = 'indentation: {spaces: 2}'
+        self.check('---\n'
+                   '-\n'
+                   '  string\n'
+                   '-\n'
+                   '  map: ping\n'
+                   '-\n'
+                   '  - sequence\n'
+                   '  -\n'
+                   '    nested\n'
+                   '  -\n'
+                   '    >\n'
+                   '      multi\n'
+                   '      line\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   '-\n'
+                   ' string\n'
+                   '-\n'
+                   '   string\n', conf, problem1=(3, 2), problem2=(5, 4))
+        self.check('---\n'
+                   '-\n'
+                   ' map: ping\n'
+                   '-\n'
+                   '   map: ping\n', conf, problem1=(3, 2), problem2=(5, 4))
+        self.check('---\n'
+                   '-\n'
+                   ' - sequence\n'
+                   '-\n'
+                   '   - sequence\n', conf, problem1=(3, 2), problem2=(5, 4))
+        self.check('---\n'
+                   '-\n'
+                   '  -\n'
+                   '   nested\n'
+                   '  -\n'
+                   '     nested\n', conf, problem1=(4, 4), problem2=(6, 6))
+        self.check('---\n'
+                   '-\n'
+                   '  -\n'
+                   '     >\n'
+                   '      multi\n'
+                   '      line\n'
+                   '...\n', conf, problem=(4, 6))
+
 
 class ScalarIndentationTestCase(RuleTestCase):
     rule_id = 'indentation'

@@ -154,7 +154,7 @@ CONF = {'spaces': int,
         'indent-sequences': (True, False, 'whatever'),
         'check-multi-line-strings': bool}
 
-ROOT, MAP, B_SEQ, F_SEQ, KEY, VAL = range(6)
+ROOT, MAP, B_SEQ, F_SEQ, B_ENT, KEY, VAL = range(7)
 
 
 class Parent(object):
@@ -273,6 +273,9 @@ def check(conf, token, prev, next, context):
 
     # Step 2.b: Update state
 
+    if context['stack'][-1].type == B_ENT:
+        context['stack'].pop()
+
     if isinstance(token, yaml.BlockMappingStartToken):
         assert isinstance(next, yaml.KeyToken)
         if next.start_mark.line == token.start_mark.line:
@@ -311,6 +314,23 @@ def check(conf, token, prev, next, context):
         indent = token.start_mark.column
 
         context['stack'].append(Parent(B_SEQ, indent))
+
+    elif (isinstance(token, yaml.BlockEntryToken) and
+            # in case of an empty entry
+            not isinstance(next, (yaml.BlockEntryToken, yaml.BlockEndToken))):
+        if next.start_mark.line == token.end_mark.line:
+            #   - item 1
+            #   - item 2
+            indent = next.start_mark.column
+        else:
+            #   -
+            #     item 1
+            #   -
+            #     key:
+            #       value
+            indent = token.start_mark.column + conf['spaces']
+
+        context['stack'].append(Parent(B_ENT, indent))
 
     elif isinstance(token, yaml.FlowSequenceStartToken):
         if next.start_mark.line == token.start_mark.line:
