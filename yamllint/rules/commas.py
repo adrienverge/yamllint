@@ -21,12 +21,14 @@ Use this rule to control the number of spaces before and after commas (``,``).
 
 * ``max-spaces-before`` defines the maximal number of spaces allowed before
   commas (use ``-1`` to disable).
+* ``min-spaces-after`` defines the minimal number of spaces required after
+  commas.
 * ``max-spaces-after`` defines the maximal number of spaces allowed after
   commas (use ``-1`` to disable).
 
 .. rubric:: Examples
 
-#. With ``commas: {max-spaces-before: 0, max-spaces-after: 1}``
+#. With ``commas: {max-spaces-before: 0}``
 
    the following code snippet would **PASS**:
    ::
@@ -40,25 +42,53 @@ Use this rule to control the number of spaces before and after commas (``,``).
     strange var:
       [10, 20 , 30, {x: 1, y: 2}]
 
-   the following code snippet would **FAIL**:
-   ::
-
-    strange var:
-      [10, 20, 30, {x: 1,  y: 2}]
-
-#. With ``commas: {max-spaces-before: 2, max-spaces-after: 2}``
+#. With ``commas: {max-spaces-before: 2}``
 
    the following code snippet would **PASS**:
    ::
 
     strange var:
-      [10  , 20 ,  30,  {x: 1  ,  y: 2}]
+      [10  , 20 , 30,  {x: 1  , y: 2}]
+
+#. With ``commas: {max-spaces-before: -1}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    strange var:
+      [10,
+       20   , 30
+       ,   {x: 1, y: 2}]
+
+#. With ``commas: {min-spaces-after: 1, max-spaces-after: 1}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    strange var:
+      [10, 20,30, {x: 1, y: 2}]
 
    the following code snippet would **FAIL**:
    ::
 
     strange var:
-      [10  , 20 ,   30,  {x: 1  ,  y: 2}]
+      [10, 20,30,   {x: 1,   y: 2}]
+
+#. With ``commas: {min-spaces-after: 1, max-spaces-after: 3}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    strange var:
+      [10, 20,  30,  {x: 1,   y: 2}]
+
+#. With ``commas: {min-spaces-after: 0, max-spaces-after: 1}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    strange var:
+      [10, 20,30, {x: 1, y: 2}]
 """
 
 
@@ -71,12 +101,14 @@ from yamllint.rules.common import spaces_after, spaces_before
 ID = 'commas'
 TYPE = 'token'
 CONF = {'max-spaces-before': int,
+        'min-spaces-after': int,
         'max-spaces-after': int}
 
 
 def check(conf, token, prev, next, context):
     if isinstance(token, yaml.FlowEntryToken):
-        if prev is not None and prev.end_mark.line < token.start_mark.line:
+        if (prev is not None and conf['max-spaces-before'] != -1 and
+                prev.end_mark.line < token.start_mark.line):
             yield LintProblem(token.start_mark.line + 1,
                               max(1, token.start_mark.column),
                               'too many spaces before comma')
@@ -88,7 +120,9 @@ def check(conf, token, prev, next, context):
                 yield problem
 
         problem = spaces_after(token, prev, next,
+                               min=conf['min-spaces-after'],
                                max=conf['max-spaces-after'],
+                               min_desc='too few spaces after comma',
                                max_desc='too many spaces after comma')
         if problem is not None:
             yield problem
