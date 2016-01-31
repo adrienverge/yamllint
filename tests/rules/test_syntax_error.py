@@ -36,6 +36,16 @@ class YamlLintTestCase(RuleTestCase):
                    'doc: ument\n'
                    '...\n', None, problem=(3, 1))
 
+    def test_empty_flows(self):
+        self.check('---\n'
+                   '- []\n'
+                   '- {}\n'
+                   '- [\n'
+                   ']\n'
+                   '- {\n'
+                   '}\n'
+                   '...\n', None)
+
     def test_explicit_mapping(self):
         self.check('---\n'
                    '? key\n'
