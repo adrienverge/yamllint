@@ -14,12 +14,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""A linter for YAML files.
+
+yamllint does not only check for syntax validity, but for weirdnesses like key
+repetition and cosmetic problems such as lines length, trailing spaces,
+indentation, etc."""
+
+
 APP_NAME = 'yamllint'
 APP_VERSION = '0.7.0'
-APP_DESCRIPTION = """A linter for YAML files.
-
-yamllint does not only check for syntax validity, but for common cosmetic
-conventions such as lines length, trailing spaces, indentation, etc."""
+APP_DESCRIPTION = __doc__
 
 __author__ = u'Adrien Vergé'
 __copyright__ = u'Copyright 2016, Adrien Vergé'
