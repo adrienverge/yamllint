@@ -69,6 +69,11 @@ indentation
 
 .. automodule:: yamllint.rules.indentation
 
+key-duplicates
+--------------
+
+.. automodule:: yamllint.rules.key_duplicates
+
 line-length
 -----------
 
