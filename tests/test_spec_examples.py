@@ -110,6 +110,7 @@ conf_overrides = {
     'example-8.9': ('empty-lines: {max-end: 1}\n'),
     'example-8.14': ('colons: {max-spaces-before: 1}\n'),
     'example-8.16': ('indentation: {spaces: 1}\n'),
+    'example-8.17': ('indentation: disable\n'),
 }
 
 files = os.listdir('tests/yaml-1.2-spec-examples')
@@ -125,9 +126,7 @@ def _gen_test(buffer, conf):
 # The following tests are blacklisted because they contain rarely-used formats
 # that yamllint does not handle yet.
 tmp_blacklist = (
-     'example-2.25',
      'example-7.16',
-     'example-8.17',
      'example-8.20',
      'example-8.22',
      'example-10.1',

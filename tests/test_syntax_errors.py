@@ -75,3 +75,20 @@ class YamlLintTestCase(RuleTestCase):
                    '   Atlanta Braves]\n'
                    ': [2001-07-02, 2001-08-12,\n'
                    '   2001-08-14]\n', None)
+
+    def test_sets(self):
+        self.check('---\n'
+                   '? key one\n'
+                   '? key two\n'
+                   '? [non, scalar, key]\n'
+                   '? key with value\n'
+                   ': value\n'
+                   '...\n', None)
+        self.check('---\n'
+                   '? - multi\n'
+                   '  - line\n'
+                   '  - keys\n'
+                   '? in:\n'
+                   '    a:\n'
+                   '      set\n'
+                   '...\n', None)

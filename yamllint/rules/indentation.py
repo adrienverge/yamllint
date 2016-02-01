@@ -413,3 +413,12 @@ def check(conf, token, prev, next, context):
                 indent = context['stack'][-1].indent + conf['spaces']
 
             context['stack'].append(Parent(VAL, indent))
+
+    if (context['stack'][-1].type == KEY and
+            isinstance(next, (yaml.BlockEndToken,
+                              yaml.FlowMappingEndToken,
+                              yaml.FlowSequenceEndToken,
+                              yaml.KeyToken))):
+        # A key without a value: it's part of a set. Let's drop this key
+        # and leave room for the next one.
+        context['stack'].pop()
