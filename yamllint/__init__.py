@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 APP_NAME = 'yamllint'
-APP_VERSION = '0.6.0'
+APP_VERSION = '0.7.0'
 APP_DESCRIPTION = """A linter for YAML files.
 
 yamllint does not only check for syntax validity, but for common cosmetic
