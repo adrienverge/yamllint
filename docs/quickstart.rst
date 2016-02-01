@@ -38,15 +38,18 @@ The output will look like (colors are not displayed here):
 ::
 
  file.yml
-   6:2       warning  missing starting space in comment  (comments)
-   57:1      error    trailing spaces  (trailing-spaces)
-   60:3      error    wrong indentation: expected 4 but found 2  (indentation)
+   1:4       error    trailing spaces  (trailing-spaces)
+   4:4       error    wrong indentation: expected 4 but found 3  (indentation)
+   5:4       error    duplication of key "id-00042" in mapping  (key-duplicates)
+   6:6       warning  comment not indented like content  (comments-indentation)
+   12:6      error    too many spaces after hyphen  (hyphens)
+   15:12     error    too many spaces before comma  (commas)
 
- other-file.yml
+ other-file.yaml
    1:1       warning  missing document start "---"  (document-start)
-   9:81      error    line too long (84 > 80 characters)  (line-length)
-   31:1      error    too many blank lines (4 > 2)  (empty-lines)
-   37:12     error    too many spaces inside braces  (braces)
+   6:81      error    line too long (87 > 80 characters)  (line-length)
+   10:1      error    too many blank lines (4 > 2)  (empty-lines)
+   11:4      error    too many spaces inside braces  (braces)
 
 Add the ``-f parsable`` arguments if you need an output format parsable by a
 machine (for instance for :doc:`syntax highlighting in text editors
