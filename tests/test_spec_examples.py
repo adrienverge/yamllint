@@ -35,6 +35,7 @@ from tests.common import RuleTestCase
 #             for br in span.find_all("br"):
 #                 br.replace_with("\n")
 #             text = text.replace('\u2193', '')    # downwards arrow
+#             text = text.replace('\u21d3', '')    # double downwards arrow
 #             text = text.replace('\u00b7', ' ')   # visible space
 #             text = text.replace('\u21d4', '')    # byte order mark
 #             text = text.replace('\u2192', '\t')  # right arrow
