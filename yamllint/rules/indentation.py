@@ -158,9 +158,10 @@ ROOT, MAP, B_SEQ, F_SEQ, B_ENT, KEY, VAL = range(7)
 
 
 class Parent(object):
-    def __init__(self, type, indent):
+    def __init__(self, type, indent, line_indent=None):
         self.type = type
         self.indent = indent
+        self.line_indent = line_indent
         self.explicit_key = False
 
 
@@ -250,7 +251,7 @@ def check(conf, token, prev, next, context):
 
         if isinstance(token, (yaml.FlowMappingEndToken,
                               yaml.FlowSequenceEndToken)):
-            expected = 0
+            expected = context['stack'][-1].line_indent
         elif (context['stack'][-1].type == KEY and
                 context['stack'][-1].explicit_key and
                 not isinstance(token, yaml.ValueToken)):
@@ -301,11 +302,12 @@ def check(conf, token, prev, next, context):
             indent = next.start_mark.column
         else:
             #   - {
-            #   a: 1, b: 2
-            # }
+            #     a: 1, b: 2
+            #   }
             indent = context['cur_line_indent'] + conf['spaces']
 
-        context['stack'].append(Parent(MAP, indent))
+        context['stack'].append(Parent(MAP, indent,
+                                       line_indent=context['cur_line_indent']))
 
     elif isinstance(token, yaml.BlockSequenceStartToken):
         #   - - a
@@ -344,7 +346,8 @@ def check(conf, token, prev, next, context):
             # ]
             indent = context['cur_line_indent'] + conf['spaces']
 
-        context['stack'].append(Parent(F_SEQ, indent))
+        context['stack'].append(Parent(F_SEQ, indent,
+                                       line_indent=context['cur_line_indent']))
 
     elif isinstance(token, (yaml.BlockEndToken,
                             yaml.FlowMappingEndToken,

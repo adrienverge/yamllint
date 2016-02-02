@@ -169,7 +169,9 @@ class IndentationTestCase(RuleTestCase):
                    '- b\n'
                    '- c\n', conf, problem=(6, 1, 'syntax'))
 
-    def test_flow_mappings(self):
+    def test_direct_flows(self):
+        # flow: [ ...
+        # ]
         conf = 'indentation: {spaces: 2}'
         self.check('---\n'
                    'a: {x: 1,\n'
@@ -185,8 +187,44 @@ class IndentationTestCase(RuleTestCase):
                    '    z: 1}\n', conf, problem=(3, 6))
         self.check('---\n'
                    'a: {x: 1,\n'
+                   '  y, z: 1}\n', conf, problem=(3, 3))
+        self.check('---\n'
+                   'a: {x: 1,\n'
+                   '    y, z: 1\n'
+                   '}\n', conf)
+        self.check('---\n'
+                   'a: {x: 1,\n'
                    '  y, z: 1\n'
                    '}\n', conf, problem=(3, 3))
+        self.check('---\n'
+                   'a: [x,\n'
+                   '    y,\n'
+                   '    z]\n', conf)
+        self.check('---\n'
+                   'a: [x,\n'
+                   '   y,\n'
+                   '    z]\n', conf, problem=(3, 4))
+        self.check('---\n'
+                   'a: [x,\n'
+                   '     y,\n'
+                   '    z]\n', conf, problem=(3, 6))
+        self.check('---\n'
+                   'a: [x,\n'
+                   '  y, z]\n', conf, problem=(3, 3))
+        self.check('---\n'
+                   'a: [x,\n'
+                   '    y, z\n'
+                   ']\n', conf)
+        self.check('---\n'
+                   'a: [x,\n'
+                   '  y, z\n'
+                   ']\n', conf, problem=(3, 3))
+
+    def test_broken_flows(self):
+        # flow: [
+        #   ...
+        # ]
+        conf = 'indentation: {spaces: 2}'
         self.check('---\n'
                    'a: {\n'
                    '  x: 1,\n'
@@ -206,25 +244,6 @@ class IndentationTestCase(RuleTestCase):
                    '  x: 1,\n'
                    '  y, z: 1\n'
                    '  }\n', conf, problem=(5, 3))
-
-    def test_flow_sequences(self):
-        conf = 'indentation: {spaces: 2}'
-        self.check('---\n'
-                   'a: [x,\n'
-                   '    y,\n'
-                   '    z]\n', conf)
-        self.check('---\n'
-                   'a: [x,\n'
-                   '   y,\n'
-                   '    z]\n', conf, problem=(3, 4))
-        self.check('---\n'
-                   'a: [x,\n'
-                   '     y,\n'
-                   '    z]\n', conf, problem=(3, 6))
-        self.check('---\n'
-                   'a: [x,\n'
-                   '  y, z\n'
-                   ']\n', conf, problem=(3, 3))
         self.check('---\n'
                    'a: [\n'
                    '  x,\n'
@@ -244,6 +263,138 @@ class IndentationTestCase(RuleTestCase):
                    '  x,\n'
                    '  y, z\n'
                    '  ]\n', conf, problem=(5, 3))
+        self.check('---\n'
+                   'obj: {\n'
+                   '  a: 1,\n'
+                   '   b: 2,\n'
+                   ' c: 3\n'
+                   '}\n', conf, problem1=(4, 4), problem2=(5, 2))
+        self.check('---\n'
+                   'list: [\n'
+                   '  1,\n'
+                   '   2,\n'
+                   ' 3\n'
+                   ']\n', conf, problem1=(4, 4), problem2=(5, 2))
+        self.check('---\n'
+                   'top:\n'
+                   '  rules: [\n'
+                   '    1, 2,\n'
+                   '  ]\n', conf)
+        self.check('---\n'
+                   'top:\n'
+                   '  rules: [\n'
+                   '    1, 2,\n'
+                   ']\n'
+                   '  rulez: [\n'
+                   '    1, 2,\n'
+                   '    ]\n', conf, problem1=(5, 1), problem2=(8, 5))
+        self.check('---\n'
+                   'top:\n'
+                   '  rules:\n'
+                   '    here: {\n'
+                   '      foo: 1,\n'
+                   '      bar: 2\n'
+                   '    }\n', conf)
+        self.check('---\n'
+                   'top:\n'
+                   '  rules:\n'
+                   '    here: {\n'
+                   '      foo: 1,\n'
+                   '      bar: 2\n'
+                   '      }\n'
+                   '    there: {\n'
+                   '      foo: 1,\n'
+                   '      bar: 2\n'
+                   '  }\n', conf, problem1=(7, 7), problem2=(11, 3))
+
+    def test_cleared_flows(self):
+        # flow:
+        #   [
+        #     ...
+        #   ]
+        conf = 'indentation: {spaces: 2}'
+        self.check('---\n'
+                   'top:\n'
+                   '  rules:\n'
+                   '    {\n'
+                   '      foo: 1,\n'
+                   '      bar: 2\n'
+                   '    }\n', conf)
+        self.check('---\n'
+                   'top:\n'
+                   '  rules:\n'
+                   '    {\n'
+                   '       foo: 1,\n'
+                   '      bar: 2\n'
+                   '    }\n', conf, problem=(5, 8))
+        self.check('---\n'
+                   'top:\n'
+                   '  rules:\n'
+                   '   {\n'
+                   '     foo: 1,\n'
+                   '     bar: 2\n'
+                   '   }\n', conf, problem=(4, 4))
+        self.check('---\n'
+                   'top:\n'
+                   '  rules:\n'
+                   '    {\n'
+                   '      foo: 1,\n'
+                   '      bar: 2\n'
+                   '   }\n', conf, problem=(7, 4))
+        self.check('---\n'
+                   'top:\n'
+                   '  rules:\n'
+                   '    {\n'
+                   '      foo: 1,\n'
+                   '      bar: 2\n'
+                   '     }\n', conf, problem=(7, 6))
+        self.check('---\n'
+                   'top:\n'
+                   '  [\n'
+                   '    a, b, c\n'
+                   '  ]\n', conf)
+        self.check('---\n'
+                   'top:\n'
+                   '  [\n'
+                   '     a, b, c\n'
+                   '  ]\n', conf, problem=(4, 6))
+        self.check('---\n'
+                   'top:\n'
+                   '   [\n'
+                   '     a, b, c\n'
+                   '   ]\n', conf, problem=(3, 4))
+        self.check('---\n'
+                   'top:\n'
+                   '  [\n'
+                   '    a, b, c\n'
+                   '   ]\n', conf, problem=(5, 4))
+        self.check('---\n'
+                   'top:\n'
+                   '  rules: [\n'
+                   '    {\n'
+                   '      foo: 1\n'
+                   '    },\n'
+                   '    {\n'
+                   '      foo: 2,\n'
+                   '      bar: [\n'
+                   '        a, b, c\n'
+                   '      ],\n'
+                   '    },\n'
+                   '  ]\n', conf)
+        self.check('---\n'
+                   'top:\n'
+                   '  rules: [\n'
+                   '    {\n'
+                   '     foo: 1\n'
+                   '     },\n'
+                   '    {\n'
+                   '      foo: 2,\n'
+                   '        bar: [\n'
+                   '          a, b, c\n'
+                   '      ],\n'
+                   '    },\n'
+                   ']\n', conf, problem1=(5, 6), problem2=(6, 6),
+                   problem3=(9, 9), problem4=(11, 7), problem5=(13, 1))
 
     def test_under_indented(self):
         conf = 'indentation: {spaces: 2, indent-sequences: yes}'
@@ -437,21 +588,6 @@ class IndentationTestCase(RuleTestCase):
         conf = ('indentation: {spaces: 2}\n'
                 'document-start: disable\n')
         self.check('  a: 1\n', conf, problem=(1, 3))
-
-    def test_broken_inline_flows(self):
-        conf = 'indentation: {spaces: 2}'
-        self.check('---\n'
-                   'obj: {\n'
-                   '  a: 1,\n'
-                   '   b: 2,\n'
-                   ' c: 3\n'
-                   '}\n', conf, problem1=(4, 4), problem2=(5, 2))
-        self.check('---\n'
-                   'list: [\n'
-                   '  1,\n'
-                   '   2,\n'
-                   ' 3\n'
-                   ']\n', conf, problem1=(4, 4), problem2=(5, 2))
 
     def test_explicit_block_mappings(self):
         conf = 'indentation: {spaces: 4}'
