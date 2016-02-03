@@ -39,7 +39,8 @@ class IndentationStackTestCase(RuleTestCase):
         context = {}
         output = ''
         for elem in token_generator(source):
-            list(check(conf, elem.curr, elem.prev, elem.next, context))
+            list(check(conf, elem.curr, elem.prev, elem.next, elem.nextnext,
+                       context))
 
             token_type = (elem.curr.__class__.__name__
                           .replace('Token', '')

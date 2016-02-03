@@ -98,7 +98,7 @@ TYPE = 'token'
 #     # commented line 2
 #     current: line
 
-def check(conf, token, prev, next, context):
+def check(conf, token, prev, next, nextnext, context):
     if prev is None:
         return
 

@@ -105,7 +105,7 @@ CONF = {'max-spaces-before': int,
         'max-spaces-after': int}
 
 
-def check(conf, token, prev, next, context):
+def check(conf, token, prev, next, nextnext, context):
     if isinstance(token, yaml.FlowEntryToken):
         if (prev is not None and conf['max-spaces-before'] != -1 and
                 prev.end_mark.line < token.start_mark.line):

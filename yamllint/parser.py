@@ -30,11 +30,12 @@ class Line(object):
 
 
 class Token(object):
-    def __init__(self, line_no, curr, prev, next):
+    def __init__(self, line_no, curr, prev, next, nextnext):
         self.line_no = line_no
         self.curr = curr
         self.prev = prev
         self.next = next
+        self.nextnext = nextnext
 
 
 def line_generator(buffer):
@@ -55,14 +56,16 @@ def token_generator(buffer):
 
     try:
         prev = None
-        next = yaml_loader.peek_token()
-        while next is not None:
-            curr = yaml_loader.get_token()
-            next = yaml_loader.peek_token()
+        curr = yaml_loader.get_token()
+        while curr is not None:
+            next = yaml_loader.get_token()
+            nextnext = yaml_loader.peek_token()
 
-            yield Token(curr.start_mark.line + 1, curr, prev, next)
+            yield Token(curr.start_mark.line + 1, curr, prev, next, nextnext)
 
             prev = curr
+            curr = next
+
     except yaml.scanner.ScannerError:
         pass
 

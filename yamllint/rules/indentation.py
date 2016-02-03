@@ -236,7 +236,7 @@ def check_scalar_indentation(conf, token, context):
                               (expected_indent, indent))
 
 
-def check(conf, token, prev, next, context):
+def check(conf, token, prev, next, nextnext, context):
     if 'stack' not in context:
         context['stack'] = [Parent(ROOT, 0)]
         context['cur_line'] = -1

@@ -72,7 +72,7 @@ class Parent(object):
         self.keys = []
 
 
-def check(conf, token, prev, next, context):
+def check(conf, token, prev, next, nextnext, context):
     if 'stack' not in context:
         context['stack'] = []
 

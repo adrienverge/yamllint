@@ -67,7 +67,7 @@ CONF = {'require-starting-space': bool,
         'min-spaces-from-content': int}
 
 
-def check(conf, token, prev, next, context):
+def check(conf, token, prev, next, nextnext, context):
     for comment in get_comments_between_tokens(token, next):
         if (conf['min-spaces-from-content'] != -1 and
                 not isinstance(token, yaml.StreamStartToken) and

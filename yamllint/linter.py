@@ -68,6 +68,7 @@ def get_costemic_problems(buffer, conf):
                 rule_conf = conf.rules[rule.ID]
                 for problem in rule.check(rule_conf,
                                           elem.curr, elem.prev, elem.next,
+                                          elem.nextnext,
                                           context[rule.ID]):
                     problem.rule = rule.ID
                     problem.level = rule_conf['level']
