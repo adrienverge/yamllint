@@ -154,7 +154,7 @@ CONF = {'spaces': int,
         'indent-sequences': (True, False, 'whatever'),
         'check-multi-line-strings': bool}
 
-ROOT, MAP, B_SEQ, F_SEQ, B_ENT, KEY, VAL = range(7)
+ROOT, B_MAP, F_MAP, B_SEQ, F_SEQ, B_ENT, KEY, VAL = range(8)
 
 
 class Parent(object):
@@ -163,6 +163,7 @@ class Parent(object):
         self.indent = indent
         self.line_indent = line_indent
         self.explicit_key = False
+        self.implicit_block_seq = False
 
 
 def check_scalar_indentation(conf, token, context):
@@ -276,9 +277,6 @@ def check(conf, token, prev, next, context):
 
     # Step 2.b: Update state
 
-    if context['stack'][-1].type == B_ENT:
-        context['stack'].pop()
-
     if isinstance(token, yaml.BlockMappingStartToken):
         assert isinstance(next, yaml.KeyToken)
         if next.start_mark.line == token.start_mark.line:
@@ -294,7 +292,7 @@ def check(conf, token, prev, next, context):
             #     : 1
             indent = token.start_mark.column + conf['spaces']
 
-        context['stack'].append(Parent(MAP, indent))
+        context['stack'].append(Parent(B_MAP, indent))
 
     elif isinstance(token, yaml.FlowMappingStartToken):
         if next.start_mark.line == token.start_mark.line:
@@ -306,7 +304,7 @@ def check(conf, token, prev, next, context):
             #   }
             indent = context['cur_line_indent'] + conf['spaces']
 
-        context['stack'].append(Parent(MAP, indent,
+        context['stack'].append(Parent(F_MAP, indent,
                                        line_indent=context['cur_line_indent']))
 
     elif isinstance(token, yaml.BlockSequenceStartToken):
@@ -322,6 +320,12 @@ def check(conf, token, prev, next, context):
     elif (isinstance(token, yaml.BlockEntryToken) and
             # in case of an empty entry
             not isinstance(next, (yaml.BlockEntryToken, yaml.BlockEndToken))):
+        # It looks like pyyaml doesn't issue BlockSequenceStartTokens when the
+        # list is not indented. We need to compensate that.
+        if context['stack'][-1].type != B_SEQ:
+            context['stack'].append(Parent(B_SEQ, token.start_mark.column))
+            context['stack'][-1].implicit_block_seq = True
+
         if next.start_mark.line == token.end_mark.line:
             #   - item 1
             #   - item 2
@@ -349,12 +353,6 @@ def check(conf, token, prev, next, context):
         context['stack'].append(Parent(F_SEQ, indent,
                                        line_indent=context['cur_line_indent']))
 
-    elif isinstance(token, (yaml.BlockEndToken,
-                            yaml.FlowMappingEndToken,
-                            yaml.FlowSequenceEndToken)):
-        assert context['stack'][-1].type in (MAP, B_SEQ, F_SEQ)
-        context['stack'].pop()
-
     elif isinstance(token, yaml.KeyToken):
         indent = context['stack'][-1].indent
 
@@ -362,21 +360,14 @@ def check(conf, token, prev, next, context):
 
         context['stack'][-1].explicit_key = is_explicit_key(token)
 
-    if context['stack'][-1].type == VAL:
-        context['stack'].pop()
-        assert context['stack'][-1].type == KEY
-        context['stack'].pop()
-
     elif isinstance(token, yaml.ValueToken):
         assert context['stack'][-1].type == KEY
 
-        # Discard empty values
-        if isinstance(next, (yaml.BlockEndToken,
-                             yaml.FlowMappingEndToken,
-                             yaml.FlowSequenceEndToken,
-                             yaml.KeyToken)):
-            context['stack'].pop()
-        else:
+        # Only if value is not empty
+        if not isinstance(next, (yaml.BlockEndToken,
+                                 yaml.FlowMappingEndToken,
+                                 yaml.FlowSequenceEndToken,
+                                 yaml.KeyToken)):
             if context['stack'][-1].explicit_key:
                 #   ? k
                 #   : value
@@ -417,11 +408,49 @@ def check(conf, token, prev, next, context):
 
             context['stack'].append(Parent(VAL, indent))
 
-    if (context['stack'][-1].type == KEY and
-            isinstance(next, (yaml.BlockEndToken,
-                              yaml.FlowMappingEndToken,
-                              yaml.FlowSequenceEndToken,
-                              yaml.KeyToken))):
-        # A key without a value: it's part of a set. Let's drop this key
-        # and leave room for the next one.
-        context['stack'].pop()
+    consumed_current_token = False
+    while True:
+        if (context['stack'][-1].type == F_SEQ and
+                isinstance(token, yaml.FlowSequenceEndToken)):
+            context['stack'].pop()
+
+        elif (context['stack'][-1].type == F_MAP and
+                isinstance(token, yaml.FlowMappingEndToken)):
+            context['stack'].pop()
+
+        elif (context['stack'][-1].type in (B_MAP, B_SEQ) and
+                isinstance(token, yaml.BlockEndToken) and
+                not context['stack'][-1].implicit_block_seq and
+                not consumed_current_token):
+            context['stack'].pop()
+            consumed_current_token = True
+
+        elif (context['stack'][-1].type == B_ENT and
+                not isinstance(token, yaml.BlockEntryToken) and
+                context['stack'][-2].implicit_block_seq and
+                not isinstance(next, yaml.ScalarToken)):
+                # isinstance(next, yaml.KeyToken)):
+            context['stack'].pop()
+            context['stack'].pop()
+
+        elif (context['stack'][-1].type == B_ENT and
+                isinstance(next, (yaml.BlockEntryToken, yaml.BlockEndToken))):
+            context['stack'].pop()
+
+        elif (context['stack'][-1].type == VAL and
+                not isinstance(token, yaml.ValueToken)):
+            assert context['stack'][-2].type == KEY
+            context['stack'].pop()
+            context['stack'].pop()
+
+        elif (context['stack'][-1].type == KEY and
+                isinstance(next, (yaml.BlockEndToken,
+                                  yaml.FlowMappingEndToken,
+                                  yaml.FlowSequenceEndToken,
+                                  yaml.KeyToken))):
+            # A key without a value: it's part of a set. Let's drop this key
+            # and leave room for the next one.
+            context['stack'].pop()
+
+        else:
+            break
