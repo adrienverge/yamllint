@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+
+import sys
+
+file = sys.argv[1]
+line = int(sys.argv[2]) - 1
+indent_expected = int(sys.argv[3])
+indent_found = int(sys.argv[4])
+
+with open(file) as f:
+    lines = f.readlines()
+
+    before = lines[:line]
+
+    is_a_list = lines[line].strip()[0] == '-'
+
+    i = line
+    while (i < len(lines) and
+           (lines[i].strip() == '' or
+            (not is_a_list and lines[i].startswith(indent_found * ' ')) or
+            (is_a_list and (lines[i].startswith(indent_found * ' ' + '-') or
+                            lines[i].startswith(indent_found * ' ' + ' '))))):
+        i += 1
+
+    contents = lines[line:i]
+    after = lines[i:]
+
+    new_contents = []
+    for line in contents:
+        if line.strip() != '':
+            line = (indent_expected * ' ') + line[indent_found:]
+        new_contents.append(line)
+
+with open(file, 'w') as f:
+    f.write(''.join(before))
+    f.write(''.join(new_contents))
+    f.write(''.join(after))

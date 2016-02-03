@@ -1,0 +1,50 @@
+#!/bin/bash
+
+set -euf
+
+DIR=$(dirname "$(readlink -f $0)")
+
+fix_one_problem_in_file() {
+  local filename=$1
+  local error
+  error=$(yamllint -f parsable "$filename" | grep 'wrong indentation: expected' \
+    | head -n 1)
+  if [ -z "$error" ]; then
+    return 1
+  fi
+  local line=$(echo $error | cut -d: -f2)
+  local expected=$(echo $error | cut -d: -f5 | sed 's/.* expected //;s/ but found.*//')
+  local found=$(echo $error | cut -d: -f5 | sed 's/.*but found //;s/(inde.*//')
+  "$DIR/yaml-remove-indentation" "$filename" $line $expected $found
+  return 0
+}
+
+reformat_yaml() {
+  local in=$1
+  local out=$2
+  python -c 'import sys, yaml; yaml.dump(yaml.load(sys.stdin), sys.stdout)' <"$in" >"$out"
+}
+
+fix_one_file() {
+  local filename=$1
+  local backup=$(mktemp originalXXXXX)
+  cp "$filename" "$backup"
+  echo "FIXING    $file"
+  while fix_one_problem_in_file "$filename"; do continue; done
+  echo "CHECKING  $file"
+  local tmp_old=$(mktemp oldXXXXX)
+  local tmp_new=$(mktemp newXXXXX)
+  reformat_yaml "$backup" "$tmp_old"
+  reformat_yaml "$filename" "$tmp_new"
+  if ! diff -q "$tmp_old" "$tmp_new" &>/dev/null; then
+    echo "error: after reformating, the file contents is detected different."
+    echo "diff $backup $filename"
+    echo "diff $tmp_old $tmp_new"
+    exit 1
+  fi
+  rm "$backup" "$tmp_old" "$tmp_new"
+}
+
+for file in "$@"; do
+  fix_one_file "$file"
+done
