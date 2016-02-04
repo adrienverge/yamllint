@@ -155,6 +155,7 @@ CONF = {'spaces': int,
         'check-multi-line-strings': bool}
 
 ROOT, B_MAP, F_MAP, B_SEQ, F_SEQ, B_ENT, KEY, VAL = range(8)
+labels = ('ROOT', 'B_MAP', 'F_MAP', 'B_SEQ', 'F_SEQ', 'B_ENT', 'KEY', 'VAL')
 
 
 class Parent(object):
@@ -164,6 +165,9 @@ class Parent(object):
         self.line_indent = line_indent
         self.explicit_key = False
         self.implicit_block_seq = False
+
+    def __repr__(self):
+        return '%s:%d' % (labels[self.type], self.indent)
 
 
 def check_scalar_indentation(conf, token, context):

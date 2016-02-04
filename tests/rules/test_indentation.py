@@ -15,6 +15,206 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from tests.common import RuleTestCase
+from yamllint.parser import token_generator
+from yamllint.rules.indentation import check
+
+
+class IndentationStackTestCase(RuleTestCase):
+    # This test suite checks that the "indentation stack" built by the
+    # indentation rule is valid. It is important, since everything else in the
+    # rule relies on this stack.
+
+    maxDiff = None
+
+    def format_stack(self, stack):
+        """Transform the stack at a given moment into a printable string like:
+
+        B_MAP:0 KEY:0 VAL:5
+        """
+        return ' '.join(map(str, stack[1:]))
+
+    def full_stack(self, source):
+        conf = {'spaces': 2, 'indent-sequences': True,
+                'check-multi-line-strings': False}
+        context = {}
+        output = ''
+        for elem in token_generator(source):
+            list(check(conf, elem.curr, elem.prev, elem.next, context))
+
+            token_type = (elem.curr.__class__.__name__
+                          .replace('Token', '')
+                          .replace('Block', 'B').replace('Flow', 'F')
+                          .replace('Sequence', 'Seq')
+                          .replace('Mapping', 'Map'))
+            if token_type in ('StreamStart', 'StreamEnd'):
+                continue
+            output += '%9s %s\n' % (token_type,
+                                    self.format_stack(context['stack']))
+        return output
+
+    def test_simple_mapping(self):
+        self.assertMultiLineEqual(
+            self.full_stack('key: val\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:5\n'
+            '   Scalar B_MAP:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('     key: val\n'),
+            'BMapStart B_MAP:5\n'
+            '      Key B_MAP:5 KEY:5\n'
+            '   Scalar B_MAP:5 KEY:5\n'
+            '    Value B_MAP:5 KEY:5 VAL:10\n'
+            '   Scalar B_MAP:5\n'
+            '     BEnd \n')
+
+    def test_simple_sequence(self):
+        self.assertMultiLineEqual(
+            self.full_stack('- 1\n'
+                            '- 2\n'
+                            '- 3\n'),
+            'BSeqStart B_SEQ:0\n'
+            '   BEntry B_SEQ:0 B_ENT:2\n'
+            '   Scalar B_SEQ:0\n'
+            '   BEntry B_SEQ:0 B_ENT:2\n'
+            '   Scalar B_SEQ:0\n'
+            '   BEntry B_SEQ:0 B_ENT:2\n'
+            '   Scalar B_SEQ:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('key:\n'
+                            '  - 1\n'
+                            '  - 2\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:2\n'
+            'BSeqStart B_MAP:0 KEY:0 VAL:2 B_SEQ:2\n'
+            '   BEntry B_MAP:0 KEY:0 VAL:2 B_SEQ:2 B_ENT:4\n'
+            '   Scalar B_MAP:0 KEY:0 VAL:2 B_SEQ:2\n'
+            '   BEntry B_MAP:0 KEY:0 VAL:2 B_SEQ:2 B_ENT:4\n'
+            '   Scalar B_MAP:0 KEY:0 VAL:2 B_SEQ:2\n'
+            '     BEnd B_MAP:0\n'
+            '     BEnd \n')
+
+    def test_non_indented_sequences(self):
+        # There seems to be a bug in pyyaml: depending on the indentation, a
+        # sequence does not produce the same tokens. More precisely, the
+        # following YAML:
+        #     usr:
+        #       - lib
+        # produces a BlockSequenceStartToken and a BlockEndToken around the
+        # "lib" sequence, whereas the following:
+        #     usr:
+        #     - lib
+        # does not (both two tokens are omitted).
+        # So, yamllint must create fake 'B_SEQ'. This test makes sure it does.
+
+        self.assertMultiLineEqual(
+            self.full_stack('usr:\n'
+                            '  - lib\n'
+                            'var: cache\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:2\n'
+            'BSeqStart B_MAP:0 KEY:0 VAL:2 B_SEQ:2\n'
+            '   BEntry B_MAP:0 KEY:0 VAL:2 B_SEQ:2 B_ENT:4\n'
+            '   Scalar B_MAP:0 KEY:0 VAL:2 B_SEQ:2\n'
+            '     BEnd B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:5\n'
+            '   Scalar B_MAP:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('usr:\n'
+                            '- lib\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:2\n'
+            # missing BSeqStart here
+            '   BEntry B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2\n'
+            '   Scalar B_MAP:0\n'
+            # missing BEnd here
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('usr:\n'
+                            '- lib\n'
+                            'var: cache\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:2\n'
+            # missing BSeqStart here
+            '   BEntry B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2\n'
+            '   Scalar B_MAP:0\n'
+            # missing BEnd here
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:5\n'
+            '   Scalar B_MAP:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('usr:\n'
+                            '- []\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:2\n'
+            # missing BSeqStart here
+            '   BEntry B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2\n'
+            'FSeqStart B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2 F_SEQ:3\n'
+            '  FSeqEnd B_MAP:0\n'
+            # missing BEnd here
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('usr:\n'
+                            '- k:\n'
+                            '    v\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:2\n'
+            # missing BSeqStart here
+            '   BEntry B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2\n'
+            'BMapStart B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2 B_MAP:2\n'
+            '      Key B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2 B_MAP:2 KEY:2\n'
+            '   Scalar B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2 B_MAP:2 KEY:2\n'
+            '    Value B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2 B_MAP:2 KEY:2 VAL:4\n'  # noqa
+            '   Scalar B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2 B_MAP:2\n'
+            '     BEnd B_MAP:0\n'
+            # missing BEnd here
+            '     BEnd \n')
+
+    def test_flows(self):
+        self.assertMultiLineEqual(
+            self.full_stack('usr: [\n'
+                            '  {k:\n'
+                            '    v}\n'
+                            '  ]\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:5\n'
+            'FSeqStart B_MAP:0 KEY:0 VAL:5 F_SEQ:2\n'
+            'FMapStart B_MAP:0 KEY:0 VAL:5 F_SEQ:2 F_MAP:3\n'
+            '      Key B_MAP:0 KEY:0 VAL:5 F_SEQ:2 F_MAP:3 KEY:3\n'
+            '   Scalar B_MAP:0 KEY:0 VAL:5 F_SEQ:2 F_MAP:3 KEY:3\n'
+            '    Value B_MAP:0 KEY:0 VAL:5 F_SEQ:2 F_MAP:3 KEY:3 VAL:5\n'
+            '   Scalar B_MAP:0 KEY:0 VAL:5 F_SEQ:2 F_MAP:3\n'
+            '  FMapEnd B_MAP:0 KEY:0 VAL:5 F_SEQ:2\n'
+            '  FSeqEnd B_MAP:0\n'
+            '     BEnd \n')
 
 
 class IndentationTestCase(RuleTestCase):
