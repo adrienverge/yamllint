@@ -367,6 +367,14 @@ def check(conf, token, prev, next, nextnext, context):
     elif isinstance(token, yaml.ValueToken):
         assert context['stack'][-1].type == KEY
 
+        # Special case:
+        #     key: &anchor
+        #       value
+        if isinstance(next, yaml.AnchorToken):
+            if (next.start_mark.line == prev.start_mark.line and
+                    next.start_mark.line < nextnext.start_mark.line):
+                next = nextnext
+
         # Only if value is not empty
         if not isinstance(next, (yaml.BlockEndToken,
                                  yaml.FlowMappingEndToken,
@@ -442,10 +450,11 @@ def check(conf, token, prev, next, nextnext, context):
             context['stack'].pop()
 
         elif (context['stack'][-1].type == VAL and
-                not isinstance(token, yaml.ValueToken)):
-            assert context['stack'][-2].type == KEY
-            context['stack'].pop()
-            context['stack'].pop()
+                not isinstance(token, yaml.ValueToken) and
+                not isinstance(token, yaml.AnchorToken)):
+                assert context['stack'][-2].type == KEY
+                context['stack'].pop()
+                context['stack'].pop()
 
         elif (context['stack'][-1].type == KEY and
                 isinstance(next, (yaml.BlockEndToken,

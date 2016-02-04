@@ -217,6 +217,89 @@ class IndentationStackTestCase(RuleTestCase):
             '  FSeqEnd B_MAP:0\n'
             '     BEnd \n')
 
+    def test_anchors(self):
+        self.assertMultiLineEqual(
+            self.full_stack('key: &anchor value\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:5\n'
+            '   Anchor B_MAP:0 KEY:0 VAL:5\n'
+            '   Scalar B_MAP:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('key: &anchor\n'
+                            '  value\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:2\n'
+            '   Anchor B_MAP:0 KEY:0 VAL:2\n'
+            '   Scalar B_MAP:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('- &anchor value\n'),
+            'BSeqStart B_SEQ:0\n'
+            '   BEntry B_SEQ:0 B_ENT:2\n'
+            '   Anchor B_SEQ:0 B_ENT:2\n'
+            '   Scalar B_SEQ:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('- &anchor\n'
+                            '  value\n'),
+            'BSeqStart B_SEQ:0\n'
+            '   BEntry B_SEQ:0 B_ENT:2\n'
+            '   Anchor B_SEQ:0 B_ENT:2\n'
+            '   Scalar B_SEQ:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('- &anchor\n'
+                            '  - 1\n'
+                            '  - 2\n'),
+            'BSeqStart B_SEQ:0\n'
+            '   BEntry B_SEQ:0 B_ENT:2\n'
+            '   Anchor B_SEQ:0 B_ENT:2\n'
+            'BSeqStart B_SEQ:0 B_ENT:2 B_SEQ:2\n'
+            '   BEntry B_SEQ:0 B_ENT:2 B_SEQ:2 B_ENT:4\n'
+            '   Scalar B_SEQ:0 B_ENT:2 B_SEQ:2\n'
+            '   BEntry B_SEQ:0 B_ENT:2 B_SEQ:2 B_ENT:4\n'
+            '   Scalar B_SEQ:0 B_ENT:2 B_SEQ:2\n'
+            '     BEnd B_SEQ:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('&anchor key:\n'
+                            '  value\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Anchor B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:2\n'
+            '   Scalar B_MAP:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('pre:\n'
+                            '  &anchor1 0\n'
+                            '&anchor2 key:\n'
+                            '  value\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:2\n'
+            '   Anchor B_MAP:0 KEY:0 VAL:2\n'
+            '   Scalar B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Anchor B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:2\n'
+            '   Scalar B_MAP:0\n'
+            '     BEnd \n')
+
 
 class IndentationTestCase(RuleTestCase):
     rule_id = 'indentation'
@@ -870,6 +953,66 @@ class IndentationTestCase(RuleTestCase):
                    '      multi\n'
                    '      line\n'
                    '...\n', conf, problem=(4, 6))
+
+    def test_anchors(self):
+        conf = 'indentation: {spaces: 2}'
+        self.check('---\n'
+                   'key: &anchor value\n', conf)
+        self.check('---\n'
+                   'key: &anchor\n'
+                   '  value\n', conf)
+        self.check('---\n'
+                   '- &anchor value\n', conf)
+        self.check('---\n'
+                   '- &anchor\n'
+                   '  value\n', conf)
+        self.check('---\n'
+                   'key: &anchor [1,\n'
+                   '              2]\n', conf)
+        self.check('---\n'
+                   'key: &anchor\n'
+                   '  [1,\n'
+                   '   2]\n', conf)
+        self.check('---\n'
+                   'key: &anchor\n'
+                   '  - 1\n'
+                   '  - 2\n', conf)
+        self.check('---\n'
+                   '- &anchor [1,\n'
+                   '           2]\n', conf)
+        self.check('---\n'
+                   '- &anchor\n'
+                   '  [1,\n'
+                   '   2]\n', conf)
+        self.check('---\n'
+                   '- &anchor\n'
+                   '  - 1\n'
+                   '  - 2\n', conf)
+        self.check('---\n'
+                   'key:\n'
+                   '  &anchor1\n'
+                   '  value\n', conf)
+        self.check('---\n'
+                   'pre:\n'
+                   '  &anchor1 0\n'
+                   '&anchor2 key:\n'
+                   '  value\n', conf)
+        self.check('---\n'
+                   'machine0:\n'
+                   '  /etc/hosts: &ref-etc-hosts\n'
+                   '    content:\n'
+                   '      - 127.0.0.1: localhost\n'
+                   '      - ::1: localhost\n'
+                   '    mode: 0644\n'
+                   'machine1:\n'
+                   '  /etc/hosts: *ref-etc-hosts\n', conf)
+        self.check('---\n'
+                   'list:\n'
+                   '  - k: v\n'
+                   '  - &a truc\n'
+                   '  - &b\n'
+                   '    truc\n'
+                   '  - k: *a\n', conf)
 
 
 class ScalarIndentationTestCase(RuleTestCase):
