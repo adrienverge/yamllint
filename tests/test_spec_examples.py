@@ -96,6 +96,7 @@ conf_overrides = {
     'example-7.15': ('braces: {min-spaces-inside: 0, max-spaces-inside: 1}\n'
                      'commas: {max-spaces-before: 1, min-spaces-after: 0}\n'
                      'colons: {max-spaces-before: 1}\n'),
+    'example-7.16': ('indentation: disable\n'),
     'example-7.17': ('indentation: disable\n'),
     'example-7.18': ('indentation: disable\n'),
     'example-7.19': ('indentation: disable\n'),
@@ -127,7 +128,6 @@ def _gen_test(buffer, conf):
 # The following tests are blacklisted because they contain rarely-used formats
 # that yamllint does not handle yet.
 tmp_blacklist = (
-    'example-7.16',
     'example-8.20',
     'example-8.22',
     'example-10.1',
