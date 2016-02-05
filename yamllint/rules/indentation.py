@@ -367,10 +367,13 @@ def check(conf, token, prev, next, nextnext, context):
     elif isinstance(token, yaml.ValueToken):
         assert context['stack'][-1].type == KEY
 
-        # Special case:
+        # Special cases:
         #     key: &anchor
         #       value
-        if isinstance(next, yaml.AnchorToken):
+        # and:
+        #     key: !!tag
+        #       value
+        if isinstance(next, (yaml.AnchorToken, yaml.TagToken)):
             if (next.start_mark.line == prev.start_mark.line and
                     next.start_mark.line < nextnext.start_mark.line):
                 next = nextnext
@@ -440,8 +443,8 @@ def check(conf, token, prev, next, nextnext, context):
         elif (context['stack'][-1].type == B_ENT and
                 not isinstance(token, yaml.BlockEntryToken) and
                 context['stack'][-2].implicit_block_seq and
-                not isinstance(next, yaml.ScalarToken)):
-                # isinstance(next, yaml.KeyToken)):
+                not isinstance(token, (yaml.AnchorToken, yaml.TagToken)) and
+                not isinstance(next, yaml.BlockEntryToken)):
             context['stack'].pop()
             context['stack'].pop()
 
@@ -451,10 +454,10 @@ def check(conf, token, prev, next, nextnext, context):
 
         elif (context['stack'][-1].type == VAL and
                 not isinstance(token, yaml.ValueToken) and
-                not isinstance(token, yaml.AnchorToken)):
-                assert context['stack'][-2].type == KEY
-                context['stack'].pop()
-                context['stack'].pop()
+                not isinstance(token, (yaml.AnchorToken, yaml.TagToken))):
+            assert context['stack'][-2].type == KEY
+            context['stack'].pop()
+            context['stack'].pop()
 
         elif (context['stack'][-1].type == KEY and
                 isinstance(next, (yaml.BlockEndToken,

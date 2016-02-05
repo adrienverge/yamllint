@@ -300,6 +300,87 @@ class IndentationStackTestCase(RuleTestCase):
             '   Scalar B_MAP:0\n'
             '     BEnd \n')
 
+        self.assertMultiLineEqual(
+            self.full_stack('sequence: &anchor\n'
+                            '- entry\n'
+                            '- &anchor\n'
+                            '  - nested\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:2\n'
+            '   Anchor B_MAP:0 KEY:0 VAL:2\n'
+            # missing BSeqStart here
+            '   BEntry B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2\n'
+            '   Scalar B_MAP:0 KEY:0 VAL:2 B_SEQ:0\n'
+            '   BEntry B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2\n'
+            '   Anchor B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2\n'
+            'BSeqStart B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2 B_SEQ:2\n'
+            '   BEntry B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2 B_SEQ:2 B_ENT:4\n'
+            '   Scalar B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2 B_SEQ:2\n'
+            '     BEnd B_MAP:0\n'
+            # missing BEnd here
+            '     BEnd \n')
+
+    def test_tags(self):
+        self.assertMultiLineEqual(
+            self.full_stack('key: !!tag value\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:5\n'
+            '      Tag B_MAP:0 KEY:0 VAL:5\n'
+            '   Scalar B_MAP:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('- !!map # Block collection\n'
+                            '  foo : bar\n'),
+            'BSeqStart B_SEQ:0\n'
+            '   BEntry B_SEQ:0 B_ENT:2\n'
+            '      Tag B_SEQ:0 B_ENT:2\n'
+            'BMapStart B_SEQ:0 B_ENT:2 B_MAP:2\n'
+            '      Key B_SEQ:0 B_ENT:2 B_MAP:2 KEY:2\n'
+            '   Scalar B_SEQ:0 B_ENT:2 B_MAP:2 KEY:2\n'
+            '    Value B_SEQ:0 B_ENT:2 B_MAP:2 KEY:2 VAL:8\n'
+            '   Scalar B_SEQ:0 B_ENT:2 B_MAP:2\n'
+            '     BEnd B_SEQ:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('- !!seq\n'
+                            '  - nested item\n'),
+            'BSeqStart B_SEQ:0\n'
+            '   BEntry B_SEQ:0 B_ENT:2\n'
+            '      Tag B_SEQ:0 B_ENT:2\n'
+            'BSeqStart B_SEQ:0 B_ENT:2 B_SEQ:2\n'
+            '   BEntry B_SEQ:0 B_ENT:2 B_SEQ:2 B_ENT:4\n'
+            '   Scalar B_SEQ:0 B_ENT:2 B_SEQ:2\n'
+            '     BEnd B_SEQ:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('sequence: !!seq\n'
+                            '- entry\n'
+                            '- !!seq\n'
+                            '  - nested\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            '   Scalar B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:2\n'
+            '      Tag B_MAP:0 KEY:0 VAL:2\n'
+            # missing BSeqStart here
+            '   BEntry B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2\n'
+            '   Scalar B_MAP:0 KEY:0 VAL:2 B_SEQ:0\n'
+            '   BEntry B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2\n'
+            '      Tag B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2\n'
+            'BSeqStart B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2 B_SEQ:2\n'
+            '   BEntry B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2 B_SEQ:2 B_ENT:4\n'
+            '   Scalar B_MAP:0 KEY:0 VAL:2 B_SEQ:0 B_ENT:2 B_SEQ:2\n'
+            '     BEnd B_MAP:0\n'
+            # missing BEnd here
+            '     BEnd \n')
+
 
 class IndentationTestCase(RuleTestCase):
     rule_id = 'indentation'
@@ -1013,6 +1094,35 @@ class IndentationTestCase(RuleTestCase):
                    '  - &b\n'
                    '    truc\n'
                    '  - k: *a\n', conf)
+
+    def test_tags(self):
+        conf = 'indentation: {spaces: 2}'
+        self.check('---\n'
+                   '-\n'
+                   '  "flow in block"\n'
+                   '- >\n'
+                   '    Block scalar\n'
+                   '- !!map  # Block collection\n'
+                   '  foo: bar\n', conf)
+
+        conf = 'indentation: {spaces: 2, indent-sequences: no}'
+        self.check('---\n'
+                   'sequence: !!seq\n'
+                   '- entry\n'
+                   '- !!seq\n'
+                   '  - nested\n', conf)
+        self.check('---\n'
+                   'mapping: !!map\n'
+                   '  foo: bar\n'
+                   'Block style: !!map\n'
+                   '  Clark: Evans\n'
+                   '  Ingy: döt Net\n'
+                   '  Oren: Ben-Kiki\n', conf)
+        self.check('---\n'
+                   'Flow style: !!map {Clark: Evans, Ingy: döt Net}\n'
+                   'Block style: !!seq\n'
+                   '- Clark Evans\n'
+                   '- Ingy döt Net\n', conf)
 
 
 class ScalarIndentationTestCase(RuleTestCase):
