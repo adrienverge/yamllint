@@ -113,6 +113,11 @@ conf_overrides = {
     'example-8.14': ('colons: {max-spaces-before: 1}\n'),
     'example-8.16': ('indentation: {spaces: 1}\n'),
     'example-8.17': ('indentation: disable\n'),
+    'example-8.20': ('indentation: {indent-sequences: no}\n'
+                     'colons: {max-spaces-before: 1}\n'),
+    'example-8.22': ('indentation: disable\n'),
+    'example-10.1': ('colons: {max-spaces-before: 2}\n'),
+    'example-10.2': ('indentation: {indent-sequences: no}\n'),
 }
 
 files = os.listdir('tests/yaml-1.2-spec-examples')
@@ -124,14 +129,6 @@ def _gen_test(buffer, conf):
         self.check(buffer, conf)
     return test
 
-# TODO
-# The following tests are blacklisted because they contain rarely-used formats
-# that yamllint does not handle yet.
-tmp_blacklist = (
-    'example-8.20',
-    'example-8.22',
-    'example-10.1',
-)
 # The following tests are blacklisted (i.e. will not be checked against
 # yamllint), because pyyaml is currently not able to parse the contents
 # (using yaml.parse()).
@@ -178,7 +175,7 @@ pyyaml_blacklist = (
 )
 
 for file in files:
-    if file in tmp_blacklist or file in pyyaml_blacklist:
+    if file in pyyaml_blacklist:
         continue
 
     with open('tests/yaml-1.2-spec-examples/' + file) as f:
