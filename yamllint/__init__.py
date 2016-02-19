@@ -22,7 +22,7 @@ indentation, etc."""
 
 
 APP_NAME = 'yamllint'
-APP_VERSION = '1.0.0'
+APP_VERSION = '1.0.1'
 APP_DESCRIPTION = __doc__
 
 __author__ = u'Adrien Vergé'
