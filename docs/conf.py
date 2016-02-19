@@ -38,6 +38,5 @@ htmlhelp_basename = 'yamllintdoc'
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'yamllint', u'yamllint Documentation',
-     [u'Adrien Vergé'], 1)
+    ('index', 'yamllint', '', [u'Adrien Vergé'], 1)
 ]
