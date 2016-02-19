@@ -50,7 +50,7 @@ strict on block sequences indentation:
  extends: default
 
  rules:
-   # 80 should be enough, but don't fail if a line is longer
+   # 80 chars should be enough, but don't fail if a line is longer
    line-length:
      max: 80
      level: warning

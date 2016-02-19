@@ -64,3 +64,19 @@ Usage
 
  # Output a parsable format (for syntax checking in editors like Vim, emacs...)
  yamllint -f parsable file.yml
+
+Configuration example
+^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: yaml
+
+ extends: default
+
+ rules:
+   # 80 chars should be enough, but don't fail if a line is longer
+   line-length:
+     max: 80
+     level: warning
+
+   # don't bother me with this rule
+   indentation: disable
