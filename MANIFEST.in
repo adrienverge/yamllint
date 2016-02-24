@@ -1,0 +1,2 @@
+include docs/*
+include tests/yaml-1.2-spec-examples/*
