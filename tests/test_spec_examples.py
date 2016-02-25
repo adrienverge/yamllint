@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from io import open
 import os
 
 from tests.common import RuleTestCase
@@ -178,7 +179,7 @@ for file in files:
     if file in pyyaml_blacklist:
         continue
 
-    with open('tests/yaml-1.2-spec-examples/' + file) as f:
+    with open('tests/yaml-1.2-spec-examples/' + file, encoding='utf-8') as f:
         conf = conf_general + conf_overrides.get(file, '')
         setattr(SpecificationTestCase, 'test_' + file,
                 _gen_test(f.read(), conf))
