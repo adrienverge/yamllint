@@ -128,7 +128,7 @@ def run(input, conf):
     :param input: buffer, string or stream to read from
     :param conf: yamllint configuration object
     """
-    if type(input) == str:
+    if type(input) in (type(b''), type(u'')):  # compat with Python 2 & 3
         return _run(input, conf)
     elif hasattr(input, 'read'):  # Python 2's file or Python 3's io.IOBase
         # We need to have everything in memory to parse correctly
