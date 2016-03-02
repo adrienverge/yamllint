@@ -1,0 +1,26 @@
+Upload new version to PPA
+=========================
+
+WORKDIR=/tmp/yamllint-ubuntu
+VERSION=1.0.3
+
+git clone -b packaging https://github.com/adrienverge/yamllint.git $WORKDIR
+cd $WORKDIR
+
+# Build source archive
+python3 setup.py sdist
+cd dist
+mv yamllint-$VERSION.tar.gz yamllint_$VERSION.orig.tar.gz
+
+tar -xvf yamllint_$VERSION.orig.tar.gz
+cp -r ../packaging/ubuntu/debian yamllint-$VERSION/
+cd yamllint-$VERSION/debian
+
+# Add a new changelog entry:
+dch -v $VERSION-0ubuntu1
+
+# Build packages and sign dsc
+debuild -S -sa
+
+# Upload to PPA
+dput ppa:adrienverge/ppa ../yamllint_$VERSION-0ubuntu1_source.changes

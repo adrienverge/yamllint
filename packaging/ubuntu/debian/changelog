@@ -1,0 +1,11 @@
+yamllint (1.0.3-0ubuntu2) trusty; urgency=medium
+
+  * Add python3-nose to build dependencies
+
+ -- Adrien Vergé <adrienverge@gmail.com>  Wed, 02 Mar 2016 14:12:07 +0100
+
+yamllint (1.0.3-0ubuntu1) trusty; urgency=low
+
+  * Initial release
+
+ -- Adrien Vergé <adrienverge@gmail.com>  Wed, 02 Mar 2016 13:26:29 +0100
