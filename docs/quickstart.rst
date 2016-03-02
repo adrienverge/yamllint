@@ -4,16 +4,30 @@ Quickstart
 Installing yamllint
 -------------------
 
-First, install yamllint. The easiest way is to use pip, the Python package
-manager:
+On Fedora / CentOS :
 
-::
+.. code:: bash
+
+ sudo dnf install yamllint
+
+On Ubuntu:
+
+.. code:: bash
+
+ sudo add-apt-repository -y ppa:adrienverge/ppa && sudo apt-get update
+ sudo apt-get install yamllint
+
+On Debian: an official package is coming, it should be available soon.
+
+Alternatively using pip, the Python package manager:
+
+.. code:: bash
 
  sudo pip install yamllint
 
 If you prefer installing from source, you can run, from the source directory:
 
-::
+.. code:: bash
 
  python setup.py sdist
  sudo pip install dist/yamllint-*.tar.gz
@@ -23,13 +37,13 @@ Running yamllint
 
 Basic usage:
 
-::
+.. code:: bash
 
  yamllint file.yml other-file.yaml
 
 You can also lint all YAML files in a whole directory:
 
-::
+.. code:: bash
 
  yamllint .
 
@@ -65,7 +79,7 @@ If you have a custom linting configuration file (see :doc:`how to configure
 yamllint <configuration>`), it can be passed to yamllint using the ``-c``
 option:
 
-::
+.. code:: bash
 
  yamllint -c ~/myconfig file.yml
 

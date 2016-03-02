@@ -38,6 +38,23 @@ Screenshot
 Installation
 ^^^^^^^^^^^^
 
+On Fedora / CentOS :
+
+.. code:: bash
+
+ sudo dnf install yamllint
+
+On Ubuntu:
+
+.. code:: bash
+
+ sudo add-apt-repository -y ppa:adrienverge/ppa && sudo apt-get update
+ sudo apt-get install yamllint
+
+On Debian: an official package is coming, it should be available soon.
+
+Alternatively using pip, the Python package manager:
+
 .. code:: bash
 
  sudo pip install yamllint
