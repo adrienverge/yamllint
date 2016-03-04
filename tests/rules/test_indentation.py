@@ -496,6 +496,87 @@ class IndentationTestCase(RuleTestCase):
                    '        date: 1991\n'
                    '...\n', conf)
 
+    def test_consistent(self):
+        conf = ('indentation: {spaces: consistent,\n'
+                '              indent-sequences: whatever}\n'
+                'document-start: disable\n')
+        self.check('---\n'
+                   'object:\n'
+                   ' k1:\n'
+                   '  - a\n'
+                   '  - b\n'
+                   ' k2: v2\n'
+                   ' k3:\n'
+                   '  - name: Unix\n'
+                   '    date: 1969\n'
+                   '  - name: Linux\n'
+                   '    date: 1991\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   'object:\n'
+                   '  k1:\n'
+                   '  - a\n'
+                   '  - b\n'
+                   '  k2: v2\n'
+                   '  k3:\n'
+                   '  - name: Unix\n'
+                   '    date: 1969\n'
+                   '  - name: Linux\n'
+                   '    date: 1991\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   'object:\n'
+                   '   k1:\n'
+                   '      - a\n'
+                   '      - b\n'
+                   '   k2: v2\n'
+                   '   k3:\n'
+                   '      - name: Unix\n'
+                   '        date: 1969\n'
+                   '      - name: Linux\n'
+                   '        date: 1991\n'
+                   '...\n', conf)
+        self.check('first is not indented:\n'
+                   '  value is indented\n', conf)
+        self.check('first is not indented:\n'
+                   '     value:\n'
+                   '          is indented\n', conf)
+        self.check('- first is already indented:\n'
+                   '    value is indented too\n', conf)
+        self.check('- first is already indented:\n'
+                   '       value:\n'
+                   '            is indented too\n', conf)
+        self.check('- first is already indented:\n'
+                   '       value:\n'
+                   '             is indented too\n', conf, problem=(3, 14))
+        self.check('---\n'
+                   'list one:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  - 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf, problem=(7, 5))
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '  - a\n'
+                   '  - b\n'
+                   '  - c\n', conf)
+        self.check('---\n'
+                   'list one:\n'
+                   ' - 1\n'
+                   ' - 2\n'
+                   ' - 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf)
+
     def test_indent_sequences_whatever(self):
         conf = 'indentation: {spaces: 4, indent-sequences: whatever}'
         self.check('---\n'
@@ -1528,3 +1609,39 @@ class ScalarIndentationTestCase(RuleTestCase):
                    '      paragraph gap, \\n and\n'
                    '       spaces.\n', conf,
                    problem1=(3, 6), problem2=(5, 7), problem3=(6, 8))
+
+    def test_consistent(self):
+        conf = ('indentation: {spaces: consistent,\n'
+                '              check-multi-line-strings: yes}\n'
+                'document-start: disable\n')
+        self.check('multi\n'
+                   'line\n', conf)
+        self.check('multi\n'
+                   ' line\n', conf, problem=(2, 2))
+        self.check('- multi\n'
+                   '  line\n', conf)
+        self.check('- multi\n'
+                   '   line\n', conf, problem=(2, 4))
+        self.check('a key: multi\n'
+                   '  line\n', conf, problem=(2, 3))
+        self.check('a key: multi\n'
+                   '        line\n', conf, problem=(2, 9))
+        self.check('a key:\n'
+                   '  multi\n'
+                   '   line\n', conf, problem=(3, 4))
+        self.check('- C code: void main() {\n'
+                   '              printf("foo");\n'
+                   '          }\n', conf, problem=(2, 15))
+        self.check('- C code:\n'
+                   '    void main() {\n'
+                   '        printf("foo");\n'
+                   '    }\n', conf, problem=(3, 9))
+        self.check('>\n'
+                   '  multi\n'
+                   '  line\n', conf)
+        self.check('>\n'
+                   '     multi\n'
+                   '     line\n', conf)
+        self.check('>\n'
+                   '     multi\n'
+                   '      line\n', conf, problem=(3, 7))

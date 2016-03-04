@@ -19,7 +19,10 @@ Use this rule to control the indentation.
 
 .. rubric:: Options
 
-* ``spaces`` defines the number of spaces that represent an indentation level.
+* ``spaces`` defines the indentation width, in spaces. Set either to an integer
+  (e.g. ``2`` or ``4``, representing the number of spaces in an indentation
+  level) or to ``consistent`` to allow any number, as long as it remains the
+  same within the file.
 * ``indent-sequences`` defines whether block sequences should be indented or
   not (when in a mapping, this indentation is not mandatory -- some people
   perceive the ``-`` as part of the indentation). Possible values: ``yes``,
@@ -72,6 +75,28 @@ Use this rule to control the indentation.
       recurse:
         - haystack:
             needle
+
+#. With ``indentation: {spaces: consistent}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    history:
+       - name: Unix
+         date: 1969
+       - name: Linux
+         date: 1991
+    nest:
+       recurse:
+          - haystack:
+               needle
+
+   the following code snippet would **FAIL**:
+   ::
+
+    some:
+      Russian:
+          dolls
 
 #. With ``indentation: {spaces: 2, indent-sequences: no}``
 
@@ -150,7 +175,7 @@ from yamllint.rules.common import is_explicit_key, get_real_end_line
 
 ID = 'indentation'
 TYPE = 'token'
-CONF = {'spaces': int,
+CONF = {'spaces': (int, 'consistent'),
         'indent-sequences': (True, False, 'whatever'),
         'check-multi-line-strings': bool}
 
@@ -174,45 +199,53 @@ def check_scalar_indentation(conf, token, context):
     if token.start_mark.line == token.end_mark.line:
         return
 
-    if token.plain:
-        expected_indent = token.start_mark.column
-    elif token.style in ('"', "'"):
-        expected_indent = token.start_mark.column + 1
-    elif token.style in ('>', '|'):
-        if context['stack'][-1].type == B_SEQ:
-            # - >
-            #     multi
-            #     line
-            expected_indent = token.start_mark.column + conf['spaces']
-        elif context['stack'][-1].type == KEY:
-            assert context['stack'][-1].explicit_key
-            # - ? >
-            #       multi-line
-            #       key
-            #   : >
-            #       multi-line
-            #       value
-            expected_indent = token.start_mark.column + conf['spaces']
-        elif context['stack'][-1].type == VAL:
-            if token.start_mark.line + 1 > context['cur_line']:
-                # - key:
-                #     >
-                #       multi
-                #       line
-                expected_indent = context['stack'][-1].indent + conf['spaces']
-            elif context['stack'][-2].explicit_key:
-                # - ? key
+    def compute_expected_indent(found_indent):
+        def detect_indent(base_indent):
+            if type(context['spaces']) is not int:
+                context['spaces'] = found_indent - base_indent
+            return base_indent + context['spaces']
+
+        if token.plain:
+            return token.start_mark.column
+        elif token.style in ('"', "'"):
+            return token.start_mark.column + 1
+        elif token.style in ('>', '|'):
+            if context['stack'][-1].type == B_SEQ:
+                # - >
+                #     multi
+                #     line
+                return detect_indent(token.start_mark.column)
+            elif context['stack'][-1].type == KEY:
+                assert context['stack'][-1].explicit_key
+                # - ? >
+                #       multi-line
+                #       key
                 #   : >
                 #       multi-line
                 #       value
-                expected_indent = token.start_mark.column + conf['spaces']
+                return detect_indent(token.start_mark.column)
+            elif context['stack'][-1].type == VAL:
+                if token.start_mark.line + 1 > context['cur_line']:
+                    # - key:
+                    #     >
+                    #       multi
+                    #       line
+                    return detect_indent(context['stack'][-1].indent)
+                elif context['stack'][-2].explicit_key:
+                    # - ? key
+                    #   : >
+                    #       multi-line
+                    #       value
+                    return detect_indent(token.start_mark.column)
+                else:
+                    # - key: >
+                    #     multi
+                    #     line
+                    return detect_indent(context['stack'][-2].indent)
             else:
-                # - key: >
-                #     multi
-                #     line
-                expected_indent = context['stack'][-2].indent + conf['spaces']
-        else:
-            expected_indent = context['stack'][-1].indent + conf['spaces']
+                return detect_indent(context['stack'][-1].indent)
+
+    expected_indent = None
 
     line_no = token.start_mark.line + 1
 
@@ -230,6 +263,9 @@ def check_scalar_indentation(conf, token, context):
         if token.start_mark.buffer[line_start + indent] == '\n':
             continue
 
+        if expected_indent is None:
+            expected_indent = compute_expected_indent(indent)
+
         if indent != expected_indent:
             yield LintProblem(line_no, indent + 1,
                               'wrong indentation: expected %d but found %d' %
@@ -240,6 +276,7 @@ def check(conf, token, prev, next, nextnext, context):
     if 'stack' not in context:
         context['stack'] = [Parent(ROOT, 0)]
         context['cur_line'] = -1
+        context['spaces'] = conf['spaces']
 
     # Step 1: Lint
 
@@ -249,6 +286,12 @@ def check(conf, token, prev, next, nextnext, context):
         not (isinstance(token, yaml.ScalarToken) and token.value == ''))
     first_in_line = (is_visible and
                      token.start_mark.line + 1 > context['cur_line'])
+
+    def detect_indent(next):
+        if type(context['spaces']) is not int:
+            context['spaces'] = (next.start_mark.column -
+                                 context['stack'][-1].indent)
+        return context['spaces']
 
     if first_in_line:
         found_indentation = token.start_mark.column
@@ -260,7 +303,7 @@ def check(conf, token, prev, next, nextnext, context):
         elif (context['stack'][-1].type == KEY and
                 context['stack'][-1].explicit_key and
                 not isinstance(token, yaml.ValueToken)):
-            expected += conf['spaces']
+            expected += detect_indent(token)
 
         if found_indentation != expected:
             yield LintProblem(token.start_mark.line + 1, found_indentation + 1,
@@ -294,7 +337,7 @@ def check(conf, token, prev, next, nextnext, context):
             #   - ?
             #       a
             #     : 1
-            indent = token.start_mark.column + conf['spaces']
+            indent = token.start_mark.column + detect_indent(next)
 
         context['stack'].append(Parent(B_MAP, indent))
 
@@ -306,7 +349,7 @@ def check(conf, token, prev, next, nextnext, context):
             #   - {
             #     a: 1, b: 2
             #   }
-            indent = context['cur_line_indent'] + conf['spaces']
+            indent = context['cur_line_indent'] + detect_indent(next)
 
         context['stack'].append(Parent(F_MAP, indent,
                                        line_indent=context['cur_line_indent']))
@@ -340,7 +383,7 @@ def check(conf, token, prev, next, nextnext, context):
             #   -
             #     key:
             #       value
-            indent = token.start_mark.column + conf['spaces']
+            indent = token.start_mark.column + detect_indent(next)
 
         context['stack'].append(Parent(B_ENT, indent))
 
@@ -352,7 +395,7 @@ def check(conf, token, prev, next, nextnext, context):
             #   - [
             #   a, b
             # ]
-            indent = context['cur_line_indent'] + conf['spaces']
+            indent = context['cur_line_indent'] + detect_indent(next)
 
         context['stack'].append(Parent(F_SEQ, indent,
                                        line_indent=context['cur_line_indent']))
@@ -390,7 +433,7 @@ def check(conf, token, prev, next, nextnext, context):
                 #   ? k
                 #   :
                 #     value
-                indent = context['stack'][-1].indent + conf['spaces']
+                indent = context['stack'][-1].indent + detect_indent(next)
             elif next.start_mark.line == prev.start_mark.line:
                 #   k: value
                 indent = next.start_mark.column
@@ -404,7 +447,7 @@ def check(conf, token, prev, next, nextnext, context):
                 if conf['indent-sequences'] is False:
                     indent = context['stack'][-1].indent
                 elif conf['indent-sequences'] is True:
-                    indent = context['stack'][-1].indent + conf['spaces']
+                    indent = context['stack'][-1].indent + detect_indent(next)
                 else:  # 'whatever'
                     if next.start_mark.column == context['stack'][-1].indent:
                         #   key:
@@ -415,11 +458,12 @@ def check(conf, token, prev, next, nextnext, context):
                         #   key:
                         #     - e1
                         #     - e2
-                        indent = context['stack'][-1].indent + conf['spaces']
+                        indent = (context['stack'][-1].indent +
+                                  detect_indent(next))
             else:
                 #   k:
                 #     value
-                indent = context['stack'][-1].indent + conf['spaces']
+                indent = context['stack'][-1].indent + detect_indent(next)
 
             context['stack'].append(Parent(VAL, indent))
 
