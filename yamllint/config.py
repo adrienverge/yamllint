@@ -100,7 +100,8 @@ def validate_rule_conf(rule, conf):
                     'invalid config: unknown option "%s" for rule "%s"' %
                     (optkey, rule.ID))
             if type(options[optkey]) == tuple:
-                if conf[optkey] not in options[optkey]:
+                if (conf[optkey] not in options[optkey] and
+                        type(conf[optkey]) not in options[optkey]):
                     raise YamlLintConfigError(
                         'invalid config: option "%s" of "%s" should be in %s'
                         % (optkey, rule.ID, options[optkey]))

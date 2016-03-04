@@ -58,6 +58,53 @@ class SimpleConfigTestCase(unittest.TestCase):
                                   '    max-spaces-after: 1\n'
                                   '    abcdef: yes\n')
 
+    def test_validate_rule_conf(self):
+        class Rule(object):
+            ID = 'fake'
+
+        self.assertEqual(config.validate_rule_conf(Rule, False), False)
+        self.assertEqual(config.validate_rule_conf(Rule, 'disable'), False)
+
+        config.validate_rule_conf(Rule, {'level': 'error'})
+        config.validate_rule_conf(Rule, {'level': 'warning'})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule, {'level': 'warn'})
+
+        Rule.CONF = {'length': int}
+        config.validate_rule_conf(Rule, {'length': 8})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule, {})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule, {'height': 8})
+
+        Rule.CONF = {'a': bool, 'b': int}
+        config.validate_rule_conf(Rule, {'a': True, 'b': 0})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule, {'a': True})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule, {'b': 0})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule, {'a': 1, 'b': 0})
+
+        Rule.CONF = {'choice': (True, 88, 'str')}
+        config.validate_rule_conf(Rule, {'choice': True})
+        config.validate_rule_conf(Rule, {'choice': 88})
+        config.validate_rule_conf(Rule, {'choice': 'str'})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule, {'choice': False})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule, {'choice': 99})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule, {'choice': 'abc'})
+
+        Rule.CONF = {'choice': (int, 'hardcoded')}
+        config.validate_rule_conf(Rule, {'choice': 42})
+        config.validate_rule_conf(Rule, {'choice': 'hardcoded'})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule, {'choice': False})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule, {'choice': 'abc'})
+
 
 class ExtendedConfigTestCase(unittest.TestCase):
     def test_extend_add_rule(self):
