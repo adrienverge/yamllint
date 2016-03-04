@@ -121,7 +121,8 @@ conf_overrides = {
     'example-10.2': ('indentation: {indent-sequences: no}\n'),
 }
 
-files = os.listdir('tests/yaml-1.2-spec-examples')
+files = os.listdir(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                'yaml-1.2-spec-examples'))
 assert len(files) == 132
 
 
