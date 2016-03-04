@@ -57,6 +57,9 @@ Usage
 
 .. code:: bash
 
+ # Use a pre-defined lint configuration
+ yamllint -d relaxed file.yml
+
  # Use a custom lint configuration
  yamllint -c ~/myconfig file.yml
 

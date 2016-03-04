@@ -66,8 +66,11 @@ def run(argv=None):
                                      description=APP_DESCRIPTION)
     parser.add_argument('files', metavar='FILE_OR_DIR', nargs='+',
                         help='files to check')
-    parser.add_argument('-c', '--config', dest='config_file', action='store',
-                        help='path to a custom configuration')
+    parser.add_argument('-c', '--config-file', dest='config_file',
+                        action='store', help='path to a custom configuration')
+    parser.add_argument('-d', '--config-data', dest='config_data',
+                        action='store',
+                        help='custom configuration (as YAML source)')
     parser.add_argument('-f', '--format',
                         choices=('parsable', 'standard'), default='standard',
                         help='format for parsing output')
@@ -78,8 +81,17 @@ def run(argv=None):
 
     args = parser.parse_args(argv)
 
+    if args.config_file is not None and args.config_data is not None:
+        print('Options --config-file and --config-data cannot be used '
+              'simultaneously.', file=sys.stderr)
+        sys.exit(-1)
+
     try:
-        if args.config_file is not None:
+        if args.config_data is not None:
+            if ':' not in args.config_data:
+                args.config_data = 'extends: ' + args.config_data
+            conf = YamlLintConfig(content=args.config_data)
+        elif args.config_file is not None:
             conf = YamlLintConfig(file=args.config_file)
         elif os.path.isfile('.yamllint'):
             conf = YamlLintConfig(file='.yamllint')
