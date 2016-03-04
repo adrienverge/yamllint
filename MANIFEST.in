@@ -1,4 +1,3 @@
 include LICENSE
 include README.rst
 include docs/*
-include tests/yaml-1.2-spec-examples/*
