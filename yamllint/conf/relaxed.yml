@@ -22,7 +22,7 @@ rules:
   hyphens: disable
   indentation:
     level: warning
-    indent-sequences: whatever
+    indent-sequences: consistent
     check-multi-line-strings: no
   line-length:
     level: warning
