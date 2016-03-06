@@ -287,11 +287,10 @@ def check(conf, token, prev, next, nextnext, context):
     first_in_line = (is_visible and
                      token.start_mark.line + 1 > context['cur_line'])
 
-    def detect_indent(next):
+    def detect_indent(base_indent, next):
         if type(context['spaces']) is not int:
-            context['spaces'] = (next.start_mark.column -
-                                 context['stack'][-1].indent)
-        return context['spaces']
+            context['spaces'] = next.start_mark.column - base_indent
+        return base_indent + context['spaces']
 
     if first_in_line:
         found_indentation = token.start_mark.column
@@ -303,7 +302,7 @@ def check(conf, token, prev, next, nextnext, context):
         elif (context['stack'][-1].type == KEY and
                 context['stack'][-1].explicit_key and
                 not isinstance(token, yaml.ValueToken)):
-            expected += detect_indent(token)
+            expected = detect_indent(expected, token)
 
         if found_indentation != expected:
             yield LintProblem(token.start_mark.line + 1, found_indentation + 1,
@@ -337,7 +336,7 @@ def check(conf, token, prev, next, nextnext, context):
             #   - ?
             #       a
             #     : 1
-            indent = token.start_mark.column + detect_indent(next)
+            indent = detect_indent(token.start_mark.column, next)
 
         context['stack'].append(Parent(B_MAP, indent))
 
@@ -349,7 +348,7 @@ def check(conf, token, prev, next, nextnext, context):
             #   - {
             #     a: 1, b: 2
             #   }
-            indent = context['cur_line_indent'] + detect_indent(next)
+            indent = detect_indent(context['cur_line_indent'], next)
 
         context['stack'].append(Parent(F_MAP, indent,
                                        line_indent=context['cur_line_indent']))
@@ -383,7 +382,7 @@ def check(conf, token, prev, next, nextnext, context):
             #   -
             #     key:
             #       value
-            indent = token.start_mark.column + detect_indent(next)
+            indent = detect_indent(token.start_mark.column, next)
 
         context['stack'].append(Parent(B_ENT, indent))
 
@@ -395,7 +394,7 @@ def check(conf, token, prev, next, nextnext, context):
             #   - [
             #   a, b
             # ]
-            indent = context['cur_line_indent'] + detect_indent(next)
+            indent = detect_indent(context['cur_line_indent'], next)
 
         context['stack'].append(Parent(F_SEQ, indent,
                                        line_indent=context['cur_line_indent']))
@@ -433,7 +432,7 @@ def check(conf, token, prev, next, nextnext, context):
                 #   ? k
                 #   :
                 #     value
-                indent = context['stack'][-1].indent + detect_indent(next)
+                indent = detect_indent(context['stack'][-1].indent, next)
             elif next.start_mark.line == prev.start_mark.line:
                 #   k: value
                 indent = next.start_mark.column
@@ -447,7 +446,7 @@ def check(conf, token, prev, next, nextnext, context):
                 if conf['indent-sequences'] is False:
                     indent = context['stack'][-1].indent
                 elif conf['indent-sequences'] is True:
-                    indent = context['stack'][-1].indent + detect_indent(next)
+                    indent = detect_indent(context['stack'][-1].indent, next)
                 else:  # 'whatever'
                     if next.start_mark.column == context['stack'][-1].indent:
                         #   key:
@@ -458,12 +457,12 @@ def check(conf, token, prev, next, nextnext, context):
                         #   key:
                         #     - e1
                         #     - e2
-                        indent = (context['stack'][-1].indent +
-                                  detect_indent(next))
+                        indent = detect_indent(context['stack'][-1].indent,
+                                               next)
             else:
                 #   k:
                 #     value
-                indent = context['stack'][-1].indent + detect_indent(next)
+                indent = detect_indent(context['stack'][-1].indent, next)
 
             context['stack'].append(Parent(VAL, indent))
 

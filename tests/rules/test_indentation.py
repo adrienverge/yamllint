@@ -684,7 +684,7 @@ class IndentationTestCase(RuleTestCase):
                    'a: {\n'
                    '   x: 1,\n'
                    '  y, z: 1\n'
-                   '}\n', conf, problem=(3, 4))
+                   '}\n', conf, problem=(4, 3))
         self.check('---\n'
                    'a: {\n'
                    '  x: 1,\n'
@@ -703,7 +703,7 @@ class IndentationTestCase(RuleTestCase):
                    'a: [\n'
                    '   x,\n'
                    '  y, z\n'
-                   ']\n', conf, problem=(3, 4))
+                   ']\n', conf, problem=(4, 3))
         self.check('---\n'
                    'a: [\n'
                    '  x,\n'
@@ -752,6 +752,17 @@ class IndentationTestCase(RuleTestCase):
                    '      foo: 1,\n'
                    '      bar: 2\n'
                    '  }\n', conf, problem1=(7, 7), problem2=(11, 3))
+        conf = 'indentation: {spaces: 2}'
+        self.check('---\n'
+                   'a: {\n'
+                   '   x: 1,\n'
+                   '  y, z: 1\n'
+                   '}\n', conf, problem=(3, 4))
+        self.check('---\n'
+                   'a: [\n'
+                   '   x,\n'
+                   '  y, z\n'
+                   ']\n', conf, problem=(3, 4))
 
     def test_cleared_flows(self):
         # flow:
