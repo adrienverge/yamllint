@@ -7,6 +7,7 @@ Build-Depends:
  python3-all,
  python3-nose,
  python3-setuptools,
+ python3-sphinx,
  python3-yaml,
 Standards-Version: 3.9.7
 Homepage: https://github.com/adrienverge/yamllint

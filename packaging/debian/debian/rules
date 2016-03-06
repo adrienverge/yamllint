@@ -2,3 +2,10 @@
 
 %:
 	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_auto_build:
+	dh_auto_build
+	PYTHONPATH=. http_proxy='127.0.0.1:9' sphinx-build -N -bman docs build/man
+
+override_dh_installman:
+	dh_installman build/man/yamllint.1
