@@ -21,6 +21,7 @@ rules:
     level: warning
   hyphens: disable
   indentation:
+    level: warning
     indent-sequences: whatever
     check-multi-line-strings: no
   line-length:
