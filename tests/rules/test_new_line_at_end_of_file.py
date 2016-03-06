@@ -30,7 +30,7 @@ class NewLineAtEndOfFileTestCase(RuleTestCase):
         self.check('Sentence.\n', conf)
 
     def test_enabled(self):
-        conf = ('new-line-at-end-of-file: {}\n'
+        conf = ('new-line-at-end-of-file: enable\n'
                 'empty-lines: disable\n'
                 'document-start: disable\n')
         self.check('', conf)

@@ -80,7 +80,7 @@ class KeyDuplicatesTestCase(RuleTestCase):
                    ': 1\n', conf)
 
     def test_enabled(self):
-        conf = 'key-duplicates: {}'
+        conf = 'key-duplicates: enable'
         self.check('---\n'
                    'block mapping:\n'
                    '  key: a\n'
@@ -149,7 +149,7 @@ class KeyDuplicatesTestCase(RuleTestCase):
                    problem4=(7, 3))
 
     def test_key_tokens_in_flow_sequences(self):
-        conf = 'key-duplicates: {}'
+        conf = 'key-duplicates: enable'
         self.check('---\n'
                    '[\n'
                    '  flow: sequence, with, key: value, mappings\n'

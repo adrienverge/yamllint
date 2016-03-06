@@ -83,6 +83,8 @@ class YamlLintConfig(object):
 def validate_rule_conf(rule, conf):
     if conf is False or conf == 'disable':
         return False
+    elif conf == 'enable':
+        conf = {}
 
     if type(conf) == dict:
         if 'level' not in conf:
@@ -117,7 +119,8 @@ def validate_rule_conf(rule, conf):
                     (optkey, rule.ID))
     else:
         raise YamlLintConfigError(('invalid config: rule "%s": should be '
-                                   'either "disable" or a dict') % rule.ID)
+                                   'either "enable", "disable" or a dict')
+                                  % rule.ID)
 
     return conf
 

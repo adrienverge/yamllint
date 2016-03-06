@@ -49,7 +49,7 @@ class CommentsIndentationTestCase(RuleTestCase):
                    '...\n', conf)
 
     def test_enabled(self):
-        conf = 'comments-indentation: {}'
+        conf = 'comments-indentation: enable'
         self.check('---\n'
                    '# line 1\n'
                    '# line 2\n', conf)
@@ -123,18 +123,18 @@ class CommentsIndentationTestCase(RuleTestCase):
                    '...\n', conf)
 
     def test_first_line(self):
-        conf = 'comments-indentation: {}'
+        conf = 'comments-indentation: enable'
         self.check('# comment\n', conf)
         self.check('  # comment\n', conf, problem=(1, 3))
 
     def test_no_newline_at_end(self):
-        conf = ('comments-indentation: {}\n'
+        conf = ('comments-indentation: enable\n'
                 'new-line-at-end-of-file: disable\n')
         self.check('# comment', conf)
         self.check('  # comment', conf, problem=(1, 3))
 
     def test_empty_comment(self):
-        conf = 'comments-indentation: {}'
+        conf = 'comments-indentation: enable'
         self.check('---\n'
                    '# hey\n'
                    '# normal\n'

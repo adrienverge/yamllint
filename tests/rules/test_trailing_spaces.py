@@ -29,7 +29,7 @@ class TrailingSpacesTestCase(RuleTestCase):
                    'some: text \n', conf)
 
     def test_enabled(self):
-        conf = 'trailing-spaces: {}'
+        conf = 'trailing-spaces: enable'
         self.check('', conf)
         self.check('\n', conf)
         self.check('    \n', conf, problem=(1, 1))
@@ -40,7 +40,7 @@ class TrailingSpacesTestCase(RuleTestCase):
                    'some: text\t\n', conf, problem=(2, 11, 'syntax'))
 
     def test_with_dos_new_lines(self):
-        conf = ('trailing-spaces: {}\n'
+        conf = ('trailing-spaces: enable\n'
                 'new-lines: {type: dos}\n')
         self.check('---\r\n'
                    'some: text\r\n', conf)

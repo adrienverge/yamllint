@@ -37,7 +37,7 @@ class SimpleConfigTestCase(unittest.TestCase):
                 config.YamlLintConfigError,
                 'invalid config: no such rule: "this-one-does-not-exist"'):
             config.YamlLintConfig('rules:\n'
-                                  '  this-one-does-not-exist: {}\n')
+                                  '  this-one-does-not-exist: enable\n')
 
     def test_missing_option(self):
         with self.assertRaisesRegexp(
@@ -64,6 +64,11 @@ class SimpleConfigTestCase(unittest.TestCase):
 
         self.assertEqual(config.validate_rule_conf(Rule, False), False)
         self.assertEqual(config.validate_rule_conf(Rule, 'disable'), False)
+
+        self.assertEqual(config.validate_rule_conf(Rule, {}),
+                         {'level': 'error'})
+        self.assertEqual(config.validate_rule_conf(Rule, 'enable'),
+                         {'level': 'error'})
 
         config.validate_rule_conf(Rule, {'level': 'error'})
         config.validate_rule_conf(Rule, {'level': 'warning'})

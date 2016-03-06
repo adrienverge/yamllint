@@ -34,11 +34,11 @@ rules:
     spaces: 2
     indent-sequences: yes
     check-multi-line-strings: no
-  key-duplicates: {}
+  key-duplicates: enable
   line-length:
     max: 80
     allow-non-breakable-words: yes
-  new-line-at-end-of-file: {level: error}
+  new-line-at-end-of-file: enable
   new-lines:
     type: unix
-  trailing-spaces: {}
+  trailing-spaces: enable
