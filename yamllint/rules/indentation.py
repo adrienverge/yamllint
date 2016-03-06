@@ -26,8 +26,9 @@ Use this rule to control the indentation.
 * ``indent-sequences`` defines whether block sequences should be indented or
   not (when in a mapping, this indentation is not mandatory -- some people
   perceive the ``-`` as part of the indentation). Possible values: ``yes``,
-  ``no`` and ``whatever`` (the latter means either indenting or not indenting
-  block sequences is OK.
+  ``no``, ``whatever`` and ``consistent``. ``consistent`` requires either all
+  block sequences to be indented, or none to be. ``whatever`` means either
+  indenting or not indenting individual block sequences is OK.
 * ``check-multi-line-strings`` defines whether to lint indentation in
   multi-line strings. Set to ``yes`` to enable, ``no`` to disable.
 
@@ -129,6 +130,28 @@ Use this rule to control the indentation.
         - spaghetti
         - sauce
 
+#. With ``indentation: {spaces: 2, indent-sequences: consistent}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    - flying:
+      - spaghetti
+      - monster
+    - not flying:
+      - spaghetti
+      - sauce
+
+   the following code snippet would **FAIL**:
+   ::
+
+    - flying:
+        - spaghetti
+        - monster
+    - not flying:
+      - spaghetti
+      - sauce
+
 #. With ``indentation: {spaces: 4, check-multi-line-strings: yes}``
 
    the following code snippet would **PASS**:
@@ -176,7 +199,7 @@ from yamllint.rules.common import is_explicit_key, get_real_end_line
 ID = 'indentation'
 TYPE = 'token'
 CONF = {'spaces': (int, 'consistent'),
-        'indent-sequences': (True, False, 'whatever'),
+        'indent-sequences': (bool, 'whatever', 'consistent'),
         'check-multi-line-strings': bool}
 
 ROOT, B_MAP, F_MAP, B_SEQ, F_SEQ, B_ENT, KEY, VAL = range(8)
@@ -277,6 +300,7 @@ def check(conf, token, prev, next, nextnext, context):
         context['stack'] = [Parent(ROOT, 0)]
         context['cur_line'] = -1
         context['spaces'] = conf['spaces']
+        context['indent-sequences'] = conf['indent-sequences']
 
     # Step 1: Lint
 
@@ -443,17 +467,21 @@ def check(conf, token, prev, next, nextnext, context):
                 # yaml.scan()ning this:
                 #     '- lib:\n'
                 #     '  - var\n'
-                if conf['indent-sequences'] is False:
+                if context['indent-sequences'] is False:
                     indent = context['stack'][-1].indent
-                elif conf['indent-sequences'] is True:
+                elif context['indent-sequences'] is True:
                     indent = detect_indent(context['stack'][-1].indent, next)
-                else:  # 'whatever'
+                else:  # 'whatever' or 'consistent'
                     if next.start_mark.column == context['stack'][-1].indent:
                         #   key:
                         #   - e1
                         #   - e2
+                        if context['indent-sequences'] == 'consistent':
+                            context['indent-sequences'] = False
                         indent = context['stack'][-1].indent
                     else:
+                        if context['indent-sequences'] == 'consistent':
+                            context['indent-sequences'] = True
                         #   key:
                         #     - e1
                         #     - e2

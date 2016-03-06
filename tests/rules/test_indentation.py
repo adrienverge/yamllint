@@ -615,6 +615,56 @@ class IndentationTestCase(RuleTestCase):
                    '- b\n'
                    '- c\n', conf, problem=(6, 1, 'syntax'))
 
+    def test_indent_sequences_consistent(self):
+        conf = 'indentation: {spaces: 4, indent-sequences: consistent}'
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list:\n'
+                   '    two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf)
+        self.check('---\n'
+                   'list one:\n'
+                   '    - 1\n'
+                   '    - 2\n'
+                   '    - 3\n'
+                   'list:\n'
+                   '    two:\n'
+                   '        - a\n'
+                   '        - b\n'
+                   '        - c\n', conf)
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf, problem=(7, 5))
+        self.check('---\n'
+                   'list one:\n'
+                   '    - 1\n'
+                   '    - 2\n'
+                   '    - 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf, problem=(7, 1))
+        self.check('---\n'
+                   'list one:\n'
+                   ' - 1\n'
+                   ' - 2\n'
+                   ' - 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf, problem1=(3, 2), problem2=(7, 1))
+
     def test_direct_flows(self):
         # flow: [ ...
         # ]
@@ -854,7 +904,7 @@ class IndentationTestCase(RuleTestCase):
                    problem3=(9, 9), problem4=(11, 7), problem5=(13, 1))
 
     def test_under_indented(self):
-        conf = 'indentation: {spaces: 2, indent-sequences: yes}'
+        conf = 'indentation: {spaces: 2, indent-sequences: consistent}'
         self.check('---\n'
                    'object:\n'
                    ' val: 1\n'
@@ -870,7 +920,7 @@ class IndentationTestCase(RuleTestCase):
                    '    - name: Unix\n'
                    '     date: 1969\n'
                    '...\n', conf, problem=(5, 6, 'syntax'))
-        conf = 'indentation: {spaces: 4, indent-sequences: yes}'
+        conf = 'indentation: {spaces: 4, indent-sequences: consistent}'
         self.check('---\n'
                    'object:\n'
                    '   val: 1\n'
@@ -888,7 +938,7 @@ class IndentationTestCase(RuleTestCase):
                    '...\n', conf, problem=(5, 10, 'syntax'))
 
     def test_over_indented(self):
-        conf = 'indentation: {spaces: 2, indent-sequences: yes}'
+        conf = 'indentation: {spaces: 2, indent-sequences: consistent}'
         self.check('---\n'
                    'object:\n'
                    '   val: 1\n'
@@ -904,7 +954,7 @@ class IndentationTestCase(RuleTestCase):
                    '    - name: Unix\n'
                    '       date: 1969\n'
                    '...\n', conf, problem=(5, 12, 'syntax'))
-        conf = 'indentation: {spaces: 4, indent-sequences: yes}'
+        conf = 'indentation: {spaces: 4, indent-sequences: consistent}'
         self.check('---\n'
                    'object:\n'
                    '     val: 1\n'
