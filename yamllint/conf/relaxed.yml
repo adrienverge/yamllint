@@ -26,4 +26,3 @@ rules:
     check-multi-line-strings: no
   line-length:
     level: warning
-    max: 100
