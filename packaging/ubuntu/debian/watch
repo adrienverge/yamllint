@@ -1,0 +1,3 @@
+# watch control file for uscan
+version=3
+https://github.com/adrienverge/yamllint/tags .*/archive/v(\d\S*)\.tar\.gz

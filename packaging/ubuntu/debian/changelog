@@ -1,3 +1,9 @@
+yamllint (1.2.0-0ubuntu1) trusty; urgency=medium
+
+  * Update to new upstream version
+
+ -- Adrien Vergé <adrienverge@gmail.com>  Mon, 07 Mar 2016 07:54:19 +0100
+
 yamllint (1.0.3-0ubuntu2) trusty; urgency=medium
 
   * Add python3-nose to build dependencies

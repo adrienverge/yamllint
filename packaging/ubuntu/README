@@ -2,7 +2,7 @@ Upload new version to PPA
 =========================
 
 WORKDIR=/tmp/yamllint-ubuntu
-VERSION=1.0.3
+VERSION=1.2.0
 
 git clone -b packaging https://github.com/adrienverge/yamllint.git $WORKDIR
 cd $WORKDIR
@@ -21,6 +21,10 @@ dch -v $VERSION-0ubuntu1
 
 # Build packages and sign dsc
 debuild -S -sa
+
+# Test if it builds
+sudo pbuilder --create
+sudo pbuilder --build ../yamllint_$VERSION-0ubuntu1.dsc
 
 # Upload to PPA
 dput ppa:adrienverge/ppa ../yamllint_$VERSION-0ubuntu1_source.changes
