@@ -81,7 +81,7 @@ option:
 
 .. code:: bash
 
- yamllint -c ~/myconfig file.yml
+ yamllint -c ~/myconfig file.yaml
 
 .. note::
 

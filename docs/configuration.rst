@@ -10,14 +10,14 @@ directory, or use the ``-c`` option:
 
 .. code:: bash
 
- yamllint -c ~/myconfig file.yml
+ yamllint -c ~/myconfig file.yaml
 
 Default configuration
 ---------------------
 
 Unless told otherwise, yamllint uses its ``default`` configuration:
 
-.. literalinclude:: ../yamllint/conf/default.yml
+.. literalinclude:: ../yamllint/conf/default.yaml
    :language: yaml
 
 Details on rules can be found on :doc:`the rules page <rules>`.
@@ -85,7 +85,7 @@ For instance:
 
 .. code:: bash
 
- yamllint -d "{extends: relaxed, rules: {line-length: {max: 120}}}" file.yml
+ yamllint -d "{extends: relaxed, rules: {line-length: {max: 120}}}" file.yaml
 
 Errors and warnings
 -------------------

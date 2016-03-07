@@ -129,7 +129,7 @@ def get_extended_config_file(name):
     # Is it a standard conf shipped with yamllint...
     if '/' not in name:
         std_conf = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                'conf', name + '.yml')
+                                'conf', name + '.yaml')
 
         if os.path.isfile(std_conf):
             return std_conf

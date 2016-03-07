@@ -75,7 +75,7 @@ Usage
 .. code:: bash
 
  # Use a pre-defined lint configuration
- yamllint -d relaxed file.yml
+ yamllint -d relaxed file.yaml
 
  # Use a custom lint configuration
  yamllint -c ~/myconfig file.yml
@@ -83,7 +83,7 @@ Usage
 .. code:: bash
 
  # Output a parsable format (for syntax checking in editors like Vim, emacs...)
- yamllint -f parsable file.yml
+ yamllint -f parsable file.yaml
 
 Configuration example
 ^^^^^^^^^^^^^^^^^^^^^
