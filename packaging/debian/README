@@ -1,0 +1,41 @@
+Release new version for Debian
+==============================
+
+VERSION=1.2.0
+
+# Build source archive
+python3 setup.py sdist
+mv dist/yamllint-$VERSION.tar.gz yamllint_$VERSION.orig.tar.gz
+
+tar -xvf yamllint_$VERSION.orig.tar.gz
+cp -r ../packaging/ubuntu/debian yamllint-$VERSION/
+cd yamllint-$VERSION/debian
+
+# Add a new changelog entry:
+dch -v $VERSION-1
+
+# Build packages and sign dsc
+debuild -S -sa
+
+# Test if it builds
+sudo pbuilder --create
+sudo pbuilder --build ../yamllint_$VERSION-1.dsc
+
+# Upload to mentors FTP (needed even for updates)
+cat >>~/.dput.cf << EOF
+[mentors]
+fqdn = mentors.debian.net
+incoming = /upload
+method = http
+allow_unsigned_uploads = 0
+progress_indicator = 2
+# Allow uploads for UNRELEASED packages
+allowed_distributions = .*
+EOF
+
+dput mentors ../yamllint_$VERSION-1_source.changes
+
+# Do no upload to Debian FTP: the sponsor will do it
+
+# File a new RFS bug by sending an email
+See https://mentors.debian.net/sponsors/rfs-howto/yamllint

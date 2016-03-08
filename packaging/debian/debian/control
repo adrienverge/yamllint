@@ -11,17 +11,16 @@ Build-Depends:
  python3-yaml,
 Standards-Version: 3.9.7
 Homepage: https://github.com/adrienverge/yamllint
-Vcs-Git: git://anonscm.debian.org/collab-maint/yamllint.git
-Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/yamllint.git
+Vcs-Git: https://github.com/adrienverge/yamllint.git -b packaging
+Vcs-Browser: https://github.com/adrienverge/yamllint/tree/packaging
 
 Package: yamllint
 Architecture: any
 Depends:
- python3-yaml,
  ${misc:Depends},
  ${python3:Depends},
  ${shlibs:Depends},
-Description: A linter for YAML files
+Description: Linter for YAML files
  yamllint does not only check for syntax validity, but for weirdnesses like key
  repetition and cosmetic problems such as lines length, trailing spaces,
  indentation, etc.

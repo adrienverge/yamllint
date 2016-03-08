@@ -1,3 +1,12 @@
+yamllint (1.2.0-1) unstable; urgency=medium
+
+  * Update to new upstream version
+  * Build and include man page in package
+  * Fix Vcs-* fields in debian/control
+  * Fix description-synopsis-starts-with-article lintian warning
+
+ -- Adrien Vergé <adrienverge@gmail.com>  Tue, 08 Mar 2016 08:20:23 +0100
+
 yamllint (1.1.0-1) unstable; urgency=medium
 
   * Update to new upstream version
