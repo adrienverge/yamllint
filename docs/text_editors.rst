@@ -20,16 +20,8 @@ Neovim
 ------
 
 Assuming that the `neomake <https://github.com/benekastah/neomake>`_ plugin is
-installed, add to your ``.config/nvim/init.vim``:
-
-::
-
- if executable('yamllint')
-   let g:neomake_yaml_yamllint_maker = {
-     \ 'args': ['-f', 'parsable'],
-     \ 'errorformat': '%E%f:%l:%c: [error] %m,%W%f:%l:%c: [warning] %m' }
-   let g:neomake_yaml_enabled_makers = ['yamllint']
- endif
+installed, yamllint is supported by default. It is automatically enabled when
+editing YAML files.
 
 Other text editors
 ------------------
