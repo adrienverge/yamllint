@@ -4,20 +4,24 @@ Quickstart
 Installing yamllint
 -------------------
 
-On Fedora / CentOS :
+On Fedora / CentOS:
 
 .. code:: bash
 
  sudo dnf install yamllint
 
-On Ubuntu:
+On Debian 9+ / Ubuntu 16.04+:
+
+.. code:: bash
+
+ sudo apt-get install yamllint
+
+On older Debian / Ubuntu versions:
 
 .. code:: bash
 
  sudo add-apt-repository -y ppa:adrienverge/ppa && sudo apt-get update
  sudo apt-get install yamllint
-
-On Debian: an official package is coming, it should be available soon.
 
 Alternatively using pip, the Python package manager:
 
