@@ -295,7 +295,7 @@ def check_scalar_indentation(conf, token, context):
                               (expected_indent, indent))
 
 
-def check(conf, token, prev, next, nextnext, context):
+def _check(conf, token, prev, next, nextnext, context):
     if 'stack' not in context:
         context['stack'] = [Parent(ROOT, 0)]
         context['cur_line'] = -1
@@ -541,3 +541,13 @@ def check(conf, token, prev, next, nextnext, context):
 
         else:
             break
+
+
+def check(conf, token, prev, next, nextnext, context):
+    try:
+        for problem in _check(conf, token, prev, next, nextnext, context):
+            yield problem
+    except AssertionError:
+        yield LintProblem(token.start_mark.line + 1,
+                          token.start_mark.column + 1,
+                          'cannot infer indentation: unexpected token')
