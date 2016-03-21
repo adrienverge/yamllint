@@ -497,12 +497,16 @@ def _check(conf, token, prev, next, nextnext, context):
     consumed_current_token = False
     while True:
         if (context['stack'][-1].type == F_SEQ and
-                isinstance(token, yaml.FlowSequenceEndToken)):
+                isinstance(token, yaml.FlowSequenceEndToken) and
+                not consumed_current_token):
             context['stack'].pop()
+            consumed_current_token = True
 
         elif (context['stack'][-1].type == F_MAP and
-                isinstance(token, yaml.FlowMappingEndToken)):
+                isinstance(token, yaml.FlowMappingEndToken) and
+                not consumed_current_token):
             context['stack'].pop()
+            consumed_current_token = True
 
         elif (context['stack'][-1].type in (B_MAP, B_SEQ) and
                 isinstance(token, yaml.BlockEndToken) and

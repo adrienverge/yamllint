@@ -381,6 +381,141 @@ class IndentationStackTestCase(RuleTestCase):
             # missing BEnd here
             '     BEnd \n')
 
+    def test_flows_imbrication(self):
+        self.assertMultiLineEqual(
+            self.full_stack('[[val]]\n'),
+            'FSeqStart F_SEQ:1\n'
+            'FSeqStart F_SEQ:1 F_SEQ:2\n'
+            '   Scalar F_SEQ:1 F_SEQ:2\n'
+            '  FSeqEnd F_SEQ:1\n'
+            '  FSeqEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('[[val], [val2]]\n'),
+            'FSeqStart F_SEQ:1\n'
+            'FSeqStart F_SEQ:1 F_SEQ:2\n'
+            '   Scalar F_SEQ:1 F_SEQ:2\n'
+            '  FSeqEnd F_SEQ:1\n'
+            '   FEntry F_SEQ:1\n'
+            'FSeqStart F_SEQ:1 F_SEQ:9\n'
+            '   Scalar F_SEQ:1 F_SEQ:9\n'
+            '  FSeqEnd F_SEQ:1\n'
+            '  FSeqEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('{{key}}\n'),
+            'FMapStart F_MAP:1\n'
+            'FMapStart F_MAP:1 F_MAP:2\n'
+            '   Scalar F_MAP:1 F_MAP:2\n'
+            '  FMapEnd F_MAP:1\n'
+            '  FMapEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('[key]: value\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            'FSeqStart B_MAP:0 KEY:0 F_SEQ:1\n'
+            '   Scalar B_MAP:0 KEY:0 F_SEQ:1\n'
+            '  FSeqEnd B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:7\n'
+            '   Scalar B_MAP:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('[[key]]: value\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            'FSeqStart B_MAP:0 KEY:0 F_SEQ:1\n'
+            'FSeqStart B_MAP:0 KEY:0 F_SEQ:1 F_SEQ:2\n'
+            '   Scalar B_MAP:0 KEY:0 F_SEQ:1 F_SEQ:2\n'
+            '  FSeqEnd B_MAP:0 KEY:0 F_SEQ:1\n'
+            '  FSeqEnd B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:9\n'
+            '   Scalar B_MAP:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('{key}: value\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            'FMapStart B_MAP:0 KEY:0 F_MAP:1\n'
+            '   Scalar B_MAP:0 KEY:0 F_MAP:1\n'
+            '  FMapEnd B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:7\n'
+            '   Scalar B_MAP:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('{key: value}: value\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            'FMapStart B_MAP:0 KEY:0 F_MAP:1\n'
+            '      Key B_MAP:0 KEY:0 F_MAP:1 KEY:1\n'
+            '   Scalar B_MAP:0 KEY:0 F_MAP:1 KEY:1\n'
+            '    Value B_MAP:0 KEY:0 F_MAP:1 KEY:1 VAL:6\n'
+            '   Scalar B_MAP:0 KEY:0 F_MAP:1\n'
+            '  FMapEnd B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:14\n'
+            '   Scalar B_MAP:0\n'
+            '     BEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('{{key}}: value\n'),
+            'BMapStart B_MAP:0\n'
+            '      Key B_MAP:0 KEY:0\n'
+            'FMapStart B_MAP:0 KEY:0 F_MAP:1\n'
+            'FMapStart B_MAP:0 KEY:0 F_MAP:1 F_MAP:2\n'
+            '   Scalar B_MAP:0 KEY:0 F_MAP:1 F_MAP:2\n'
+            '  FMapEnd B_MAP:0 KEY:0 F_MAP:1\n'
+            '  FMapEnd B_MAP:0 KEY:0\n'
+            '    Value B_MAP:0 KEY:0 VAL:9\n'
+            '   Scalar B_MAP:0\n'
+            '     BEnd \n')
+        self.assertMultiLineEqual(
+            self.full_stack('{{key}: val, {key2}: {val2}}\n'),
+            'FMapStart F_MAP:1\n'
+            '      Key F_MAP:1 KEY:1\n'
+            'FMapStart F_MAP:1 KEY:1 F_MAP:2\n'
+            '   Scalar F_MAP:1 KEY:1 F_MAP:2\n'
+            '  FMapEnd F_MAP:1 KEY:1\n'
+            '    Value F_MAP:1 KEY:1 VAL:8\n'
+            '   Scalar F_MAP:1\n'
+            '   FEntry F_MAP:1\n'
+            '      Key F_MAP:1 KEY:1\n'
+            'FMapStart F_MAP:1 KEY:1 F_MAP:14\n'
+            '   Scalar F_MAP:1 KEY:1 F_MAP:14\n'
+            '  FMapEnd F_MAP:1 KEY:1\n'
+            '    Value F_MAP:1 KEY:1 VAL:21\n'
+            'FMapStart F_MAP:1 KEY:1 VAL:21 F_MAP:22\n'
+            '   Scalar F_MAP:1 KEY:1 VAL:21 F_MAP:22\n'
+            '  FMapEnd F_MAP:1\n'
+            '  FMapEnd \n')
+
+        self.assertMultiLineEqual(
+            self.full_stack('{[{{[val]}}, [{[key]: val2}]]}\n'),
+            'FMapStart F_MAP:1\n'
+            'FSeqStart F_MAP:1 F_SEQ:2\n'
+            'FMapStart F_MAP:1 F_SEQ:2 F_MAP:3\n'
+            'FMapStart F_MAP:1 F_SEQ:2 F_MAP:3 F_MAP:4\n'
+            'FSeqStart F_MAP:1 F_SEQ:2 F_MAP:3 F_MAP:4 F_SEQ:5\n'
+            '   Scalar F_MAP:1 F_SEQ:2 F_MAP:3 F_MAP:4 F_SEQ:5\n'
+            '  FSeqEnd F_MAP:1 F_SEQ:2 F_MAP:3 F_MAP:4\n'
+            '  FMapEnd F_MAP:1 F_SEQ:2 F_MAP:3\n'
+            '  FMapEnd F_MAP:1 F_SEQ:2\n'
+            '   FEntry F_MAP:1 F_SEQ:2\n'
+            'FSeqStart F_MAP:1 F_SEQ:2 F_SEQ:14\n'
+            'FMapStart F_MAP:1 F_SEQ:2 F_SEQ:14 F_MAP:15\n'
+            '      Key F_MAP:1 F_SEQ:2 F_SEQ:14 F_MAP:15 KEY:15\n'
+            'FSeqStart F_MAP:1 F_SEQ:2 F_SEQ:14 F_MAP:15 KEY:15 F_SEQ:16\n'
+            '   Scalar F_MAP:1 F_SEQ:2 F_SEQ:14 F_MAP:15 KEY:15 F_SEQ:16\n'
+            '  FSeqEnd F_MAP:1 F_SEQ:2 F_SEQ:14 F_MAP:15 KEY:15\n'
+            '    Value F_MAP:1 F_SEQ:2 F_SEQ:14 F_MAP:15 KEY:15 VAL:22\n'
+            '   Scalar F_MAP:1 F_SEQ:2 F_SEQ:14 F_MAP:15\n'
+            '  FMapEnd F_MAP:1 F_SEQ:2 F_SEQ:14\n'
+            '  FSeqEnd F_MAP:1 F_SEQ:2\n'
+            '  FSeqEnd F_MAP:1\n'
+            '  FMapEnd \n')
+
 
 class IndentationTestCase(RuleTestCase):
     rule_id = 'indentation'
@@ -1287,6 +1422,48 @@ class IndentationTestCase(RuleTestCase):
                    'Block style: !!seq\n'
                    '- Clark Evans\n'
                    '- Ingy döt Net\n', conf)
+
+    def test_flows_imbrication(self):
+        conf = 'indentation: {spaces: consistent}'
+        self.check('---\n'
+                   '[val]: value\n', conf)
+        self.check('---\n'
+                   '{key}: value\n', conf)
+        self.check('---\n'
+                   '{key: val}: value\n', conf)
+        self.check('---\n'
+                   '[[val]]: value\n', conf)
+        self.check('---\n'
+                   '{{key}}: value\n', conf)
+        self.check('---\n'
+                   '{{key: val1}: val2}: value\n', conf)
+        self.check('---\n'
+                   '- [val, {{key: val}: val}]: value\n'
+                   '- {[val,\n'
+                   '    {{key: val}: val}]}\n'
+                   '- {[val,\n'
+                   '    {{key: val,\n'
+                   '      key2}}]}\n'
+                   '- {{{{{moustaches}}}}}\n'
+                   '- {{{{{moustache,\n'
+                   '       moustache},\n'
+                   '      moustache}},\n'
+                   '    moustache}}\n', conf)
+        self.check('---\n'
+                   '- {[val,\n'
+                   '     {{key: val}: val}]}\n',
+                   conf, problem=(3, 6))
+        self.check('---\n'
+                   '- {[val,\n'
+                   '    {{key: val,\n'
+                   '     key2}}]}\n',
+                   conf, problem=(4, 6))
+        self.check('---\n'
+                   '- {{{{{moustache,\n'
+                   '       moustache},\n'
+                   '       moustache}},\n'
+                   '   moustache}}\n',
+                   conf, problem1=(4, 8), problem2=(5, 4))
 
 
 class ScalarIndentationTestCase(RuleTestCase):
