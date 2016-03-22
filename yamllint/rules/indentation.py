@@ -233,7 +233,7 @@ def check_scalar_indentation(conf, token, context):
         elif token.style in ('"', "'"):
             return token.start_mark.column + 1
         elif token.style in ('>', '|'):
-            if context['stack'][-1].type == B_SEQ:
+            if context['stack'][-1].type == B_ENT:
                 # - >
                 #     multi
                 #     line
