@@ -348,19 +348,18 @@ def _check(conf, token, prev, next, nextnext, context):
     # Step 2.b: Update state
 
     if isinstance(token, yaml.BlockMappingStartToken):
+        #   - a: 1
+        # or
+        #   - ? a
+        #     : 1
+        # or
+        #   - ?
+        #       a
+        #     : 1
         assert isinstance(next, yaml.KeyToken)
-        if next.start_mark.line == token.start_mark.line:
-            #   - a: 1
-            #     b: 2
-            # or
-            #   - ? a
-            #     : 1
-            indent = token.start_mark.column
-        else:
-            #   - ?
-            #       a
-            #     : 1
-            indent = detect_indent(token.start_mark.column, next)
+        assert next.start_mark.line == token.start_mark.line
+
+        indent = token.start_mark.column
 
         context['stack'].append(Parent(B_MAP, indent))
 
@@ -380,8 +379,8 @@ def _check(conf, token, prev, next, nextnext, context):
     elif isinstance(token, yaml.BlockSequenceStartToken):
         #   - - a
         #     - b
-        assert next.start_mark.line == token.start_mark.line
         assert isinstance(next, yaml.BlockEntryToken)
+        assert next.start_mark.line == token.start_mark.line
 
         indent = token.start_mark.column
 
