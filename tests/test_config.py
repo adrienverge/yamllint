@@ -32,6 +32,10 @@ class SimpleConfigTestCase(unittest.TestCase):
 
         self.assertEqual(len(new.enabled_rules()), 1)
 
+    def test_invalid_conf(self):
+        with self.assertRaises(config.YamlLintConfigError):
+            config.YamlLintConfig('not: valid: yaml')
+
     def test_unknown_rule(self):
         with self.assertRaisesRegexp(
                 config.YamlLintConfigError,
