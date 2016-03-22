@@ -1236,8 +1236,42 @@ class IndentationTestCase(RuleTestCase):
         self.check('---\n'
                    'object:\n'
                    '    ? key\n'
+                   '    : value\n', conf)
+        self.check('---\n'
+                   'object:\n'
+                   '    ? key\n'
                    '    :\n'
                    '        value\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   'object:\n'
+                   '    ?\n'
+                   '        key\n'
+                   '    : value\n', conf)
+        self.check('---\n'
+                   'object:\n'
+                   '    ?\n'
+                   '        key\n'
+                   '    :\n'
+                   '        value\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   '- ? key\n'
+                   '  : value\n', conf)
+        self.check('---\n'
+                   '- ? key\n'
+                   '  :\n'
+                   '      value\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   '- ?\n'
+                   '      key\n'
+                   '  : value\n', conf)
+        self.check('---\n'
+                   '- ?\n'
+                   '      key\n'
+                   '  :\n'
+                   '      value\n'
                    '...\n', conf)
         self.check('---\n'
                    'object:\n'
@@ -1246,12 +1280,11 @@ class IndentationTestCase(RuleTestCase):
                    '       value\n'
                    '...\n', conf, problem=(5, 8))
         self.check('---\n'
-                   'object:\n'
-                   '    ?\n'
-                   '        key\n'
+                   '- - ?\n'
+                   '       key\n'
                    '    :\n'
-                   '        value\n'
-                   '...\n', conf)
+                   '      value\n'
+                   '...\n', conf, problem=(5, 7))
         self.check('---\n'
                    'object:\n'
                    '    ?\n'
