@@ -295,7 +295,7 @@ def check_scalar_indentation(conf, token, context):
                               (expected_indent, indent))
 
 
-def check(conf, token, prev, next, nextnext, context):
+def _check(conf, token, prev, next, nextnext, context):
     if 'stack' not in context:
         context['stack'] = [Parent(ROOT, 0)]
         context['cur_line'] = -1
@@ -497,12 +497,16 @@ def check(conf, token, prev, next, nextnext, context):
     consumed_current_token = False
     while True:
         if (context['stack'][-1].type == F_SEQ and
-                isinstance(token, yaml.FlowSequenceEndToken)):
+                isinstance(token, yaml.FlowSequenceEndToken) and
+                not consumed_current_token):
             context['stack'].pop()
+            consumed_current_token = True
 
         elif (context['stack'][-1].type == F_MAP and
-                isinstance(token, yaml.FlowMappingEndToken)):
+                isinstance(token, yaml.FlowMappingEndToken) and
+                not consumed_current_token):
             context['stack'].pop()
+            consumed_current_token = True
 
         elif (context['stack'][-1].type in (B_MAP, B_SEQ) and
                 isinstance(token, yaml.BlockEndToken) and
@@ -541,3 +545,13 @@ def check(conf, token, prev, next, nextnext, context):
 
         else:
             break
+
+
+def check(conf, token, prev, next, nextnext, context):
+    try:
+        for problem in _check(conf, token, prev, next, nextnext, context):
+            yield problem
+    except AssertionError:
+        yield LintProblem(token.start_mark.line + 1,
+                          token.start_mark.column + 1,
+                          'cannot infer indentation: unexpected token')
