@@ -123,7 +123,7 @@ def run(argv=None):
             if not first and args.format != 'parsable':
                 print('')
         except EnvironmentError as e:
-            print(e)
+            print(e, file=sys.stderr)
             return_code = -1
 
     sys.exit(return_code)
