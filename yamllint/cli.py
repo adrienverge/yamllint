@@ -88,7 +88,7 @@ def run(argv=None):
 
     try:
         if args.config_data is not None:
-            if ':' not in args.config_data:
+            if args.config_data != '' and ':' not in args.config_data:
                 args.config_data = 'extends: ' + args.config_data
             conf = YamlLintConfig(content=args.config_data)
         elif args.config_file is not None:

@@ -139,7 +139,19 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(ctx.exception.code, -1)
 
         out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
-        self.assertRegexpMatches(out + err, r'^invalid config')
+        self.assertEqual(out, '')
+        self.assertRegexpMatches(err, r'^invalid config: no such rule')
+
+    def test_run_with_empty_config(self):
+        sys.stdout, sys.stderr = StringIO(), StringIO()
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run(('-d', '', 'file'))
+
+        self.assertEqual(ctx.exception.code, -1)
+
+        out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
+        self.assertEqual(out, '')
+        self.assertRegexpMatches(err, r'^invalid config: not a dict')
 
     def test_run_version(self):
         sys.stdout, sys.stderr = StringIO(), StringIO()

@@ -59,6 +59,9 @@ class YamlLintConfig(object):
         except Exception as e:
             raise YamlLintConfigError('invalid config: %s' % e)
 
+        if type(conf) != dict:
+            raise YamlLintConfigError('invalid config: not a dict')
+
         self.rules = conf.get('rules', {})
 
         # Does this conf override another conf that we need to load?
