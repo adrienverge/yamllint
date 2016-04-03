@@ -1,15 +1,21 @@
 Release new version for Debian
 ==============================
 
-VERSION=1.2.0
+VERSION=1.2.1
+WD=/tmp/pkg
+TARGET=vm-debian8
 
 # Build source archive
 python3 setup.py sdist
-mv dist/yamllint-$VERSION.tar.gz yamllint_$VERSION.orig.tar.gz
 
-tar -xvf yamllint_$VERSION.orig.tar.gz
-cp -r ../packaging/ubuntu/debian yamllint-$VERSION/
-cd yamllint-$VERSION/debian
+# Copy files on a Debian system
+ssh $TARGET mkdir $WD
+rsync -av dist/yamllint-$VERSION.tar.gz $TARGET:$WD/yamllint_$VERSION.orig.tar.gz
+ssh $TARGET tar -C $WD -xf $WD/yamllint_$VERSION.orig.tar.gz
+rsync -av packaging/debian/debian $TARGET:$WD/yamllint-$VERSION
+
+ssh $TARGET
+cd $WD/yamllint-$VERSION/debian
 
 # Add a new changelog entry:
 dch -v $VERSION-1
@@ -19,7 +25,7 @@ debuild -S -sa
 
 # Test if it builds
 sudo pbuilder --create
-sudo pbuilder --build ../yamllint_$VERSION-1.dsc
+sudo pbuilder --build ../../yamllint_$VERSION-1.dsc
 
 # Upload to mentors FTP (needed even for updates)
 cat >>~/.dput.cf << EOF
@@ -33,7 +39,7 @@ progress_indicator = 2
 allowed_distributions = .*
 EOF
 
-dput mentors ../yamllint_$VERSION-1_source.changes
+dput mentors ../../yamllint_$VERSION-1_source.changes
 
 # Do no upload to Debian FTP: the sponsor will do it
 

@@ -1,3 +1,9 @@
+yamllint (1.2.1-1) unstable; urgency=medium
+
+  * Update to new upstream version
+
+ -- Adrien Vergé <adrienverge@gmail.com>  Sun, 03 Apr 2016 11:30:02 +0200
+
 yamllint (1.2.0-1) unstable; urgency=medium
 
   * Update to new upstream version
