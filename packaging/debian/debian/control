@@ -15,7 +15,7 @@ Vcs-Git: https://github.com/adrienverge/yamllint.git -b packaging
 Vcs-Browser: https://github.com/adrienverge/yamllint/tree/packaging
 
 Package: yamllint
-Architecture: any
+Architecture: all
 Depends:
  ${misc:Depends},
  ${python3:Depends},
