@@ -1,9 +1,9 @@
 Configuration
 =============
 
-yamllint uses a set of *rules* to check sources files for problems. Each rule is
-independent from the others, and can be enabled, disabled or tweaked. All these
-settings can be gathered in a configuration file.
+yamllint uses a set of :doc:`rules <rules>` to check sources files for problems.
+Each rule is independent from the others, and can be enabled, disabled or
+tweaked. All these settings can be gathered in a configuration file.
 
 To use a custom configuration file, use the ``-c`` option:
 
