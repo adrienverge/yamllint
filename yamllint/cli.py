@@ -86,6 +86,15 @@ def run(argv=None):
               'simultaneously.', file=sys.stderr)
         sys.exit(-1)
 
+    # User-global config is supposed to be in ~/.config/yamllint/config
+    user_global_config = None
+    if 'XDG_CONFIG_HOME' in os.environ:
+        user_global_config = os.path.join(
+            os.environ['XDG_CONFIG_HOME'], 'yamllint', 'config')
+    elif 'HOME' in os.environ:
+        user_global_config = os.path.join(
+            os.environ['HOME'], '.config', 'yamllint', 'config')
+
     try:
         if args.config_data is not None:
             if args.config_data != '' and ':' not in args.config_data:
@@ -95,6 +104,8 @@ def run(argv=None):
             conf = YamlLintConfig(file=args.config_file)
         elif os.path.isfile('.yamllint'):
             conf = YamlLintConfig(file='.yamllint')
+        elif user_global_config and os.path.isfile(user_global_config):
+            conf = YamlLintConfig(file=user_global_config)
         else:
             conf = YamlLintConfig('extends: default')
     except YamlLintConfigError as e:

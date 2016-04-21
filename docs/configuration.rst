@@ -5,12 +5,20 @@ yamllint uses a set of *rules* to check sources files for problems. Each rule is
 independent from the others, and can be enabled, disabled or tweaked. All these
 settings can be gathered in a configuration file.
 
-To use a custom configuration file, either name it ``.yamllint`` in your working
-directory, or use the ``-c`` option:
+To use a custom configuration file, use the ``-c`` option:
 
 .. code:: bash
 
- yamllint -c ~/myconfig file.yaml
+ yamllint -c /path/to/myconfig file-to-lint.yaml
+
+If ``-c`` is not provided, yamllint will look for a configuration file in the
+following locations (by order of preference):
+
+- ``.yamllint`` in the current working directory
+- ``$XDG_CONFIG_HOME/yamllint/config``
+- ``$HOME/.config/yamllint/config``
+
+Finally if no config file is found, the default configuration is applied.
 
 Default configuration
 ---------------------

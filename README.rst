@@ -82,7 +82,7 @@ Usage
  yamllint -d relaxed file.yaml
 
  # Use a custom lint configuration
- yamllint -c ~/myconfig file.yml
+ yamllint -c /path/to/myconfig file-to-lint.yaml
 
 .. code:: bash
 

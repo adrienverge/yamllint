@@ -153,6 +153,49 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(out, '')
         self.assertRegexpMatches(err, r'^invalid config: not a dict')
 
+    def test_run_with_config_file(self):
+        with open(os.path.join(self.wd, 'config'), 'w') as f:
+            f.write('rules: {trailing-spaces: disable}')
+
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run(('-c', f.name, os.path.join(self.wd, 'a.yaml')))
+        self.assertEqual(ctx.exception.code, 0)
+
+        with open(os.path.join(self.wd, 'config'), 'w') as f:
+            f.write('rules: {trailing-spaces: enable}')
+
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run(('-c', f.name, os.path.join(self.wd, 'a.yaml')))
+        self.assertEqual(ctx.exception.code, 1)
+
+    def test_run_with_user_global_config_file(self):
+        home = os.path.join(self.wd, 'fake-home')
+        os.mkdir(home)
+        dir = os.path.join(home, '.config')
+        os.mkdir(dir)
+        dir = os.path.join(dir, 'yamllint')
+        os.mkdir(dir)
+        config = os.path.join(dir, 'config')
+
+        temp = os.environ['HOME']
+        os.environ['HOME'] = home
+
+        with open(config, 'w') as f:
+            f.write('rules: {trailing-spaces: disable}')
+
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run((os.path.join(self.wd, 'a.yaml'), ))
+        self.assertEqual(ctx.exception.code, 0)
+
+        with open(config, 'w') as f:
+            f.write('rules: {trailing-spaces: enable}')
+
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run((os.path.join(self.wd, 'a.yaml'), ))
+        self.assertEqual(ctx.exception.code, 1)
+
+        os.environ['HOME'] = temp
+
     def test_run_version(self):
         sys.stdout, sys.stderr = StringIO(), StringIO()
         with self.assertRaises(SystemExit) as ctx:
