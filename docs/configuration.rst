@@ -1,7 +1,7 @@
 Configuration
 =============
 
-yamllint uses a set of :doc:`rules <rules>` to check sources files for problems.
+yamllint uses a set of :doc:`rules <rules>` to check source files for problems.
 Each rule is independent from the others, and can be enabled, disabled or
 tweaked. All these settings can be gathered in a configuration file.
 
