@@ -62,7 +62,7 @@ CONF = {'max': int,
 
 def check(conf, line):
     if line.start == line.end and line.end < len(line.buffer):
-        # Only alert on the last blank line of a serie
+        # Only alert on the last blank line of a series
         if (line.end < len(line.buffer) - 1 and
                 line.buffer[line.end + 1] == '\n'):
             return

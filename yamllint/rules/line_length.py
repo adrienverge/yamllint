@@ -59,7 +59,7 @@ Use this rule to set a limit to lines length.
    the following code snippet would **FAIL**:
    ::
 
-    - this line is waaaaaaaaaaaaaay too long but could be easily splitted...
+    - this line is waaaaaaaaaaaaaay too long but could be easily split...
 
 #. With ``line-length: {max: 60, allow-non-breakable-words: no}``
 
