@@ -90,7 +90,7 @@ def check(conf, line):
                 start += 1
 
             if start != line.end:
-                if line.buffer[start] == '#':
+                if line.buffer[start] in ('#', '-'):
                     start += 2
 
                 if line.buffer.find(' ', start, line.end) == -1:

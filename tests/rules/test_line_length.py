@@ -78,6 +78,12 @@ class LineLengthTestCase(RuleTestCase):
                    '        # http://localhost/very/long/url\n'
                    '        comment\n'
                    '...\n', conf)
+        self.check('---\n'
+                   'this:\n'
+                   'is:\n'
+                   'another:\n'
+                   '  - https://localhost/very/very/long/url\n'
+                   '...\n', conf)
 
         conf = 'line-length: {max: 20, allow-non-breakable-words: no}'
         self.check('---\n' + 30 * 'A' + '\n', conf, problem=(2, 21))
@@ -93,4 +99,10 @@ class LineLengthTestCase(RuleTestCase):
                    '    - a:\n'
                    '        # http://localhost/very/long/url\n'
                    '        comment\n'
+                   '...\n', conf, problem=(5, 21))
+        self.check('---\n'
+                   'this:\n'
+                   'is:\n'
+                   'another:\n'
+                   '  - https://localhost/very/very/long/url\n'
                    '...\n', conf, problem=(5, 21))
