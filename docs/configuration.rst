@@ -16,7 +16,7 @@ following locations (by order of preference):
 
 - ``.yamllint`` in the current working directory
 - ``$XDG_CONFIG_HOME/yamllint/config``
-- ``$HOME/.config/yamllint/config``
+- ``~/.config/yamllint/config``
 
 Finally if no config file is found, the default configuration is applied.
 
