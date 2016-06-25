@@ -56,13 +56,14 @@ def get_costemic_problems(buffer, conf):
 
     # Split token rules from line rules
     token_rules = [r for r in rules if r.TYPE == 'token']
+    comment_rules = [r for r in rules if r.TYPE == 'comment']
     line_rules = [r for r in rules if r.TYPE == 'line']
 
     context = {}
     for rule in token_rules:
         context[rule.ID] = {}
 
-    for elem in parser.token_or_line_generator(buffer):
+    for elem in parser.token_or_comment_or_line_generator(buffer):
         if isinstance(elem, parser.Token):
             for rule in token_rules:
                 rule_conf = conf.rules[rule.ID]
@@ -70,6 +71,13 @@ def get_costemic_problems(buffer, conf):
                                           elem.curr, elem.prev, elem.next,
                                           elem.nextnext,
                                           context[rule.ID]):
+                    problem.rule = rule.ID
+                    problem.level = rule_conf['level']
+                    yield problem
+        elif isinstance(elem, parser.Comment):
+            for rule in comment_rules:
+                rule_conf = conf.rules[rule.ID]
+                for problem in rule.check(rule_conf, elem):
                     problem.rule = rule.ID
                     problem.level = rule_conf['level']
                     yield problem

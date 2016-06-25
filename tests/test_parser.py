@@ -18,8 +18,9 @@ import unittest
 
 import yaml
 
-from yamllint.parser import (line_generator, token_generator,
-                             token_or_line_generator, Line, Token)
+from yamllint.parser import (line_generator, token_or_comment_generator,
+                             token_or_comment_or_line_generator,
+                             Line, Token, Comment)
 
 
 class ParserTestCase(unittest.TestCase):
@@ -61,8 +62,8 @@ class ParserTestCase(unittest.TestCase):
         self.assertEqual(e[2].line_no, 3)
         self.assertEqual(e[2].content, 'at the end')
 
-    def test_token_generator(self):
-        e = list(token_generator(''))
+    def test_token_or_comment_generator(self):
+        e = list(token_or_comment_generator(''))
         self.assertEqual(len(e), 2)
         self.assertEqual(e[0].prev, None)
         self.assertIsInstance(e[0].curr, yaml.Token)
@@ -71,16 +72,48 @@ class ParserTestCase(unittest.TestCase):
         self.assertEqual(e[1].curr, e[0].next)
         self.assertEqual(e[1].next, None)
 
-        e = list(token_generator('---\n'
-                                 'k: v\n'))
+        e = list(token_or_comment_generator('---\n'
+                                            'k: v\n'))
         self.assertEqual(len(e), 9)
         self.assertIsInstance(e[3].curr, yaml.KeyToken)
         self.assertIsInstance(e[5].curr, yaml.ValueToken)
 
-    def test_token_or_line_generator(self):
-        e = list(token_or_line_generator('---\n'
-                                         'k: v\n'))
-        self.assertEqual(len(e), 12)
+        e = list(token_or_comment_generator('# start comment\n'
+                                            '- a\n'
+                                            '- key: val  # key=val\n'
+                                            '# this is\n'
+                                            '# a block     \n'
+                                            '# comment\n'
+                                            '- c\n'
+                                            '# end comment\n'))
+        self.assertEqual(len(e), 21)
+        self.assertIsInstance(e[1], Comment)
+        self.assertEqual(e[1], Comment(1, 1, '# start comment', 0))
+        self.assertEqual(e[11], Comment(3, 13, '# key=val', 0))
+        self.assertEqual(e[12], Comment(4, 1, '# this is', 0))
+        self.assertEqual(e[13], Comment(5, 1, '# a block     ', 0))
+        self.assertEqual(e[14], Comment(6, 1, '# comment', 0))
+        self.assertEqual(e[18], Comment(8, 1, '# end comment', 0))
+
+        e = list(token_or_comment_generator('---\n'
+                                            '# no newline char'))
+        self.assertEqual(e[2], Comment(2, 1, '# no newline char', 0))
+
+        e = list(token_or_comment_generator('# just comment'))
+        self.assertEqual(e[1], Comment(1, 1, '# just comment', 0))
+
+        e = list(token_or_comment_generator('\n'
+                                            '   # indented comment\n'))
+        self.assertEqual(e[1], Comment(2, 4, '# indented comment', 0))
+
+        e = list(token_or_comment_generator('\n'
+                                            '# trailing spaces    \n'))
+        self.assertEqual(e[1], Comment(2, 1, '# trailing spaces    ', 0))
+
+    def test_token_or_comment_or_line_generator(self):
+        e = list(token_or_comment_or_line_generator('---\n'
+                                                    'k: v  # k=v\n'))
+        self.assertEqual(len(e), 13)
         self.assertIsInstance(e[0], Token)
         self.assertIsInstance(e[0].curr, yaml.StreamStartToken)
         self.assertIsInstance(e[1], Token)
@@ -89,5 +122,6 @@ class ParserTestCase(unittest.TestCase):
         self.assertIsInstance(e[3].curr, yaml.BlockMappingStartToken)
         self.assertIsInstance(e[4].curr, yaml.KeyToken)
         self.assertIsInstance(e[6].curr, yaml.ValueToken)
-        self.assertIsInstance(e[8], Line)
-        self.assertIsInstance(e[11], Line)
+        self.assertIsInstance(e[8], Comment)
+        self.assertIsInstance(e[9], Line)
+        self.assertIsInstance(e[12], Line)

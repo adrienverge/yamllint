@@ -18,8 +18,7 @@ import unittest
 
 import yaml
 
-from yamllint.rules.common import (Comment, get_line_indent,
-                                   get_comments_between_tokens)
+from yamllint.rules.common import get_line_indent
 
 
 class CommonTestCase(unittest.TestCase):
@@ -43,54 +42,3 @@ class CommonTestCase(unittest.TestCase):
             self.assertEqual(get_line_indent(tokens[i]), 0)
         for i in (13, 16, 18, 22, 24):
             self.assertEqual(get_line_indent(tokens[i]), 2)
-
-    def check_comments(self, buffer, *expected):
-        yaml_loader = yaml.BaseLoader(buffer)
-
-        comments = []
-
-        next = yaml_loader.peek_token()
-        while next is not None:
-            curr = yaml_loader.get_token()
-            next = yaml_loader.peek_token()
-            for comment in get_comments_between_tokens(curr, next):
-                comments.append(comment)
-
-        self.assertEqual(comments, list(expected))
-
-    def test_get_comments_between_tokens(self):
-        self.check_comments('# comment\n',
-                            Comment(1, 1, '# comment', 0))
-        self.check_comments('---\n'
-                            '# comment\n'
-                            '...\n',
-                            Comment(2, 1, '# comment', 0))
-        self.check_comments('---\n'
-                            '# no newline char',
-                            Comment(2, 1, '# no newline char', 0))
-        self.check_comments('# just comment',
-                            Comment(1, 1, '# just comment', 0))
-        self.check_comments('\n'
-                            '   # indented comment\n',
-                            Comment(2, 4, '# indented comment', 0))
-        self.check_comments('\n'
-                            '# trailing spaces    \n',
-                            Comment(2, 1, '# trailing spaces    ', 0))
-        self.check_comments('# comment one\n'
-                            '\n'
-                            'key: val  # key=val\n'
-                            '\n'
-                            '# this is\n'
-                            '# a block     \n'
-                            '# comment\n'
-                            '\n'
-                            'other:\n'
-                            '  - foo  # equals\n'
-                            '         # bar\n',
-                            Comment(1, 1, '# comment one', 0),
-                            Comment(3, 11, '# key=val', 0),
-                            Comment(5, 1, '# this is', 0),
-                            Comment(6, 1, '# a block     ', 0),
-                            Comment(7, 1, '# comment', 0),
-                            Comment(10, 10, '# equals', 0),
-                            Comment(11, 10, '# bar', 0))

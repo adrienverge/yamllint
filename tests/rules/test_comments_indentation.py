@@ -58,7 +58,7 @@ class CommentsIndentationTestCase(RuleTestCase):
                    '# line 2\n', conf, problem=(2, 2))
         self.check('---\n'
                    '  # line 1\n'
-                   '  # line 2\n', conf, problem1=(2, 3), problem2=(3, 3))
+                   '  # line 2\n', conf, problem1=(2, 3))
         self.check('---\n'
                    'obj:\n'
                    '  # normal\n'
@@ -143,3 +143,15 @@ class CommentsIndentationTestCase(RuleTestCase):
                    '# hey\n'
                    '# normal\n'
                    ' #\n', conf, problem=(4, 2))
+
+    def test_inline_comment(self):
+        conf = 'comments-indentation: enable'
+        self.check('---\n'
+                   '- a  # inline\n'
+                   '# ok\n', conf)
+        self.check('---\n'
+                   '- a  # inline\n'
+                   ' # not ok\n', conf, problem=(3, 2))
+        self.check('---\n'
+                   ' # not ok\n'
+                   '- a  # inline\n', conf, problem=(2, 2))

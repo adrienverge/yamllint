@@ -55,33 +55,25 @@ Use this rule to control the position and formatting of comments.
 """
 
 
-import yaml
-
 from yamllint.linter import LintProblem
-from yamllint.rules.common import get_comments_between_tokens
 
 
 ID = 'comments'
-TYPE = 'token'
+TYPE = 'comment'
 CONF = {'require-starting-space': bool,
         'min-spaces-from-content': int}
 
 
-def check(conf, token, prev, next, nextnext, context):
-    for comment in get_comments_between_tokens(token, next):
-        if (conf['min-spaces-from-content'] != -1 and
-                not isinstance(token, yaml.StreamStartToken) and
-                comment.line == token.end_mark.line + 1):
-            # Sometimes token end marks are on the next line
-            if token.end_mark.buffer[token.end_mark.pointer - 1] != '\n':
-                if (comment.pointer - token.end_mark.pointer <
-                        conf['min-spaces-from-content']):
-                    yield LintProblem(comment.line, comment.column,
-                                      'too few spaces before comment')
+def check(conf, comment):
+    if (conf['min-spaces-from-content'] != -1 and comment.is_inline() and
+            comment.pointer - comment.token_before.end_mark.pointer <
+            conf['min-spaces-from-content']):
+        yield LintProblem(comment.line_no, comment.column_no,
+                          'too few spaces before comment')
 
-        if (conf['require-starting-space'] and
-                comment.pointer + 1 < len(comment.buffer) and
-                comment.buffer[comment.pointer + 1] != ' ' and
-                comment.buffer[comment.pointer + 1] != '\n'):
-            yield LintProblem(comment.line, comment.column + 1,
-                              'missing starting space in comment')
+    if (conf['require-starting-space'] and
+            comment.pointer + 1 < len(comment.buffer) and
+            comment.buffer[comment.pointer + 1] != ' ' and
+            comment.buffer[comment.pointer + 1] != '\n'):
+        yield LintProblem(comment.line_no, comment.column_no + 1,
+                          'missing starting space in comment')

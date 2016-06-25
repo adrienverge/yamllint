@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from tests.common import RuleTestCase
-from yamllint.parser import token_generator
+from yamllint.parser import token_or_comment_generator, Comment
 from yamllint.rules.indentation import check
 
 
@@ -38,7 +38,8 @@ class IndentationStackTestCase(RuleTestCase):
                 'check-multi-line-strings': False}
         context = {}
         output = ''
-        for elem in token_generator(source):
+        for elem in [t for t in token_or_comment_generator(source)
+                     if not isinstance(t, Comment)]:
             list(check(conf, elem.curr, elem.prev, elem.next, elem.nextnext,
                        context))
 

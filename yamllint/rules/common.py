@@ -98,35 +98,6 @@ def get_real_end_line(token):
     return end_line
 
 
-def get_comments_between_tokens(token1, token2, skip_first_line=False):
-    if token2 is None:
-        buf = token1.end_mark.buffer[token1.end_mark.pointer:]
-    elif (token1.end_mark.line == token2.start_mark.line and
-          not isinstance(token1, yaml.StreamStartToken) and
-          not isinstance(token2, yaml.StreamEndToken)):
-        return
-    else:
-        buf = token1.end_mark.buffer[token1.end_mark.pointer:
-                                     token2.start_mark.pointer]
-
-    line_no = token1.end_mark.line + 1
-    column_no = token1.end_mark.column + 1
-    pointer = token1.end_mark.pointer
-
-    for line in buf.split('\n'):
-        if skip_first_line:
-            skip_first_line = False
-        else:
-            pos = line.find('#')
-            if pos != -1:
-                yield Comment(line_no, column_no + pos,
-                              token1.end_mark.buffer, pointer + pos)
-
-        pointer += len(line) + 1
-        line_no += 1
-        column_no = 1
-
-
 def is_explicit_key(token):
     # explicit key:
     #   ? key

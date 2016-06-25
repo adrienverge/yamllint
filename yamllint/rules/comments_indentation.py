@@ -78,11 +78,11 @@ Use this rule to force comments to be indented like content.
 import yaml
 
 from yamllint.linter import LintProblem
-from yamllint.rules.common import get_line_indent, get_comments_between_tokens
+from yamllint.rules.common import get_line_indent
 
 
 ID = 'comments-indentation'
-TYPE = 'token'
+TYPE = 'comment'
 
 
 # Case A:
@@ -98,28 +98,42 @@ TYPE = 'token'
 #     # commented line 2
 #     current: line
 
-def check(conf, token, prev, next, nextnext, context):
-    if prev is None:
+def check(conf, comment):
+    # Only check block comments
+    if (not isinstance(comment.token_before, yaml.StreamStartToken) and
+            comment.token_before.end_mark.line + 1 == comment.line_no):
         return
 
-    curr_line_indent = token.start_mark.column
-    if isinstance(token, yaml.StreamEndToken):
-        curr_line_indent = 0
+    next_line_indent = comment.token_after.start_mark.column
+    if isinstance(comment.token_after, yaml.StreamEndToken):
+        next_line_indent = 0
 
-    skip_first_line = True
-    if isinstance(prev, yaml.StreamStartToken):
-        skip_first_line = False
+    if isinstance(comment.token_before, yaml.StreamStartToken):
         prev_line_indent = 0
     else:
-        prev_line_indent = get_line_indent(prev)
+        prev_line_indent = get_line_indent(comment.token_before)
 
-    if prev_line_indent <= curr_line_indent:
-        prev_line_indent = -1  # disable it
+    # In the following case only the next line indent is valid:
+    #     list:
+    #         # comment
+    #         - 1
+    #         - 2
+    if prev_line_indent <= next_line_indent:
+        prev_line_indent = next_line_indent
 
-    for comment in get_comments_between_tokens(
-            prev, token, skip_first_line=skip_first_line):
-        if comment.column - 1 == curr_line_indent:
-            prev_line_indent = -1  # disable it
-        elif comment.column - 1 != prev_line_indent:
-            yield LintProblem(comment.line, comment.column,
-                              'comment not indented like content')
+    # If two indents are valid but a previous comment went back to normal
+    # indent, for the next ones to do the same. In other words, avoid this:
+    #     list:
+    #         - 1
+    #     # comment on valid indent (0)
+    #         # comment on valid indent (4)
+    #     other-list:
+    #         - 2
+    if (comment.comment_before is not None and
+            not comment.comment_before.is_inline()):
+        prev_line_indent = comment.comment_before.column_no - 1
+
+    if (comment.column_no - 1 != prev_line_indent and
+            comment.column_no - 1 != next_line_indent):
+        yield LintProblem(comment.line_no, comment.column_no,
+                          'comment not indented like content')
