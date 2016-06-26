@@ -23,5 +23,6 @@ Table of contents
    quickstart
    configuration
    rules
+   disable_with_comments
    development
    text_editors

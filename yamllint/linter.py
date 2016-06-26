@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import re
+
 import yaml
 
 from yamllint import parser
@@ -63,6 +65,55 @@ def get_costemic_problems(buffer, conf):
     for rule in token_rules:
         context[rule.ID] = {}
 
+    class DisableDirective():
+        def __init__(self):
+            self.rules = set()
+            self.all_rules = set([r.ID for r in rules])
+
+        def process_comment(self, comment):
+            comment = repr(comment)
+
+            if re.match(r'^# yamllint disable( rule:\S+)*\s*$', comment):
+                rules = [item[5:] for item in comment[18:].split(' ')][1:]
+                if len(rules) == 0:
+                    self.rules = self.all_rules.copy()
+                else:
+                    for id in rules:
+                        if id in self.all_rules:
+                            self.rules.add(id)
+
+            elif re.match(r'^# yamllint enable( rule:\S+)*\s*$', comment):
+                rules = [item[5:] for item in comment[17:].split(' ')][1:]
+                if len(rules) == 0:
+                    self.rules.clear()
+                else:
+                    for id in rules:
+                        self.rules.discard(id)
+
+        def is_disabled_by_directive(self, problem):
+            return problem.rule in self.rules
+
+    class DisableLineDirective(DisableDirective):
+        def process_comment(self, comment):
+            comment = repr(comment)
+
+            if re.match(r'^# yamllint disable-line( rule:\S+)*\s*$', comment):
+                rules = [item[5:] for item in comment[23:].split(' ')][1:]
+                if len(rules) == 0:
+                    self.rules = self.all_rules.copy()
+                else:
+                    for id in rules:
+                        if id in self.all_rules:
+                            self.rules.add(id)
+
+    # Use a cache to store problems and flush it only when a end of line is
+    # found. This allows the use of yamllint directive to disable some rules on
+    # some lines.
+    cache = []
+    disabled = DisableDirective()
+    disabled_for_line = DisableLineDirective()
+    disabled_for_next_line = DisableLineDirective()
+
     for elem in parser.token_or_comment_or_line_generator(buffer):
         if isinstance(elem, parser.Token):
             for rule in token_rules:
@@ -73,21 +124,44 @@ def get_costemic_problems(buffer, conf):
                                           context[rule.ID]):
                     problem.rule = rule.ID
                     problem.level = rule_conf['level']
-                    yield problem
+                    cache.append(problem)
         elif isinstance(elem, parser.Comment):
             for rule in comment_rules:
                 rule_conf = conf.rules[rule.ID]
                 for problem in rule.check(rule_conf, elem):
                     problem.rule = rule.ID
                     problem.level = rule_conf['level']
-                    yield problem
+                    cache.append(problem)
+
+            disabled.process_comment(elem)
+            if elem.is_inline():
+                disabled_for_line.process_comment(elem)
+            else:
+                disabled_for_next_line.process_comment(elem)
         elif isinstance(elem, parser.Line):
             for rule in line_rules:
                 rule_conf = conf.rules[rule.ID]
                 for problem in rule.check(rule_conf, elem):
                     problem.rule = rule.ID
                     problem.level = rule_conf['level']
+                    cache.append(problem)
+
+            # This is the last token/comment/line of this line, let's flush the
+            # problems found (but filter them according to the directives)
+            for problem in cache:
+                if not (disabled_for_line.is_disabled_by_directive(problem) or
+                        disabled.is_disabled_by_directive(problem)):
                     yield problem
+
+            disabled_for_line = disabled_for_next_line
+            disabled_for_next_line = DisableLineDirective()
+            cache = []
+
+    # If no new line at the end of file, the cache is not empty
+    for problem in cache:
+        if not (disabled_for_line.is_disabled_by_directive(problem) or
+                disabled.is_disabled_by_directive(problem)):
+            yield problem
 
 
 def get_syntax_error(buffer):

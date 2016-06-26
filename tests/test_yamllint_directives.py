@@ -1,0 +1,304 @@
+# -*- coding: utf-8 -*-
+# Copyright (C) 2016 Adrien Vergé
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from tests.common import RuleTestCase
+
+
+class YamllintDirectivesTestCase(RuleTestCase):
+    conf = ('commas: disable\n'
+            'trailing-spaces: {}\n'
+            'colons: {max-spaces-before: 1}\n')
+
+    def test_disable_directive(self):
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '- trailing spaces    \n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(3, 18, 'trailing-spaces'),
+                   problem2=(4, 8, 'colons'),
+                   problem3=(6, 7, 'colons'),
+                   problem4=(6, 26, 'trailing-spaces'))
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '- trailing spaces    \n'
+                   '# yamllint disable\n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem=(3, 18, 'trailing-spaces'))
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '# yamllint disable\n'
+                   '- trailing spaces    \n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]\n'
+                   '# yamllint enable\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(8, 7, 'colons'),
+                   problem2=(8, 26, 'trailing-spaces'))
+
+    def test_disable_directive_with_rules(self):
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '- trailing spaces    \n'
+                   '# yamllint disable rule:trailing-spaces\n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(3, 18, 'trailing-spaces'),
+                   problem2=(5, 8, 'colons'),
+                   problem3=(7, 7, 'colons'))
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '# yamllint disable rule:trailing-spaces\n'
+                   '- trailing spaces    \n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]\n'
+                   '# yamllint enable rule:trailing-spaces\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(5, 8, 'colons'),
+                   problem2=(8, 7, 'colons'),
+                   problem3=(8, 26, 'trailing-spaces'))
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '# yamllint disable rule:trailing-spaces\n'
+                   '- trailing spaces    \n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]\n'
+                   '# yamllint enable\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(5, 8, 'colons'),
+                   problem2=(8, 7, 'colons'),
+                   problem3=(8, 26, 'trailing-spaces'))
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '# yamllint disable\n'
+                   '- trailing spaces    \n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]\n'
+                   '# yamllint enable rule:trailing-spaces\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem=(8, 26, 'trailing-spaces'))
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '# yamllint disable rule:colons\n'
+                   '- trailing spaces    \n'
+                   '# yamllint disable rule:trailing-spaces\n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]\n'
+                   '# yamllint enable rule:colons\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(4, 18, 'trailing-spaces'),
+                   problem2=(9, 7, 'colons'))
+
+    def test_disable_line_directive(self):
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '- trailing spaces    \n'
+                   '# yamllint disable-line\n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(3, 18, 'trailing-spaces'),
+                   problem2=(7, 7, 'colons'),
+                   problem3=(7, 26, 'trailing-spaces'))
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '- trailing spaces    \n'
+                   '- bad   : colon  # yamllint disable-line\n'
+                   '- [valid , YAML]\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(3, 18, 'trailing-spaces'),
+                   problem2=(6, 7, 'colons'),
+                   problem3=(6, 26, 'trailing-spaces'))
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '- trailing spaces    \n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]  # yamllint disable-line\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(3, 18, 'trailing-spaces'),
+                   problem2=(4, 8, 'colons'),
+                   problem3=(6, 7, 'colons'),
+                   problem4=(6, 26, 'trailing-spaces'))
+
+    def test_disable_line_directive_with_rules(self):
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '# yamllint disable-line rule:colons\n'
+                   '- trailing spaces    \n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(4, 18, 'trailing-spaces'),
+                   problem2=(5, 8, 'colons'),
+                   problem3=(7, 7, 'colons'),
+                   problem4=(7, 26, 'trailing-spaces'))
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '- trailing spaces  # yamllint disable-line rule:colons  \n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(3, 55, 'trailing-spaces'),
+                   problem2=(4, 8, 'colons'),
+                   problem3=(6, 7, 'colons'),
+                   problem4=(6, 26, 'trailing-spaces'))
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '- trailing spaces    \n'
+                   '# yamllint disable-line rule:colons\n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(3, 18, 'trailing-spaces'),
+                   problem2=(7, 7, 'colons'),
+                   problem3=(7, 26, 'trailing-spaces'))
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '- trailing spaces    \n'
+                   '- bad   : colon  # yamllint disable-line rule:colons\n'
+                   '- [valid , YAML]\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(3, 18, 'trailing-spaces'),
+                   problem2=(6, 7, 'colons'),
+                   problem3=(6, 26, 'trailing-spaces'))
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '- trailing spaces    \n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]\n'
+                   '# yamllint disable-line rule:colons\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(3, 18, 'trailing-spaces'),
+                   problem2=(4, 8, 'colons'),
+                   problem3=(7, 26, 'trailing-spaces'))
+        self.check('---\n'
+                   '- [valid , YAML]\n'
+                   '- trailing spaces    \n'
+                   '- bad   : colon\n'
+                   '- [valid , YAML]\n'
+                   '# yamllint disable-line rule:colons rule:trailing-spaces\n'
+                   '- bad  : colon and spaces   \n'
+                   '- [valid , YAML]\n',
+                   self.conf,
+                   problem1=(3, 18, 'trailing-spaces'),
+                   problem2=(4, 8, 'colons'))
+
+    def test_directive_on_last_line(self):
+        conf = 'new-line-at-end-of-file: {}'
+        self.check('---\n'
+                   'no new line',
+                   conf,
+                   problem=(2, 12, 'new-line-at-end-of-file'))
+        self.check('---\n'
+                   '# yamllint disable\n'
+                   'no new line',
+                   conf)
+        self.check('---\n'
+                   'no new line  # yamllint disable',
+                   conf)
+
+    def test_indented_directive(self):
+        conf = 'brackets: {min-spaces-inside: 0, max-spaces-inside: 0}'
+        self.check('---\n'
+                   '- a: 1\n'
+                   '  b:\n'
+                   '    c: [    x]\n',
+                   conf,
+                   problem=(4, 12, 'brackets'))
+        self.check('---\n'
+                   '- a: 1\n'
+                   '  b:\n'
+                   '    # yamllint disable-line rule:brackets\n'
+                   '    c: [    x]\n',
+                   conf)
+
+    def test_directive_on_itself(self):
+        conf = ('comments: {min-spaces-from-content: 2}\n'
+                'comments-indentation: {}\n')
+        self.check('---\n'
+                   '- a: 1 # comment too close\n'
+                   '  b:\n'
+                   ' # wrong indentation\n'
+                   '    c: [x]\n',
+                   conf,
+                   problem1=(2, 8, 'comments'),
+                   problem2=(4, 2, 'comments-indentation'))
+        self.check('---\n'
+                   '# yamllint disable\n'
+                   '- a: 1 # comment too close\n'
+                   '  b:\n'
+                   ' # wrong indentation\n'
+                   '    c: [x]\n',
+                   conf)
+        self.check('---\n'
+                   '- a: 1 # yamllint disable-line\n'
+                   '  b:\n'
+                   '    # yamllint disable-line\n'
+                   ' # wrong indentation\n'
+                   '    c: [x]\n',
+                   conf)
+        self.check('---\n'
+                   '- a: 1 # yamllint disable-line rule:comments\n'
+                   '  b:\n'
+                   '    # yamllint disable-line rule:comments-indentation\n'
+                   ' # wrong indentation\n'
+                   '    c: [x]\n',
+                   conf)
+        self.check('---\n'
+                   '# yamllint disable\n'
+                   '- a: 1 # comment too close\n'
+                   '  # yamllint enable rule:comments-indentation\n'
+                   '  b:\n'
+                   ' # wrong indentation\n'
+                   '    c: [x]\n',
+                   conf,
+                   problem=(6, 2, 'comments-indentation'))
