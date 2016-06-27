@@ -24,10 +24,10 @@ Written in Python (compatible with Python 2 & 3).
 Documentation
 -------------
 
-http://yamllint.readthedocs.org/
+http://yamllint.readthedocs.io/
 
-Short overview
---------------
+Overview
+--------
 
 Screenshot
 ^^^^^^^^^^
@@ -82,8 +82,12 @@ Usage
  # Output a parsable format (for syntax checking in editors like Vim, emacs...)
  yamllint -f parsable file.yaml
 
-Configuration example
-^^^^^^^^^^^^^^^^^^^^^
+`Read more in the complete documentation! <http://yamllint.readthedocs.io/>`_
+
+Features
+^^^^^^^^
+
+Here is a yamllint configuration file example:
 
 .. code:: yaml
 
@@ -97,3 +101,22 @@ Configuration example
 
    # don't bother me with this rule
    indentation: disable
+
+Within a YAML file, special comments can be used to disable checks for a single
+line:
+
+.. code:: yaml
+
+ This line is waaaaaaaaaay too long  # yamllint disable-line
+
+or for a whole block:
+
+.. code:: yaml
+
+ # yamllint disable rule:colons
+ - Lorem       : ipsum
+   dolor       : sit amet,
+   consectetur : adipiscing elit
+ # yamllint enable
+
+`Read more in the complete documentation! <http://yamllint.readthedocs.io/>`_
