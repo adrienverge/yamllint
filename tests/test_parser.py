@@ -110,6 +110,32 @@ class ParserTestCase(unittest.TestCase):
                                             '# trailing spaces    \n'))
         self.assertEqual(e[1], Comment(2, 1, '# trailing spaces    ', 0))
 
+        e = [c for c in
+             token_or_comment_generator('# block\n'
+                                        '# comment\n'
+                                        '- data   # inline comment\n'
+                                        '# block\n'
+                                        '# comment\n'
+                                        '- k: v   # inline comment\n'
+                                        '- [ l, ist\n'
+                                        ']   # inline comment\n'
+                                        '- { m: ap\n'
+                                        '}   # inline comment\n'
+                                        '# block comment\n'
+                                        '- data   # inline comment\n')
+             if isinstance(c, Comment)]
+        self.assertEqual(len(e), 10)
+        self.assertFalse(e[0].is_inline())
+        self.assertFalse(e[1].is_inline())
+        self.assertTrue(e[2].is_inline())
+        self.assertFalse(e[3].is_inline())
+        self.assertFalse(e[4].is_inline())
+        self.assertTrue(e[5].is_inline())
+        self.assertTrue(e[6].is_inline())
+        self.assertTrue(e[7].is_inline())
+        self.assertFalse(e[8].is_inline())
+        self.assertTrue(e[9].is_inline())
+
     def test_token_or_comment_or_line_generator(self):
         e = list(token_or_comment_or_line_generator('---\n'
                                                     'k: v  # k=v\n'))
