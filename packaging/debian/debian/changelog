@@ -1,3 +1,18 @@
+yamllint (1.3.2-1) unstable; urgency=medium
+
+  * Allow disabling yamllint checks using comments
+  * Detect user config using `os.path.expanduser()`
+  * Fix non-ASCII comments bug and add tests
+  * Update standards version to 3.9.8
+
+ -- Adrien Vergé <adrienverge@gmail.com>  Mon, 27 Jun 2016 22:17:05 +0200
+
+yamllint (1.2.2-1) unstable; urgency=medium
+
+  * Update to new upstream version
+
+ -- Adrien Vergé <adrienverge@gmail.com>  Fri, 24 Jun 2016 08:54:59 +0200
+
 yamllint (1.2.1-1) unstable; urgency=medium
 
   * Update to new upstream version

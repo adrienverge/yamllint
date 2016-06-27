@@ -9,7 +9,7 @@ Build-Depends:
  python3-setuptools,
  python3-sphinx,
  python3-yaml,
-Standards-Version: 3.9.7
+Standards-Version: 3.9.8
 Homepage: https://github.com/adrienverge/yamllint
 Vcs-Git: https://github.com/adrienverge/yamllint.git -b packaging
 Vcs-Browser: https://github.com/adrienverge/yamllint/tree/packaging

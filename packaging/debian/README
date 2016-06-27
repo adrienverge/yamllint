@@ -1,7 +1,7 @@
 Release new version for Debian
 ==============================
 
-VERSION=1.2.1
+VERSION=1.3.2
 WD=/tmp/pkg
 TARGET=vm-debian8
 
@@ -12,7 +12,13 @@ python3 setup.py sdist
 ssh $TARGET mkdir $WD
 rsync -av dist/yamllint-$VERSION.tar.gz $TARGET:$WD/yamllint_$VERSION.orig.tar.gz
 ssh $TARGET tar -C $WD -xf $WD/yamllint_$VERSION.orig.tar.gz
-rsync -av packaging/debian/debian $TARGET:$WD/yamllint-$VERSION
+if false; then
+  rsync -av packaging/debian/debian $TARGET:$WD/yamllint-$VERSION
+else
+  ssh $TARGET "cd $WD && sudo apt-get update"
+  ssh $TARGET "cd $WD && apt-get source yamllint"
+  ssh $TARGET mv $WD'/yamllint-*/debian' $WD/yamllint-$VERSION # old version
+fi
 
 ssh $TARGET
 cd $WD/yamllint-$VERSION/debian
@@ -26,6 +32,9 @@ debuild -S -sa
 # Test if it builds
 sudo pbuilder --create
 sudo pbuilder --build ../../yamllint_$VERSION-1.dsc
+
+# Run lintian to detect problems
+lintian -i -I --show-overrides ../../yamllint_$VERSION-1_source.changes
 
 # Upload to mentors FTP (needed even for updates)
 cat >>~/.dput.cf << EOF
