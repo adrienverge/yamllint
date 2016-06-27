@@ -157,12 +157,6 @@ def get_costemic_problems(buffer, conf):
             disabled_for_next_line = DisableLineDirective()
             cache = []
 
-    # If no new line at the end of file, the cache is not empty
-    for problem in cache:
-        if not (disabled_for_line.is_disabled_by_directive(problem) or
-                disabled.is_disabled_by_directive(problem)):
-            yield problem
-
 
 def get_syntax_error(buffer):
     try:
