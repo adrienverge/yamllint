@@ -120,3 +120,8 @@ or for a whole block:
  # yamllint enable
 
 `Read more in the complete documentation! <http://yamllint.readthedocs.io/>`_
+
+License
+-------
+
+`GPL version 3 <LICENSE>`_
