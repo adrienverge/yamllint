@@ -48,27 +48,6 @@ def spaces_before(token, prev, next, min=-1, max=-1,
                                token.start_mark.column + 1, min_desc)
 
 
-class Comment(object):
-    def __init__(self, line, column, buffer, pointer):
-        self.line = line
-        self.column = column
-        self.buffer = buffer
-        self.pointer = pointer
-
-    def __repr__(self):
-        end = self.buffer.find('\n', self.pointer)
-        if end == -1:
-            end = self.buffer.find('\0', self.pointer)
-        if end != -1:
-            return self.buffer[self.pointer:end]
-        return self.buffer[self.pointer:]
-
-    def __eq__(self, other):
-        return (self.line == other.line and
-                self.column == other.column and
-                str(self) == str(other))
-
-
 def get_line_indent(token):
     """Finds the indent of the line the token starts in."""
     start = token.start_mark.buffer.rfind('\n', 0,
