@@ -71,7 +71,10 @@ def get_costemic_problems(buffer, conf):
             self.all_rules = set([r.ID for r in rules])
 
         def process_comment(self, comment):
-            comment = repr(comment)
+            try:
+                comment = str(comment)
+            except UnicodeError:
+                return  # this certainly wasn't a yamllint directive comment
 
             if re.match(r'^# yamllint disable( rule:\S+)*\s*$', comment):
                 rules = [item[5:] for item in comment[18:].split(' ')][1:]
@@ -95,7 +98,10 @@ def get_costemic_problems(buffer, conf):
 
     class DisableLineDirective(DisableDirective):
         def process_comment(self, comment):
-            comment = repr(comment)
+            try:
+                comment = str(comment)
+            except UnicodeError:
+                return  # this certainly wasn't a yamllint directive comment
 
             if re.match(r'^# yamllint disable-line( rule:\S+)*\s*$', comment):
                 rules = [item[5:] for item in comment[23:].split(' ')][1:]

@@ -64,6 +64,15 @@ class CommandLineTestCase(unittest.TestCase):
             f.write('---\n'
                     'key: value\n')
 
+        # non-ASCII chars
+        os.mkdir(os.path.join(self.wd, 'non-ascii'))
+        with open(os.path.join(self.wd, 'non-ascii', 'utf-8'), 'wb') as f:
+            f.write((u'---\n'
+                     u'- hétérogénéité\n'
+                     u'# 19.99 €\n'
+                     u'- お早う御座います。\n'
+                     u'# الأَبْجَدِيَّة العَرَبِيَّة\n').encode('utf-8'))
+
     def tearDown(self):
         shutil.rmtree(self.wd)
 
@@ -250,6 +259,19 @@ class CommandLineTestCase(unittest.TestCase):
 
     def test_run_empty_file(self):
         file = os.path.join(self.wd, 'empty.yml')
+
+        sys.stdout, sys.stderr = StringIO(), StringIO()
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run(('-f', 'parsable', file))
+
+        self.assertEqual(ctx.exception.code, 0)
+
+        out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
+        self.assertEqual(out, '')
+        self.assertEqual(err, '')
+
+    def test_run_non_ascii_file(self):
+        file = os.path.join(self.wd, 'non-ascii', 'utf-8')
 
         sys.stdout, sys.stderr = StringIO(), StringIO()
         with self.assertRaises(SystemExit) as ctx:

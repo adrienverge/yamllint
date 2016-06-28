@@ -49,7 +49,7 @@ class Comment(object):
         self.token_after = token_after
         self.comment_before = comment_before
 
-    def __repr__(self):
+    def __str__(self):
         end = self.buffer.find('\n', self.pointer)
         if end == -1:
             end = self.buffer.find('\0', self.pointer)
