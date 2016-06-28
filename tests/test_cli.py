@@ -18,6 +18,7 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
+import locale
 import os
 import shutil
 import tempfile
@@ -273,9 +274,16 @@ class CommandLineTestCase(unittest.TestCase):
     def test_run_non_ascii_file(self):
         file = os.path.join(self.wd, 'non-ascii', 'utf-8')
 
+        # Make sure the default localization conditions on this "system"
+        # support UTF-8 encoding.
+        loc = locale.getlocale()
+        locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+
         sys.stdout, sys.stderr = StringIO(), StringIO()
         with self.assertRaises(SystemExit) as ctx:
             cli.run(('-f', 'parsable', file))
+
+        locale.setlocale(locale.LC_ALL, loc)
 
         self.assertEqual(ctx.exception.code, 0)
 
