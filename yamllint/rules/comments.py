@@ -74,6 +74,7 @@ def check(conf, comment):
     if (conf['require-starting-space'] and
             comment.pointer + 1 < len(comment.buffer) and
             comment.buffer[comment.pointer + 1] != ' ' and
+            comment.buffer[comment.pointer + 1] != '#' and
             comment.buffer[comment.pointer + 1] != '\n'):
         yield LintProblem(comment.line_no, comment.column_no + 1,
                           'missing starting space in comment')
