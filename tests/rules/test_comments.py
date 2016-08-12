@@ -35,6 +35,10 @@ class CommentsTestCase(RuleTestCase):
                    '  #comment 3 bis\n'
                    '  #  comment 3 ter\n'
                    '\n'
+                   '################################\n'
+                   '## comment 4\n'
+                   '##comment 5\n'
+                   '\n'
                    'string: "Une longue phrase." # this is French\n', conf)
 
     def test_starting_space(self):
@@ -52,7 +56,11 @@ class CommentsTestCase(RuleTestCase):
                    '# comment 2\n'
                    '# comment 3\n'
                    '  #  comment 3 bis\n'
-                   '  #  comment 3 ter\n', conf)
+                   '  #  comment 3 ter\n'
+                   '\n'
+                   '################################\n'
+                   '## comment 4\n'
+                   '##  comment 5\n', conf)
         self.check('---\n'
                    '#comment\n'
                    '\n'
@@ -63,9 +71,14 @@ class CommentsTestCase(RuleTestCase):
                    '# comment 2\n'
                    '#comment 3\n'
                    '  #comment 3 bis\n'
-                   '  #  comment 3 ter\n', conf,
+                   '  #  comment 3 ter\n'
+                   '\n'
+                   '################################\n'
+                   '## comment 4\n'
+                   '##comment 5\n', conf,
                    problem1=(2, 2), problem2=(6, 13),
-                   problem4=(9, 2), problem5=(10, 4))
+                   problem3=(9, 2), problem4=(10, 4),
+                   problem5=(15, 3))
 
     def test_spaces_from_content(self):
         conf = ('comments:\n'
@@ -106,13 +119,18 @@ class CommentsTestCase(RuleTestCase):
                    '  #comment 3 bis\n'
                    '  #  comment 3 ter\n'
                    '\n'
+                   '################################\n'
+                   '## comment 4\n'
+                   '##comment 5\n'
+                   '\n'
                    'string: "Une longue phrase." # this is French\n', conf,
                    problem1=(2, 2),
                    problem2=(4, 7),
                    problem3=(6, 11), problem4=(6, 12),
                    problem5=(9, 2),
                    problem6=(10, 4),
-                   problem7=(13, 30))
+                   problem7=(15, 3),
+                   problem8=(17, 30))
 
     def test_empty_comment(self):
         conf = ('comments:\n'
@@ -131,6 +149,14 @@ class CommentsTestCase(RuleTestCase):
                 '  require-starting-space: yes\n'
                 '  min-spaces-from-content: 2\n')
         self.check('# comment\n', conf)
+
+    def test_last_line(self):
+        conf = ('comments:\n'
+                '  require-starting-space: yes\n'
+                '  min-spaces-from-content: 2\n'
+                'new-line-at-end-of-file: disable\n')
+        self.check('# comment with no newline char:\n'
+                   '#', conf)
 
     def test_multi_line_scalar(self):
         conf = ('comments:\n'

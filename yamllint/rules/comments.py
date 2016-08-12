@@ -35,6 +35,12 @@ Use this rule to control the position and formatting of comments.
     # This sentence
     # is a block comment
 
+   the following code snippet would **PASS**:
+   ::
+
+    ##############################
+    ## This is some documentation
+
    the following code snippet would **FAIL**:
    ::
 
@@ -71,9 +77,13 @@ def check(conf, comment):
         yield LintProblem(comment.line_no, comment.column_no,
                           'too few spaces before comment')
 
-    if (conf['require-starting-space'] and
-            comment.pointer + 1 < len(comment.buffer) and
-            comment.buffer[comment.pointer + 1] != ' ' and
-            comment.buffer[comment.pointer + 1] != '\n'):
-        yield LintProblem(comment.line_no, comment.column_no + 1,
-                          'missing starting space in comment')
+    if conf['require-starting-space']:
+        text_start = comment.pointer + 1
+        while (comment.buffer[text_start] == '#' and
+               text_start < len(comment.buffer)):
+            text_start += 1
+        if (text_start < len(comment.buffer) and
+                comment.buffer[text_start] not in (' ', '\n', '\0')):
+            yield LintProblem(comment.line_no,
+                              comment.column_no + text_start - comment.pointer,
+                              'missing starting space in comment')
