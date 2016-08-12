@@ -48,6 +48,17 @@ class Format(object):
 
     @staticmethod
     def standard(problem, filename):
+        line = '  %d:%d' % (problem.line, problem.column)
+        line += max(12 - len(line), 0) * ' '
+        line += problem.level
+        line += max(21 - len(line), 0) * ' '
+        line += problem.desc
+        if problem.rule:
+            line += '  (%s)' % problem.rule
+        return line
+
+    @staticmethod
+    def standard_color(problem, filename):
         line = '  \033[2m%d:%d\033[0m' % (problem.line, problem.column)
         line += max(20 - len(line), 0) * ' '
         if problem.level == 'warning':
@@ -119,9 +130,15 @@ def run(argv=None):
                 for problem in linter.run(f, conf):
                     if args.format == 'parsable':
                         print(Format.parsable(problem, file))
-                    else:
+                    elif sys.stdout.isatty():
                         if first:
                             print('\033[4m%s\033[0m' % file)
+                            first = False
+
+                        print(Format.standard_color(problem, file))
+                    else:
+                        if first:
+                            print(file)
                             first = False
 
                         print(Format.standard(problem, file))

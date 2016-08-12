@@ -18,8 +18,10 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
+import fcntl
 import locale
 import os
+import pty
 import shutil
 import tempfile
 import unittest
@@ -308,7 +310,7 @@ class CommandLineTestCase(unittest.TestCase):
             '(key-duplicates)\n') % file)
         self.assertEqual(err, '')
 
-    def test_run_colored_output(self):
+    def test_run_piped_output_nocolor(self):
         file = os.path.join(self.wd, 'a.yaml')
 
         sys.stdout, sys.stderr = StringIO(), StringIO()
@@ -319,6 +321,38 @@ class CommandLineTestCase(unittest.TestCase):
 
         out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
         self.assertEqual(out, (
+            '%s\n'
+            '  2:4       error    trailing spaces  (trailing-spaces)\n'
+            '  3:4       error    no new line character at the end of file  '
+            '(new-line-at-end-of-file)\n'
+            '\n' % file))
+        self.assertEqual(err, '')
+
+    def test_run_colored_output(self):
+        file = os.path.join(self.wd, 'a.yaml')
+
+        # Create a pseudo-TTY and redirect stdout to it
+        master, slave = pty.openpty()
+        sys.stdout = sys.stderr = os.fdopen(slave, 'w')
+
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run((file, ))
+        sys.stdout.flush()
+
+        self.assertEqual(ctx.exception.code, 1)
+
+        # Read output from TTY
+        output = os.fdopen(master, 'r')
+        flag = fcntl.fcntl(master, fcntl.F_GETFD)
+        fcntl.fcntl(master, fcntl.F_SETFL, flag | os.O_NONBLOCK)
+
+        out = output.read().replace('\r\n', '\n')
+
+        sys.stdout.close()
+        sys.stderr.close()
+        output.close()
+
+        self.assertEqual(out, (
             '\033[4m%s\033[0m\n'
             '  \033[2m2:4\033[0m       \033[31merror\033[0m    '
             'trailing spaces  \033[2m(trailing-spaces)\033[0m\n'
@@ -326,4 +360,3 @@ class CommandLineTestCase(unittest.TestCase):
             'no new line character at the end of file  '
             '\033[2m(new-line-at-end-of-file)\033[0m\n'
             '\n' % file))
-        self.assertEqual(err, '')
