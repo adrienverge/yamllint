@@ -31,7 +31,10 @@ Unless told otherwise, yamllint uses its ``default`` configuration:
 Details on rules can be found on :doc:`the rules page <rules>`.
 
 There is another pre-defined configuration named ``relaxed``. As its name
-suggests, it is more tolerant.
+suggests, it is more tolerant:
+
+.. literalinclude:: ../yamllint/conf/relaxed.yaml
+   :language: yaml
 
 It can be chosen using:
 
