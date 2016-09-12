@@ -72,6 +72,7 @@ Use this rule to set a limit to lines length.
             http://localhost/very/very/very/very/very/very/very/very/long/url
 """
 
+import yaml
 
 from yamllint.linter import LintProblem
 
@@ -94,6 +95,11 @@ def check(conf, line):
                     start += 2
 
                 if line.buffer.find(' ', start, line.end) == -1:
+                    return
+
+                line_yaml = yaml.safe_load(line.content)
+                if (isinstance(line_yaml, dict) and
+                        ' ' not in line_yaml.popitem()[1]):
                     return
 
         yield LintProblem(line.line_no, conf['max'] + 1,
