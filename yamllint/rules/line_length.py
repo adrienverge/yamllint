@@ -87,6 +87,7 @@ Use this rule to set a limit to lines length.
             http://localhost/very/very/very/very/very/very/very/very/long/url
 """
 
+
 import yaml
 
 from yamllint.linter import LintProblem
@@ -97,6 +98,18 @@ TYPE = 'line'
 CONF = {'max': int,
         'allow-non-breakable-words': bool,
         'allow-non-breakable-inline-mappings': bool}
+
+
+def check_inline_mapping(line):
+    loader = yaml.SafeLoader(line.content)
+    while loader.peek_token():
+        if isinstance(loader.get_token(), yaml.BlockMappingStartToken):
+            while loader.peek_token():
+                if isinstance(loader.get_token(), yaml.ValueToken):
+                    t = loader.get_token()
+                    if isinstance(t, yaml.ScalarToken):
+                        return ' ' not in line.content[t.start_mark.column:]
+    return False
 
 
 def check(conf, line):
@@ -115,11 +128,9 @@ def check(conf, line):
                 if line.buffer.find(' ', start, line.end) == -1:
                     return
 
-                if conf['allow-non-breakable-inline-mappings']:
-                    line_yaml = yaml.safe_load(line.content)
-                    if (isinstance(line_yaml, dict) and
-                            ' ' not in line_yaml.popitem()[1]):
-                        return
+                if (conf['allow-non-breakable-inline-mappings'] and
+                        check_inline_mapping(line)):
+                    return
 
         yield LintProblem(line.line_no, conf['max'] + 1,
                           'line too long (%d > %d characters)' %
