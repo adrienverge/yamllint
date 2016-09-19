@@ -38,6 +38,7 @@ rules:
   line-length:
     max: 80
     allow-non-breakable-words: yes
+    allow-non-breakable-inline-mappings: no
   new-line-at-end-of-file: enable
   new-lines:
     type: unix

@@ -23,6 +23,8 @@ Use this rule to set a limit to lines length.
 * ``allow-non-breakable-words`` is used to allow non breakable words (without
   spaces inside) to overflow the limit. This is useful for long URLs, for
   instance. Use ``yes`` to allow, ``no`` to forbid.
+* ``allow-non-breakable-inline-mappings`` implies ``allow-non-breakable-words``
+  and extends it to also allow non-breakable words in inline mappings.
 
 .. rubric:: Examples
 
@@ -61,6 +63,19 @@ Use this rule to set a limit to lines length.
 
     - this line is waaaaaaaaaaaaaay too long but could be easily split...
 
+   and the following code snippet would also **FAIL**:
+   ::
+
+    - foobar: http://localhost/very/very/very/very/very/very/very/very/long/url
+
+#. With ``line-length: {max: 60, allow-non-breakable-words: yes,
+   allow-non-breakable-inline-mappings: yes}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    - foobar: http://localhost/very/very/very/very/very/very/very/very/long/url
+
 #. With ``line-length: {max: 60, allow-non-breakable-words: no}``
 
    the following code snippet would **FAIL**:
@@ -73,17 +88,34 @@ Use this rule to set a limit to lines length.
 """
 
 
+import yaml
+
 from yamllint.linter import LintProblem
 
 
 ID = 'line-length'
 TYPE = 'line'
 CONF = {'max': int,
-        'allow-non-breakable-words': bool}
+        'allow-non-breakable-words': bool,
+        'allow-non-breakable-inline-mappings': bool}
+
+
+def check_inline_mapping(line):
+    loader = yaml.SafeLoader(line.content)
+    while loader.peek_token():
+        if isinstance(loader.get_token(), yaml.BlockMappingStartToken):
+            while loader.peek_token():
+                if isinstance(loader.get_token(), yaml.ValueToken):
+                    t = loader.get_token()
+                    if isinstance(t, yaml.ScalarToken):
+                        return ' ' not in line.content[t.start_mark.column:]
+    return False
 
 
 def check(conf, line):
     if line.end - line.start > conf['max']:
+        conf['allow-non-breakable-words'] |= \
+            conf['allow-non-breakable-inline-mappings']
         if conf['allow-non-breakable-words']:
             start = line.start
             while start < line.end and line.buffer[start] == ' ':
@@ -94,6 +126,10 @@ def check(conf, line):
                     start += 2
 
                 if line.buffer.find(' ', start, line.end) == -1:
+                    return
+
+                if (conf['allow-non-breakable-inline-mappings'] and
+                        check_inline_mapping(line)):
                     return
 
         yield LintProblem(line.line_no, conf['max'] + 1,
