@@ -16,7 +16,7 @@ indentation, etc.
    :target: https://coveralls.io/github/adrienverge/yamllint?branch=master
    :alt: Code coverage status
 .. image:: https://readthedocs.org/projects/yamllint/badge/?version=latest
-   :target: http://yamllint.readthedocs.org/en/latest/?badge=latest
+   :target: https://yamllint.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation status
 
 Written in Python (compatible with Python 2 & 3).
@@ -24,7 +24,7 @@ Written in Python (compatible with Python 2 & 3).
 Documentation
 -------------
 
-http://yamllint.readthedocs.io/
+https://yamllint.readthedocs.io/
 
 Overview
 --------
@@ -82,7 +82,7 @@ Usage
  # Output a parsable format (for syntax checking in editors like Vim, emacs...)
  yamllint -f parsable file.yaml
 
-`Read more in the complete documentation! <http://yamllint.readthedocs.io/>`_
+`Read more in the complete documentation! <https://yamllint.readthedocs.io/>`_
 
 Features
 ^^^^^^^^
@@ -119,7 +119,7 @@ or for a whole block:
    consectetur : adipiscing elit
  # yamllint enable
 
-`Read more in the complete documentation! <http://yamllint.readthedocs.io/>`_
+`Read more in the complete documentation! <https://yamllint.readthedocs.io/>`_
 
 License
 -------
