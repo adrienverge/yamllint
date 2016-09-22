@@ -64,7 +64,7 @@ def get(id):
                 sys.path.append('.yamllint')
             module = importlib.import_module('rules.' + id)
             _RULES[module.ID] = module
-        except ImportError as exc:
+        except ImportError:
             pass
 
     if id not in _RULES:
