@@ -15,6 +15,7 @@ If ``-c`` is not provided, yamllint will look for a configuration file in the
 following locations (by order of preference):
 
 - ``.yamllint`` in the current working directory
+- ``.yamllint/config`` in the current working directory
 - ``$XDG_CONFIG_HOME/yamllint/config``
 - ``~/.config/yamllint/config``
 
