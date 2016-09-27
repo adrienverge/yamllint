@@ -32,6 +32,9 @@ class LineLengthTestCase(RuleTestCase):
         self.check('---\n' + 81 * 'a' + '\n', conf)
         self.check(1000 * 'b', conf)
         self.check('---\n' + 1000 * 'b' + '\n', conf)
+        self.check('content: |\n'
+                   '  {% this line is' + 99 * ' really' + ' long %}\n',
+                   conf)
 
     def test_default(self):
         conf = ('line-length: {max: 80}\n'
@@ -145,3 +148,10 @@ class LineLengthTestCase(RuleTestCase):
         self.check('---\n'
                    '- long line: and+some+space+at+the+end       \n',
                    conf, problem=(2, 21))
+
+        # See https://github.com/adrienverge/yamllint/issues/21
+        conf = 'line-length: {allow-non-breakable-inline-mappings: yes}'
+        self.check('---\n'
+                   'content: |\n'
+                   '  {% this line is' + 99 * ' really' + ' long %}\n',
+                   conf, problem=(3, 81))

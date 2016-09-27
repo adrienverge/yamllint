@@ -102,13 +102,18 @@ CONF = {'max': int,
 
 def check_inline_mapping(line):
     loader = yaml.SafeLoader(line.content)
-    while loader.peek_token():
-        if isinstance(loader.get_token(), yaml.BlockMappingStartToken):
-            while loader.peek_token():
-                if isinstance(loader.get_token(), yaml.ValueToken):
-                    t = loader.get_token()
-                    if isinstance(t, yaml.ScalarToken):
-                        return ' ' not in line.content[t.start_mark.column:]
+    try:
+        while loader.peek_token():
+            if isinstance(loader.get_token(), yaml.BlockMappingStartToken):
+                while loader.peek_token():
+                    if isinstance(loader.get_token(), yaml.ValueToken):
+                        t = loader.get_token()
+                        if isinstance(t, yaml.ScalarToken):
+                            return (
+                                ' ' not in line.content[t.start_mark.column:])
+    except yaml.scanner.ScannerError:
+        pass
+
     return False
 
 
