@@ -119,6 +119,8 @@ conf_overrides = {
     'example-8.22': ('indentation: disable\n'),
     'example-10.1': ('colons: {max-spaces-before: 2}\n'),
     'example-10.2': ('indentation: {indent-sequences: no}\n'),
+    'example-10.8': ('truthy: disable\n'),
+    'example-10.9': ('truthy: disable\n'),
 }
 
 files = os.listdir(os.path.join(os.path.dirname(os.path.realpath(__file__)),

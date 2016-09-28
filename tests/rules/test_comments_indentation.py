@@ -102,13 +102,13 @@ class CommentsIndentationTestCase(RuleTestCase):
                    '  a: 1\n'
                    '  # b: 2\n'
                    '# this object is useless\n'
-                   'obj2: no\n', conf)
+                   'obj2: "no"\n', conf)
         self.check('---\n'
                    'obj1:\n'
                    '  a: 1\n'
                    '# this object is useless\n'
                    '  # b: 2\n'
-                   'obj2: no\n', conf, problem=(5, 3))
+                   'obj2: "no"\n', conf, problem=(5, 3))
         self.check('---\n'
                    'obj1:\n'
                    '  a: 1\n'

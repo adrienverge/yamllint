@@ -26,3 +26,4 @@ rules:
   line-length:
     level: warning
     allow-non-breakable-inline-mappings: yes
+  truthy: disable

@@ -1,0 +1,56 @@
+# -*- coding: utf-8 -*-
+# Copyright (C) 2016 Peter Ericson
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+Use this rule to forbid truthy values that are not quoted.
+
+.. rubric:: Examples
+
+#. With ``truthy: {}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    object: {"True": 1, 1: "True"}
+
+   the following code snippet would **FAIL**:
+   ::
+
+    object: {True: 1, 1: True}
+"""
+
+import yaml
+
+from yamllint.linter import LintProblem
+
+ID = 'truthy'
+TYPE = 'token'
+CONF = {}
+
+TRUTHY = ['YES', 'Yes', 'yes',
+          'NO', 'No', 'no',
+          'TRUE', 'True',  # true is a boolean
+          'FALSE', 'False',  # false is a boolean
+          'ON', 'On', 'on',
+          'OFF', 'Off', 'off']
+
+
+def check(conf, token, prev, next, nextnext, context):
+    if isinstance(token, yaml.tokens.ScalarToken):
+        if token.value in TRUTHY and token.style is None:
+            yield LintProblem(token.start_mark.line + 1,
+                              token.start_mark.column + 1,
+                              "truthy value is not quoted")
