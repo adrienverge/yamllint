@@ -17,6 +17,10 @@
 """
 Use this rule to forbid truthy values that are not quoted.
 
+This would prevent YAML parsers to tranform ``[yes, FALSE, Off]`` into ``[true,
+false, false]`` or ``{y: 1, yes: 2, on: 3, true: 4, True: 5}`` into ``{y: 1,
+true: 5}``.
+
 .. rubric:: Examples
 
 #. With ``truthy: {}``
@@ -24,12 +28,27 @@ Use this rule to forbid truthy values that are not quoted.
    the following code snippet would **PASS**:
    ::
 
+    boolean: true
+
     object: {"True": 1, 1: "True"}
+
+    "yes":  1
+    "on":   2
+    "true": 3
+    "True": 4
 
    the following code snippet would **FAIL**:
    ::
 
     object: {True: 1, 1: True}
+
+   the following code snippet would **FAIL**:
+   ::
+
+    yes:  1
+    on:   2
+    true: 3
+    True: 4
 """
 
 import yaml
@@ -42,8 +61,8 @@ CONF = {}
 
 TRUTHY = ['YES', 'Yes', 'yes',
           'NO', 'No', 'no',
-          'TRUE', 'True',  # true is a boolean
-          'FALSE', 'False',  # false is a boolean
+          'TRUE', 'True',  # 'true' is a boolean
+          'FALSE', 'False',  # 'false' is a boolean
           'ON', 'On', 'on',
           'OFF', 'Off', 'off']
 
