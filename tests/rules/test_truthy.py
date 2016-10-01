@@ -38,3 +38,16 @@ class TruthyTestCase(RuleTestCase):
         self.check('---\n'
                    '"True": 1\n', conf)
 
+    def test_explicit_boolean(self):
+        conf = 'truthy: enable\n'
+        self.check('---\n'
+                   '!!seq [\n'
+                   '  !!bool true, !!bool false,\n'
+                   '  !!bool "false", !!bool "FALSE",\n'
+                   '  !!bool "true", !!bool "True",\n'
+                   '  !!bool "false", !!bool "FALSE",\n'
+                   ']\n', conf)
+        self.check('---\n'
+                   '!!seq [\n'
+                   '  !!bool true, !!bool True,\n'
+                   ']\n', conf, problem=(3, 23))
