@@ -30,24 +30,39 @@ class TruthyTestCase(RuleTestCase):
     def test_enabled(self):
         conf = 'truthy: enable\n'
         self.check('---\n'
-                   '1: True\n', conf, problem=(2, 4))
+                   '1: True\n'
+                   'True: 1\n',
+                   conf, problem1=(2, 4), problem2=(3, 1))
         self.check('---\n'
-                   'True: 1\n', conf, problem=(2, 1))
-        self.check('---\n'
-                   '1: "True"\n', conf)
-        self.check('---\n'
+                   '1: "True"\n'
                    '"True": 1\n', conf)
+        self.check('---\n'
+                   '[\n'
+                   '  true, false,\n'
+                   '  "false", "FALSE",\n'
+                   '  "true", "True",\n'
+                   '  True, FALSE,\n'
+                   '  on, OFF,\n'
+                   '  NO, Yes\n'
+                   ']\n', conf,
+                   problem1=(6, 3), problem2=(6, 9),
+                   problem3=(7, 3), problem4=(7, 7),
+                   problem5=(8, 3), problem6=(8, 7))
 
-    def test_explicit_boolean(self):
+    def test_explicit_types(self):
         conf = 'truthy: enable\n'
         self.check('---\n'
-                   '!!seq [\n'
-                   '  !!bool true, !!bool false,\n'
-                   '  !!bool "false", !!bool "FALSE",\n'
-                   '  !!bool "true", !!bool "True",\n'
-                   '  !!bool "false", !!bool "FALSE",\n'
-                   ']\n', conf)
-        self.check('---\n'
-                   '!!seq [\n'
-                   '  !!bool true, !!bool True,\n'
-                   ']\n', conf, problem=(3, 23))
+                   'string1: !!str True\n'
+                   'string2: !!str yes\n'
+                   'string3: !!str off\n'
+                   'encoded: !!binary |\n'
+                   '           True\n'
+                   '           OFF\n'
+                   '           pad==\n'  # this decodes as 'N\xbb\x9e8Qii'
+                   'boolean1: !!bool true\n'
+                   'boolean2: !!bool "false"\n'
+                   'boolean3: !!bool FALSE\n'
+                   'boolean4: !!bool True\n'
+                   'boolean5: !!bool off\n'
+                   'boolean6: !!bool NO\n',
+                   conf)

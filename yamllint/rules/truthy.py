@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Use this rule to forbid truthy values that are not quoted.
+Use this rule to forbid truthy values that are not quoted nor explicitly typed.
 
 This would prevent YAML parsers to tranform ``[yes, FALSE, Off]`` into ``[true,
 false, false]`` or ``{y: 1, yes: 2, on: 3, true: 4, True: 5}`` into ``{y: 1,
@@ -36,6 +36,21 @@ true: 5}``.
     "on":   2
     "true": 3
     "True": 4
+
+     explicit:
+       string1: !!str True
+       string2: !!str yes
+       string3: !!str off
+       encoded: !!binary |
+                  True
+                  OFF
+                  pad==  # this decodes as 'N\xbb\x9e8Qii'
+       boolean1: !!bool true
+       boolean2: !!bool "false"
+       boolean3: !!bool FALSE
+       boolean4: !!bool True
+       boolean5: !!bool off
+       boolean6: !!bool NO
 
    the following code snippet would **FAIL**:
    ::
@@ -68,6 +83,9 @@ TRUTHY = ['YES', 'Yes', 'yes',
 
 
 def check(conf, token, prev, next, nextnext, context):
+    if prev and isinstance(prev, yaml.tokens.TagToken):
+        return
+
     if isinstance(token, yaml.tokens.ScalarToken):
         if token.value in TRUTHY and token.style is None:
             yield LintProblem(token.start_mark.line + 1,
