@@ -93,3 +93,8 @@ trailing-spaces
 ---------------
 
 .. automodule:: yamllint.rules.trailing_spaces
+
+truthy
+---------------
+
+.. automodule:: yamllint.rules.truthy
