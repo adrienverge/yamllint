@@ -42,7 +42,7 @@ setup(
         'Topic :: Software Development :: Testing',
     ],
 
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests', 'tests.*']),
     entry_points={'console_scripts': ['yamllint=yamllint.cli:run']},
     package_data={'yamllint': ['conf/*.yaml'],
                   'tests': ['yaml-1.2-spec-examples/*']},
