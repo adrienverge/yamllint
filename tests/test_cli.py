@@ -40,6 +40,10 @@ class CommandLineTestCase(unittest.TestCase):
                     '- 1   \n'
                     '- 2')
 
+        # file with only one warning
+        with open(os.path.join(self.wd, 'warn.yaml'), 'w') as f:
+            f.write('key: value\n')
+
         # .yml file at root
         open(os.path.join(self.wd, 'empty.yml'), 'w').close()
 
@@ -85,7 +89,8 @@ class CommandLineTestCase(unittest.TestCase):
             [os.path.join(self.wd, 'a.yaml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
-             os.path.join(self.wd, 'sub/ok.yaml')],
+             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd, 'warn.yaml')],
         )
 
         items = [os.path.join(self.wd, 'sub/ok.yaml'),
@@ -246,6 +251,24 @@ class CommandLineTestCase(unittest.TestCase):
             '%s:3:4: [error] no new line character at the end of file '
             '(new-line-at-end-of-file)\n') % (file, file))
         self.assertEqual(err, '')
+
+    def test_run_one_warning(self):
+        file = os.path.join(self.wd, 'warn.yaml')
+
+        sys.stdout, sys.stderr = StringIO(), StringIO()
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run(('-f', 'parsable', file))
+
+        self.assertEqual(ctx.exception.code, 0)
+
+    def test_run_warning_in_strict_mode(self):
+        file = os.path.join(self.wd, 'warn.yaml')
+
+        sys.stdout, sys.stderr = StringIO(), StringIO()
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run(('-f', 'parsable', '--strict', file))
+
+        self.assertEqual(ctx.exception.code, 2)
 
     def test_run_one_ok_file(self):
         file = os.path.join(self.wd, 'sub', 'ok.yaml')
