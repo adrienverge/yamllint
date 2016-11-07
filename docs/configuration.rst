@@ -105,7 +105,7 @@ Problems detected by yamllint can be raised either as errors or as warnings.
 The CLI will output them (with different colors when using the ``standard``
 output format).
 
-By default the script will exit will a return code ``1`` *only when* there is one or
+By default the script will exit with a return code ``1`` *only when* there is one or
 more error(s).
 
 However if strict mode is enabled with the ``-s`` (or ``--strict``) option, the
