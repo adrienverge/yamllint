@@ -22,6 +22,7 @@ import argparse
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
 from yamllint.config import YamlLintConfig, YamlLintConfigError
+from yamllint.linter import PROBLEM_LEVELS
 from yamllint import linter
 
 
@@ -85,6 +86,10 @@ def run(argv=None):
     parser.add_argument('-f', '--format',
                         choices=('parsable', 'standard'), default='standard',
                         help='format for parsing output')
+    parser.add_argument('-s', '--strict',
+                        action='store_true',
+                        help='return non-zero exit code on warnings '
+                             'as well as errors')
     parser.add_argument('-v', '--version', action='version',
                         version='%s %s' % (APP_NAME, APP_VERSION))
 
@@ -121,7 +126,7 @@ def run(argv=None):
         print(e, file=sys.stderr)
         sys.exit(-1)
 
-    return_code = 0
+    max_level = 0
 
     for file in find_files_recursively(args.files):
         try:
@@ -143,13 +148,19 @@ def run(argv=None):
 
                         print(Format.standard(problem, file))
 
-                    if return_code == 0 and problem.level == 'error':
-                        return_code = 1
+                    max_level = max(max_level, PROBLEM_LEVELS[problem.level])
 
             if not first and args.format != 'parsable':
                 print('')
         except EnvironmentError as e:
             print(e, file=sys.stderr)
-            return_code = -1
+            sys.exit(-1)
+
+    if max_level == PROBLEM_LEVELS['error']:
+        return_code = 1
+    elif max_level == PROBLEM_LEVELS['warning']:
+        return_code = 2 if args.strict else 0
+    else:
+        return_code = 0
 
     sys.exit(return_code)

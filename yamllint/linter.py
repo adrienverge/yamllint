@@ -21,6 +21,16 @@ import yaml
 from yamllint import parser
 
 
+PROBLEM_LEVELS = {
+    0: None,
+    1: 'warning',
+    2: 'error',
+    None: 0,
+    'warning': 1,
+    'error': 2,
+}
+
+
 class LintProblem(object):
     """Represents a linting problem found by yamllint."""
     def __init__(self, line, column, desc='<no description>', rule=None):
