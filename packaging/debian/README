@@ -1,7 +1,7 @@
 Release new version for Debian
 ==============================
 
-VERSION=1.3.2
+VERSION=1.5.0
 WD=/tmp/pkg
 TARGET=vm-debian8
 
@@ -35,6 +35,9 @@ sudo pbuilder --build ../../yamllint_$VERSION-1.dsc
 
 # Run lintian to detect problems
 lintian -i -I --show-overrides ../../yamllint_$VERSION-1_source.changes
+
+# Retrieve modified files
+rsync -av $TARGET:$WD/yamllint-$VERSION/debian packaging/debian
 
 # Upload to mentors FTP (needed even for updates)
 cat >>~/.dput.cf << EOF

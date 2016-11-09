@@ -1,3 +1,14 @@
+yamllint (1.5.0-1) unstable; urgency=medium
+
+  * Output color only on TTY
+  * Generalize line-length for mappings
+  * Fix line-length bug by scanning tokens securely
+  * New rule: truthy
+  * Fix distribution (don't distribute tests in site-packages)
+  * Exclude PTY-related test (doesn't work with pbuilder)
+
+ -- Adrien Vergé <adrienverge@gmail.com>  Mon, 07 Nov 2016 18:51:37 +0100
+
 yamllint (1.3.2-1) unstable; urgency=medium
 
   * Allow disabling yamllint checks using comments
