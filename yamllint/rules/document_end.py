@@ -19,12 +19,12 @@ Use this rule to require or forbid the use of document end marker (``...``).
 
 .. rubric:: Options
 
-* Set ``present`` to ``yes`` when the document end marker is required, or to
-  ``no`` when it is forbidden.
+* Set ``present`` to ``true`` when the document end marker is required, or to
+  ``false`` when it is forbidden.
 
 .. rubric:: Examples
 
-#. With ``document-end: {present: yes}``
+#. With ``document-end: {present: true}``
 
    the following code snippet would **PASS**:
    ::
@@ -49,7 +49,7 @@ Use this rule to require or forbid the use of document end marker (``...``).
     - is: another one
     ...
 
-#. With ``document-end: {present: no}``
+#. With ``document-end: {present: false}``
 
    the following code snippet would **PASS**:
    ::

@@ -22,7 +22,7 @@ Use this rule to set a limit to lines length.
 * ``max`` defines the maximal (inclusive) length of lines.
 * ``allow-non-breakable-words`` is used to allow non breakable words (without
   spaces inside) to overflow the limit. This is useful for long URLs, for
-  instance. Use ``yes`` to allow, ``no`` to forbid.
+  instance. Use ``true`` to allow, ``false`` to forbid.
 * ``allow-non-breakable-inline-mappings`` implies ``allow-non-breakable-words``
   and extends it to also allow non-breakable words in inline mappings.
 
@@ -44,7 +44,7 @@ Use this rule to set a limit to lines length.
       Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
       tempor incididunt ut labore et dolore magna aliqua.
 
-#. With ``line-length: {max: 60, allow-non-breakable-words: yes}``
+#. With ``line-length: {max: 60, allow-non-breakable-words: true}``
 
    the following code snippet would **PASS**:
    ::
@@ -68,15 +68,15 @@ Use this rule to set a limit to lines length.
 
     - foobar: http://localhost/very/very/very/very/very/very/very/very/long/url
 
-#. With ``line-length: {max: 60, allow-non-breakable-words: yes,
-   allow-non-breakable-inline-mappings: yes}``
+#. With ``line-length: {max: 60, allow-non-breakable-words: true,
+   allow-non-breakable-inline-mappings: true}``
 
    the following code snippet would **PASS**:
    ::
 
     - foobar: http://localhost/very/very/very/very/very/very/very/very/long/url
 
-#. With ``line-length: {max: 60, allow-non-breakable-words: no}``
+#. With ``line-length: {max: 60, allow-non-breakable-words: false}``
 
    the following code snippet would **FAIL**:
    ::

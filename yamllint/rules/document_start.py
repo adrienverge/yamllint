@@ -19,12 +19,12 @@ Use this rule to require or forbid the use of document start marker (``---``).
 
 .. rubric:: Options
 
-* Set ``present`` to ``yes`` when the document start marker is required, or to
-  ``no`` when it is forbidden.
+* Set ``present`` to ``true`` when the document start marker is required, or to
+  ``false`` when it is forbidden.
 
 .. rubric:: Examples
 
-#. With ``document-start: {present: yes}``
+#. With ``document-start: {present: true}``
 
    the following code snippet would **PASS**:
    ::
@@ -45,7 +45,7 @@ Use this rule to require or forbid the use of document start marker (``---``).
     - this
     - is: another one
 
-#. With ``document-start: {present: no}``
+#. With ``document-start: {present: false}``
 
    the following code snippet would **PASS**:
    ::

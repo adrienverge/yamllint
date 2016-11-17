@@ -67,7 +67,7 @@ conf_overrides = {
     'example-2.18': ('empty-lines: {max-end: 1}\n'),
     'example-2.19': ('empty-lines: {max-end: 1}\n'),
     'example-2.28': ('empty-lines: {max-end: 3}\n'),
-    'example-5.3': ('indentation: {indent-sequences: no}\n'
+    'example-5.3': ('indentation: {indent-sequences: false}\n'
                     'colons: {max-spaces-before: 1}\n'),
     'example-6.4': ('trailing-spaces: disable\n'),
     'example-6.5': ('trailing-spaces: disable\n'),
@@ -115,11 +115,11 @@ conf_overrides = {
     'example-8.14': ('colons: {max-spaces-before: 1}\n'),
     'example-8.16': ('indentation: {spaces: 1}\n'),
     'example-8.17': ('indentation: disable\n'),
-    'example-8.20': ('indentation: {indent-sequences: no}\n'
+    'example-8.20': ('indentation: {indent-sequences: false}\n'
                      'colons: {max-spaces-before: 1}\n'),
     'example-8.22': ('indentation: disable\n'),
     'example-10.1': ('colons: {max-spaces-before: 2}\n'),
-    'example-10.2': ('indentation: {indent-sequences: no}\n'),
+    'example-10.2': ('indentation: {indent-sequences: false}\n'),
     'example-10.8': ('truthy: disable\n'),
     'example-10.9': ('truthy: disable\n'),
 }

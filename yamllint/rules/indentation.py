@@ -25,12 +25,12 @@ Use this rule to control the indentation.
   same within the file.
 * ``indent-sequences`` defines whether block sequences should be indented or
   not (when in a mapping, this indentation is not mandatory -- some people
-  perceive the ``-`` as part of the indentation). Possible values: ``yes``,
-  ``no``, ``whatever`` and ``consistent``. ``consistent`` requires either all
-  block sequences to be indented, or none to be. ``whatever`` means either
+  perceive the ``-`` as part of the indentation). Possible values: ``true``,
+  ``false``, ``whatever`` and ``consistent``. ``consistent`` requires either
+  all block sequences to be indented, or none to be. ``whatever`` means either
   indenting or not indenting individual block sequences is OK.
 * ``check-multi-line-strings`` defines whether to lint indentation in
-  multi-line strings. Set to ``yes`` to enable, ``no`` to disable.
+  multi-line strings. Set to ``true`` to enable, ``false`` to disable.
 
 .. rubric:: Examples
 
@@ -99,7 +99,7 @@ Use this rule to control the indentation.
       Russian:
           dolls
 
-#. With ``indentation: {spaces: 2, indent-sequences: no}``
+#. With ``indentation: {spaces: 2, indent-sequences: false}``
 
    the following code snippet would **PASS**:
    ::
@@ -152,7 +152,7 @@ Use this rule to control the indentation.
       - spaghetti
       - sauce
 
-#. With ``indentation: {spaces: 4, check-multi-line-strings: yes}``
+#. With ``indentation: {spaces: 4, check-multi-line-strings: true}``
 
    the following code snippet would **PASS**:
    ::

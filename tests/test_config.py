@@ -62,6 +62,45 @@ class SimpleConfigTestCase(unittest.TestCase):
                                   '    max-spaces-after: 1\n'
                                   '    abcdef: yes\n')
 
+    def test_yes_no_for_booleans(self):
+        c = config.YamlLintConfig('rules:\n'
+                                  '  indentation:\n'
+                                  '    spaces: 2\n'
+                                  '    indent-sequences: true\n'
+                                  '    check-multi-line-strings: false\n')
+        self.assertEqual(c.rules['indentation']['indent-sequences'], True)
+        self.assertEqual(c.rules['indentation']['check-multi-line-strings'],
+                         False)
+
+        c = config.YamlLintConfig('rules:\n'
+                                  '  indentation:\n'
+                                  '    spaces: 2\n'
+                                  '    indent-sequences: yes\n'
+                                  '    check-multi-line-strings: false\n')
+        self.assertEqual(c.rules['indentation']['indent-sequences'], True)
+        self.assertEqual(c.rules['indentation']['check-multi-line-strings'],
+                         False)
+
+        c = config.YamlLintConfig('rules:\n'
+                                  '  indentation:\n'
+                                  '    spaces: 2\n'
+                                  '    indent-sequences: whatever\n'
+                                  '    check-multi-line-strings: false\n')
+        self.assertEqual(c.rules['indentation']['indent-sequences'],
+                         'whatever')
+        self.assertEqual(c.rules['indentation']['check-multi-line-strings'],
+                         False)
+
+        with self.assertRaisesRegexp(
+                config.YamlLintConfigError,
+                'invalid config: option "indent-sequences" of "indentation" '
+                'should be in '):
+            c = config.YamlLintConfig('rules:\n'
+                                      '  indentation:\n'
+                                      '    spaces: 2\n'
+                                      '    indent-sequences: YES!\n'
+                                      '    check-multi-line-strings: false\n')
+
     def test_validate_rule_conf(self):
         class Rule(object):
             ID = 'fake'
