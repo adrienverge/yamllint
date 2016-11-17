@@ -48,6 +48,7 @@ from tests.common import RuleTestCase
 class SpecificationTestCase(RuleTestCase):
     rule_id = None
 
+
 conf_general = ('document-start: disable\n'
                 'comments: {min-spaces-from-content: 1}\n'
                 'braces: {min-spaces-inside: 1, max-spaces-inside: 1}\n'
@@ -132,6 +133,7 @@ def _gen_test(buffer, conf):
     def test(self):
         self.check(buffer, conf)
     return test
+
 
 # The following tests are blacklisted (i.e. will not be checked against
 # yamllint), because pyyaml is currently not able to parse the contents
