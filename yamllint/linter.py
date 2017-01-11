@@ -63,7 +63,7 @@ class LintProblem(object):
         return '%d:%d: %s' % (self.line, self.column, self.message)
 
 
-def get_costemic_problems(buffer, conf):
+def get_cosmetic_problems(buffer, conf):
     rules = conf.enabled_rules()
 
     # Split token rules from line rules
@@ -193,7 +193,7 @@ def _run(buffer, conf):
     # right line
     syntax_error = get_syntax_error(buffer)
 
-    for problem in get_costemic_problems(buffer, conf):
+    for problem in get_cosmetic_problems(buffer, conf):
         # Insert the syntax error (if any) at the right place...
         if (syntax_error and syntax_error.line <= problem.line and
                 syntax_error.column <= problem.column):
