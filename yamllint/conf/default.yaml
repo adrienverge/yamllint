@@ -4,9 +4,13 @@ rules:
   braces:
     min-spaces-inside: 0
     max-spaces-inside: 0
+    min-spaces-inside-empty: -1
+    max-spaces-inside-empty: -1
   brackets:
     min-spaces-inside: 0
     max-spaces-inside: 0
+    min-spaces-inside-empty: -1
+    max-spaces-inside-empty: -1
   colons:
     max-spaces-before: 0
     max-spaces-after: 1

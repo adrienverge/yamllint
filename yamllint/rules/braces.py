@@ -23,6 +23,10 @@ Use this rule to control the number of spaces inside braces (``{`` and ``}``).
   braces.
 * ``max-spaces-inside`` defines the maximal number of spaces allowed inside
   braces.
+* ``min-spaces-inside-empty`` defines the minimal number of spaces required
+  inside empty braces.
+* ``max-spaces-inside-empty`` defines the maximal number of spaces allowed
+  inside empty braces.
 
 .. rubric:: Examples
 
@@ -59,6 +63,30 @@ Use this rule to control the number of spaces inside braces (``{`` and ``}``).
    ::
 
     object: {key1: 4, key2: 8 }
+
+#. With ``braces: {min-spaces-inside-empty: 0, max-spaces-inside-empty: 0}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    object: {}
+
+   the following code snippet would **FAIL**:
+   ::
+
+    object: { }
+
+#. With ``braces: {min-spaces-inside-empty: 1, max-spaces-inside-empty: -1}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    object: {         }
+
+   the following code snippet would **FAIL**:
+   ::
+
+    object: {}
 """
 
 
@@ -70,11 +98,27 @@ from yamllint.rules.common import spaces_after, spaces_before
 ID = 'braces'
 TYPE = 'token'
 CONF = {'min-spaces-inside': int,
-        'max-spaces-inside': int}
+        'max-spaces-inside': int,
+        'min-spaces-inside-empty': int,
+        'max-spaces-inside-empty': int}
 
 
 def check(conf, token, prev, next, nextnext, context):
-    if isinstance(token, yaml.FlowMappingStartToken):
+    if (isinstance(token, yaml.FlowMappingStartToken) and
+            isinstance(next, yaml.FlowMappingEndToken)):
+        problem = spaces_after(token, prev, next,
+                               min=(conf['min-spaces-inside-empty']
+                                    if conf['min-spaces-inside-empty'] != -1
+                                    else conf['min-spaces-inside']),
+                               max=(conf['max-spaces-inside-empty']
+                                    if conf['max-spaces-inside-empty'] != -1
+                                    else conf['max-spaces-inside']),
+                               min_desc='too few spaces inside empty braces',
+                               max_desc='too many spaces inside empty braces')
+        if problem is not None:
+            yield problem
+
+    elif isinstance(token, yaml.FlowMappingStartToken):
         problem = spaces_after(token, prev, next,
                                min=conf['min-spaces-inside'],
                                max=conf['max-spaces-inside'],
