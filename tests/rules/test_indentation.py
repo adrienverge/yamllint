@@ -632,7 +632,7 @@ class IndentationTestCase(RuleTestCase):
                    '        date: 1991\n'
                    '...\n', conf)
 
-    def test_consistent(self):
+    def test_consistent_spaces(self):
         conf = ('indentation: {spaces: consistent,\n'
                 '              indent-sequences: whatever}\n'
                 'document-start: disable\n')
@@ -712,6 +712,142 @@ class IndentationTestCase(RuleTestCase):
                    '- a\n'
                    '- b\n'
                    '- c\n', conf)
+
+    def test_consistent_spaces_and_indent_sequences(self):
+        conf = 'indentation: {spaces: consistent, indent-sequences: true}'
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf, problem1=(3, 1))
+        self.check('---\n'
+                   'list one:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  - 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf, problem1=(7, 5))
+        self.check('---\n'
+                   'list one:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  - 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf, problem1=(7, 1))
+
+        conf = 'indentation: {spaces: consistent, indent-sequences: false}'
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf, problem1=(7, 5))
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '  - a\n'
+                   '  - b\n'
+                   '  - c\n', conf, problem1=(7, 3))
+        self.check('---\n'
+                   'list one:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  - 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf, problem1=(3, 3))
+
+        conf = ('indentation: {spaces: consistent,\n'
+                '              indent-sequences: consistent}')
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf, problem1=(7, 5))
+        self.check('---\n'
+                   'list one:\n'
+                   '    - 1\n'
+                   '    - 2\n'
+                   '    - 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf, problem1=(7, 1))
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf)
+        self.check('---\n'
+                   'list one:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  - 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf, problem1=(7, 5))
+
+        conf = 'indentation: {spaces: consistent, indent-sequences: whatever}'
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf)
+        self.check('---\n'
+                   'list one:\n'
+                   '    - 1\n'
+                   '    - 2\n'
+                   '    - 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf)
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf)
+        self.check('---\n'
+                   'list one:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  - 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf, problem1=(7, 5))
 
     def test_indent_sequences_whatever(self):
         conf = 'indentation: {spaces: 4, indent-sequences: whatever}'

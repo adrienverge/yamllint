@@ -469,7 +469,19 @@ def _check(conf, token, prev, next, nextnext, context):
                 if context['indent-sequences'] is False:
                     indent = context['stack'][-1].indent
                 elif context['indent-sequences'] is True:
-                    indent = detect_indent(context['stack'][-1].indent, next)
+                    if (context['spaces'] == 'consistent' and
+                            next.start_mark.column -
+                            context['stack'][-1].indent == 0):
+                        # In this case, the block sequence item is not indented
+                        # (while it should be), but we don't know yet the
+                        # indentation it should have (because `spaces` is
+                        # `consistent` and its value has not been computed yet
+                        # -- this is probably the beginning of the document).
+                        # So we choose an arbitrary value (2).
+                        indent = 2
+                    else:
+                        indent = detect_indent(context['stack'][-1].indent,
+                                               next)
                 else:  # 'whatever' or 'consistent'
                     if next.start_mark.column == context['stack'][-1].indent:
                         #   key:
