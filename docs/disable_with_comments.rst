@@ -32,7 +32,7 @@ or:
  - This line is waaaaaaaaaay too long but yamllint will not report anything about it.
    This line will be checked by yamllint.
 
-It it possible, although not recommend, to disabled **all** rules for a
+It is possible, although not recommend, to disabled **all** rules for a
 specific line:
 
 .. code-block:: yaml
@@ -46,7 +46,7 @@ If you need to disable multiple rules, it is allowed to chain rules like this:
 Disabling checks for all (or part of) the file
 ----------------------------------------------
 
-To prevent yamllint from reporting problems for the whoe file, or for a block of
+To prevent yamllint from reporting problems for the whole file, or for a block of
 lines within the file, use ``# yamllint disable ...`` and ``# yamllint enable
 ...`` directive comments. For instance:
 
@@ -60,7 +60,7 @@ lines within the file, use ``# yamllint disable ...`` and ``# yamllint enable
 
  - rest of the document...
 
-It it possible, although not recommend, to disabled **all** rules:
+It is possible, although not recommend, to disabled **all** rules:
 
 .. code-block:: yaml
 
