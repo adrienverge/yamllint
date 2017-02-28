@@ -9,8 +9,12 @@ text editor.
 Vim
 ---
 
-Assuming that the `syntastic <https://github.com/scrooloose/syntastic>`_ plugin
-is installed, add to your ``.vimrc``:
+Assuming that the `completor <https://github.com/maralla/completor.vim>`_ plugin is
+installed, yamllint is supported by default. It is automatically enabled when
+editing YAML files.
+
+If you instead use the `syntastic <https://github.com/scrooloose/syntastic>`_
+plugin, add this to your ``.vimrc``:
 
 ::
 
