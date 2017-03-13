@@ -24,6 +24,10 @@ Use this rule to control the number of spaces inside brackets (``[`` and
   brackets.
 * ``max-spaces-inside`` defines the maximal number of spaces allowed inside
   brackets.
+* ``min-spaces-inside-empty`` defines the minimal number of spaces required
+  inside empty brackets.
+* ``max-spaces-inside-empty`` defines the maximal number of spaces allowed
+  inside empty brackets.
 
 .. rubric:: Examples
 
@@ -60,6 +64,30 @@ Use this rule to control the number of spaces inside brackets (``[`` and
    ::
 
     object: [1, 2, abc ]
+
+#. With ``brackets: {min-spaces-inside-empty: 0, max-spaces-inside-empty: 0}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    object: []
+
+   the following code snippet would **FAIL**:
+   ::
+
+    object: [ ]
+
+#. With ``brackets: {min-spaces-inside-empty: 1, max-spaces-inside-empty: -1}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    object: [         ]
+
+   the following code snippet would **FAIL**:
+   ::
+
+    object: []
 """
 
 
@@ -71,11 +99,28 @@ from yamllint.rules.common import spaces_after, spaces_before
 ID = 'brackets'
 TYPE = 'token'
 CONF = {'min-spaces-inside': int,
-        'max-spaces-inside': int}
+        'max-spaces-inside': int,
+        'min-spaces-inside-empty': int,
+        'max-spaces-inside-empty': int}
 
 
 def check(conf, token, prev, next, nextnext, context):
-    if isinstance(token, yaml.FlowSequenceStartToken):
+    if (isinstance(token, yaml.FlowSequenceStartToken) and
+            isinstance(next, yaml.FlowSequenceEndToken)):
+        problem = spaces_after(token, prev, next,
+                               min=(conf['min-spaces-inside-empty']
+                                    if conf['min-spaces-inside-empty'] != -1
+                                    else conf['min-spaces-inside']),
+                               max=(conf['max-spaces-inside-empty']
+                                    if conf['max-spaces-inside-empty'] != -1
+                                    else conf['max-spaces-inside']),
+                               min_desc='too few spaces inside empty brackets',
+                               max_desc=('too many spaces inside empty '
+                                         'brackets'))
+        if problem is not None:
+            yield problem
+
+    elif isinstance(token, yaml.FlowSequenceStartToken):
         problem = spaces_after(token, prev, next,
                                min=conf['min-spaces-inside'],
                                max=conf['max-spaces-inside'],
