@@ -27,6 +27,12 @@ Assuming that the `neomake <https://github.com/benekastah/neomake>`_ plugin is
 installed, yamllint is supported by default. It is automatically enabled when
 editing YAML files.
 
+Emacs
+-----
+
+If you are `flycheck <https://github.com/flycheck/flycheck>`_ user, you can use
+`flycheck-yamllint <https://github.com/krzysztof-magosa/flycheck-yamllint>`_ integration.
+
 Other text editors
 ------------------
 
