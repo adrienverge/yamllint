@@ -14,6 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import importlib
+import os
+import sys
+
 from yamllint.rules import (
     braces,
     brackets,
@@ -56,6 +60,15 @@ _RULES = {
 
 
 def get(id):
+    if id not in _RULES:
+        try:
+            if os.path.isdir('.yamllint'):
+                sys.path.append('.yamllint')
+            module = importlib.import_module('rules.' + id)
+            _RULES[module.ID] = module
+        except ImportError:
+            pass
+
     if id not in _RULES:
         raise ValueError('no such rule: "%s"' % id)
 
