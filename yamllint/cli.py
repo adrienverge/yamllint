@@ -20,6 +20,7 @@ import os.path
 import sys
 
 import argparse
+import json
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
 from yamllint.config import YamlLintConfig, YamlLintConfigError
@@ -47,6 +48,18 @@ class Format(object):
                  'column': problem.column,
                  'level': problem.level,
                  'message': problem.message})
+
+    @staticmethod
+    def json_output(problem, filename):
+        output_dict = {}
+        output_dict["path"] = filename
+        output_dict["line"] = problem.line
+        output_dict["char"] = problem.column
+        output_dict["description"] = problem.message
+        output_dict["code"] = "YAMLLINT"
+        output_dict["name"] = "YAMLLINT"
+        output_dict["severity"] = problem.level
+        return json.dumps(output_dict)
 
     @staticmethod
     def standard(problem, filename):
@@ -87,8 +100,8 @@ def run(argv=None):
                               action='store',
                               help='custom configuration (as YAML source)')
     parser.add_argument('-f', '--format',
-                        choices=('parsable', 'standard'), default='standard',
-                        help='format for parsing output')
+                        choices=('parsable', 'standard', 'json'),
+                        default='standard', help='format for parsing output')
     parser.add_argument('-s', '--strict',
                         action='store_true',
                         help='return non-zero exit code on warnings '
@@ -134,6 +147,8 @@ def run(argv=None):
                 for problem in linter.run(f, conf, filepath):
                     if args.format == 'parsable':
                         print(Format.parsable(problem, file))
+                    elif args.format == 'json':
+                        print(Format.json_output(problem, file))
                     elif sys.stdout.isatty():
                         if first:
                             print('\033[4m%s\033[0m' % file)
