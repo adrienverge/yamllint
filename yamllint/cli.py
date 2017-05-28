@@ -78,11 +78,13 @@ def run(argv=None):
                                      description=APP_DESCRIPTION)
     parser.add_argument('files', metavar='FILE_OR_DIR', nargs='+',
                         help='files to check')
-    parser.add_argument('-c', '--config-file', dest='config_file',
-                        action='store', help='path to a custom configuration')
-    parser.add_argument('-d', '--config-data', dest='config_data',
-                        action='store',
-                        help='custom configuration (as YAML source)')
+    config_group = parser.add_mutually_exclusive_group()
+    config_group.add_argument('-c', '--config-file', dest='config_file',
+                              action='store',
+                              help='path to a custom configuration')
+    config_group.add_argument('-d', '--config-data', dest='config_data',
+                              action='store',
+                              help='custom configuration (as YAML source)')
     parser.add_argument('-f', '--format',
                         choices=('parsable', 'standard'), default='standard',
                         help='format for parsing output')
@@ -96,11 +98,6 @@ def run(argv=None):
     # TODO: read from stdin when no filename?
 
     args = parser.parse_args(argv)
-
-    if args.config_file is not None and args.config_data is not None:
-        print('Options --config-file and --config-data cannot be used '
-              'simultaneously.', file=sys.stderr)
-        sys.exit(-1)
 
     # User-global config is supposed to be in ~/.config/yamllint/config
     if 'XDG_CONFIG_HOME' in os.environ:
