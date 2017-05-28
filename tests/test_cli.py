@@ -84,8 +84,9 @@ class CommandLineTestCase(unittest.TestCase):
         shutil.rmtree(self.wd)
 
     def test_find_files_recursively(self):
+        # without excludes
         self.assertEqual(
-            sorted(cli.find_files_recursively([self.wd])),
+            sorted(cli.find_files_recursively([self.wd], [])),
             [os.path.join(self.wd, 'a.yaml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
@@ -96,14 +97,14 @@ class CommandLineTestCase(unittest.TestCase):
         items = [os.path.join(self.wd, 'sub/ok.yaml'),
                  os.path.join(self.wd, 'empty-dir')]
         self.assertEqual(
-            sorted(cli.find_files_recursively(items)),
+            sorted(cli.find_files_recursively(items, [])),
             [os.path.join(self.wd, 'sub/ok.yaml')],
         )
 
         items = [os.path.join(self.wd, 'empty.yml'),
                  os.path.join(self.wd, 's')]
         self.assertEqual(
-            sorted(cli.find_files_recursively(items)),
+            sorted(cli.find_files_recursively(items, [])),
             [os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml')],
         )
@@ -111,9 +112,63 @@ class CommandLineTestCase(unittest.TestCase):
         items = [os.path.join(self.wd, 'sub'),
                  os.path.join(self.wd, '/etc/another/file')]
         self.assertEqual(
-            sorted(cli.find_files_recursively(items)),
+            sorted(cli.find_files_recursively(items, [])),
             [os.path.join(self.wd, '/etc/another/file'),
              os.path.join(self.wd, 'sub/ok.yaml')],
+        )
+
+        # with excludes
+        self.assertEqual(
+            sorted(cli.find_files_recursively([self.wd],
+                                              [os.path.join(self.wd, 's')])),
+            [os.path.join(self.wd, 'a.yaml'),
+             os.path.join(self.wd, 'empty.yml'),
+             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd, 'warn.yaml')],
+        )
+
+        self.assertEqual(
+            sorted(cli.find_files_recursively([self.wd],
+                                              [os.path.join(self.wd, 's*')])),
+            [os.path.join(self.wd, 'a.yaml'),
+             os.path.join(self.wd, 'empty.yml'),
+             os.path.join(self.wd, 'warn.yaml')],
+        )
+
+        self.assertEqual(
+            sorted(cli.find_files_recursively([self.wd], ['*.yml', '*.yaml'])),
+            [],
+        )
+
+        items = [os.path.join(self.wd, 'sub/ok.yaml'),
+                 os.path.join(self.wd, 'empty-dir')]
+        exclude = [os.path.join(self.wd, 'sub')]
+        self.assertEqual(
+            sorted(cli.find_files_recursively(items, exclude)), [items[0]],
+        )
+        exclude[0] += '/'
+        self.assertEqual(
+            sorted(cli.find_files_recursively(items, exclude)), [items[0]],
+        )
+        exclude[0] += '*'
+        self.assertEqual(
+            sorted(cli.find_files_recursively(items, exclude)), [],
+        )
+
+        items = [os.path.join(self.wd, 'empty.yml'),
+                 os.path.join(self.wd, 's')]
+        exclude = [os.path.join(self.wd, 'empty.yml'),
+                   os.path.join(self.wd, 's/s')]
+        self.assertEqual(
+            sorted(cli.find_files_recursively(items, exclude)), [],
+        )
+
+        items = [os.path.join(self.wd, 'sub'),
+                 os.path.join(self.wd, '/etc/another/file')]
+        exclude = [os.path.join(self.wd, 'sub/ok.yaml')]
+        self.assertEqual(
+            sorted(cli.find_files_recursively(items, exclude)),
+            [os.path.join(self.wd, '/etc/another/file')],
         )
 
     def test_run_with_bad_arguments(self):
