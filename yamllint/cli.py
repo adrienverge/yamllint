@@ -32,6 +32,7 @@ def find_files_recursively(items, exclude_patterns):
         os.path.normpath(os.path.expanduser(pattern))
         for pattern in exclude_patterns or ()
     }
+
     def is_excluded(path, exclude_patterns):
         """Return True if any pattern in exclude_patterns matches path."""
         path = os.path.normpath(path)
@@ -46,7 +47,7 @@ def find_files_recursively(items, exclude_patterns):
             for root, dirnames, filenames in os.walk(item, topdown=True):
                 for dirname in dirnames:
                     if is_excluded(
-                        os.path.join(root, dirname), exclude_patterns):
+                            os.path.join(root, dirname), exclude_patterns):
                         dirnames.remove(dirname)  # won't be visited later
                 for filename in (f for f in filenames
                                  if f.endswith(('.yml', '.yaml'))):
