@@ -145,8 +145,11 @@ class CommandLineTestCase(unittest.TestCase):
 
         out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
         self.assertEqual(out, '')
-        self.assertRegexpMatches(err, r'^Options --config-file and '
-                                      r'--config-data cannot be used')
+        self.assertRegexpMatches(
+            err.splitlines()[-1],
+            r'^yamllint: error: argument -d\/--config-data: '
+            r'not allowed with argument -c\/--config-file$'
+        )
 
     def test_run_with_bad_config(self):
         sys.stdout, sys.stderr = StringIO(), StringIO()
