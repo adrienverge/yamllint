@@ -17,6 +17,7 @@
 from __future__ import print_function
 import os.path
 import sys
+from fnmatch import fnmatch
 
 import argparse
 
@@ -26,14 +27,36 @@ from yamllint.linter import PROBLEM_LEVELS
 from yamllint import linter
 
 
-def find_files_recursively(items):
+def find_files_recursively(items, exclude_patterns):
+    exclude_patterns = {
+        os.path.normpath(os.path.expanduser(pattern))
+        for pattern in exclude_patterns or ()
+    }
+
+    def is_excluded(path, exclude_patterns):
+        """Return True if any pattern in exclude_patterns matches path."""
+        path = os.path.normpath(path)
+        return any((fnmatch(path, pattern) for pattern in exclude_patterns))
+
     for item in items:
-        if os.path.isdir(item):
-            for root, dirnames, filenames in os.walk(item):
-                for filename in [f for f in filenames
-                                 if f.endswith(('.yml', '.yaml'))]:
-                    yield os.path.join(root, filename)
+        if is_excluded(os.path.expanduser(item), exclude_patterns):
+            # excluded file or directory
+            continue
+        elif os.path.isdir(item):
+            # not excluded directory
+            for root, dirnames, filenames in os.walk(item, topdown=True):
+                for dirname in dirnames:
+                    if is_excluded(
+                            os.path.join(root, dirname), exclude_patterns):
+                        dirnames.remove(dirname)  # won't be visited later
+                for filename in (f for f in filenames
+                                 if f.endswith(('.yml', '.yaml'))):
+                    yaml_file = os.path.join(root, filename)
+                    if not is_excluded(yaml_file, exclude_patterns):
+                        yield yaml_file
+
         else:
+            # not excluded file
             yield item
 
 
@@ -92,6 +115,9 @@ def run(argv=None):
                         action='store_true',
                         help='return non-zero exit code on warnings '
                              'as well as errors')
+    parser.add_argument('-e', '--exclude', metavar='FILE_OR_DIR',
+                        action="append",
+                        help="exclude files or directories")
     parser.add_argument('-v', '--version', action='version',
                         version='%s %s' % (APP_NAME, APP_VERSION))
 
@@ -125,7 +151,7 @@ def run(argv=None):
 
     max_level = 0
 
-    for file in find_files_recursively(args.files):
+    for file in find_files_recursively(args.files, args.exclude):
         try:
             first = True
             with open(file) as f:
