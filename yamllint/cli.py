@@ -126,10 +126,11 @@ def run(argv=None):
     max_level = 0
 
     for file in find_files_recursively(args.files):
+        filepath = file[2:] if file.startswith('./') else file
         try:
             first = True
             with open(file) as f:
-                for problem in linter.run(f, conf):
+                for problem in linter.run(f, conf, filepath):
                     if args.format == 'parsable':
                         print(Format.parsable(problem, file))
                     elif sys.stdout.isatty():

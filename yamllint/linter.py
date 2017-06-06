@@ -63,8 +63,8 @@ class LintProblem(object):
         return '%d:%d: %s' % (self.line, self.column, self.message)
 
 
-def get_cosmetic_problems(buffer, conf):
-    rules = conf.enabled_rules()
+def get_cosmetic_problems(buffer, conf, filepath):
+    rules = conf.enabled_rules(filepath)
 
     # Split token rules from line rules
     token_rules = [r for r in rules if r.TYPE == 'token']
@@ -185,7 +185,7 @@ def get_syntax_error(buffer):
         return problem
 
 
-def _run(buffer, conf):
+def _run(buffer, conf, filepath):
     assert hasattr(buffer, '__getitem__'), \
         '_run() argument must be a buffer, not a stream'
 
@@ -193,7 +193,7 @@ def _run(buffer, conf):
     # right line
     syntax_error = get_syntax_error(buffer)
 
-    for problem in get_cosmetic_problems(buffer, conf):
+    for problem in get_cosmetic_problems(buffer, conf, filepath):
         # Insert the syntax error (if any) at the right place...
         if (syntax_error and syntax_error.line <= problem.line and
                 syntax_error.column <= problem.column):
@@ -215,7 +215,7 @@ def _run(buffer, conf):
         yield syntax_error
 
 
-def run(input, conf):
+def run(input, conf, filepath=None):
     """Lints a YAML source.
 
     Returns a generator of LintProblem objects.
@@ -223,11 +223,14 @@ def run(input, conf):
     :param input: buffer, string or stream to read from
     :param conf: yamllint configuration object
     """
+    if conf.is_file_ignored(filepath):
+        return ()
+
     if type(input) in (type(b''), type(u'')):  # compat with Python 2 & 3
-        return _run(input, conf)
+        return _run(input, conf, filepath)
     elif hasattr(input, 'read'):  # Python 2's file or Python 3's io.IOBase
         # We need to have everything in memory to parse correctly
         content = input.read()
-        return _run(content, conf)
+        return _run(content, conf, filepath)
     else:
         raise TypeError('input should be a string or a stream')

@@ -114,3 +114,57 @@ return code will be:
  * ``0`` if no errors or warnings occur
  * ``1`` if one or more errors occur
  * ``2`` if no errors occur, but one or more warnings occur
+
+Ignoring paths
+--------------
+
+It is possible to exclude specific files or directories, so that the linter
+doesn't process them.
+
+You can either totally ignore files (they won't be looked at):
+
+.. code-block:: yaml
+
+ extends: default
+
+ ignore: |
+   /this/specific/file.yaml
+   /all/this/directory/
+   *.template.yaml
+
+or ignore paths only for specific rules:
+
+.. code-block:: yaml
+
+ extends: default
+
+ rules:
+   trailing-spaces:
+     ignore: |
+       /this-file-has-trailing-spaces-but-it-is-OK.yaml
+       /generated/*.yaml
+
+Note that this ``.gitignore``-style path pattern allows complex path
+exclusion/inclusion, see the `pathspec README file
+<https://pypi.python.org/pypi/pathspec>`_ for more details.
+Here is a more complex example:
+
+.. code-block:: yaml
+
+ # For all rules
+ ignore: |
+   *.dont-lint-me.yaml
+   /bin/
+   !/bin/*.lint-me-anyway.yaml
+
+ extends: default
+
+ rules:
+   key-duplicates:
+     ignore: |
+       generated
+       *.template.yaml
+   trailing-spaces:
+     ignore: |
+       *.ignore-trailing-spaces.yaml
+       /ascii-art/*
