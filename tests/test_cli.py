@@ -23,62 +23,45 @@ import locale
 import os
 import pty
 import shutil
-import tempfile
 import unittest
 import sys
 
 from yamllint import cli
 
+from tests.common import build_temp_workspace
+
 
 class CommandLineTestCase(unittest.TestCase):
     def setUp(self):
-        self.wd = tempfile.mkdtemp(prefix='yamllint-tests-')
-
-        # .yaml file at root
-        with open(os.path.join(self.wd, 'a.yaml'), 'w') as f:
-            f.write('---\n'
-                    '- 1   \n'
-                    '- 2')
-
-        # file with only one warning
-        with open(os.path.join(self.wd, 'warn.yaml'), 'w') as f:
-            f.write('key: value\n')
-
-        # .yml file at root
-        open(os.path.join(self.wd, 'empty.yml'), 'w').close()
-
-        # file in dir
-        os.mkdir(os.path.join(self.wd, 'sub'))
-        with open(os.path.join(self.wd, 'sub', 'ok.yaml'), 'w') as f:
-            f.write('---\n'
-                    'key: value\n')
-
-        # file in very nested dir
-        dir = self.wd
-        for i in range(15):
-            dir = os.path.join(dir, 's')
-            os.mkdir(dir)
-        with open(os.path.join(dir, 'file.yaml'), 'w') as f:
-            f.write('---\n'
-                    'key: value\n'
-                    'key: other value\n')
-
-        # empty dir
-        os.mkdir(os.path.join(self.wd, 'empty-dir'))
-
-        # non-YAML file
-        with open(os.path.join(self.wd, 'no-yaml.json'), 'w') as f:
-            f.write('---\n'
-                    'key: value\n')
-
-        # non-ASCII chars
-        os.mkdir(os.path.join(self.wd, 'non-ascii'))
-        with open(os.path.join(self.wd, 'non-ascii', 'utf-8'), 'wb') as f:
-            f.write((u'---\n'
-                     u'- hétérogénéité\n'
-                     u'# 19.99 €\n'
-                     u'- お早う御座います。\n'
-                     u'# الأَبْجَدِيَّة العَرَبِيَّة\n').encode('utf-8'))
+        self.wd = build_temp_workspace({
+            # .yaml file at root
+            'a.yaml': '---\n'
+                      '- 1   \n'
+                      '- 2',
+            # file with only one warning
+            'warn.yaml': 'key: value\n',
+            # .yml file at root
+            'empty.yml': '',
+            # file in dir
+            'sub/ok.yaml': '---\n'
+                           'key: value\n',
+            # file in very nested dir
+            's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml': '---\n'
+                                                       'key: value\n'
+                                                       'key: other value\n',
+            # empty dir
+            'empty-dir': [],
+            # non-YAML file
+            'no-yaml.json': '---\n'
+                            'key: value\n',
+            # non-ASCII chars
+            'non-ascii/utf-8': (
+                u'---\n'
+                u'- hétérogénéité\n'
+                u'# 19.99 €\n'
+                u'- お早う御座います。\n'
+                u'# الأَبْجَدِيَّة العَرَبِيَّة\n').encode('utf-8'),
+        })
 
     def tearDown(self):
         shutil.rmtree(self.wd)
