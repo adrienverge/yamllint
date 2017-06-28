@@ -32,8 +32,11 @@ from tests.common import build_temp_workspace
 
 
 class CommandLineTestCase(unittest.TestCase):
-    def setUp(self):
-        self.wd = build_temp_workspace({
+    @classmethod
+    def setUpClass(cls):
+        super(CommandLineTestCase, cls).setUpClass()
+
+        cls.wd = build_temp_workspace({
             # .yaml file at root
             'a.yaml': '---\n'
                       '- 1   \n'
@@ -63,8 +66,11 @@ class CommandLineTestCase(unittest.TestCase):
                 u'# الأَبْجَدِيَّة العَرَبِيَّة\n').encode('utf-8'),
         })
 
-    def tearDown(self):
-        shutil.rmtree(self.wd)
+    @classmethod
+    def tearDownClass(cls):
+        super(CommandLineTestCase, cls).tearDownClass()
+
+        shutil.rmtree(cls.wd)
 
     def test_find_files_recursively(self):
         self.assertEqual(
