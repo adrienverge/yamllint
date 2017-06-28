@@ -8,7 +8,7 @@ python:
   - 3.6
   - nightly
 install:
-  - pip install pyyaml flake8 coveralls
+  - pip install pyyaml flake8 flake8-import-order coveralls
   - pip install .
 script:
   - flake8 .
