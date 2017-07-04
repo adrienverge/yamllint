@@ -23,14 +23,19 @@ import locale
 import os
 import pty
 import shutil
-import unittest
 import sys
+try:
+    assert sys.version_info >= (2, 7)
+    import unittest
+except:
+    import unittest2 as unittest
 
 from yamllint import cli
 
 from tests.common import build_temp_workspace
 
 
+@unittest.skipIf(sys.version_info < (2, 7), 'Python 2.6 not supported')
 class CommandLineTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

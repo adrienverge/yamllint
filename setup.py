@@ -47,6 +47,5 @@ setup(
     package_data={'yamllint': ['conf/*.yaml'],
                   'tests': ['yaml-1.2-spec-examples/*']},
     install_requires=['pathspec >=0.5.3', 'pyyaml'],
-    tests_require=['nose'],
-    test_suite='nose.collector',
+    test_suite='tests',
 )

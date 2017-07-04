@@ -16,7 +16,12 @@
 
 import os
 import tempfile
-import unittest
+import sys
+try:
+    assert sys.version_info >= (2, 7)
+    import unittest
+except:
+    import unittest2 as unittest
 
 import yaml
 
