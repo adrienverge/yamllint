@@ -310,21 +310,21 @@ class IgnorePathConfigTestCase(unittest.TestCase):
             's/s/ign-trail/s/s/file.yaml': bad_yaml,
             's/s/ign-trail/s/s/file2.lint-me-anyway.yaml': bad_yaml,
 
-            '.yamllint': 'ignore: |\n'
-                         '  *.dont-lint-me.yaml\n'
-                         '  /bin/\n'
-                         '  !/bin/*.lint-me-anyway.yaml\n'
+            '.yamllint': 'ignore:\n'
+                         '  - "*.dont-lint-me.yaml"\n'
+                         '  - /bin/\n'
+                         '  - "!/bin/*.lint-me-anyway.yaml"\n'
                          '\n'
                          'extends: default\n'
                          '\n'
                          'rules:\n'
                          '  key-duplicates:\n'
-                         '    ignore: |\n'
-                         '      /ign-dup\n'
+                         '    ignore:\n'
+                         '      - /ign-dup\n'
                          '  trailing-spaces:\n'
-                         '    ignore: |\n'
-                         '      ign-trail\n'
-                         '      !*.lint-me-anyway.yaml\n',
+                         '    ignore:\n'
+                         '      - ign-trail\n'
+                         '      - "!*.lint-me-anyway.yaml"\n',
         })
 
         cls.backup_wd = os.getcwd()

@@ -125,20 +125,20 @@ Specific files can be ignored (totally or for some rules only) using a
 .. code:: yaml
 
  # For all rules
- ignore: |
-   *.dont-lint-me.yaml
-   /bin/
-   !/bin/*.lint-me-anyway.yaml
+ ignore:
+   - "*.dont-lint-me.yaml"
+   - /bin/
+   - "!/bin/*.lint-me-anyway.yaml"
 
  rules:
    key-duplicates:
-     ignore: |
-       generated
-       *.template.yaml
+     ignore:
+       - generated
+       - "*.template.yaml"
    trailing-spaces:
-     ignore: |
-       *.ignore-trailing-spaces.yaml
-       /ascii-art/*
+     ignore:
+       - "*.ignore-trailing-spaces.yaml"
+       - "/ascii-art/*"
 
 `Read more in the complete documentation! <https://yamllint.readthedocs.io/>`_
 

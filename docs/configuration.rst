@@ -127,10 +127,10 @@ You can either totally ignore files (they won't be looked at):
 
  extends: default
 
- ignore: |
-   /this/specific/file.yaml
-   /all/this/directory/
-   *.template.yaml
+ ignore:
+   - /this/specific/file.yaml
+   - /all/this/directory/
+   - "*.template.yaml"
 
 or ignore paths only for specific rules:
 
@@ -140,9 +140,9 @@ or ignore paths only for specific rules:
 
  rules:
    trailing-spaces:
-     ignore: |
-       /this-file-has-trailing-spaces-but-it-is-OK.yaml
-       /generated/*.yaml
+     ignore:
+       - /this-file-has-trailing-spaces-but-it-is-OK.yaml
+       - "/generated/*.yaml"
 
 Note that this ``.gitignore``-style path pattern allows complex path
 exclusion/inclusion, see the `pathspec README file
@@ -152,19 +152,19 @@ Here is a more complex example:
 .. code-block:: yaml
 
  # For all rules
- ignore: |
-   *.dont-lint-me.yaml
-   /bin/
-   !/bin/*.lint-me-anyway.yaml
+ ignore:
+   - "*.dont-lint-me.yaml"
+   - /bin/
+   - "!/bin/*.lint-me-anyway.yaml"
 
  extends: default
 
  rules:
    key-duplicates:
-     ignore: |
-       generated
-       *.template.yaml
+     ignore:
+       - generated
+       - "*.template.yaml"
    trailing-spaces:
-     ignore: |
-       *.ignore-trailing-spaces.yaml
-       /ascii-art/*
+     ignore:
+       - "*.ignore-trailing-spaces.yaml"
+       - "/ascii-art/*"
