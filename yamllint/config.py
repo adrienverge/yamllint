@@ -87,7 +87,7 @@ class YamlLintConfig(object):
         if 'ignore' in conf:
             if type(conf['ignore']) != str:
                 raise YamlLintConfigError(
-                    'invalid config: ignore should be a list of patterns')
+                    'invalid config: ignore should contain file patterns')
             self.ignore = pathspec.PathSpec.from_lines(
                 'gitwildmatch', conf['ignore'].splitlines())
 
@@ -112,7 +112,7 @@ def validate_rule_conf(rule, conf):
                 type(conf['ignore']) != pathspec.pathspec.PathSpec):
             if type(conf['ignore']) != str:
                 raise YamlLintConfigError(
-                    'invalid config: ignore should be a list of patterns')
+                    'invalid config: ignore should contain file patterns')
             conf['ignore'] = pathspec.PathSpec.from_lines(
                 'gitwildmatch', conf['ignore'].splitlines())
 
