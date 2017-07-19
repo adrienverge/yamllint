@@ -26,3 +26,4 @@ Table of contents
    disable_with_comments
    development
    text_editors
+   integration
