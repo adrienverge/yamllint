@@ -8,4 +8,4 @@
   description: This hook runs yamllint.
   entry: yamllint
   language: python
-  files: \.(yaml|yml)$
+  types: [file, yaml]
