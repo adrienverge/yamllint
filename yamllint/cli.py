@@ -18,8 +18,9 @@ from __future__ import print_function
 
 import os.path
 import sys
-
 import argparse
+
+import colorama
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
 from yamllint.config import YamlLintConfig, YamlLintConfigError
@@ -61,16 +62,20 @@ class Format(object):
 
     @staticmethod
     def standard_color(problem, filename):
-        line = '  \033[2m%d:%d\033[0m' % (problem.line, problem.column)
+        line = '  {style.DIM}{p.line}:{p.column}{style.RESET_ALL}'.format(
+            p=problem, style=colorama.Style)
         line += max(20 - len(line), 0) * ' '
         if problem.level == 'warning':
-            line += '\033[33m%s\033[0m' % problem.level
+            line += '{fore.YELLOW}{0}{style.RESET_ALL}'.format(
+                problem.level, fore=colorama.Fore, style=colorama.Style)
         else:
-            line += '\033[31m%s\033[0m' % problem.level
+            line += '{fore.RED}{0}{style.RESET_ALL}'.format(
+                problem.level, fore=colorama.Fore, style=colorama.Style)
         line += max(38 - len(line), 0) * ' '
         line += problem.desc
         if problem.rule:
-            line += '  \033[2m(%s)\033[0m' % problem.rule
+            line += '  {style.DIM}({0}){style.RESET_ALL}'.format(
+                problem.rule, style=colorama.Style)
         return line
 
 
@@ -125,6 +130,7 @@ def run(argv=None):
         sys.exit(-1)
 
     max_level = 0
+    underlined = '\033[4m'  # w/a - see colorama issue #38
 
     for file in find_files_recursively(args.files):
         filepath = file[2:] if file.startswith('./') else file
@@ -136,7 +142,8 @@ def run(argv=None):
                         print(Format.parsable(problem, file))
                     elif sys.stdout.isatty():
                         if first:
-                            print('\033[4m%s\033[0m' % file)
+                            print('{1}{0}{style.RESET_ALL}'.format(
+                                file, underlined, style=colorama.Style))
                             first = False
 
                         print(Format.standard_color(problem, file))
