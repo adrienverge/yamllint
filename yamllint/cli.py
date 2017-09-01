@@ -51,15 +51,15 @@ class Format(object):
 
     @staticmethod
     def json_output(problem, filename):
-        output_dict = {}
-        output_dict["path"] = filename
-        output_dict["line"] = problem.line
-        output_dict["char"] = problem.column
-        output_dict["description"] = problem.message
-        output_dict["code"] = "YAMLLINT"
-        output_dict["name"] = "YAMLLINT"
-        output_dict["severity"] = problem.level
-        return json.dumps(output_dict)
+        return json.dumps({
+            "path": filename,
+            "line": problem.line,
+            "char": problem.column,
+            "description": problem.message,
+            "code": "YAMLLINT",
+            "name": "YAMLLINT",
+            "severity": problem.level,
+        })
 
     @staticmethod
     def standard(problem, filename):
