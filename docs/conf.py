@@ -4,6 +4,7 @@
 
 import sys
 import os
+from unittest.mock import MagicMock
 
 sys.path.insert(0, os.path.abspath('..'))  # noqa
 
@@ -40,3 +41,15 @@ htmlhelp_basename = 'yamllintdoc'
 man_pages = [
     ('index', 'yamllint', '', [u'Adrien Vergé'], 1)
 ]
+
+# -- Build with sphinx automodule without needing to install third-party libs
+
+
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+            return MagicMock()
+
+
+MOCK_MODULES = ['pathspec', 'yaml']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
