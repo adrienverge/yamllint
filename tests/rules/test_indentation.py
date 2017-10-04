@@ -549,7 +549,7 @@ class IndentationTestCase(RuleTestCase):
                    '...\n', conf)
 
     def test_one_space(self):
-        conf = 'indentation: {spaces: 1, indent-sequences: no}'
+        conf = 'indentation: {spaces: 1, indent-sequences: false}'
         self.check('---\n'
                    'object:\n'
                    ' k1:\n'
@@ -562,7 +562,7 @@ class IndentationTestCase(RuleTestCase):
                    ' - name: Linux\n'
                    '   date: 1991\n'
                    '...\n', conf)
-        conf = 'indentation: {spaces: 1, indent-sequences: yes}'
+        conf = 'indentation: {spaces: 1, indent-sequences: true}'
         self.check('---\n'
                    'object:\n'
                    ' k1:\n'
@@ -577,7 +577,7 @@ class IndentationTestCase(RuleTestCase):
                    '...\n', conf)
 
     def test_two_spaces(self):
-        conf = 'indentation: {spaces: 2, indent-sequences: no}'
+        conf = 'indentation: {spaces: 2, indent-sequences: false}'
         self.check('---\n'
                    'object:\n'
                    '  k1:\n'
@@ -590,7 +590,7 @@ class IndentationTestCase(RuleTestCase):
                    '  - name: Linux\n'
                    '    date: 1991\n'
                    '...\n', conf)
-        conf = 'indentation: {spaces: 2, indent-sequences: yes}'
+        conf = 'indentation: {spaces: 2, indent-sequences: true}'
         self.check('---\n'
                    'object:\n'
                    '  k1:\n'
@@ -605,7 +605,7 @@ class IndentationTestCase(RuleTestCase):
                    '...\n', conf)
 
     def test_three_spaces(self):
-        conf = 'indentation: {spaces: 3, indent-sequences: no}'
+        conf = 'indentation: {spaces: 3, indent-sequences: false}'
         self.check('---\n'
                    'object:\n'
                    '   k1:\n'
@@ -618,7 +618,7 @@ class IndentationTestCase(RuleTestCase):
                    '   - name: Linux\n'
                    '     date: 1991\n'
                    '...\n', conf)
-        conf = 'indentation: {spaces: 3, indent-sequences: yes}'
+        conf = 'indentation: {spaces: 3, indent-sequences: true}'
         self.check('---\n'
                    'object:\n'
                    '   k1:\n'
@@ -632,7 +632,7 @@ class IndentationTestCase(RuleTestCase):
                    '        date: 1991\n'
                    '...\n', conf)
 
-    def test_consistent(self):
+    def test_consistent_spaces(self):
         conf = ('indentation: {spaces: consistent,\n'
                 '              indent-sequences: whatever}\n'
                 'document-start: disable\n')
@@ -712,6 +712,142 @@ class IndentationTestCase(RuleTestCase):
                    '- a\n'
                    '- b\n'
                    '- c\n', conf)
+
+    def test_consistent_spaces_and_indent_sequences(self):
+        conf = 'indentation: {spaces: consistent, indent-sequences: true}'
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf, problem1=(3, 1))
+        self.check('---\n'
+                   'list one:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  - 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf, problem1=(7, 5))
+        self.check('---\n'
+                   'list one:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  - 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf, problem1=(7, 1))
+
+        conf = 'indentation: {spaces: consistent, indent-sequences: false}'
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf, problem1=(7, 5))
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '  - a\n'
+                   '  - b\n'
+                   '  - c\n', conf, problem1=(7, 3))
+        self.check('---\n'
+                   'list one:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  - 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf, problem1=(3, 3))
+
+        conf = ('indentation: {spaces: consistent,\n'
+                '              indent-sequences: consistent}')
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf, problem1=(7, 5))
+        self.check('---\n'
+                   'list one:\n'
+                   '    - 1\n'
+                   '    - 2\n'
+                   '    - 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf, problem1=(7, 1))
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf)
+        self.check('---\n'
+                   'list one:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  - 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf, problem1=(7, 5))
+
+        conf = 'indentation: {spaces: consistent, indent-sequences: whatever}'
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf)
+        self.check('---\n'
+                   'list one:\n'
+                   '    - 1\n'
+                   '    - 2\n'
+                   '    - 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf)
+        self.check('---\n'
+                   'list one:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n'
+                   'list two:\n'
+                   '- a\n'
+                   '- b\n'
+                   '- c\n', conf)
+        self.check('---\n'
+                   'list one:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  - 3\n'
+                   'list two:\n'
+                   '    - a\n'
+                   '    - b\n'
+                   '    - c\n', conf, problem1=(7, 5))
 
     def test_indent_sequences_whatever(self):
         conf = 'indentation: {spaces: 4, indent-sequences: whatever}'
@@ -1130,7 +1266,7 @@ class IndentationTestCase(RuleTestCase):
                    problem=(2, 3))
 
     def test_multi_lines(self):
-        conf = 'indentation: {spaces: consistent, indent-sequences: yes}'
+        conf = 'indentation: {spaces: consistent, indent-sequences: true}'
         self.check('---\n'
                    'long_string: >\n'
                    '  bla bla blah\n'
@@ -1438,7 +1574,7 @@ class IndentationTestCase(RuleTestCase):
                    '- !!map  # Block collection\n'
                    '  foo: bar\n', conf)
 
-        conf = 'indentation: {spaces: consistent, indent-sequences: no}'
+        conf = 'indentation: {spaces: consistent, indent-sequences: false}'
         self.check('---\n'
                    'sequence: !!seq\n'
                    '- entry\n'
@@ -1505,7 +1641,7 @@ class ScalarIndentationTestCase(RuleTestCase):
 
     def test_basics_plain(self):
         conf = ('indentation: {spaces: consistent,\n'
-                '              check-multi-line-strings: no}\n'
+                '              check-multi-line-strings: false}\n'
                 'document-start: disable\n')
         self.check('multi\n'
                    'line\n', conf)
@@ -1534,7 +1670,7 @@ class ScalarIndentationTestCase(RuleTestCase):
 
     def test_check_multi_line_plain(self):
         conf = ('indentation: {spaces: consistent,\n'
-                '              check-multi-line-strings: yes}\n'
+                '              check-multi-line-strings: true}\n'
                 'document-start: disable\n')
         self.check('multi\n'
                    ' line\n', conf, problem=(2, 2))
@@ -1557,7 +1693,7 @@ class ScalarIndentationTestCase(RuleTestCase):
 
     def test_basics_quoted(self):
         conf = ('indentation: {spaces: consistent,\n'
-                '              check-multi-line-strings: no}\n'
+                '              check-multi-line-strings: false}\n'
                 'document-start: disable\n')
         self.check('"multi\n'
                    ' line"\n', conf)
@@ -1588,7 +1724,7 @@ class ScalarIndentationTestCase(RuleTestCase):
 
     def test_check_multi_line_quoted(self):
         conf = ('indentation: {spaces: consistent,\n'
-                '              check-multi-line-strings: yes}\n'
+                '              check-multi-line-strings: true}\n'
                 'document-start: disable\n')
         self.check('"multi\n'
                    'line"\n', conf, problem=(2, 1))
@@ -1644,7 +1780,7 @@ class ScalarIndentationTestCase(RuleTestCase):
 
     def test_basics_folded_style(self):
         conf = ('indentation: {spaces: consistent,\n'
-                '              check-multi-line-strings: no}\n'
+                '              check-multi-line-strings: false}\n'
                 'document-start: disable\n')
         self.check('>\n'
                    '  multi\n'
@@ -1682,7 +1818,7 @@ class ScalarIndentationTestCase(RuleTestCase):
 
     def test_check_multi_line_folded_style(self):
         conf = ('indentation: {spaces: consistent,\n'
-                '              check-multi-line-strings: yes}\n'
+                '              check-multi-line-strings: true}\n'
                 'document-start: disable\n')
         self.check('>\n'
                    '  multi\n'
@@ -1723,7 +1859,7 @@ class ScalarIndentationTestCase(RuleTestCase):
 
     def test_basics_literal_style(self):
         conf = ('indentation: {spaces: consistent,\n'
-                '              check-multi-line-strings: no}\n'
+                '              check-multi-line-strings: false}\n'
                 'document-start: disable\n')
         self.check('|\n'
                    '  multi\n'
@@ -1761,7 +1897,7 @@ class ScalarIndentationTestCase(RuleTestCase):
 
     def test_check_multi_line_literal_style(self):
         conf = ('indentation: {spaces: consistent,\n'
-                '              check-multi-line-strings: yes}\n'
+                '              check-multi-line-strings: true}\n'
                 'document-start: disable\n')
         self.check('|\n'
                    '  multi\n'
@@ -1805,7 +1941,7 @@ class ScalarIndentationTestCase(RuleTestCase):
 
     def test_paragraph_plain(self):
         conf = ('indentation: {spaces: consistent,\n'
-                '              check-multi-line-strings: yes}\n'
+                '              check-multi-line-strings: true}\n'
                 'document-start: disable\n')
         self.check('- long text: very "long"\n'
                    '             \'string\' with\n'
@@ -1827,7 +1963,7 @@ class ScalarIndentationTestCase(RuleTestCase):
 
     def test_paragraph_double_quoted(self):
         conf = ('indentation: {spaces: consistent,\n'
-                '              check-multi-line-strings: yes}\n'
+                '              check-multi-line-strings: true}\n'
                 'document-start: disable\n')
         self.check('- long text: "very \\"long\\"\n'
                    '              \'string\' with\n'
@@ -1855,7 +1991,7 @@ class ScalarIndentationTestCase(RuleTestCase):
 
     def test_paragraph_single_quoted(self):
         conf = ('indentation: {spaces: consistent,\n'
-                '              check-multi-line-strings: yes}\n'
+                '              check-multi-line-strings: true}\n'
                 'document-start: disable\n')
         self.check('- long text: \'very "long"\n'
                    '              \'\'string\'\' with\n'
@@ -1883,7 +2019,7 @@ class ScalarIndentationTestCase(RuleTestCase):
 
     def test_paragraph_folded(self):
         conf = ('indentation: {spaces: consistent,\n'
-                '              check-multi-line-strings: yes}\n'
+                '              check-multi-line-strings: true}\n'
                 'document-start: disable\n')
         self.check('- long text: >\n'
                    '    very "long"\n'
@@ -1901,7 +2037,7 @@ class ScalarIndentationTestCase(RuleTestCase):
 
     def test_paragraph_literal(self):
         conf = ('indentation: {spaces: consistent,\n'
-                '              check-multi-line-strings: yes}\n'
+                '              check-multi-line-strings: true}\n'
                 'document-start: disable\n')
         self.check('- long text: |\n'
                    '    very "long"\n'
@@ -1919,7 +2055,7 @@ class ScalarIndentationTestCase(RuleTestCase):
 
     def test_consistent(self):
         conf = ('indentation: {spaces: consistent,\n'
-                '              check-multi-line-strings: yes}\n'
+                '              check-multi-line-strings: true}\n'
                 'document-start: disable\n')
         self.check('multi\n'
                    'line\n', conf)

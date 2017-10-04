@@ -25,5 +25,5 @@ rules:
     indent-sequences: consistent
   line-length:
     level: warning
-    allow-non-breakable-inline-mappings: yes
+    allow-non-breakable-inline-mappings: true
   truthy: disable

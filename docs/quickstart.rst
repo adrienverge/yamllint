@@ -10,7 +10,7 @@ On Fedora / CentOS:
 
  sudo dnf install yamllint
 
-On Debian 9+ / Ubuntu 16.04+:
+On Debian 8+ / Ubuntu 16.04+:
 
 .. code:: bash
 

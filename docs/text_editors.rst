@@ -9,8 +9,12 @@ text editor.
 Vim
 ---
 
-Assuming that the `syntastic <https://github.com/scrooloose/syntastic>`_ plugin
-is installed, add to your ``.vimrc``:
+Assuming that the `ALE <https://github.com/w0rp/ale>`_ plugin is
+installed, yamllint is supported by default. It is automatically enabled when
+editing YAML files.
+
+If you instead use the `syntastic <https://github.com/scrooloose/syntastic>`_
+plugin, add this to your ``.vimrc``:
 
 ::
 
@@ -22,6 +26,12 @@ Neovim
 Assuming that the `neomake <https://github.com/benekastah/neomake>`_ plugin is
 installed, yamllint is supported by default. It is automatically enabled when
 editing YAML files.
+
+Emacs
+-----
+
+If you are `flycheck <https://github.com/flycheck/flycheck>`_ user, you can use
+`flycheck-yamllint <https://github.com/krzysztof-magosa/flycheck-yamllint>`_ integration.
 
 Other text editors
 ------------------

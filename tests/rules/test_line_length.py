@@ -66,7 +66,7 @@ class LineLengthTestCase(RuleTestCase):
         self.check('---\n' + 81 * ' ' + '\n', conf, problem=(2, 81))
 
     def test_non_breakable_word(self):
-        conf = 'line-length: {max: 20, allow-non-breakable-words: yes}'
+        conf = 'line-length: {max: 20, allow-non-breakable-words: true}'
         self.check('---\n' + 30 * 'A' + '\n', conf)
         self.check('---\n'
                    'this:\n'
@@ -91,7 +91,7 @@ class LineLengthTestCase(RuleTestCase):
                    'long_line: http://localhost/very/very/long/url\n', conf,
                    problem=(2, 21))
 
-        conf = 'line-length: {max: 20, allow-non-breakable-words: no}'
+        conf = 'line-length: {max: 20, allow-non-breakable-words: false}'
         self.check('---\n' + 30 * 'A' + '\n', conf, problem=(2, 21))
         self.check('---\n'
                    'this:\n'
@@ -116,7 +116,7 @@ class LineLengthTestCase(RuleTestCase):
                    'long_line: http://localhost/very/very/long/url\n'
                    '...\n', conf, problem=(2, 21))
 
-        conf = ('line-length: {max: 20, allow-non-breakable-words: yes}\n'
+        conf = ('line-length: {max: 20, allow-non-breakable-words: true}\n'
                 'trailing-spaces: disable')
         self.check('---\n'
                    'loooooooooong+word+and+some+space+at+the+end       \n',
@@ -124,7 +124,7 @@ class LineLengthTestCase(RuleTestCase):
 
     def test_non_breakable_inline_mappings(self):
         conf = 'line-length: {max: 20, ' \
-               'allow-non-breakable-inline-mappings: yes}'
+               'allow-non-breakable-inline-mappings: true}'
         self.check('---\n'
                    'long_line: http://localhost/very/very/long/url\n'
                    'long line: http://localhost/very/very/long/url\n', conf)
@@ -137,7 +137,7 @@ class LineLengthTestCase(RuleTestCase):
                    conf, problem1=(2, 21), problem2=(3, 21))
 
         conf = ('line-length: {max: 20,'
-                '              allow-non-breakable-inline-mappings: yes}\n'
+                '              allow-non-breakable-inline-mappings: true}\n'
                 'trailing-spaces: disable')
         self.check('---\n'
                    'long_line: and+some+space+at+the+end       \n',
@@ -150,7 +150,7 @@ class LineLengthTestCase(RuleTestCase):
                    conf, problem=(2, 21))
 
         # See https://github.com/adrienverge/yamllint/issues/21
-        conf = 'line-length: {allow-non-breakable-inline-mappings: yes}'
+        conf = 'line-length: {allow-non-breakable-inline-mappings: true}'
         self.check('---\n'
                    'content: |\n'
                    '  {% this line is' + 99 * ' really' + ' long %}\n',

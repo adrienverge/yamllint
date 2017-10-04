@@ -17,9 +17,9 @@
 """
 Use this rule to forbid truthy values that are not quoted nor explicitly typed.
 
-This would prevent YAML parsers to tranform ``[yes, FALSE, Off]`` into ``[true,
-false, false]`` or ``{y: 1, yes: 2, on: 3, true: 4, True: 5}`` into ``{y: 1,
-true: 5}``.
+This would prevent YAML parsers from transforming ``[yes, FALSE, Off]`` into
+``[true, false, false]`` or ``{y: 1, yes: 2, on: 3, true: 4, True: 5}`` into
+``{y: 1, true: 5}``.
 
 .. rubric:: Examples
 

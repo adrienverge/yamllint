@@ -31,7 +31,7 @@ class DocumentEndTestCase(RuleTestCase):
                    '  document: end\n', conf)
 
     def test_required(self):
-        conf = 'document-end: {present: yes}'
+        conf = 'document-end: {present: true}'
         self.check('', conf)
         self.check('\n', conf)
         self.check('---\n'
@@ -43,7 +43,7 @@ class DocumentEndTestCase(RuleTestCase):
                    '  document: end\n', conf, problem=(3, 1))
 
     def test_forbidden(self):
-        conf = 'document-end: {present: no}'
+        conf = 'document-end: {present: false}'
         self.check('---\n'
                    'with:\n'
                    '  document: end\n'
@@ -53,7 +53,7 @@ class DocumentEndTestCase(RuleTestCase):
                    '  document: end\n', conf)
 
     def test_multiple_documents(self):
-        conf = ('document-end: {present: yes}\n'
+        conf = ('document-end: {present: true}\n'
                 'document-start: disable\n')
         self.check('---\n'
                    'first: document\n'

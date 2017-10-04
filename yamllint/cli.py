@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
+
 import os.path
 import sys
 
@@ -22,6 +23,7 @@ import argparse
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
 from yamllint.config import YamlLintConfig, YamlLintConfigError
+from yamllint.linter import PROBLEM_LEVELS
 from yamllint import linter
 
 
@@ -77,25 +79,26 @@ def run(argv=None):
                                      description=APP_DESCRIPTION)
     parser.add_argument('files', metavar='FILE_OR_DIR', nargs='+',
                         help='files to check')
-    parser.add_argument('-c', '--config-file', dest='config_file',
-                        action='store', help='path to a custom configuration')
-    parser.add_argument('-d', '--config-data', dest='config_data',
-                        action='store',
-                        help='custom configuration (as YAML source)')
+    config_group = parser.add_mutually_exclusive_group()
+    config_group.add_argument('-c', '--config-file', dest='config_file',
+                              action='store',
+                              help='path to a custom configuration')
+    config_group.add_argument('-d', '--config-data', dest='config_data',
+                              action='store',
+                              help='custom configuration (as YAML source)')
     parser.add_argument('-f', '--format',
                         choices=('parsable', 'standard'), default='standard',
                         help='format for parsing output')
+    parser.add_argument('-s', '--strict',
+                        action='store_true',
+                        help='return non-zero exit code on warnings '
+                             'as well as errors')
     parser.add_argument('-v', '--version', action='version',
                         version='%s %s' % (APP_NAME, APP_VERSION))
 
     # TODO: read from stdin when no filename?
 
     args = parser.parse_args(argv)
-
-    if args.config_file is not None and args.config_data is not None:
-        print('Options --config-file and --config-data cannot be used '
-              'simultaneously.', file=sys.stderr)
-        sys.exit(-1)
 
     # User-global config is supposed to be in ~/.config/yamllint/config
     if 'XDG_CONFIG_HOME' in os.environ:
@@ -121,13 +124,14 @@ def run(argv=None):
         print(e, file=sys.stderr)
         sys.exit(-1)
 
-    return_code = 0
+    max_level = 0
 
     for file in find_files_recursively(args.files):
+        filepath = file[2:] if file.startswith('./') else file
         try:
             first = True
             with open(file) as f:
-                for problem in linter.run(f, conf):
+                for problem in linter.run(f, conf, filepath):
                     if args.format == 'parsable':
                         print(Format.parsable(problem, file))
                     elif sys.stdout.isatty():
@@ -143,13 +147,19 @@ def run(argv=None):
 
                         print(Format.standard(problem, file))
 
-                    if return_code == 0 and problem.level == 'error':
-                        return_code = 1
+                    max_level = max(max_level, PROBLEM_LEVELS[problem.level])
 
             if not first and args.format != 'parsable':
                 print('')
         except EnvironmentError as e:
             print(e, file=sys.stderr)
-            return_code = -1
+            sys.exit(-1)
+
+    if max_level == PROBLEM_LEVELS['error']:
+        return_code = 1
+    elif max_level == PROBLEM_LEVELS['warning']:
+        return_code = 2 if args.strict else 0
+    else:
+        return_code = 0
 
     sys.exit(return_code)

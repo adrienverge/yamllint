@@ -46,7 +46,6 @@ setup(
     entry_points={'console_scripts': ['yamllint=yamllint.cli:run']},
     package_data={'yamllint': ['conf/*.yaml'],
                   'tests': ['yaml-1.2-spec-examples/*']},
-    install_requires=['pyyaml'],
-    tests_require=['nose'],
-    test_suite='nose.collector',
+    install_requires=['pathspec >=0.5.3', 'pyyaml'],
+    test_suite='tests',
 )

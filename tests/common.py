@@ -14,7 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
+import os
+import tempfile
+import sys
+try:
+    assert sys.version_info >= (2, 7)
+    import unittest
+except:
+    import unittest2 as unittest
 
 import yaml
 
@@ -49,3 +56,21 @@ class RuleTestCase(unittest.TestCase):
 
         real_problems = list(linter.run(source, self.build_fake_config(conf)))
         self.assertEqual(real_problems, expected_problems)
+
+
+def build_temp_workspace(files):
+    tempdir = tempfile.mkdtemp(prefix='yamllint-tests-')
+
+    for path, content in files.items():
+        path = os.path.join(tempdir, path)
+        if not os.path.exists(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
+
+        if type(content) is list:
+            os.mkdir(path)
+        else:
+            mode = 'wb' if isinstance(content, bytes) else 'w'
+            with open(path, mode) as f:
+                f.write(content)
+
+    return tempdir

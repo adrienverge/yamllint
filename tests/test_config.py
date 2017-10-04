@@ -14,9 +14,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
+import os
+import shutil
+import sys
+try:
+    assert sys.version_info >= (2, 7)
+    import unittest
+except:
+    import unittest2 as unittest
 
+from yamllint import cli
 from yamllint import config
+
+from tests.common import build_temp_workspace
 
 
 class SimpleConfigTestCase(unittest.TestCase):
@@ -30,7 +44,7 @@ class SimpleConfigTestCase(unittest.TestCase):
         self.assertEqual(new.rules['colons']['max-spaces-before'], 0)
         self.assertEqual(new.rules['colons']['max-spaces-after'], 1)
 
-        self.assertEqual(len(new.enabled_rules()), 1)
+        self.assertEqual(len(new.enabled_rules(None)), 1)
 
     def test_invalid_conf(self):
         with self.assertRaises(config.YamlLintConfigError):
@@ -61,6 +75,45 @@ class SimpleConfigTestCase(unittest.TestCase):
                                   '    max-spaces-before: 0\n'
                                   '    max-spaces-after: 1\n'
                                   '    abcdef: yes\n')
+
+    def test_yes_no_for_booleans(self):
+        c = config.YamlLintConfig('rules:\n'
+                                  '  indentation:\n'
+                                  '    spaces: 2\n'
+                                  '    indent-sequences: true\n'
+                                  '    check-multi-line-strings: false\n')
+        self.assertEqual(c.rules['indentation']['indent-sequences'], True)
+        self.assertEqual(c.rules['indentation']['check-multi-line-strings'],
+                         False)
+
+        c = config.YamlLintConfig('rules:\n'
+                                  '  indentation:\n'
+                                  '    spaces: 2\n'
+                                  '    indent-sequences: yes\n'
+                                  '    check-multi-line-strings: false\n')
+        self.assertEqual(c.rules['indentation']['indent-sequences'], True)
+        self.assertEqual(c.rules['indentation']['check-multi-line-strings'],
+                         False)
+
+        c = config.YamlLintConfig('rules:\n'
+                                  '  indentation:\n'
+                                  '    spaces: 2\n'
+                                  '    indent-sequences: whatever\n'
+                                  '    check-multi-line-strings: false\n')
+        self.assertEqual(c.rules['indentation']['indent-sequences'],
+                         'whatever')
+        self.assertEqual(c.rules['indentation']['check-multi-line-strings'],
+                         False)
+
+        with self.assertRaisesRegexp(
+                config.YamlLintConfigError,
+                'invalid config: option "indent-sequences" of "indentation" '
+                'should be in '):
+            c = config.YamlLintConfig('rules:\n'
+                                      '  indentation:\n'
+                                      '    spaces: 2\n'
+                                      '    indent-sequences: YES!\n'
+                                      '    check-multi-line-strings: false\n')
 
     def test_validate_rule_conf(self):
         class Rule(object):
@@ -131,7 +184,7 @@ class ExtendedConfigTestCase(unittest.TestCase):
         self.assertEqual(new.rules['colons']['max-spaces-after'], 1)
         self.assertEqual(new.rules['hyphens']['max-spaces-after'], 2)
 
-        self.assertEqual(len(new.enabled_rules()), 2)
+        self.assertEqual(len(new.enabled_rules(None)), 2)
 
     def test_extend_remove_rule(self):
         old = config.YamlLintConfig('rules:\n'
@@ -148,7 +201,7 @@ class ExtendedConfigTestCase(unittest.TestCase):
         self.assertEqual(new.rules['colons'], False)
         self.assertEqual(new.rules['hyphens']['max-spaces-after'], 2)
 
-        self.assertEqual(len(new.enabled_rules()), 1)
+        self.assertEqual(len(new.enabled_rules(None)), 1)
 
     def test_extend_edit_rule(self):
         old = config.YamlLintConfig('rules:\n'
@@ -168,7 +221,7 @@ class ExtendedConfigTestCase(unittest.TestCase):
         self.assertEqual(new.rules['colons']['max-spaces-after'], 4)
         self.assertEqual(new.rules['hyphens']['max-spaces-after'], 2)
 
-        self.assertEqual(len(new.enabled_rules()), 2)
+        self.assertEqual(len(new.enabled_rules(None)), 2)
 
     def test_extend_reenable_rule(self):
         old = config.YamlLintConfig('rules:\n'
@@ -186,7 +239,7 @@ class ExtendedConfigTestCase(unittest.TestCase):
         self.assertEqual(new.rules['colons']['max-spaces-after'], 1)
         self.assertEqual(new.rules['hyphens']['max-spaces-after'], 2)
 
-        self.assertEqual(len(new.enabled_rules()), 2)
+        self.assertEqual(len(new.enabled_rules(None)), 2)
 
 
 class ExtendedLibraryConfigTestCase(unittest.TestCase):
@@ -231,3 +284,94 @@ class ExtendedLibraryConfigTestCase(unittest.TestCase):
         self.assertEqual(sorted(new.rules.keys()), sorted(old.rules.keys()))
         for rule in new.rules:
             self.assertEqual(new.rules[rule], old.rules[rule])
+
+
+class IgnorePathConfigTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(IgnorePathConfigTestCase, cls).setUpClass()
+
+        bad_yaml = ('---\n'
+                    '- key: val1\n'
+                    '  key: val2\n'
+                    '- trailing space \n'
+                    '-    lonely hyphen\n')
+
+        cls.wd = build_temp_workspace({
+            'bin/file.lint-me-anyway.yaml': bad_yaml,
+            'bin/file.yaml': bad_yaml,
+            'file-at-root.yaml': bad_yaml,
+            'file.dont-lint-me.yaml': bad_yaml,
+            'ign-dup/file.yaml': bad_yaml,
+            'ign-dup/sub/dir/file.yaml': bad_yaml,
+            'ign-trail/file.yaml': bad_yaml,
+            'include/ign-dup/sub/dir/file.yaml': bad_yaml,
+            's/s/ign-trail/file.yaml': bad_yaml,
+            's/s/ign-trail/s/s/file.yaml': bad_yaml,
+            's/s/ign-trail/s/s/file2.lint-me-anyway.yaml': bad_yaml,
+
+            '.yamllint': 'ignore: |\n'
+                         '  *.dont-lint-me.yaml\n'
+                         '  /bin/\n'
+                         '  !/bin/*.lint-me-anyway.yaml\n'
+                         '\n'
+                         'extends: default\n'
+                         '\n'
+                         'rules:\n'
+                         '  key-duplicates:\n'
+                         '    ignore: |\n'
+                         '      /ign-dup\n'
+                         '  trailing-spaces:\n'
+                         '    ignore: |\n'
+                         '      ign-trail\n'
+                         '      !*.lint-me-anyway.yaml\n',
+        })
+
+        cls.backup_wd = os.getcwd()
+        os.chdir(cls.wd)
+
+    @classmethod
+    def tearDownClass(cls):
+        super(IgnorePathConfigTestCase, cls).tearDownClass()
+
+        os.chdir(cls.backup_wd)
+
+        shutil.rmtree(cls.wd)
+
+    @unittest.skipIf(sys.version_info < (2, 7), 'Python 2.6 not supported')
+    def test_run_with_ignored_path(self):
+        sys.stdout = StringIO()
+        with self.assertRaises(SystemExit):
+            cli.run(('-f', 'parsable', '.'))
+
+        out = sys.stdout.getvalue()
+        out = '\n'.join(sorted(out.splitlines()))
+
+        keydup = '[error] duplication of key "key" in mapping (key-duplicates)'
+        trailing = '[error] trailing spaces (trailing-spaces)'
+        hyphen = '[error] too many spaces after hyphen (hyphens)'
+
+        self.assertEqual(out, '\n'.join((
+            './bin/file.lint-me-anyway.yaml:3:3: ' + keydup,
+            './bin/file.lint-me-anyway.yaml:4:17: ' + trailing,
+            './bin/file.lint-me-anyway.yaml:5:5: ' + hyphen,
+            './file-at-root.yaml:3:3: ' + keydup,
+            './file-at-root.yaml:4:17: ' + trailing,
+            './file-at-root.yaml:5:5: ' + hyphen,
+            './ign-dup/file.yaml:4:17: ' + trailing,
+            './ign-dup/file.yaml:5:5: ' + hyphen,
+            './ign-dup/sub/dir/file.yaml:4:17: ' + trailing,
+            './ign-dup/sub/dir/file.yaml:5:5: ' + hyphen,
+            './ign-trail/file.yaml:3:3: ' + keydup,
+            './ign-trail/file.yaml:5:5: ' + hyphen,
+            './include/ign-dup/sub/dir/file.yaml:3:3: ' + keydup,
+            './include/ign-dup/sub/dir/file.yaml:4:17: ' + trailing,
+            './include/ign-dup/sub/dir/file.yaml:5:5: ' + hyphen,
+            './s/s/ign-trail/file.yaml:3:3: ' + keydup,
+            './s/s/ign-trail/file.yaml:5:5: ' + hyphen,
+            './s/s/ign-trail/s/s/file.yaml:3:3: ' + keydup,
+            './s/s/ign-trail/s/s/file.yaml:5:5: ' + hyphen,
+            './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:3:3: ' + keydup,
+            './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:4:17: ' + trailing,
+            './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:5:5: ' + hyphen,
+        )))

@@ -28,7 +28,7 @@ class DocumentStartTestCase(RuleTestCase):
                    'key: val\n', conf)
 
     def test_required(self):
-        conf = ('document-start: {present: yes}\n'
+        conf = ('document-start: {present: true}\n'
                 'empty-lines: disable\n')
         self.check('', conf)
         self.check('\n', conf)
@@ -44,7 +44,7 @@ class DocumentStartTestCase(RuleTestCase):
                    'key: val\n', conf)
 
     def test_forbidden(self):
-        conf = ('document-start: {present: no}\n'
+        conf = ('document-start: {present: false}\n'
                 'empty-lines: disable\n')
         self.check('', conf)
         self.check('key: val\n', conf)
@@ -62,7 +62,7 @@ class DocumentStartTestCase(RuleTestCase):
                    'key: val\n', conf, problem=(2, 1))
 
     def test_multiple_documents(self):
-        conf = 'document-start: {present: yes}'
+        conf = 'document-start: {present: true}'
         self.check('---\n'
                    'first: document\n'
                    '...\n'
@@ -85,7 +85,7 @@ class DocumentStartTestCase(RuleTestCase):
                    'third: document\n', conf, problem=(4, 1, 'syntax'))
 
     def test_directives(self):
-        conf = 'document-start: {present: yes}'
+        conf = 'document-start: {present: true}'
         self.check('%YAML 1.2\n'
                    '---\n'
                    'doc: ument\n'

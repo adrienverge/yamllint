@@ -20,14 +20,14 @@ Use this rule to control the position and formatting of comments.
 .. rubric:: Options
 
 * Use ``require-starting-space`` to require a space character right after the
-  ``#``. Set to ``yes`` to enable, ``no`` to disable.
+  ``#``. Set to ``true`` to enable, ``false`` to disable.
 * ``min-spaces-from-content`` is used to visually separate inline comments from
   content. It defines the minimal required number of spaces between a comment
   and its preceding content.
 
 .. rubric:: Examples
 
-#. With ``comments: {require-starting-space: yes}``
+#. With ``comments: {require-starting-space: true}``
 
    the following code snippet would **PASS**:
    ::
