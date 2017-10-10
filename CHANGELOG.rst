@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.8.2 (2017-10-10)
+------------------
+
+- Be clearer about the `ignore` conf type
+- Update pre-commit hook file
+- Add documentation for pre-commit
+
 1.8.1 (2017-07-04)
 ------------------
 
