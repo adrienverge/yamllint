@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.9.0 (2017-10-16)
+------------------
+
+- Add a new `key-ordering` rule
+- Fix indentation rule for key following empty list
+
 1.8.2 (2017-10-10)
 ------------------
 
