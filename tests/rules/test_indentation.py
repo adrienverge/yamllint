@@ -589,6 +589,9 @@ class IndentationTestCase(RuleTestCase):
                    '    date: 1969\n'
                    '  - name: Linux\n'
                    '    date: 1991\n'
+                   '  k4:\n'
+                   '  -\n'
+                   '  k5: v3\n'
                    '...\n', conf)
         conf = 'indentation: {spaces: 2, indent-sequences: true}'
         self.check('---\n'
