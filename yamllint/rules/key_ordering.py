@@ -15,7 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Use this rule to enforce alphabetical ordering of keys in mappings.
+Use this rule to enforce alphabetical ordering of keys in mappings. The sorting
+order uses the Unicode code point number. As a result, the ordering is
+case-sensitive and not accent-friendly (see examples below).
 
 .. rubric:: Examples
 
@@ -28,6 +30,14 @@ Use this rule to enforce alphabetical ordering of keys in mappings.
       key 2: val
       key 3: value
     - {a: 1, b: 2, c: 3}
+    - T-shirt: 1
+      T-shirts: 2
+      t-shirt: 3
+      t-shirts: 4
+    - hair: true
+      hais: true
+      haïr: true
+      haïssable: true
 
    the following code snippet would **FAIL**:
    ::
@@ -39,6 +49,20 @@ Use this rule to enforce alphabetical ordering of keys in mappings.
    ::
 
     - {b: 1, a: 2}
+
+   the following code snippet would **FAIL**:
+   ::
+
+    - T-shirt: 1
+      t-shirt: 2
+      T-shirts: 3
+      t-shirts: 4
+
+   the following code snippet would **FAIL**:
+   ::
+
+    - haïr: true
+      hais: true
 """
 
 import yaml
