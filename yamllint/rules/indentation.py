@@ -399,6 +399,10 @@ def _check(conf, token, prev, next, nextnext, context):
             #   - item 1
             #   - item 2
             indent = next.start_mark.column
+        elif next.start_mark.column == token.start_mark.column:
+            #   -
+            #   key: value
+            indent = next.start_mark.column
         else:
             #   -
             #     item 1
