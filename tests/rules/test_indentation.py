@@ -1211,6 +1211,20 @@ class IndentationTestCase(RuleTestCase):
                    '        - name: Linux\n'
                    '         date: 1991\n'
                    '...\n', conf, problem=(5, 10, 'syntax'))
+        conf = 'indentation: {spaces: 2, indent-sequences: true}'
+        self.check('---\n'
+                   'a:\n'
+                   '-\n'  # empty list
+                   'b: c\n'
+                   '...\n', conf, problem=(3, 1))
+        conf = 'indentation: {spaces: 2, indent-sequences: consistent}'
+        self.check('---\n'
+                   'a:\n'
+                   '  -\n'  # empty list
+                   'b:\n'
+                   '-\n'
+                   'c: d\n'
+                   '...\n', conf, problem=(5, 1))
 
     def test_over_indented(self):
         conf = 'indentation: {spaces: 2, indent-sequences: consistent}'
@@ -1267,6 +1281,20 @@ class IndentationTestCase(RuleTestCase):
                    '    - subel\n'
                    '...\n', conf,
                    problem=(2, 3))
+        conf = 'indentation: {spaces: 2, indent-sequences: false}'
+        self.check('---\n'
+                   'a:\n'
+                   '  -\n'  # empty list
+                   'b: c\n'
+                   '...\n', conf, problem=(3, 3))
+        conf = 'indentation: {spaces: 2, indent-sequences: consistent}'
+        self.check('---\n'
+                   'a:\n'
+                   '-\n'  # empty list
+                   'b:\n'
+                   '  -\n'
+                   'c: d\n'
+                   '...\n', conf, problem=(5, 3))
 
     def test_multi_lines(self):
         conf = 'indentation: {spaces: consistent, indent-sequences: true}'
