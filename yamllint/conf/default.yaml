@@ -39,6 +39,7 @@ rules:
     indent-sequences: true
     check-multi-line-strings: false
   key-duplicates: enable
+  key-ordering: disable
   line-length:
     max: 80
     allow-non-breakable-words: true

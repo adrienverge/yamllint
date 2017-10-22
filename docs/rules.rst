@@ -74,6 +74,11 @@ key-duplicates
 
 .. automodule:: yamllint.rules.key_duplicates
 
+key-ordering
+--------------
+
+.. automodule:: yamllint.rules.key_ordering
+
 line-length
 -----------
 
