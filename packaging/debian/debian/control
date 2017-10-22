@@ -15,7 +15,6 @@ Standards-Version: 4.1.1
 Homepage: https://github.com/adrienverge/yamllint
 Vcs-Git: https://github.com/adrienverge/yamllint.git -b packaging
 Vcs-Browser: https://github.com/adrienverge/yamllint/tree/packaging
-Testsuite: autopkgtest-pkg-python
 
 Package: yamllint
 Architecture: all
