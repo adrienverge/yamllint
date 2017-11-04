@@ -20,12 +20,13 @@ Use this rule to prevent nodes with empty content, that implicitly result in
 
 .. rubric:: Options
 
-* Use ``forbid-in-block-mappings`` to prevent implicit empty values in block
-  mappings.
+* Use ``forbid-in-block-mappings`` to prevent empty values in block mappings.
+* Use ``forbid-in-flow-mappings`` to prevent empty values in flow mappings.
 
 .. rubric:: Examples
 
 #. With ``empty-values: {forbid-in-block-mappings: true}``
+
    the following code snippets would **PASS**:
    ::
 
@@ -46,6 +47,23 @@ Use this rule to prevent nodes with empty content, that implicitly result in
 
     implicitly-null:
 
+#. With ``empty-values: {forbid-in-flow-mappings: true}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    {prop: null}
+    {a: 1, b: 2, c: 3}
+
+   the following code snippets would **FAIL**:
+   ::
+
+    {prop: }
+
+   ::
+
+    {a: 1, b:, c: 3}
+
 """
 
 import yaml
@@ -55,15 +73,22 @@ from yamllint.linter import LintProblem
 
 ID = 'empty-values'
 TYPE = 'token'
-CONF = {'forbid-in-block-mappings': bool}
+CONF = {'forbid-in-block-mappings': bool,
+        'forbid-in-flow-mappings': bool}
 
 
 def check(conf, token, prev, next, nextnext, context):
 
     if conf['forbid-in-block-mappings']:
         if isinstance(token, yaml.ValueToken) and isinstance(next, (
-                yaml.KeyToken, yaml.BlockEndToken,
-                yaml.StreamEndToken, yaml.DocumentEndToken)):
+                yaml.KeyToken, yaml.BlockEndToken)):
             yield LintProblem(token.start_mark.line + 1,
                               token.end_mark.column + 1,
                               'empty value in block mapping')
+
+    if conf['forbid-in-flow-mappings']:
+        if isinstance(token, yaml.ValueToken) and isinstance(next, (
+                yaml.FlowEntryToken, yaml.FlowMappingEndToken)):
+            yield LintProblem(token.start_mark.line + 1,
+                              token.end_mark.column + 1,
+                              'empty value in flow mapping')
