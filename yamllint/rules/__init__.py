@@ -32,6 +32,7 @@ from yamllint.rules import (
     line_length,
     new_line_at_end_of_file,
     new_lines,
+    octal_values,
     trailing_spaces,
     truthy,
 )
@@ -54,6 +55,7 @@ _RULES = {
     line_length.ID: line_length,
     new_line_at_end_of_file.ID: new_line_at_end_of_file,
     new_lines.ID: new_lines,
+    octal_values.ID: octal_values,
     trailing_spaces.ID: trailing_spaces,
     truthy.ID: truthy,
 }
