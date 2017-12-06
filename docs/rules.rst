@@ -99,6 +99,11 @@ new-lines
 
 .. automodule:: yamllint.rules.new_lines
 
+octal-values
+------------
+
+.. automodule:: yamllint.rules.octal_values
+
 trailing-spaces
 ---------------
 
