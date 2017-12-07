@@ -91,7 +91,9 @@ def check(conf, token, prev, next, nextnext, context):
         # This check is done because KeyTokens can be found inside flow
         # sequences... strange, but allowed.
         if len(context['stack']) > 0 and context['stack'][-1].type == MAP:
-            if next.value in context['stack'][-1].keys:
+            if (next.value in context['stack'][-1].keys and
+                    # `<<` is "merge key", see http://yaml.org/type/merge.html
+                    next.value != '<<'):
                 yield LintProblem(
                     next.start_mark.line + 1, next.start_mark.column + 1,
                     'duplication of key "%s" in mapping' % next.value)

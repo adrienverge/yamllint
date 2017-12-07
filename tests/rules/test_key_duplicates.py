@@ -78,6 +78,15 @@ class KeyDuplicatesTestCase(RuleTestCase):
                    '    duplicates with\n'
                    '    many styles\n'
                    ': 1\n', conf)
+        self.check('---\n'
+                   'Merge Keys are OK:\n'
+                   'anchor_one: &anchor_one\n'
+                   '  one: one\n'
+                   'anchor_two: &anchor_two\n'
+                   '  two: two\n'
+                   'anchor_reference:\n'
+                   '  <<: *anchor_one\n'
+                   '  <<: *anchor_two\n', conf)
 
     def test_enabled(self):
         conf = 'key-duplicates: enable'
@@ -147,6 +156,15 @@ class KeyDuplicatesTestCase(RuleTestCase):
                    ': 1\n', conf,
                    problem1=(3, 1), problem2=(4, 1), problem3=(5, 3),
                    problem4=(7, 3))
+        self.check('---\n'
+                   'Merge Keys are OK:\n'
+                   'anchor_one: &anchor_one\n'
+                   '  one: one\n'
+                   'anchor_two: &anchor_two\n'
+                   '  two: two\n'
+                   'anchor_reference:\n'
+                   '  <<: *anchor_one\n'
+                   '  <<: *anchor_two\n', conf)
 
     def test_key_tokens_in_flow_sequences(self):
         conf = 'key-duplicates: enable'
