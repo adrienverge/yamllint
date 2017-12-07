@@ -30,9 +30,9 @@ try:
 except AssertionError:
     import unittest2 as unittest
 
-from yamllint import cli
-
 from tests.common import build_temp_workspace
+
+from yamllint import cli
 
 
 @unittest.skipIf(sys.version_info < (2, 7), 'Python 2.6 not supported')
