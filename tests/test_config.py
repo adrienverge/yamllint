@@ -27,10 +27,10 @@ try:
 except AssertionError:
     import unittest2 as unittest
 
+from tests.common import build_temp_workspace
+
 from yamllint import cli
 from yamllint import config
-
-from tests.common import build_temp_workspace
 
 
 class SimpleConfigTestCase(unittest.TestCase):
