@@ -1,7 +1,7 @@
 ---
 
 # For use with pre-commit.
-# See usage instructions at http://pre-commit.com
+# See usage instructions at https://pre-commit.com
 
 - id: yamllint
   name: yamllint
