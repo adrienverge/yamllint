@@ -54,7 +54,7 @@ Alternatively using pip, the Python package manager:
 
 .. code:: bash
 
- sudo pip install yamllint
+ pip install --user yamllint
 
 Usage
 ^^^^^
