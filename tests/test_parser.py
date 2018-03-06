@@ -18,7 +18,7 @@ import sys
 try:
     assert sys.version_info >= (2, 7)
     import unittest
-except:
+except AssertionError:
     import unittest2 as unittest
 
 import yaml

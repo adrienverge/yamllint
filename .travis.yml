@@ -9,12 +9,15 @@ python:
   - 3.6
   - nightly
 install:
-  - pip install pyyaml flake8 flake8-import-order coveralls
+  - pip install pyyaml flake8 flake8-import-order coveralls sphinx
   - if [[ $TRAVIS_PYTHON_VERSION == 2.6 ]]; then pip install unittest2; fi
   - pip install .
 script:
   - if [[ $TRAVIS_PYTHON_VERSION != 2.6 ]]; then flake8 .; fi
   - yamllint --strict $(git ls-files '*.yaml' '*.yml')
   - coverage run --source=yamllint setup.py test
+  - if [[ $TRAVIS_PYTHON_VERSION != 2* ]]; then
+      python setup.py build_sphinx;
+    fi
 after_success:
   coveralls

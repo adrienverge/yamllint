@@ -32,6 +32,9 @@ rules:
     max: 2
     max-start: 0
     max-end: 0
+  empty-values:
+    forbid-in-block-mappings: false
+    forbid-in-flow-mappings: false
   hyphens:
     max-spaces-after: 1
   indentation:

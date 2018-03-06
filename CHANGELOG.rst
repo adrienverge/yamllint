@@ -1,6 +1,16 @@
 Changelog
 =========
 
+1.10.0 (2017-11-05)
+-------------------
+
+- Fix colored output on Windows
+- Check documentation compilation on continuous integration
+- Add a new `empty-values` rule
+- Make sure test files are included in dist bundle
+- Tests: Use en_US.UTF-8 locale when C.UTF-8 not available
+- Tests: Dynamically detect Python executable path
+
 1.9.0 (2017-10-16)
 ------------------
 

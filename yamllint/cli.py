@@ -16,9 +16,9 @@
 
 from __future__ import print_function
 
-import os.path
+import os
 import sys
-
+import platform
 import argparse
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
@@ -36,6 +36,15 @@ def find_files_recursively(items):
                     yield os.path.join(root, filename)
         else:
             yield item
+
+
+def supports_color():
+    supported_platform = not (platform.system() == 'Windows' and not
+                              ('ANSICON' in os.environ or
+                               ('TERM' in os.environ and
+                                os.environ['TERM'] == 'ANSI')))
+    return (supported_platform and
+            hasattr(sys.stdout, 'isatty') and sys.stdout.isatty())
 
 
 class Format(object):
@@ -134,7 +143,7 @@ def run(argv=None):
                 for problem in linter.run(f, conf, filepath):
                     if args.format == 'parsable':
                         print(Format.parsable(problem, file))
-                    elif sys.stdout.isatty():
+                    elif supports_color():
                         if first:
                             print('\033[4m%s\033[0m' % file)
                             first = False

@@ -27,7 +27,7 @@ import sys
 try:
     assert sys.version_info >= (2, 7)
     import unittest
-except:
+except AssertionError:
     import unittest2 as unittest
 
 from yamllint import cli
@@ -299,7 +299,10 @@ class CommandLineTestCase(unittest.TestCase):
         # Make sure the default localization conditions on this "system"
         # support UTF-8 encoding.
         loc = locale.getlocale()
-        locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+        try:
+            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+        except locale.Error:
+            locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
         sys.stdout, sys.stderr = StringIO(), StringIO()
         with self.assertRaises(SystemExit) as ctx:

@@ -22,8 +22,11 @@ import sys
 try:
     assert sys.version_info >= (2, 7)
     import unittest
-except:
+except AssertionError:
     import unittest2 as unittest
+
+
+PYTHON = sys.executable or 'python'
 
 
 @unittest.skipIf(sys.version_info < (2, 7), 'Python 2.6 not supported')
@@ -46,7 +49,7 @@ class ModuleTestCase(unittest.TestCase):
 
     def test_run_module_no_args(self):
         with self.assertRaises(subprocess.CalledProcessError) as ctx:
-            subprocess.check_output(['python', '-m', 'yamllint'],
+            subprocess.check_output([PYTHON, '-m', 'yamllint'],
                                     stderr=subprocess.STDOUT)
         self.assertEqual(ctx.exception.returncode, 2)
         self.assertRegexpMatches(ctx.exception.output.decode(),
@@ -54,7 +57,7 @@ class ModuleTestCase(unittest.TestCase):
 
     def test_run_module_on_bad_dir(self):
         with self.assertRaises(subprocess.CalledProcessError) as ctx:
-            subprocess.check_output(['python', '-m', 'yamllint',
+            subprocess.check_output([PYTHON, '-m', 'yamllint',
                                      '/does/not/exist'],
                                     stderr=subprocess.STDOUT)
         self.assertRegexpMatches(ctx.exception.output.decode(),
@@ -62,7 +65,7 @@ class ModuleTestCase(unittest.TestCase):
 
     def test_run_module_on_file(self):
         out = subprocess.check_output(
-            ['python', '-m', 'yamllint', os.path.join(self.wd, 'warn.yaml')])
+            [PYTHON, '-m', 'yamllint', os.path.join(self.wd, 'warn.yaml')])
         lines = out.decode().splitlines()
         self.assertIn('/warn.yaml', lines[0])
         self.assertEqual('\n'.join(lines[1:]),
@@ -71,7 +74,7 @@ class ModuleTestCase(unittest.TestCase):
 
     def test_run_module_on_dir(self):
         with self.assertRaises(subprocess.CalledProcessError) as ctx:
-            subprocess.check_output(['python', '-m', 'yamllint', self.wd])
+            subprocess.check_output([PYTHON, '-m', 'yamllint', self.wd])
         self.assertEqual(ctx.exception.returncode, 1)
 
         files = ctx.exception.output.decode().split('\n\n')

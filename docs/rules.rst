@@ -59,6 +59,11 @@ empty-lines
 
 .. automodule:: yamllint.rules.empty_lines
 
+empty-values
+------------
+
+.. automodule:: yamllint.rules.empty_values
+
 hyphens
 -------
 
