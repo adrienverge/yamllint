@@ -1,3 +1,10 @@
+yamllint (1.10.0-1) unstable; urgency=medium
+
+  * New upstream version 1.10.0
+  * Drop patches (fixed upstream)
+
+ -- Philipp Huebner <debalance@debian.org>  Thu, 16 Nov 2017 19:18:18 +0100
+
 yamllint (1.9.0-1) unstable; urgency=medium
 
   * New upstream version 1.9.0

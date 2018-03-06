@@ -1,4 +1,5 @@
 #!/usr/bin/make -f
+export DH_VERBOSE=1
 
 %:
 	NOSE_EXCLUDE=test_run_colored_output \
