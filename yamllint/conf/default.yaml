@@ -50,6 +50,9 @@ rules:
   new-line-at-end-of-file: enable
   new-lines:
     type: unix
+  octal-values:
+    forbid-implicit-octal: false
+    forbid-explicit-octal: false
   trailing-spaces: enable
   truthy:
     level: warning
