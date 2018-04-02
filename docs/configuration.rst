@@ -129,7 +129,7 @@ You can either totally ignore files (they won't be looked at):
 
  ignore: |
    /this/specific/file.yaml
-   /all/this/directory/
+   all/this/directory/
    *.template.yaml
 
 or ignore paths only for specific rules:
@@ -167,4 +167,4 @@ Here is a more complex example:
    trailing-spaces:
      ignore: |
        *.ignore-trailing-spaces.yaml
-       /ascii-art/*
+       ascii-art/*
