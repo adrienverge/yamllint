@@ -15,11 +15,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Use this rule to forbid truthy values that are not quoted nor explicitly typed.
+Use this rule to forbid non-explictly typed truthy values other than ``true``
+and ``false``, for example ``YES``, ``False`` and ``off``.
 
-This would prevent YAML parsers from transforming ``[yes, FALSE, Off]`` into
-``[true, false, false]`` or ``{y: 1, yes: 2, on: 3, true: 4, True: 5}`` into
-``{y: 1, true: 5}``.
+This can be useful to prevent surprises from YAML parsers transforming
+``[yes, FALSE, Off]`` into ``[true, false, false]`` or
+``{y: 1, yes: 2, on: 3, true: 4, True: 5}`` into ``{y: 1, true: 5}``.
 
 .. rubric:: Examples
 
@@ -34,8 +35,7 @@ This would prevent YAML parsers from transforming ``[yes, FALSE, Off]`` into
 
     "yes":  1
     "on":   2
-    "true": 3
-    "True": 4
+    "True": 3
 
      explicit:
        string1: !!str True
@@ -62,8 +62,7 @@ This would prevent YAML parsers from transforming ``[yes, FALSE, Off]`` into
 
     yes:  1
     on:   2
-    true: 3
-    True: 4
+    True: 3
 """
 
 import yaml
@@ -90,4 +89,4 @@ def check(conf, token, prev, next, nextnext, context):
         if token.value in TRUTHY and token.style is None:
             yield LintProblem(token.start_mark.line + 1,
                               token.start_mark.column + 1,
-                              "truthy value is not quoted")
+                              "truthy value should be true or false")
