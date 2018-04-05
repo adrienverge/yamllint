@@ -35,6 +35,7 @@ from yamllint.rules import (
     octal_values,
     trailing_spaces,
     truthy,
+    quoted,
 )
 
 _RULES = {
@@ -58,6 +59,7 @@ _RULES = {
     octal_values.ID: octal_values,
     trailing_spaces.ID: trailing_spaces,
     truthy.ID: truthy,
+    quoted.ID: quoted,
 }
 
 
