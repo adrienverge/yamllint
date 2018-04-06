@@ -9,8 +9,9 @@ python:
   - 3.6
   - nightly
 install:
-  - pip install pyyaml flake8 flake8-import-order coveralls sphinx
+  - pip install pyyaml flake8 flake8-import-order coveralls
   - if [[ $TRAVIS_PYTHON_VERSION == 2.6 ]]; then pip install unittest2; fi
+  - if [[ $TRAVIS_PYTHON_VERSION != 2* ]]; then pip install sphinx; fi
   - pip install .
 script:
   - if [[ $TRAVIS_PYTHON_VERSION != 2.6 ]]; then flake8 .; fi
