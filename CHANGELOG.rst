@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.11.1 (2018-04-06)
+-------------------
+
+- Handle merge keys (`<<`) in the `key-duplicates` rule
+- Update documentation about pre-commit
+- Make examples for `ignore` rule clearer
+- Clarify documentation on the 'truthy' rule
+- Fix crash in parser due to a change in PyYAML > 3.12
+
 1.11.0 (2018-02-21)
 -------------------
 
