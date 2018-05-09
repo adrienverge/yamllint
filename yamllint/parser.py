@@ -125,7 +125,8 @@ def token_or_comment_generator(buffer):
         curr = yaml_loader.get_token()
         while curr is not None:
             next = yaml_loader.get_token()
-            nextnext = yaml_loader.peek_token()
+            nextnext = (yaml_loader.peek_token()
+                        if yaml_loader.check_token() else None)
 
             yield Token(curr.start_mark.line + 1, curr, prev, next, nextnext)
 
