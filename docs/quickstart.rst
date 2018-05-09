@@ -16,13 +16,6 @@ On Debian 8+ / Ubuntu 16.04+:
 
  sudo apt-get install yamllint
 
-On older Debian / Ubuntu versions:
-
-.. code:: bash
-
- sudo add-apt-repository -y ppa:adrienverge/ppa && sudo apt-get update
- sudo apt-get install yamllint
-
 Alternatively using pip, the Python package manager:
 
 .. code:: bash
