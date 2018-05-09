@@ -50,6 +50,12 @@ On Debian 8+ / Ubuntu 16.04+:
 
  sudo apt-get install yamllint
 
+On Mac OS 10.11+:
+
+.. code:: bash
+
+ brew install yamllint
+
 Alternatively using pip, the Python package manager:
 
 .. code:: bash
