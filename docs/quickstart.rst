@@ -26,14 +26,14 @@ Alternatively using pip, the Python package manager:
 
 .. code:: bash
 
- sudo pip install yamllint
+ pip install --user yamllint
 
 If you prefer installing from source, you can run, from the source directory:
 
 .. code:: bash
 
  python setup.py sdist
- sudo pip install dist/yamllint-*.tar.gz
+ pip install --user dist/yamllint-*.tar.gz
 
 Running yamllint
 ----------------
