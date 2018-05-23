@@ -31,6 +31,7 @@ class YamlLintConfig(object):
         assert (content is None) ^ (file is None)
 
         self.ignore = None
+        self.syntax_checker = None
 
         if file is not None:
             with open(file) as f:
@@ -90,6 +91,26 @@ class YamlLintConfig(object):
                     'invalid config: ignore should contain file patterns')
             self.ignore = pathspec.PathSpec.from_lines(
                 'gitwildmatch', conf['ignore'].splitlines())
+
+        if 'syntax-checker' in conf:
+            if type(conf['syntax-checker']) != dict:
+                raise YamlLintConfigError('invalid config: syntax-checker should be dict')
+
+            syntax_checker = conf['syntax-checker']
+
+            if 'enabled' not in syntax_checker:
+                syntax_checker['enabled'] = True
+            elif type(syntax_checker['enabled']) != bool:
+                raise YamlLintConfigError('invalid config: syntax-checker.enabled should should be true or false')
+
+            if 'level' not in syntax_checker:
+                syntax_checker['level'] = 'error'
+            elif syntax_checker['level'] not in ['error', 'warning']:
+                raise YamlLintConfigError('invalid config: syntax-checker.level should be "error" or "warning"')
+
+            self.syntax_checker = syntax_checker
+        else:
+            self.syntax_checker = {'enabled': True, 'level': 'error'}
 
     def validate(self):
         for id in self.rules:

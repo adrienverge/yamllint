@@ -174,15 +174,16 @@ def get_cosmetic_problems(buffer, conf, filepath):
             cache = []
 
 
-def get_syntax_error(buffer):
+def get_syntax_error(buffer, conf):
     try:
         list(yaml.parse(buffer, Loader=yaml.BaseLoader))
     except yaml.error.MarkedYAMLError as e:
-        problem = LintProblem(e.problem_mark.line + 1,
-                              e.problem_mark.column + 1,
-                              'syntax error: ' + e.problem)
-        problem.level = 'error'
-        return problem
+        if conf.syntax_checker['enabled']:
+            problem = LintProblem(e.problem_mark.line + 1,
+                                  e.problem_mark.column + 1,
+                                  'syntax error: ' + e.problem)
+            problem.level = conf.syntax_checker['level']
+            return problem
 
 
 def _run(buffer, conf, filepath):
@@ -191,7 +192,7 @@ def _run(buffer, conf, filepath):
 
     # If the document contains a syntax error, save it and yield it at the
     # right line
-    syntax_error = get_syntax_error(buffer)
+    syntax_error = get_syntax_error(buffer, conf)
 
     for problem in get_cosmetic_problems(buffer, conf, filepath):
         # Insert the syntax error (if any) at the right place...
