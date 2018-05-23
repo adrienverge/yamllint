@@ -31,7 +31,7 @@ class YamlLintConfig(object):
         assert (content is None) ^ (file is None)
 
         self.ignore = None
-        self.syntax_checker = None
+        self.syntax_checker = {'enabled': True, 'level': 'error'}
 
         if file is not None:
             with open(file) as f:
@@ -109,8 +109,6 @@ class YamlLintConfig(object):
                 raise YamlLintConfigError('invalid config: syntax-checker.level should be "error" or "warning"')
 
             self.syntax_checker = syntax_checker
-        else:
-            self.syntax_checker = {'enabled': True, 'level': 'error'}
 
     def validate(self):
         for id in self.rules:
