@@ -38,7 +38,8 @@ Screenshot
 Installation
 ^^^^^^^^^^^^
 
-On Fedora / CentOS:
+On Fedora / CentOS (note: `EPEL <https://fedoraproject.org/wiki/EPEL>`_ is
+required on CentOS):
 
 .. code:: bash
 
