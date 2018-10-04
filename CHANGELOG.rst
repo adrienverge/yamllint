@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.12.0 (2018-10-04)
+-------------------
+
+- Add a new `quoted-strings` rule
+- Update installation documentation for pip, CentOS, Debian, Ubuntu, Mac OS
+
 1.11.1 (2018-04-06)
 -------------------
 
