@@ -16,8 +16,8 @@
 
 """
 Use this rule to forbid any string values that are not quoted.
-You can also enforce the type of the quote used - single or double - using the
-``quote-type`` option.
+You can also enforce the type of the quote used using the ``quote-type`` option
+(``single``, ``double`` or ``any``).
 
 **Note**: Multi-line strings (with ``|`` or ``>``) will not be checked.
 
@@ -51,24 +51,27 @@ CONF = {'quote-type': ('any', 'single', 'double')}
 def check(conf, token, prev, next, nextnext, context):
     quote_type = conf['quote-type']
 
-    if prev and isinstance(prev, yaml.tokens.TagToken):
-        if prev.value[1] != "str":
-            # we ignore generic strings, e.g. somestring: !!str testtest
+    if (isinstance(token, yaml.tokens.ScalarToken) and
+            isinstance(prev, (yaml.ValueToken, yaml.TagToken))):
+        # Ignore explicit types, e.g. !!str testtest or !!int 42
+        if (prev and isinstance(prev, yaml.tokens.TagToken) and
+                prev.value[0] == '!!'):
             return
 
-    if isinstance(token, yaml.tokens.ScalarToken):
-        if isinstance(prev, yaml.tokens.ValueToken) or \
-           isinstance(prev, yaml.tokens.TagToken):
-            if ((not token.plain) and
-                    ((token.style == "|") or (token.style == ">"))):
-                # we ignore multi-line strings
-                return
+        # Ignore numbers, booleans, etc.
+        resolver = yaml.resolver.Resolver()
+        if resolver.resolve(yaml.nodes.ScalarNode, token.value,
+                            (True, False)) != 'tag:yaml.org,2002:str':
+            return
 
-            if ((quote_type == 'single' and token.style != "'") or
-                    (quote_type == 'double' and token.style != '"') or
-                    (quote_type == 'any' and token.style is None)):
-                yield LintProblem(
-                    token.start_mark.line + 1,
-                    token.start_mark.column + 1,
-                    "string value is not quoted with %s quotes" % (quote_type)
-                )
+        # Ignore multi-line strings
+        if (not token.plain) and (token.style == "|" or token.style == ">"):
+            return
+
+        if ((quote_type == 'single' and token.style != "'") or
+                (quote_type == 'double' and token.style != '"') or
+                (quote_type == 'any' and token.style is None)):
+            yield LintProblem(
+                token.start_mark.line + 1,
+                token.start_mark.column + 1,
+                "string value is not quoted with %s quotes" % (quote_type))
