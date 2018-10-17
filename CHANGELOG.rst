@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.12.1 (2018-10-17)
+-------------------
+
+- Fix the `quoted-strings` rule, broken implementation
+- Fix missing documentation for the `quoted-strings` rule
+
 1.12.0 (2018-10-04)
 -------------------
 
