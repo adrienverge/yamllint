@@ -96,8 +96,8 @@ def run(argv=None):
                               action='store',
                               help='custom configuration (as YAML source)')
     parser.add_argument('-f', '--format',
-                        choices=('parsable', 'standard'), default='standard',
-                        help='format for parsing output')
+                        choices=('parsable', 'standard', 'colored'),
+                        default='standard', help='format for parsing output')
     parser.add_argument('-s', '--strict',
                         action='store_true',
                         help='return non-zero exit code on warnings '
@@ -143,7 +143,7 @@ def run(argv=None):
                 for problem in linter.run(f, conf, filepath):
                     if args.format == 'parsable':
                         print(Format.parsable(problem, file))
-                    elif supports_color():
+                    elif supports_color() or args.format == 'colored':
                         if first:
                             print('\033[4m%s\033[0m' % file)
                             first = False
