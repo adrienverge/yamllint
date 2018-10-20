@@ -86,14 +86,16 @@ CONF = {'present': bool}
 
 def check(conf, token, prev, next, nextnext, context):
     if conf['present']:
-        if (isinstance(token, yaml.StreamEndToken) and
-                not (isinstance(prev, yaml.DocumentEndToken) or
-                     isinstance(prev, yaml.StreamStartToken))):
+        is_stream_end = isinstance(token, yaml.StreamEndToken)
+        is_start = isinstance(token, yaml.DocumentStartToken)
+        prev_is_end_or_stream_start = isinstance(
+            prev, (yaml.DocumentEndToken, yaml.StreamStartToken)
+        )
+
+        if is_stream_end and not prev_is_end_or_stream_start:
             yield LintProblem(token.start_mark.line, 1,
                               'missing document end "..."')
-        elif (isinstance(token, yaml.DocumentStartToken) and
-                not (isinstance(prev, yaml.DocumentEndToken) or
-                     isinstance(prev, yaml.StreamStartToken))):
+        elif is_start and not prev_is_end_or_stream_start:
             yield LintProblem(token.start_mark.line + 1, 1,
                               'missing document end "..."')
 

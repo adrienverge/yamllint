@@ -224,7 +224,7 @@ def check_scalar_indentation(conf, token, context):
 
     def compute_expected_indent(found_indent):
         def detect_indent(base_indent):
-            if type(context['spaces']) is not int:
+            if not isinstance(context['spaces'], int):
                 context['spaces'] = found_indent - base_indent
             return base_indent + context['spaces']
 
@@ -312,7 +312,7 @@ def _check(conf, token, prev, next, nextnext, context):
                      token.start_mark.line + 1 > context['cur_line'])
 
     def detect_indent(base_indent, next):
-        if type(context['spaces']) is not int:
+        if not isinstance(context['spaces'], int):
             context['spaces'] = next.start_mark.column - base_indent
         return base_indent + context['spaces']
 
