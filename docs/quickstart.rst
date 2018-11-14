@@ -68,6 +68,10 @@ The output will look like (colors are not displayed here):
    10:1      error    too many blank lines (4 > 2)  (empty-lines)
    11:4      error    too many spaces inside braces  (braces)
 
+By default, the output of yamllint is colored when run from a terminal, and pure
+text in other cases. Add the ``-f standard`` arguments to force non-colored output.
+Use the ``-f colored`` arguments to force colored output.
+
 Add the ``-f parsable`` arguments if you need an output format parsable by a
 machine (for instance for :doc:`syntax highlighting in text editors
 <text_editors>`). The output will then look like:
