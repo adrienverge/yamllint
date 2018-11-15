@@ -15,7 +15,7 @@ install:
   - if [[ $TRAVIS_PYTHON_VERSION != 2* ]]; then pip install sphinx; fi
   - pip install .
 script:
-  - if [[ $TRAVIS_PYTHON_VERSION != 2.6 ]]; then flake8 .; fi
+  - if [[ $TRAVIS_PYTHON_VERSION != 2.6 ]]; then flake8 --max-complexity=10 .; fi
   - yamllint --strict $(git ls-files '*.yaml' '*.yml')
   - if [[ $TRAVIS_PYTHON_VERSION != 2.6 ]]; then
       coverage run --source=yamllint setup.py test;
