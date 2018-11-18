@@ -10,7 +10,7 @@ Build-Depends: debhelper (>=11~),
                python3-setuptools,
                python3-sphinx,
                python3-yaml
-Standards-Version: 4.1.4
+Standards-Version: 4.2.1
 Vcs-Browser: https://github.com/adrienverge/yamllint/tree/packaging
 Vcs-Git: https://github.com/adrienverge/yamllint.git -b packaging
 Homepage: https://github.com/adrienverge/yamllint

@@ -1,3 +1,10 @@
+yamllint (1.13.0-1) unstable; urgency=medium
+
+  * New upstream version 1.13.0
+  * Updated Standards-Version: 4.2.1 (no changes needed)
+
+ -- Philipp Huebner <debalance@debian.org>  Sun, 18 Nov 2018 19:16:27 +0100
+
 yamllint (1.11.1-1) unstable; urgency=medium
 
   * New upstream version 1.11.1
