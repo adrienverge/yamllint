@@ -1,6 +1,25 @@
 Changelog
 =========
 
+1.13.0 (2018-11-14)
+-------------------
+
+- Use `isinstance(x, y)` instead of `type(x) == y`
+- Add a new `-f colored` option
+- Update documentation about colored output when run from CLI
+
+1.12.1 (2018-10-17)
+-------------------
+
+- Fix the `quoted-strings` rule, broken implementation
+- Fix missing documentation for the `quoted-strings` rule
+
+1.12.0 (2018-10-04)
+-------------------
+
+- Add a new `quoted-strings` rule
+- Update installation documentation for pip, CentOS, Debian, Ubuntu, Mac OS
+
 1.11.1 (2018-04-06)
 -------------------
 

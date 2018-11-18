@@ -52,7 +52,7 @@ class YamlLintConfig(object):
         assert isinstance(base_config, YamlLintConfig)
 
         for rule in self.rules:
-            if (type(self.rules[rule]) == dict and
+            if (isinstance(self.rules[rule], dict) and
                     rule in base_config.rules and
                     base_config.rules[rule] is not False):
                 base_config.rules[rule].update(self.rules[rule])
@@ -70,7 +70,7 @@ class YamlLintConfig(object):
         except Exception as e:
             raise YamlLintConfigError('invalid config: %s' % e)
 
-        if type(conf) != dict:
+        if not isinstance(conf, dict):
             raise YamlLintConfigError('invalid config: not a dict')
 
         self.rules = conf.get('rules', {})
@@ -85,7 +85,7 @@ class YamlLintConfig(object):
                 raise YamlLintConfigError('invalid config: %s' % e)
 
         if 'ignore' in conf:
-            if type(conf['ignore']) != str:
+            if not isinstance(conf['ignore'], str):
                 raise YamlLintConfigError(
                     'invalid config: ignore should contain file patterns')
             self.ignore = pathspec.PathSpec.from_lines(
@@ -107,10 +107,10 @@ def validate_rule_conf(rule, conf):
     elif conf == 'enable':
         conf = {}
 
-    if type(conf) == dict:
+    if isinstance(conf, dict):
         if ('ignore' in conf and
-                type(conf['ignore']) != pathspec.pathspec.PathSpec):
-            if type(conf['ignore']) != str:
+                not isinstance(conf['ignore'], pathspec.pathspec.PathSpec)):
+            if not isinstance(conf['ignore'], str):
                 raise YamlLintConfigError(
                     'invalid config: ignore should contain file patterns')
             conf['ignore'] = pathspec.PathSpec.from_lines(
@@ -130,14 +130,14 @@ def validate_rule_conf(rule, conf):
                 raise YamlLintConfigError(
                     'invalid config: unknown option "%s" for rule "%s"' %
                     (optkey, rule.ID))
-            if type(options[optkey]) == tuple:
+            if isinstance(options[optkey], tuple):
                 if (conf[optkey] not in options[optkey] and
                         type(conf[optkey]) not in options[optkey]):
                     raise YamlLintConfigError(
                         'invalid config: option "%s" of "%s" should be in %s'
                         % (optkey, rule.ID, options[optkey]))
             else:
-                if type(conf[optkey]) != options[optkey]:
+                if not isinstance(conf[optkey], options[optkey]):
                     raise YamlLintConfigError(
                         'invalid config: option "%s" of "%s" should be %s'
                         % (optkey, rule.ID, options[optkey].__name__))

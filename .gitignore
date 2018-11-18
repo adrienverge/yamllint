@@ -3,3 +3,4 @@ __pycache__
 /docs/_build
 /dist
 /yamllint.egg-info
+/build

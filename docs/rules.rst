@@ -104,6 +104,11 @@ octal-values
 
 .. automodule:: yamllint.rules.octal_values
 
+quoted-strings
+--------------
+
+.. automodule:: yamllint.rules.quoted_strings
+
 trailing-spaces
 ---------------
 

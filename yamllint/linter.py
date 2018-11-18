@@ -226,7 +226,7 @@ def run(input, conf, filepath=None):
     if conf.is_file_ignored(filepath):
         return ()
 
-    if type(input) in (type(b''), type(u'')):  # compat with Python 2 & 3
+    if isinstance(input, (type(b''), type(u''))):  # compat with Python 2 & 3
         return _run(input, conf, filepath)
     elif hasattr(input, 'read'):  # Python 2's file or Python 3's io.IOBase
         # We need to have everything in memory to parse correctly

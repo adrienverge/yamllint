@@ -351,7 +351,7 @@ class CommandLineTestCase(unittest.TestCase):
             '\n' % file))
         self.assertEqual(err, '')
 
-    def test_run_colored_output(self):
+    def test_run_default_format_output_in_tty(self):
         file = os.path.join(self.wd, 'a.yaml')
 
         # Create a pseudo-TTY and redirect stdout to it
@@ -383,3 +383,59 @@ class CommandLineTestCase(unittest.TestCase):
             'no new line character at the end of file  '
             '\033[2m(new-line-at-end-of-file)\033[0m\n'
             '\n' % file))
+
+    def test_run_default_format_output_without_tty(self):
+        file = os.path.join(self.wd, 'a.yaml')
+
+        sys.stdout, sys.stderr = StringIO(), StringIO()
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run((file, ))
+
+        self.assertEqual(ctx.exception.code, 1)
+
+        out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
+        self.assertEqual(out, (
+            '%s\n'
+            '  2:4       error    trailing spaces  (trailing-spaces)\n'
+            '  3:4       error    no new line character at the end of file  '
+            '(new-line-at-end-of-file)\n'
+            '\n' % file))
+        self.assertEqual(err, '')
+
+    def test_run_auto_output_without_tty_output(self):
+        file = os.path.join(self.wd, 'a.yaml')
+
+        sys.stdout, sys.stderr = StringIO(), StringIO()
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run((file, '--format', 'auto'))
+
+        self.assertEqual(ctx.exception.code, 1)
+
+        out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
+        self.assertEqual(out, (
+            '%s\n'
+            '  2:4       error    trailing spaces  (trailing-spaces)\n'
+            '  3:4       error    no new line character at the end of file  '
+            '(new-line-at-end-of-file)\n'
+            '\n' % file))
+        self.assertEqual(err, '')
+
+    def test_run_format_colored(self):
+        file = os.path.join(self.wd, 'a.yaml')
+
+        sys.stdout, sys.stderr = StringIO(), StringIO()
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run((file, '--format', 'colored'))
+
+        self.assertEqual(ctx.exception.code, 1)
+
+        out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
+        self.assertEqual(out, (
+            '\033[4m%s\033[0m\n'
+            '  \033[2m2:4\033[0m       \033[31merror\033[0m    '
+            'trailing spaces  \033[2m(trailing-spaces)\033[0m\n'
+            '  \033[2m3:4\033[0m       \033[31merror\033[0m    '
+            'no new line character at the end of file  '
+            '\033[2m(new-line-at-end-of-file)\033[0m\n'
+            '\n' % file))
+        self.assertEqual(err, '')
