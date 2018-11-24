@@ -21,11 +21,7 @@ except ImportError:
 import os
 import shutil
 import sys
-try:
-    assert sys.version_info >= (2, 7)
-    import unittest
-except AssertionError:
-    import unittest2 as unittest
+import unittest
 
 from tests.common import build_temp_workspace
 
@@ -338,7 +334,6 @@ class IgnorePathConfigTestCase(unittest.TestCase):
 
         shutil.rmtree(cls.wd)
 
-    @unittest.skipIf(sys.version_info < (2, 7), 'Python 2.6 not supported')
     def test_run_with_ignored_path(self):
         sys.stdout = StringIO()
         with self.assertRaises(SystemExit):
