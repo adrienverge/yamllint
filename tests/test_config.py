@@ -78,7 +78,7 @@ class SimpleConfigTestCase(unittest.TestCase):
                                   '    spaces: 2\n'
                                   '    indent-sequences: true\n'
                                   '    check-multi-line-strings: false\n')
-        self.assertEqual(c.rules['indentation']['indent-sequences'], True)
+        self.assertTrue(c.rules['indentation']['indent-sequences'])
         self.assertEqual(c.rules['indentation']['check-multi-line-strings'],
                          False)
 
@@ -87,7 +87,7 @@ class SimpleConfigTestCase(unittest.TestCase):
                                   '    spaces: 2\n'
                                   '    indent-sequences: yes\n'
                                   '    check-multi-line-strings: false\n')
-        self.assertEqual(c.rules['indentation']['indent-sequences'], True)
+        self.assertTrue(c.rules['indentation']['indent-sequences'])
         self.assertEqual(c.rules['indentation']['check-multi-line-strings'],
                          False)
 
@@ -115,8 +115,8 @@ class SimpleConfigTestCase(unittest.TestCase):
         class Rule(object):
             ID = 'fake'
 
-        self.assertEqual(config.validate_rule_conf(Rule, False), False)
-        self.assertEqual(config.validate_rule_conf(Rule, 'disable'), False)
+        self.assertFalse(config.validate_rule_conf(Rule, False))
+        self.assertFalse(config.validate_rule_conf(Rule, 'disable'))
 
         self.assertEqual(config.validate_rule_conf(Rule, {}),
                          {'level': 'error'})
@@ -194,7 +194,7 @@ class ExtendedConfigTestCase(unittest.TestCase):
         new.extend(old)
 
         self.assertEqual(sorted(new.rules.keys()), ['colons', 'hyphens'])
-        self.assertEqual(new.rules['colons'], False)
+        self.assertFalse(new.rules['colons'])
         self.assertEqual(new.rules['hyphens']['max-spaces-after'], 2)
 
         self.assertEqual(len(new.enabled_rules(None)), 1)

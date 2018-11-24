@@ -65,12 +65,12 @@ class ParserTestCase(unittest.TestCase):
     def test_token_or_comment_generator(self):
         e = list(token_or_comment_generator(''))
         self.assertEqual(len(e), 2)
-        self.assertEqual(e[0].prev, None)
+        self.assertIsNone(e[0].prev)
         self.assertIsInstance(e[0].curr, yaml.Token)
         self.assertIsInstance(e[0].next, yaml.Token)
         self.assertEqual(e[1].prev, e[0].curr)
         self.assertEqual(e[1].curr, e[0].next)
-        self.assertEqual(e[1].next, None)
+        self.assertIsNone(e[1].next)
 
         e = list(token_or_comment_generator('---\n'
                                             'k: v\n'))
