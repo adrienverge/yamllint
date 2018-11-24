@@ -24,18 +24,13 @@ import os
 import pty
 import shutil
 import sys
-try:
-    assert sys.version_info >= (2, 7)
-    import unittest
-except AssertionError:
-    import unittest2 as unittest
+import unittest
 
 from tests.common import build_temp_workspace
 
 from yamllint import cli
 
 
-@unittest.skipIf(sys.version_info < (2, 7), 'Python 2.6 not supported')
 class CommandLineTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

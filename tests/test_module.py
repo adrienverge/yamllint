@@ -19,17 +19,12 @@ import shutil
 import subprocess
 import tempfile
 import sys
-try:
-    assert sys.version_info >= (2, 7)
-    import unittest
-except AssertionError:
-    import unittest2 as unittest
+import unittest
 
 
 PYTHON = sys.executable or 'python'
 
 
-@unittest.skipIf(sys.version_info < (2, 7), 'Python 2.6 not supported')
 class ModuleTestCase(unittest.TestCase):
     def setUp(self):
         self.wd = tempfile.mkdtemp(prefix='yamllint-tests-')

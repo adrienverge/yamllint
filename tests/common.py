@@ -16,12 +16,7 @@
 
 import os
 import tempfile
-import sys
-try:
-    assert sys.version_info >= (2, 7)
-    import unittest
-except AssertionError:
-    import unittest2 as unittest
+import unittest
 
 import yaml
 
