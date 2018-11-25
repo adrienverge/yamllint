@@ -103,7 +103,7 @@ def run(argv=None):
                         help='return non-zero exit code on warnings '
                              'as well as errors')
     parser.add_argument('-v', '--version', action='version',
-                        version='%s %s' % (APP_NAME, APP_VERSION))
+                        version='{} {}'.format(APP_NAME, APP_VERSION))
 
     # TODO: read from stdin when no filename?
 
