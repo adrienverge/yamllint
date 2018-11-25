@@ -14,6 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+try:
+    assert sys.version_info >= (2, 7)
+    import unittest
+except AssertionError:
+    import unittest2 as unittest
+
 from tests.common import RuleTestCase
 
 
@@ -155,3 +162,16 @@ class LineLengthTestCase(RuleTestCase):
                    'content: |\n'
                    '  {% this line is' + 99 * ' really' + ' long %}\n',
                    conf, problem=(3, 81))
+
+    @unittest.skipIf(sys.version_info < (3, 0), 'Python 2 not supported')
+    def test_unicode(self):
+        conf = 'line-length: {max: 53}'
+        self.check('---\n'
+                   '# This is a test to check if “line-length” works nice\n'
+                   'with: “unicode characters” that span accross bytes! ↺\n',
+                   conf)
+        conf = 'line-length: {max: 52}'
+        self.check('---\n'
+                   '# This is a test to check if “line-length” works nice\n'
+                   'with: “unicode characters” that span accross bytes! ↺\n',
+                   conf, problem1=(2, 53), problem2=(3, 53))

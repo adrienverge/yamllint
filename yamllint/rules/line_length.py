@@ -17,6 +17,10 @@
 """
 Use this rule to set a limit to lines length.
 
+Note: with Python 2, the ``line-length`` rule may not work properly with
+unicode characters because of the way strings are represented in bytes. We
+recommend running yamllint with Python 3.
+
 .. rubric:: Options
 
 * ``max`` defines the maximal (inclusive) length of lines.
