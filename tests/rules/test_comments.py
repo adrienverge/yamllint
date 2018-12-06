@@ -80,6 +80,33 @@ class CommentsTestCase(RuleTestCase):
                    problem3=(9, 2), problem4=(10, 4),
                    problem5=(15, 3))
 
+    def test_shebang(self):
+        conf = ('comments:\n'
+                '  require-starting-space: true\n'
+                '  ignore-shebangs: false\n'
+                'comments-indentation: disable\n')
+        self.check('#!/bin/env my-interpreter\n',
+                   conf, problem1=(1, 2))
+        self.check('#!/bin/env my-interpreter\n'
+                   '---\n'
+                   '#comment\n'
+                   '#!/bin/env my-interpreter\n'
+                   '', conf,
+                   problem1=(1, 2), problem2=(3, 2), problem3=(4, 2))
+
+    def test_ignore_shebang(self):
+        conf = ('comments:\n'
+                '  require-starting-space: true\n'
+                '  ignore-shebangs: true\n'
+                'comments-indentation: disable\n')
+        self.check('#!/bin/env my-interpreter\n', conf)
+        self.check('#!/bin/env my-interpreter\n'
+                   '---\n'
+                   '#comment\n'
+                   '#!/bin/env my-interpreter\n'
+                   '', conf,
+                   problem2=(3, 2), problem3=(4, 2))
+
     def test_spaces_from_content(self):
         conf = ('comments:\n'
                 '  require-starting-space: false\n'

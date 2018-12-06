@@ -21,6 +21,9 @@ Use this rule to control the position and formatting of comments.
 
 * Use ``require-starting-space`` to require a space character right after the
   ``#``. Set to ``true`` to enable, ``false`` to disable.
+* Use ``ignore-shebangs`` to ignore a
+  `shebang <https://en.wikipedia.org/wiki/Shebang_(Unix)>`_ at the beginning of
+  the file when ``require-starting-space`` is set.
 * ``min-spaces-from-content`` is used to visually separate inline comments from
   content. It defines the minimal required number of spaces between a comment
   and its preceding content.
@@ -67,8 +70,10 @@ from yamllint.linter import LintProblem
 ID = 'comments'
 TYPE = 'comment'
 CONF = {'require-starting-space': bool,
+        'ignore-shebangs': bool,
         'min-spaces-from-content': int}
 DEFAULT = {'require-starting-space': True,
+           'ignore-shebangs': True,
            'min-spaces-from-content': 2}
 
 
@@ -84,8 +89,13 @@ def check(conf, comment):
         while (comment.buffer[text_start] == '#' and
                text_start < len(comment.buffer)):
             text_start += 1
-        if (text_start < len(comment.buffer) and
-                comment.buffer[text_start] not in (' ', '\n', '\0')):
-            yield LintProblem(comment.line_no,
-                              comment.column_no + text_start - comment.pointer,
-                              'missing starting space in comment')
+        if text_start < len(comment.buffer):
+            if (conf['ignore-shebangs'] and
+                    comment.line_no == 1 and
+                    comment.buffer[text_start] == '!'):
+                return
+            elif comment.buffer[text_start] not in (' ', '\n', '\0'):
+                column = comment.column_no + text_start - comment.pointer
+                yield LintProblem(comment.line_no,
+                                  column,
+                                  'missing starting space in comment')
