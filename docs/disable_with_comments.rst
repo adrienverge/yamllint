@@ -4,9 +4,9 @@ Disable with comments
 Disabling checks for a specific line
 ------------------------------------
 
-To prevent yamllint from reporting problems for a specific line, add a directive
-comment (``# yamllint disable-line ...``) on that line, or on the line above.
-For instance:
+To prevent yamllint from reporting problems for a specific line, add a
+directive comment (``# yamllint disable-line ...``) on that line, or on the
+line above. For instance:
 
 .. code-block:: yaml
 
@@ -46,9 +46,9 @@ If you need to disable multiple rules, it is allowed to chain rules like this:
 Disabling checks for all (or part of) the file
 ----------------------------------------------
 
-To prevent yamllint from reporting problems for the whole file, or for a block of
-lines within the file, use ``# yamllint disable ...`` and ``# yamllint enable
-...`` directive comments. For instance:
+To prevent yamllint from reporting problems for the whole file, or for a block
+of lines within the file, use ``# yamllint disable ...`` and ``# yamllint
+enable ...`` directive comments. For instance:
 
 .. code-block:: yaml
 
