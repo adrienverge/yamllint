@@ -1,17 +1,19 @@
 ---
+dist: xenial  # required for Python >= 3.7 (travis-ci/travis-ci#9069)
 language: python
 python:
   - 2.7
   - 3.4
   - 3.5
   - 3.6
+  - 3.7
   - nightly
 install:
   - pip install pyyaml coveralls flake8 flake8-import-order doc8
   - if [[ $TRAVIS_PYTHON_VERSION != 2* ]]; then pip install sphinx; fi
   - pip install .
 script:
-  - flake8 .
+  - if [[ $TRAVIS_PYTHON_VERSION != nightly ]]; then flake8 .; fi
   - if [[ $TRAVIS_PYTHON_VERSION != 2* ]]; then doc8 $(git ls-files '*.rst'); fi
   - yamllint --strict $(git ls-files '*.yaml' '*.yml')
   - coverage run --source=yamllint setup.py test
