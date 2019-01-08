@@ -9,6 +9,13 @@ text editor.
 Vim
 ---
 
+In its standard installation the following command can be used to populate
+Vims location list with yamllints results:
+
+::
+
+ lexpr system("yamllint -f parsable ".expand("%")) | lopen
+
 Assuming that the `ALE <https://github.com/w0rp/ale>`_ plugin is
 installed, yamllint is supported by default. It is automatically enabled when
 editing YAML files.
