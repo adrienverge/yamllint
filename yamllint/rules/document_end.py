@@ -82,6 +82,7 @@ from yamllint.linter import LintProblem
 ID = 'document-end'
 TYPE = 'token'
 CONF = {'present': bool}
+DEFAULT = {'present': True}
 
 
 def check(conf, token, prev, next, nextnext, context):

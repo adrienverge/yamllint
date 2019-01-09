@@ -58,6 +58,9 @@ TYPE = 'line'
 CONF = {'max': int,
         'max-start': int,
         'max-end': int}
+DEFAULT = {'max': 2,
+           'max-start': 0,
+           'max-end': 0}
 
 
 def check(conf, line):

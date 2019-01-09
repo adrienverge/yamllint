@@ -102,6 +102,9 @@ TYPE = 'line'
 CONF = {'max': int,
         'allow-non-breakable-words': bool,
         'allow-non-breakable-inline-mappings': bool}
+DEFAULT = {'max': 80,
+           'allow-non-breakable-words': True,
+           'allow-non-breakable-inline-mappings': False}
 
 
 def check_inline_mapping(line):

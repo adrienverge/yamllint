@@ -72,7 +72,6 @@ from yamllint.linter import LintProblem
 
 ID = 'key-ordering'
 TYPE = 'token'
-CONF = {}
 
 MAP, SEQ = range(2)
 

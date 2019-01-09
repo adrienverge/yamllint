@@ -75,6 +75,8 @@ ID = 'empty-values'
 TYPE = 'token'
 CONF = {'forbid-in-block-mappings': bool,
         'forbid-in-flow-mappings': bool}
+DEFAULT = {'forbid-in-block-mappings': False,
+           'forbid-in-flow-mappings': False}
 
 
 def check(conf, token, prev, next, nextnext, context):
