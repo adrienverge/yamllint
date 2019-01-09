@@ -71,7 +71,6 @@ from yamllint.linter import LintProblem
 
 ID = 'truthy'
 TYPE = 'token'
-CONF = {}
 
 TRUTHY = ['YES', 'Yes', 'yes',
           'NO', 'No', 'no',

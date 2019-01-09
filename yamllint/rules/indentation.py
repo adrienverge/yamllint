@@ -201,6 +201,9 @@ TYPE = 'token'
 CONF = {'spaces': (int, 'consistent'),
         'indent-sequences': (bool, 'whatever', 'consistent'),
         'check-multi-line-strings': bool}
+DEFAULT = {'spaces': 'consistent',
+           'indent-sequences': True,
+           'check-multi-line-strings': False}
 
 ROOT, B_MAP, F_MAP, B_SEQ, F_SEQ, B_ENT, KEY, VAL = range(8)
 labels = ('ROOT', 'B_MAP', 'F_MAP', 'B_SEQ', 'F_SEQ', 'B_ENT', 'KEY', 'VAL')

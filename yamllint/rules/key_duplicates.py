@@ -61,7 +61,6 @@ from yamllint.linter import LintProblem
 
 ID = 'key-duplicates'
 TYPE = 'token'
-CONF = {}
 
 MAP, SEQ = range(2)
 

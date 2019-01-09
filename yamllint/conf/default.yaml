@@ -1,59 +1,28 @@
 ---
 
 rules:
-  braces:
-    min-spaces-inside: 0
-    max-spaces-inside: 0
-    min-spaces-inside-empty: -1
-    max-spaces-inside-empty: -1
-  brackets:
-    min-spaces-inside: 0
-    max-spaces-inside: 0
-    min-spaces-inside-empty: -1
-    max-spaces-inside-empty: -1
-  colons:
-    max-spaces-before: 0
-    max-spaces-after: 1
-  commas:
-    max-spaces-before: 0
-    min-spaces-after: 1
-    max-spaces-after: 1
+  braces: enable
+  brackets: enable
+  colons: enable
+  commas: enable
   comments:
     level: warning
-    require-starting-space: true
-    min-spaces-from-content: 2
   comments-indentation:
     level: warning
   document-end: disable
   document-start:
     level: warning
-    present: true
-  empty-lines:
-    max: 2
-    max-start: 0
-    max-end: 0
-  quoted-strings: disable
-  empty-values:
-    forbid-in-block-mappings: false
-    forbid-in-flow-mappings: false
-  hyphens:
-    max-spaces-after: 1
-  indentation:
-    spaces: consistent
-    indent-sequences: true
-    check-multi-line-strings: false
+  empty-lines: enable
+  empty-values: enable
+  hyphens: enable
+  indentation: enable
   key-duplicates: enable
   key-ordering: disable
-  line-length:
-    max: 80
-    allow-non-breakable-words: true
-    allow-non-breakable-inline-mappings: false
+  line-length: enable
   new-line-at-end-of-file: enable
-  new-lines:
-    type: unix
-  octal-values:
-    forbid-implicit-octal: false
-    forbid-explicit-octal: false
+  new-lines: enable
+  octal-values: enable
+  quoted-strings: disable
   trailing-spaces: enable
   truthy:
     level: warning

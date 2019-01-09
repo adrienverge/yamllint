@@ -74,6 +74,11 @@ class YamlLintConfig(object):
             raise YamlLintConfigError('invalid config: not a dict')
 
         self.rules = conf.get('rules', {})
+        for rule in self.rules:
+            if self.rules[rule] == 'enable':
+                self.rules[rule] = {}
+            elif self.rules[rule] == 'disable':
+                self.rules[rule] = False
 
         # Does this conf override another conf that we need to load?
         if 'extends' in conf:
@@ -102,10 +107,8 @@ class YamlLintConfig(object):
 
 
 def validate_rule_conf(rule, conf):
-    if conf is False or conf == 'disable':
+    if conf is False:  # disable
         return False
-    elif conf == 'enable':
-        conf = {}
 
     if isinstance(conf, dict):
         if ('ignore' in conf and
@@ -123,6 +126,7 @@ def validate_rule_conf(rule, conf):
                 'invalid config: level should be "error" or "warning"')
 
         options = getattr(rule, 'CONF', {})
+        options_default = getattr(rule, 'DEFAULT', {})
         for optkey in conf:
             if optkey in ('ignore', 'level'):
                 continue
@@ -143,9 +147,7 @@ def validate_rule_conf(rule, conf):
                         % (optkey, rule.ID, options[optkey].__name__))
         for optkey in options:
             if optkey not in conf:
-                raise YamlLintConfigError(
-                    'invalid config: missing option "%s" for rule "%s"' %
-                    (optkey, rule.ID))
+                conf[optkey] = options_default[optkey]
     else:
         raise YamlLintConfigError(('invalid config: rule "%s": should be '
                                    'either "enable", "disable" or a dict')

@@ -30,6 +30,7 @@ from yamllint.linter import LintProblem
 ID = 'new-lines'
 TYPE = 'line'
 CONF = {'type': ('unix', 'dos')}
+DEFAULT = {'type': 'unix'}
 
 
 def check(conf, line):

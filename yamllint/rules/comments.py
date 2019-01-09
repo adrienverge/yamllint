@@ -68,6 +68,8 @@ ID = 'comments'
 TYPE = 'comment'
 CONF = {'require-starting-space': bool,
         'min-spaces-from-content': int}
+DEFAULT = {'require-starting-space': True,
+           'min-spaces-from-content': 2}
 
 
 def check(conf, comment):
