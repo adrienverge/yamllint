@@ -64,6 +64,8 @@ Use this rule to control the position and formatting of comments.
 """
 
 
+import re
+
 from yamllint.linter import LintProblem
 
 
@@ -92,7 +94,8 @@ def check(conf, comment):
         if text_start < len(comment.buffer):
             if (conf['ignore-shebangs'] and
                     comment.line_no == 1 and
-                    comment.buffer[text_start] == '!'):
+                    comment.column_no == 1 and
+                    re.match(r'^!\S', comment.buffer[text_start:])):
                 return
             elif comment.buffer[text_start] not in (' ', '\n', '\0'):
                 column = comment.column_no + text_start - comment.pointer
