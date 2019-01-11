@@ -84,28 +84,43 @@ class CommentsTestCase(RuleTestCase):
         conf = ('comments:\n'
                 '  require-starting-space: true\n'
                 '  ignore-shebangs: false\n'
-                'comments-indentation: disable\n')
+                'comments-indentation: disable\n'
+                'document-start: disable\n')
         self.check('#!/bin/env my-interpreter\n',
                    conf, problem1=(1, 2))
+        self.check('# comment\n'
+                   '#!/bin/env my-interpreter\n', conf,
+                   problem1=(2, 2))
         self.check('#!/bin/env my-interpreter\n'
                    '---\n'
                    '#comment\n'
                    '#!/bin/env my-interpreter\n'
                    '', conf,
                    problem1=(1, 2), problem2=(3, 2), problem3=(4, 2))
+        self.check('#! not a shebang\n',
+                   conf, problem1=(1, 2))
+        self.check('key:  #!/not/a/shebang\n',
+                   conf, problem1=(1, 8))
 
     def test_ignore_shebang(self):
         conf = ('comments:\n'
                 '  require-starting-space: true\n'
                 '  ignore-shebangs: true\n'
-                'comments-indentation: disable\n')
+                'comments-indentation: disable\n'
+                'document-start: disable\n')
         self.check('#!/bin/env my-interpreter\n', conf)
+        self.check('# comment\n'
+                   '#!/bin/env my-interpreter\n', conf,
+                   problem1=(2, 2))
         self.check('#!/bin/env my-interpreter\n'
                    '---\n'
                    '#comment\n'
-                   '#!/bin/env my-interpreter\n'
-                   '', conf,
+                   '#!/bin/env my-interpreter\n', conf,
                    problem2=(3, 2), problem3=(4, 2))
+        self.check('#! not a shebang\n',
+                   conf, problem1=(1, 2))
+        self.check('key:  #!/not/a/shebang\n',
+                   conf, problem1=(1, 8))
 
     def test_spaces_from_content(self):
         conf = ('comments:\n'
