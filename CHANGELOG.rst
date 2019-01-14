@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.14.0 (2019-01-14)
+-------------------
+
+- Fix documentation code snippets
+- Drop Python 2.6 and 3.3 support, add Python 3.7 support
+- Update documentation and tests for ``line-length`` + Unicode + Python 2
+- Allow rule configurations to lack options
+- Add a new ``ignore-shebangs`` option for the ``comments`` rule
+
 1.13.0 (2018-11-14)
 -------------------
 
