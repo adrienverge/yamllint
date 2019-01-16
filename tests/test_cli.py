@@ -140,6 +140,17 @@ class CommandLineTestCase(unittest.TestCase):
             r'not allowed with argument -c\/--config-file$'
         )
 
+        # checks if reading from stdin and files are mutually exclusive
+        sys.stdout, sys.stderr = StringIO(), StringIO()
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run(('-', 'file'))
+
+        self.assertNotEqual(ctx.exception.code, 0)
+
+        out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
+        self.assertEqual(out, '')
+        self.assertRegexpMatches(err, r'^usage')
+
     def test_run_with_bad_config(self):
         sys.stdout, sys.stderr = StringIO(), StringIO()
         with self.assertRaises(SystemExit) as ctx:
@@ -433,4 +444,23 @@ class CommandLineTestCase(unittest.TestCase):
             'no new line character at the end of file  '
             '\033[2m(new-line-at-end-of-file)\033[0m\n'
             '\n' % file))
+        self.assertEqual(err, '')
+
+    def test_run_read_from_stdin(self):
+        # prepares stdin with an invalid yaml string so that we can check
+        # for its specific error, and be assured that stdin was read
+        sys.stdout, sys.stderr = StringIO(), StringIO()
+        sys.stdin = StringIO(
+            'I am a string\n'
+            'therefore: I am an error\n')
+
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run(('-', '-f', 'parsable'))
+
+        self.assertNotEqual(ctx.exception.code, 0)
+
+        out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
+        self.assertEqual(out, (
+            'stdin:2:10: [error] syntax error: '
+            'mapping values are not allowed here\n'))
         self.assertEqual(err, '')
