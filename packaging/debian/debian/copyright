@@ -3,7 +3,14 @@ Upstream-Name: yamllint
 Source: https://github.com/adrienverge/yamllint
 
 Files: *
-Copyright: 2016 Adrien Vergé <adrienverge@gmail.com>
+Copyright: 2016-2019 Adrien Vergé <adrienverge@gmail.com>
+License: GPL-3+
+
+Files: debian/*
+Copyright: 2016-2019 Adrien Vergé <adrienverge@gmail.com>
+           2017-2019 Philipp Huebner <debalance@debian.org>
+License: GPL-3+
+
 License: GPL-3+
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
