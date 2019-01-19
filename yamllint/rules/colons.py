@@ -79,6 +79,8 @@ ID = 'colons'
 TYPE = 'token'
 CONF = {'max-spaces-before': int,
         'max-spaces-after': int}
+DEFAULT = {'max-spaces-before': 0,
+           'max-spaces-after': 1}
 
 
 def check(conf, token, prev, next, nextnext, context):

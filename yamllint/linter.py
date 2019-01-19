@@ -47,7 +47,7 @@ class LintProblem(object):
     @property
     def message(self):
         if self.rule is not None:
-            return '%s (%s)' % (self.desc, self.rule)
+            return '{} ({})'.format(self.desc, self.rule)
         return self.desc
 
     def __eq__(self, other):
@@ -75,10 +75,10 @@ def get_cosmetic_problems(buffer, conf, filepath):
     for rule in token_rules:
         context[rule.ID] = {}
 
-    class DisableDirective():
+    class DisableDirective:
         def __init__(self):
             self.rules = set()
-            self.all_rules = set([r.ID for r in rules])
+            self.all_rules = {r.ID for r in rules}
 
         def process_comment(self, comment):
             try:

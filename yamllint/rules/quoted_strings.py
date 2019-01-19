@@ -46,6 +46,7 @@ from yamllint.linter import LintProblem
 ID = 'quoted-strings'
 TYPE = 'token'
 CONF = {'quote-type': ('any', 'single', 'double')}
+DEFAULT = {'quote-type': 'any'}
 
 
 def check(conf, token, prev, next, nextnext, context):

@@ -21,11 +21,8 @@ except ImportError:
 import os
 import shutil
 import sys
-try:
-    assert sys.version_info >= (2, 7)
-    import unittest
-except AssertionError:
-    import unittest2 as unittest
+import tempfile
+import unittest
 
 from tests.common import build_temp_workspace
 
@@ -58,13 +55,16 @@ class SimpleConfigTestCase(unittest.TestCase):
                                   '  this-one-does-not-exist: enable\n')
 
     def test_missing_option(self):
-        with self.assertRaisesRegexp(
-                config.YamlLintConfigError,
-                'invalid config: missing option "max-spaces-before" '
-                'for rule "colons"'):
-            config.YamlLintConfig('rules:\n'
+        c = config.YamlLintConfig('rules:\n'
+                                  '  colons: enable\n')
+        self.assertEqual(c.rules['colons']['max-spaces-before'], 0)
+        self.assertEqual(c.rules['colons']['max-spaces-after'], 1)
+
+        c = config.YamlLintConfig('rules:\n'
                                   '  colons:\n'
-                                  '    max-spaces-after: 1\n')
+                                  '    max-spaces-before: 9\n')
+        self.assertEqual(c.rules['colons']['max-spaces-before'], 9)
+        self.assertEqual(c.rules['colons']['max-spaces-after'], 1)
 
     def test_unknown_option(self):
         with self.assertRaisesRegexp(
@@ -82,7 +82,7 @@ class SimpleConfigTestCase(unittest.TestCase):
                                   '    spaces: 2\n'
                                   '    indent-sequences: true\n'
                                   '    check-multi-line-strings: false\n')
-        self.assertEqual(c.rules['indentation']['indent-sequences'], True)
+        self.assertTrue(c.rules['indentation']['indent-sequences'])
         self.assertEqual(c.rules['indentation']['check-multi-line-strings'],
                          False)
 
@@ -91,7 +91,7 @@ class SimpleConfigTestCase(unittest.TestCase):
                                   '    spaces: 2\n'
                                   '    indent-sequences: yes\n'
                                   '    check-multi-line-strings: false\n')
-        self.assertEqual(c.rules['indentation']['indent-sequences'], True)
+        self.assertTrue(c.rules['indentation']['indent-sequences'])
         self.assertEqual(c.rules['indentation']['check-multi-line-strings'],
                          False)
 
@@ -115,16 +115,21 @@ class SimpleConfigTestCase(unittest.TestCase):
                                       '    indent-sequences: YES!\n'
                                       '    check-multi-line-strings: false\n')
 
+    def test_enable_disable_keywords(self):
+        c = config.YamlLintConfig('rules:\n'
+                                  '  colons: enable\n'
+                                  '  hyphens: disable\n')
+        self.assertEqual(c.rules['colons'], {'level': 'error',
+                                             'max-spaces-after': 1,
+                                             'max-spaces-before': 0})
+        self.assertEqual(c.rules['hyphens'], False)
+
     def test_validate_rule_conf(self):
         class Rule(object):
             ID = 'fake'
 
-        self.assertEqual(config.validate_rule_conf(Rule, False), False)
-        self.assertEqual(config.validate_rule_conf(Rule, 'disable'), False)
-
+        self.assertFalse(config.validate_rule_conf(Rule, False))
         self.assertEqual(config.validate_rule_conf(Rule, {}),
-                         {'level': 'error'})
-        self.assertEqual(config.validate_rule_conf(Rule, 'enable'),
                          {'level': 'error'})
 
         config.validate_rule_conf(Rule, {'level': 'error'})
@@ -133,22 +138,22 @@ class SimpleConfigTestCase(unittest.TestCase):
                           config.validate_rule_conf, Rule, {'level': 'warn'})
 
         Rule.CONF = {'length': int}
+        Rule.DEFAULT = {'length': 80}
         config.validate_rule_conf(Rule, {'length': 8})
-        self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule, {})
+        config.validate_rule_conf(Rule, {})
         self.assertRaises(config.YamlLintConfigError,
                           config.validate_rule_conf, Rule, {'height': 8})
 
         Rule.CONF = {'a': bool, 'b': int}
+        Rule.DEFAULT = {'a': True, 'b': -42}
         config.validate_rule_conf(Rule, {'a': True, 'b': 0})
-        self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule, {'a': True})
-        self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule, {'b': 0})
+        config.validate_rule_conf(Rule, {'a': True})
+        config.validate_rule_conf(Rule, {'b': 0})
         self.assertRaises(config.YamlLintConfigError,
                           config.validate_rule_conf, Rule, {'a': 1, 'b': 0})
 
         Rule.CONF = {'choice': (True, 88, 'str')}
+        Rule.DEFAULT = {'choice': 88}
         config.validate_rule_conf(Rule, {'choice': True})
         config.validate_rule_conf(Rule, {'choice': 88})
         config.validate_rule_conf(Rule, {'choice': 'str'})
@@ -160,8 +165,10 @@ class SimpleConfigTestCase(unittest.TestCase):
                           config.validate_rule_conf, Rule, {'choice': 'abc'})
 
         Rule.CONF = {'choice': (int, 'hardcoded')}
+        Rule.DEFAULT = {'choice': 1337}
         config.validate_rule_conf(Rule, {'choice': 42})
         config.validate_rule_conf(Rule, {'choice': 'hardcoded'})
+        config.validate_rule_conf(Rule, {})
         self.assertRaises(config.YamlLintConfigError,
                           config.validate_rule_conf, Rule, {'choice': False})
         self.assertRaises(config.YamlLintConfigError,
@@ -169,7 +176,7 @@ class SimpleConfigTestCase(unittest.TestCase):
 
 
 class ExtendedConfigTestCase(unittest.TestCase):
-    def test_extend_add_rule(self):
+    def test_extend_on_object(self):
         old = config.YamlLintConfig('rules:\n'
                                     '  colons:\n'
                                     '    max-spaces-before: 0\n'
@@ -186,60 +193,130 @@ class ExtendedConfigTestCase(unittest.TestCase):
 
         self.assertEqual(len(new.enabled_rules(None)), 2)
 
+    def test_extend_on_file(self):
+        with tempfile.NamedTemporaryFile('w') as f:
+            f.write('rules:\n'
+                    '  colons:\n'
+                    '    max-spaces-before: 0\n'
+                    '    max-spaces-after: 1\n')
+            f.flush()
+            c = config.YamlLintConfig('extends: ' + f.name + '\n'
+                                      'rules:\n'
+                                      '  hyphens:\n'
+                                      '    max-spaces-after: 2\n')
+
+        self.assertEqual(sorted(c.rules.keys()), ['colons', 'hyphens'])
+        self.assertEqual(c.rules['colons']['max-spaces-before'], 0)
+        self.assertEqual(c.rules['colons']['max-spaces-after'], 1)
+        self.assertEqual(c.rules['hyphens']['max-spaces-after'], 2)
+
+        self.assertEqual(len(c.enabled_rules(None)), 2)
+
     def test_extend_remove_rule(self):
-        old = config.YamlLintConfig('rules:\n'
-                                    '  colons:\n'
-                                    '    max-spaces-before: 0\n'
-                                    '    max-spaces-after: 1\n'
-                                    '  hyphens:\n'
-                                    '    max-spaces-after: 2\n')
-        new = config.YamlLintConfig('rules:\n'
-                                    '  colons: disable\n')
-        new.extend(old)
+        with tempfile.NamedTemporaryFile('w') as f:
+            f.write('rules:\n'
+                    '  colons:\n'
+                    '    max-spaces-before: 0\n'
+                    '    max-spaces-after: 1\n'
+                    '  hyphens:\n'
+                    '    max-spaces-after: 2\n')
+            f.flush()
+            c = config.YamlLintConfig('extends: ' + f.name + '\n'
+                                      'rules:\n'
+                                      '  colons: disable\n')
 
-        self.assertEqual(sorted(new.rules.keys()), ['colons', 'hyphens'])
-        self.assertEqual(new.rules['colons'], False)
-        self.assertEqual(new.rules['hyphens']['max-spaces-after'], 2)
+        self.assertEqual(sorted(c.rules.keys()), ['colons', 'hyphens'])
+        self.assertFalse(c.rules['colons'])
+        self.assertEqual(c.rules['hyphens']['max-spaces-after'], 2)
 
-        self.assertEqual(len(new.enabled_rules(None)), 1)
+        self.assertEqual(len(c.enabled_rules(None)), 1)
 
     def test_extend_edit_rule(self):
-        old = config.YamlLintConfig('rules:\n'
-                                    '  colons:\n'
-                                    '    max-spaces-before: 0\n'
-                                    '    max-spaces-after: 1\n'
-                                    '  hyphens:\n'
-                                    '    max-spaces-after: 2\n')
-        new = config.YamlLintConfig('rules:\n'
-                                    '  colons:\n'
-                                    '    max-spaces-before: 3\n'
-                                    '    max-spaces-after: 4\n')
-        new.extend(old)
+        with tempfile.NamedTemporaryFile('w') as f:
+            f.write('rules:\n'
+                    '  colons:\n'
+                    '    max-spaces-before: 0\n'
+                    '    max-spaces-after: 1\n'
+                    '  hyphens:\n'
+                    '    max-spaces-after: 2\n')
+            f.flush()
+            c = config.YamlLintConfig('extends: ' + f.name + '\n'
+                                      'rules:\n'
+                                      '  colons:\n'
+                                      '    max-spaces-before: 3\n'
+                                      '    max-spaces-after: 4\n')
 
-        self.assertEqual(sorted(new.rules.keys()), ['colons', 'hyphens'])
-        self.assertEqual(new.rules['colons']['max-spaces-before'], 3)
-        self.assertEqual(new.rules['colons']['max-spaces-after'], 4)
-        self.assertEqual(new.rules['hyphens']['max-spaces-after'], 2)
+        self.assertEqual(sorted(c.rules.keys()), ['colons', 'hyphens'])
+        self.assertEqual(c.rules['colons']['max-spaces-before'], 3)
+        self.assertEqual(c.rules['colons']['max-spaces-after'], 4)
+        self.assertEqual(c.rules['hyphens']['max-spaces-after'], 2)
 
-        self.assertEqual(len(new.enabled_rules(None)), 2)
+        self.assertEqual(len(c.enabled_rules(None)), 2)
 
     def test_extend_reenable_rule(self):
-        old = config.YamlLintConfig('rules:\n'
-                                    '  colons:\n'
-                                    '    max-spaces-before: 0\n'
-                                    '    max-spaces-after: 1\n'
-                                    '  hyphens: disable\n')
-        new = config.YamlLintConfig('rules:\n'
-                                    '  hyphens:\n'
-                                    '    max-spaces-after: 2\n')
-        new.extend(old)
+        with tempfile.NamedTemporaryFile('w') as f:
+            f.write('rules:\n'
+                    '  colons:\n'
+                    '    max-spaces-before: 0\n'
+                    '    max-spaces-after: 1\n'
+                    '  hyphens: disable\n')
+            f.flush()
+            c = config.YamlLintConfig('extends: ' + f.name + '\n'
+                                      'rules:\n'
+                                      '  hyphens:\n'
+                                      '    max-spaces-after: 2\n')
 
-        self.assertEqual(sorted(new.rules.keys()), ['colons', 'hyphens'])
-        self.assertEqual(new.rules['colons']['max-spaces-before'], 0)
-        self.assertEqual(new.rules['colons']['max-spaces-after'], 1)
-        self.assertEqual(new.rules['hyphens']['max-spaces-after'], 2)
+        self.assertEqual(sorted(c.rules.keys()), ['colons', 'hyphens'])
+        self.assertEqual(c.rules['colons']['max-spaces-before'], 0)
+        self.assertEqual(c.rules['colons']['max-spaces-after'], 1)
+        self.assertEqual(c.rules['hyphens']['max-spaces-after'], 2)
 
-        self.assertEqual(len(new.enabled_rules(None)), 2)
+        self.assertEqual(len(c.enabled_rules(None)), 2)
+
+    def test_extend_recursive_default_values(self):
+        with tempfile.NamedTemporaryFile('w') as f:
+            f.write('rules:\n'
+                    '  braces:\n'
+                    '    max-spaces-inside: 1248\n')
+            f.flush()
+            c = config.YamlLintConfig('extends: ' + f.name + '\n'
+                                      'rules:\n'
+                                      '  braces:\n'
+                                      '    min-spaces-inside-empty: 2357\n')
+
+        self.assertEqual(c.rules['braces']['min-spaces-inside'], 0)
+        self.assertEqual(c.rules['braces']['max-spaces-inside'], 1248)
+        self.assertEqual(c.rules['braces']['min-spaces-inside-empty'], 2357)
+        self.assertEqual(c.rules['braces']['max-spaces-inside-empty'], -1)
+
+        with tempfile.NamedTemporaryFile('w') as f:
+            f.write('rules:\n'
+                    '  colons:\n'
+                    '    max-spaces-before: 1337\n')
+            f.flush()
+            c = config.YamlLintConfig('extends: ' + f.name + '\n'
+                                      'rules:\n'
+                                      '  colons: enable\n')
+
+        self.assertEqual(c.rules['colons']['max-spaces-before'], 1337)
+        self.assertEqual(c.rules['colons']['max-spaces-after'], 1)
+
+        with tempfile.NamedTemporaryFile('w') as f1, \
+                tempfile.NamedTemporaryFile('w') as f2:
+            f1.write('rules:\n'
+                     '  colons:\n'
+                     '    max-spaces-before: 1337\n')
+            f1.flush()
+            f2.write('extends: ' + f1.name + '\n'
+                     'rules:\n'
+                     '  colons: disable\n')
+            f2.flush()
+            c = config.YamlLintConfig('extends: ' + f2.name + '\n'
+                                      'rules:\n'
+                                      '  colons: enable\n')
+
+        self.assertEqual(c.rules['colons']['max-spaces-before'], 0)
+        self.assertEqual(c.rules['colons']['max-spaces-after'], 1)
 
 
 class ExtendedLibraryConfigTestCase(unittest.TestCase):
@@ -271,6 +348,9 @@ class ExtendedLibraryConfigTestCase(unittest.TestCase):
         self.assertEqual(sorted(new.rules.keys()), sorted(old.rules.keys()))
         for rule in new.rules:
             self.assertEqual(new.rules[rule], old.rules[rule])
+        self.assertEqual(new.rules['empty-lines']['max'], 42)
+        self.assertEqual(new.rules['empty-lines']['max-start'], 43)
+        self.assertEqual(new.rules['empty-lines']['max-end'], 44)
 
     def test_extend_config_override_rule_partly(self):
         old = config.YamlLintConfig('extends: default')
@@ -284,6 +364,9 @@ class ExtendedLibraryConfigTestCase(unittest.TestCase):
         self.assertEqual(sorted(new.rules.keys()), sorted(old.rules.keys()))
         for rule in new.rules:
             self.assertEqual(new.rules[rule], old.rules[rule])
+        self.assertEqual(new.rules['empty-lines']['max'], 2)
+        self.assertEqual(new.rules['empty-lines']['max-start'], 42)
+        self.assertEqual(new.rules['empty-lines']['max-end'], 0)
 
 
 class IgnorePathConfigTestCase(unittest.TestCase):
@@ -338,7 +421,6 @@ class IgnorePathConfigTestCase(unittest.TestCase):
 
         shutil.rmtree(cls.wd)
 
-    @unittest.skipIf(sys.version_info < (2, 7), 'Python 2.6 not supported')
     def test_run_with_ignored_path(self):
         sys.stdout = StringIO()
         with self.assertRaises(SystemExit):

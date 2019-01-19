@@ -17,6 +17,10 @@
 """
 Use this rule to set a limit to lines length.
 
+Note: with Python 2, the ``line-length`` rule may not work properly with
+unicode characters because of the way strings are represented in bytes. We
+recommend running yamllint with Python 3.
+
 .. rubric:: Options
 
 * ``max`` defines the maximal (inclusive) length of lines.
@@ -98,6 +102,9 @@ TYPE = 'line'
 CONF = {'max': int,
         'allow-non-breakable-words': bool,
         'allow-non-breakable-inline-mappings': bool}
+DEFAULT = {'max': 80,
+           'allow-non-breakable-words': True,
+           'allow-non-breakable-inline-mappings': False}
 
 
 def check_inline_mapping(line):

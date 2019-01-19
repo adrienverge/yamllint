@@ -103,6 +103,9 @@ TYPE = 'token'
 CONF = {'max-spaces-before': int,
         'min-spaces-after': int,
         'max-spaces-after': int}
+DEFAULT = {'max-spaces-before': 0,
+           'min-spaces-after': 1,
+           'max-spaces-after': 1}
 
 
 def check(conf, token, prev, next, nextnext, context):

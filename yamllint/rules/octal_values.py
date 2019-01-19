@@ -66,6 +66,8 @@ ID = 'octal-values'
 TYPE = 'token'
 CONF = {'forbid-implicit-octal': bool,
         'forbid-explicit-octal': bool}
+DEFAULT = {'forbid-implicit-octal': False,
+           'forbid-explicit-octal': False}
 
 
 def check(conf, token, prev, next, nextnext, context):

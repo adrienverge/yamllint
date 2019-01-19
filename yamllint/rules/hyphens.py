@@ -76,6 +76,7 @@ from yamllint.rules.common import spaces_after
 ID = 'hyphens'
 TYPE = 'token'
 CONF = {'max-spaces-after': int}
+DEFAULT = {'max-spaces-after': 1}
 
 
 def check(conf, token, prev, next, nextnext, context):

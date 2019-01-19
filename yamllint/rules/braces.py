@@ -101,6 +101,10 @@ CONF = {'min-spaces-inside': int,
         'max-spaces-inside': int,
         'min-spaces-inside-empty': int,
         'max-spaces-inside-empty': int}
+DEFAULT = {'min-spaces-inside': 0,
+           'max-spaces-inside': 0,
+           'min-spaces-inside-empty': -1,
+           'max-spaces-inside-empty': -1}
 
 
 def check(conf, token, prev, next, nextnext, context):

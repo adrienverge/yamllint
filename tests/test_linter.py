@@ -15,12 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import io
-import sys
-try:
-    assert sys.version_info >= (2, 7)
-    import unittest
-except AssertionError:
-    import unittest2 as unittest
+import unittest
 
 from yamllint.config import YamlLintConfig
 from yamllint import linter
