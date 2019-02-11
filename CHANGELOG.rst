@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.15.0 (2019-02-11)
+-------------------
+
+- Allow linting from standard input with ``yamllint -``
+
 1.14.0 (2019-01-14)
 -------------------
 
