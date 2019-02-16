@@ -50,6 +50,12 @@ You can also lint all YAML files in a whole directory:
 
  yamllint .
 
+Or lint a YAML stream from standard input:
+
+.. code:: bash
+
+ echo -e 'this: is\nvalid: YAML' | yamllint -
+
 The output will look like (colors are not displayed here):
 
 ::

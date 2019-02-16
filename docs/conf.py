@@ -48,7 +48,7 @@ man_pages = [
 class Mock(MagicMock):
     @classmethod
     def __getattr__(cls, name):
-            return MagicMock()
+        return MagicMock()
 
 
 MOCK_MODULES = ['pathspec', 'yaml']
