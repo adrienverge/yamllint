@@ -1,3 +1,9 @@
+yamllint (1.15.0-1) unstable; urgency=medium
+
+  * New upstream version 1.15.0
+
+ -- Philipp Huebner <debalance@debian.org>  Sat, 16 Feb 2019 10:59:13 +0100
+
 yamllint (1.14.0-1) unstable; urgency=medium
 
   * New upstream version 1.14.0
