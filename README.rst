@@ -51,6 +51,13 @@ On Debian 8+ / Ubuntu 16.04+:
 
  sudo apt-get install yamllint
 
+On FreeBSD:
+
+.. code:: sh
+
+  pkg install py27-yamllint
+  pkg install py36-yamllint
+
 On Mac OS 10.11+:
 
 .. code:: bash
