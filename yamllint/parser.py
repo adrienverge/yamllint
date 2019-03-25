@@ -77,7 +77,10 @@ def line_generator(buffer):
     cur = 0
     next = buffer.find('\n')
     while next != -1:
-        yield Line(line_no, buffer, start=cur, end=next)
+        if next > 0 and buffer[next - 1] == '\r':
+            yield Line(line_no, buffer, start=cur, end=next - 1)
+        else:
+            yield Line(line_no, buffer, start=cur, end=next)
         cur = next + 1
         next = buffer.find('\n', cur)
         line_no += 1
