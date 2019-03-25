@@ -36,10 +36,11 @@ DEFAULT = {'type': 'unix'}
 def check(conf, line):
     if line.start == 0 and len(line.buffer) > line.end:
         if conf['type'] == 'dos':
-            if line.buffer[line.end - 1:line.end + 1] != '\r\n':
+            if (line.end + 2 > len(line.buffer) or
+                    line.buffer[line.end:line.end + 2] != '\r\n'):
                 yield LintProblem(1, line.end - line.start + 1,
                                   'wrong new line character: expected \\r\\n')
         else:
-            if line.end > 0 and line.buffer[line.end - 1] == '\r':
-                yield LintProblem(1, line.end - line.start,
+            if line.buffer[line.end] == '\r':
+                yield LintProblem(1, line.end - line.start + 1,
                                   'wrong new line character: expected \\n')

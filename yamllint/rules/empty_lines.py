@@ -66,27 +66,37 @@ DEFAULT = {'max': 2,
 def check(conf, line):
     if line.start == line.end and line.end < len(line.buffer):
         # Only alert on the last blank line of a series
-        if (line.end < len(line.buffer) - 1 and
-                line.buffer[line.end + 1] == '\n'):
+        if (line.end + 2 <= len(line.buffer) and
+                line.buffer[line.end:line.end + 2] == '\n\n'):
+            return
+        elif (line.end + 4 <= len(line.buffer) and
+              line.buffer[line.end:line.end + 4] == '\r\n\r\n'):
             return
 
         blank_lines = 0
 
-        while (line.start > blank_lines and
-               line.buffer[line.start - blank_lines - 1] == '\n'):
+        start = line.start
+        while start >= 2 and line.buffer[start - 2:start] == '\r\n':
             blank_lines += 1
+            start -= 2
+        while start >= 1 and line.buffer[start - 1] == '\n':
+            blank_lines += 1
+            start -= 1
 
         max = conf['max']
 
         # Special case: start of document
-        if line.start - blank_lines == 0:
+        if start == 0:
             blank_lines += 1  # first line doesn't have a preceding \n
             max = conf['max-start']
 
         # Special case: end of document
         # NOTE: The last line of a file is always supposed to end with a new
         # line. See POSIX definition of a line at:
-        if line.end == len(line.buffer) - 1 and line.buffer[line.end] == '\n':
+        if ((line.end == len(line.buffer) - 1 and
+             line.buffer[line.end] == '\n') or
+            (line.end == len(line.buffer) - 2 and
+             line.buffer[line.end:line.end + 2] == '\r\n')):
             # Allow the exception of the one-byte file containing '\n'
             if line.end == 0:
                 return
