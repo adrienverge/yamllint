@@ -193,7 +193,7 @@ Use this rule to control the indentation.
 import yaml
 
 from yamllint.linter import LintProblem
-from yamllint.rules.common import is_explicit_key, get_real_end_line
+from yamllint.rules.common import get_real_end_line, is_explicit_key
 
 
 ID = 'indentation'
