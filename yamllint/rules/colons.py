@@ -72,7 +72,7 @@ Use this rule to control the number of spaces before and after colons (``:``).
 
 import yaml
 
-from yamllint.rules.common import spaces_after, spaces_before, is_explicit_key
+from yamllint.rules.common import is_explicit_key, spaces_after, spaces_before
 
 
 ID = 'colons'
