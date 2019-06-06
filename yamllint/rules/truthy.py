@@ -15,20 +15,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Use this rule to forbid non-explictly typed truthy values other than ``true``
-and ``false``, for example ``YES``, ``False`` and ``off``.
+Use this rule to forbid non-explictly typed truthy values other than allowed
+ones (by default: ``true`` and ``false``), for example ``YES`` or ``off``.
 
 This can be useful to prevent surprises from YAML parsers transforming
 ``[yes, FALSE, Off]`` into ``[true, false, false]`` or
 ``{y: 1, yes: 2, on: 3, true: 4, True: 5}`` into ``{y: 1, true: 5}``.
 
-Default list of prohibited truthy values is ``YES, Yes, yes, NO, No, no,
-TRUE, True, FALSE, False, ON, On, on, OFF, Off, off``.
-
 .. rubric:: Options
 
-* ``allowed-values`` defines list of truthy values, which will be ignored
-  during linting.
+* ``allowed-values`` defines the list of truthy values which will be ignored
+  during linting. The default is ``['true', 'false']``, but can be changed to
+  any list containing: ``'TRUE'``, ``'True'``,  ``'true'``, ``'FALSE'``,
+  ``'False'``, ``'false'``, ``'YES'``, ``'Yes'``, ``'yes'``, ``'NO'``,
+  ``'No'``, ``'no'``, ``'ON'``, ``'On'``, ``'on'``, ``'OFF'``, ``'Off'``,
+  ``'off'``.
 
 .. rubric:: Examples
 
