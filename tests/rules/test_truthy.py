@@ -97,20 +97,6 @@ class TruthyTestCase(RuleTestCase):
                    problem1=(2, 7), problem2=(3, 7),
                    problem3=(4, 7), problem4=(5, 7))
 
-    def test_empty_string_allowed_values(self):
-        conf = ('truthy:\n'
-                '  allowed-values: ["", ""]\n')
-        self.check('---\n'
-                   'key1: foo\n'
-                   'key2: bar\n', conf)
-        self.check('---\n'
-                   'key1: true\n'
-                   'key2: yes\n'
-                   'key3: false\n'
-                   'key4: no\n', conf,
-                   problem1=(2, 7), problem2=(3, 7),
-                   problem3=(4, 7), problem4=(5, 7))
-
     def test_explicit_types(self):
         conf = 'truthy: enable\n'
         self.check('---\n'
