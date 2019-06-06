@@ -98,10 +98,6 @@ import yaml
 
 from yamllint.linter import LintProblem
 
-ID = 'truthy'
-TYPE = 'token'
-CONF = {'allowed-values': list}
-DEFAULT = {'allowed-values': ['true', 'false']}
 
 TRUTHY = ['YES', 'Yes', 'yes',
           'NO', 'No', 'no',
@@ -109,6 +105,12 @@ TRUTHY = ['YES', 'Yes', 'yes',
           'FALSE', 'False', 'false',
           'ON', 'On', 'on',
           'OFF', 'Off', 'off']
+
+
+ID = 'truthy'
+TYPE = 'token'
+CONF = {'allowed-values': list(TRUTHY)}
+DEFAULT = {'allowed-values': ['true', 'false']}
 
 
 def check(conf, token, prev, next, nextnext, context):
