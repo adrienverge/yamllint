@@ -22,6 +22,14 @@ This can be useful to prevent surprises from YAML parsers transforming
 ``[yes, FALSE, Off]`` into ``[true, false, false]`` or
 ``{y: 1, yes: 2, on: 3, true: 4, True: 5}`` into ``{y: 1, true: 5}``.
 
+Default list of prohibited truthy values is ``YES, Yes, yes, NO, No, no,
+TRUE, True, FALSE, False, ON, On, on, OFF, Off, off``.
+
+.. rubric:: Options
+
+* ``allowed-values`` defines list of truthy values, which will be ignored
+  during linting.
+
 .. rubric:: Examples
 
 #. With ``truthy: {}``
@@ -63,6 +71,26 @@ This can be useful to prevent surprises from YAML parsers transforming
     yes:  1
     on:   2
     True: 3
+
+#. With ``truthy: {allowed-values: ["yes", "no"]}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    - yes
+    - no
+    - "true"
+    - 'false'
+    - foo
+    - bar
+
+   the following code snippet would **FAIL**:
+   ::
+
+    - true
+    - false
+    - on
+    - off
 """
 
 import yaml
@@ -71,11 +99,13 @@ from yamllint.linter import LintProblem
 
 ID = 'truthy'
 TYPE = 'token'
+CONF = {'allowed-values': list}
+DEFAULT = {'allowed-values': ['true', 'false']}
 
 TRUTHY = ['YES', 'Yes', 'yes',
           'NO', 'No', 'no',
-          'TRUE', 'True',  # 'true' is a boolean
-          'FALSE', 'False',  # 'false' is a boolean
+          'TRUE', 'True',  'true',
+          'FALSE', 'False', 'false',
           'ON', 'On', 'on',
           'OFF', 'Off', 'off']
 
@@ -85,7 +115,9 @@ def check(conf, token, prev, next, nextnext, context):
         return
 
     if isinstance(token, yaml.tokens.ScalarToken):
-        if token.value in TRUTHY and token.style is None:
+        if (token.value in (set(TRUTHY) - set(conf['allowed-values'])) and
+                token.style is None):
             yield LintProblem(token.start_mark.line + 1,
                               token.start_mark.column + 1,
-                              "truthy value should be true or false")
+                              "truthy value should be one of [" +
+                              ", ".join(sorted(conf['allowed-values'])) + "]")
