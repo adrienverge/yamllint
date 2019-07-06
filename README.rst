@@ -58,6 +58,13 @@ On FreeBSD:
   pkg install py27-yamllint
   pkg install py36-yamllint
 
+On OpenBSD:
+
+.. code:: sh
+
+  doas pkg_add py-yamllint
+  doas pkg_add py3-yamllint
+
 On Mac OS 10.11+:
 
 .. code:: bash
