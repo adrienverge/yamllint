@@ -4,7 +4,8 @@ Quickstart
 Installing yamllint
 -------------------
 
-On Fedora / CentOS:
+On Fedora / CentOS (note: `EPEL <https://fedoraproject.org/wiki/EPEL>`_ is
+required on CentOS):
 
 .. code:: bash
 
@@ -21,6 +22,12 @@ On Mac OS 10.11+:
 .. code:: bash
 
  brew install yamllint
+
+On FreeBSD:
+
+.. code:: sh
+
+  pkg install py36-yamllint
 
 Alternatively using pip, the Python package manager:
 
