@@ -22,6 +22,13 @@ On Mac OS 10.11+:
 
  brew install yamllint
 
+On OpenBSD:
+
+.. code:: sh
+
+ doas pkg_add py-yamllint
+ doas pkg_add py3-yamllint
+
 Alternatively using pip, the Python package manager:
 
 .. code:: bash
