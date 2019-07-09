@@ -29,6 +29,12 @@ On FreeBSD:
 
   pkg install py36-yamllint
 
+On OpenBSD:
+
+.. code:: sh
+
+  doas pkg_add py3-yamllint
+
 Alternatively using pip, the Python package manager:
 
 .. code:: bash
