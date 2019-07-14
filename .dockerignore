@@ -1,0 +1,6 @@
+.git
+.gitignore
+.pre-commit-hooks.yaml
+.travis.yml
+docs
+tests
