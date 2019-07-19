@@ -27,13 +27,14 @@ from yamllint.config import YamlLintConfig, YamlLintConfigError
 from yamllint.linter import PROBLEM_LEVELS
 
 
-def find_files_recursively(items):
+def find_files_recursively(items, conf):
     for item in items:
         if os.path.isdir(item):
             for root, dirnames, filenames in os.walk(item):
-                for filename in [f for f in filenames
-                                 if f.endswith(('.yml', '.yaml'))]:
-                    yield os.path.join(root, filename)
+                for f in filenames:
+                    filepath = os.path.join(root, f)
+                    if conf.is_yaml_file(filepath):
+                        yield filepath
         else:
             yield item
 
@@ -163,7 +164,7 @@ def run(argv=None):
 
     max_level = 0
 
-    for file in find_files_recursively(args.files):
+    for file in find_files_recursively(args.files, conf):
         filepath = file[2:] if file.startswith('./') else file
         try:
             with open(file) as f:

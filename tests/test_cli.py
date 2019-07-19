@@ -29,6 +29,7 @@ import unittest
 from tests.common import build_temp_workspace
 
 from yamllint import cli
+from yamllint import config
 
 
 class CommandLineTestCase(unittest.TestCase):
@@ -73,8 +74,9 @@ class CommandLineTestCase(unittest.TestCase):
         shutil.rmtree(cls.wd)
 
     def test_find_files_recursively(self):
+        conf = config.YamlLintConfig('extends: default')
         self.assertEqual(
-            sorted(cli.find_files_recursively([self.wd])),
+            sorted(cli.find_files_recursively([self.wd], conf)),
             [os.path.join(self.wd, 'a.yaml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
@@ -85,14 +87,14 @@ class CommandLineTestCase(unittest.TestCase):
         items = [os.path.join(self.wd, 'sub/ok.yaml'),
                  os.path.join(self.wd, 'empty-dir')]
         self.assertEqual(
-            sorted(cli.find_files_recursively(items)),
+            sorted(cli.find_files_recursively(items, conf)),
             [os.path.join(self.wd, 'sub/ok.yaml')],
         )
 
         items = [os.path.join(self.wd, 'empty.yml'),
                  os.path.join(self.wd, 's')]
         self.assertEqual(
-            sorted(cli.find_files_recursively(items)),
+            sorted(cli.find_files_recursively(items, conf)),
             [os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml')],
         )
@@ -100,9 +102,75 @@ class CommandLineTestCase(unittest.TestCase):
         items = [os.path.join(self.wd, 'sub'),
                  os.path.join(self.wd, '/etc/another/file')]
         self.assertEqual(
-            sorted(cli.find_files_recursively(items)),
+            sorted(cli.find_files_recursively(items, conf)),
             [os.path.join(self.wd, '/etc/another/file'),
              os.path.join(self.wd, 'sub/ok.yaml')],
+        )
+
+        conf = config.YamlLintConfig('extends: default\n'
+                                     'yaml-files:\n'
+                                     '  - \'*.yaml\' \n')
+        self.assertEqual(
+            sorted(cli.find_files_recursively([self.wd], conf)),
+            [os.path.join(self.wd, 'a.yaml'),
+             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
+             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd, 'warn.yaml')]
+        )
+
+        conf = config.YamlLintConfig('extends: default\n'
+                                     'yaml-files:\n'
+                                     '  - \'*.yml\'\n')
+        self.assertEqual(
+            sorted(cli.find_files_recursively([self.wd], conf)),
+            [os.path.join(self.wd, 'empty.yml')]
+        )
+
+        conf = config.YamlLintConfig('extends: default\n'
+                                     'yaml-files:\n'
+                                     '  - \'*.json\'\n')
+        self.assertEqual(
+            sorted(cli.find_files_recursively([self.wd], conf)),
+            [os.path.join(self.wd, 'no-yaml.json')]
+        )
+
+        conf = config.YamlLintConfig('extends: default\n'
+                                     'yaml-files:\n'
+                                     '  - \'*\'\n')
+        self.assertEqual(
+            sorted(cli.find_files_recursively([self.wd], conf)),
+            [os.path.join(self.wd, 'a.yaml'),
+             os.path.join(self.wd, 'empty.yml'),
+             os.path.join(self.wd, 'no-yaml.json'),
+             os.path.join(self.wd, 'non-ascii/utf-8'),
+             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
+             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd, 'warn.yaml')]
+        )
+
+        conf = config.YamlLintConfig('extends: default\n'
+                                     'yaml-files:\n'
+                                     '  - \'*.yaml\'\n'
+                                     '  - \'*\'\n'
+                                     '  - \'**\'\n')
+        self.assertEqual(
+            sorted(cli.find_files_recursively([self.wd], conf)),
+            [os.path.join(self.wd, 'a.yaml'),
+             os.path.join(self.wd, 'empty.yml'),
+             os.path.join(self.wd, 'no-yaml.json'),
+             os.path.join(self.wd, 'non-ascii/utf-8'),
+             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
+             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd, 'warn.yaml')]
+        )
+
+        conf = config.YamlLintConfig('extends: default\n'
+                                     'yaml-files:\n'
+                                     '  - \'s/**\'\n'
+                                     '  - \'**/utf-8\'\n')
+        self.assertEqual(
+            sorted(cli.find_files_recursively([self.wd], conf)),
+            [os.path.join(self.wd, 'non-ascii/utf-8')]
         )
 
     def test_run_with_bad_arguments(self):
