@@ -1,3 +1,11 @@
+yamllint (1.16.0-1) unstable; urgency=medium
+
+  * New upstream version 1.16.0
+  * Updated debhelper compat version: 12
+  * Updated Standards-Version: 4.4.0 (no changes needed)
+
+ -- Philipp Huebner <debalance@debian.org>  Wed, 24 Jul 2019 17:35:30 +0200
+
 yamllint (1.15.0-1) unstable; urgency=medium
 
   * New upstream version 1.15.0

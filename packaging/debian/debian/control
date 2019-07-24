@@ -3,14 +3,14 @@ Maintainer: Adrien Vergé <adrienverge@gmail.com>
 Uploaders: Philipp Huebner <debalance@debian.org>
 Section: devel
 Priority: optional
-Build-Depends: debhelper (>=11~),
+Build-Depends: debhelper (>= 12),
                python3-all,
                python3-nose,
                python3-pathspec,
                python3-setuptools,
                python3-sphinx,
                python3-yaml
-Standards-Version: 4.3.0
+Standards-Version: 4.4.0
 Vcs-Browser: https://github.com/adrienverge/yamllint/tree/packaging
 Vcs-Git: https://github.com/adrienverge/yamllint.git -b packaging
 Homepage: https://github.com/adrienverge/yamllint
