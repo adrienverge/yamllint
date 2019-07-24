@@ -78,3 +78,22 @@ class EmptyLinesTestCase(RuleTestCase):
                 'document-start: disable\n')
         self.check('non empty\n', conf)
         self.check('non empty\n\n', conf, problem=(2, 1))
+
+    def test_with_dos_newlines(self):
+        conf = ('empty-lines: {max: 2, max-start: 0, max-end: 0}\n'
+                'new-lines: {type: dos}\n'
+                'document-start: disable\n')
+        self.check('---\r\n', conf)
+        self.check('---\r\ntext\r\n\r\ntext\r\n', conf)
+        self.check('\r\n---\r\ntext\r\n\r\ntext\r\n', conf,
+                   problem=(1, 1))
+        self.check('\r\n\r\n\r\n---\r\ntext\r\n\r\ntext\r\n', conf,
+                   problem=(3, 1))
+        self.check('---\r\ntext\r\n\r\n\r\n\r\ntext\r\n', conf,
+                   problem=(5, 1))
+        self.check('---\r\ntext\r\n\r\n\r\n\r\n\r\n\r\n\r\ntext\r\n', conf,
+                   problem=(8, 1))
+        self.check('---\r\ntext\r\n\r\ntext\r\n\r\n', conf,
+                   problem=(5, 1))
+        self.check('---\r\ntext\r\n\r\ntext\r\n\r\n\r\n\r\n', conf,
+                   problem=(7, 1))

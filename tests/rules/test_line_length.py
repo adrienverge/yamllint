@@ -171,3 +171,12 @@ class LineLengthTestCase(RuleTestCase):
                    '# This is a test to check if “line-length” works nice\n'
                    'with: “unicode characters” that span accross bytes! ↺\n',
                    conf, problem1=(2, 53), problem2=(3, 53))
+
+    def test_with_dos_newlines(self):
+        conf = ('line-length: {max: 10}\n'
+                'new-lines: {type: dos}\n'
+                'new-line-at-end-of-file: disable\n')
+        self.check('---\r\nABCD EFGHI', conf)
+        self.check('---\r\nABCD EFGHI\r\n', conf)
+        self.check('---\r\nABCD EFGHIJ', conf, problem=(2, 11))
+        self.check('---\r\nABCD EFGHIJ\r\n', conf, problem=(2, 11))

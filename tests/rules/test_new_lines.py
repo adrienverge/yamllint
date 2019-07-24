@@ -31,16 +31,20 @@ class NewLinesTestCase(RuleTestCase):
         self.check('---\r\ntext\r\n', conf)
 
     def test_unix_type(self):
-        conf = 'new-lines: {type: unix}'
+        conf = ('new-line-at-end-of-file: disable\n'
+                'new-lines: {type: unix}\n')
         self.check('', conf)
+        self.check('\r', conf)
         self.check('\n', conf)
         self.check('\r\n', conf, problem=(1, 1))
         self.check('---\ntext\n', conf)
         self.check('---\r\ntext\r\n', conf, problem=(1, 4))
 
     def test_dos_type(self):
-        conf = 'new-lines: {type: dos}\n'
+        conf = ('new-line-at-end-of-file: disable\n'
+                'new-lines: {type: dos}\n')
         self.check('', conf)
+        self.check('\r', conf)
         self.check('\n', conf, problem=(1, 1))
         self.check('\r\n', conf)
         self.check('---\ntext\n', conf, problem=(1, 4))

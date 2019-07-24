@@ -49,6 +49,54 @@ class TruthyTestCase(RuleTestCase):
                    problem3=(7, 3), problem4=(7, 7),
                    problem5=(8, 3), problem6=(8, 7))
 
+    def test_different_allowed_values(self):
+        conf = ('truthy:\n'
+                '  allowed-values: ["yes", "no"]\n')
+        self.check('---\n'
+                   'key1: foo\n'
+                   'key2: yes\n'
+                   'key3: bar\n'
+                   'key4: no\n', conf)
+        self.check('---\n'
+                   'key1: true\n'
+                   'key2: Yes\n'
+                   'key3: false\n'
+                   'key4: no\n'
+                   'key5: yes\n',
+                   conf,
+                   problem1=(2, 7), problem2=(3, 7),
+                   problem3=(4, 7))
+
+    def test_combined_allowed_values(self):
+        conf = ('truthy:\n'
+                '  allowed-values: ["yes", "no", "true", "false"]\n')
+        self.check('---\n'
+                   'key1: foo\n'
+                   'key2: yes\n'
+                   'key3: bar\n'
+                   'key4: no\n', conf)
+        self.check('---\n'
+                   'key1: true\n'
+                   'key2: Yes\n'
+                   'key3: false\n'
+                   'key4: no\n'
+                   'key5: yes\n',
+                   conf, problem1=(3, 7))
+
+    def test_no_allowed_values(self):
+        conf = ('truthy:\n'
+                '  allowed-values: []\n')
+        self.check('---\n'
+                   'key1: foo\n'
+                   'key2: bar\n', conf)
+        self.check('---\n'
+                   'key1: true\n'
+                   'key2: yes\n'
+                   'key3: false\n'
+                   'key4: no\n', conf,
+                   problem1=(2, 7), problem2=(3, 7),
+                   problem3=(4, 7), problem4=(5, 7))
+
     def test_explicit_types(self):
         conf = 'truthy: enable\n'
         self.check('---\n'

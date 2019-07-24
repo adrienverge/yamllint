@@ -134,12 +134,26 @@ def validate_rule_conf(rule, conf):
                 raise YamlLintConfigError(
                     'invalid config: unknown option "%s" for rule "%s"' %
                     (optkey, rule.ID))
+            # Example: CONF = {option: (bool, 'mixed')}
+            #          → {option: true}         → {option: mixed}
             if isinstance(options[optkey], tuple):
                 if (conf[optkey] not in options[optkey] and
                         type(conf[optkey]) not in options[optkey]):
                     raise YamlLintConfigError(
                         'invalid config: option "%s" of "%s" should be in %s'
                         % (optkey, rule.ID, options[optkey]))
+            # Example: CONF = {option: ['flag1', 'flag2']}
+            #          → {option: [flag1]}      → {option: [flag1, flag2]}
+            elif isinstance(options[optkey], list):
+                if (type(conf[optkey]) is not list or
+                        any(flag not in options[optkey]
+                            for flag in conf[optkey])):
+                    raise YamlLintConfigError(
+                        ('invalid config: option "%s" of "%s" should only '
+                         'contain values in %s')
+                        % (optkey, rule.ID, str(options[optkey])))
+            # Example: CONF = {option: int}
+            #          → {option: 42}
             else:
                 if not isinstance(conf[optkey], options[optkey]):
                     raise YamlLintConfigError(

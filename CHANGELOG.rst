@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.16.0 (2019-06-07)
+-------------------
+
+- Add FreeBSD installation instructions
+- Fix the ``line`` rule to correctly handle DOS new lines
+- Add the ``allowed-values`` option to the ``truthy`` rule
+- Allow configuration options to be a list of enums
+
 1.15.0 (2019-02-11)
 -------------------
 

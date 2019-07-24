@@ -16,15 +16,15 @@
 
 from __future__ import print_function
 
-import os
-import sys
-import platform
 import argparse
+import os
+import platform
+import sys
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
+from yamllint import linter
 from yamllint.config import YamlLintConfig, YamlLintConfigError
 from yamllint.linter import PROBLEM_LEVELS
-from yamllint import linter
 
 
 def find_files_recursively(items):
