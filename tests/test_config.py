@@ -174,6 +174,25 @@ class SimpleConfigTestCase(unittest.TestCase):
         self.assertRaises(config.YamlLintConfigError,
                           config.validate_rule_conf, Rule, {'choice': 'abc'})
 
+        Rule.CONF = {'multiple': ['item1', 'item2', 'item3']}
+        Rule.DEFAULT = {'multiple': ['item1']}
+        config.validate_rule_conf(Rule, {'multiple': []})
+        config.validate_rule_conf(Rule, {'multiple': ['item2']})
+        config.validate_rule_conf(Rule, {'multiple': ['item2', 'item3']})
+        config.validate_rule_conf(Rule, {})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule,
+                          {'multiple': 'item1'})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule,
+                          {'multiple': ['']})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule,
+                          {'multiple': ['item1', 4]})
+        self.assertRaises(config.YamlLintConfigError,
+                          config.validate_rule_conf, Rule,
+                          {'multiple': ['item4']})
+
 
 class ExtendedConfigTestCase(unittest.TestCase):
     def test_extend_on_object(self):

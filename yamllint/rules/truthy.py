@@ -15,12 +15,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Use this rule to forbid non-explictly typed truthy values other than ``true``
-and ``false``, for example ``YES``, ``False`` and ``off``.
+Use this rule to forbid non-explictly typed truthy values other than allowed
+ones (by default: ``true`` and ``false``), for example ``YES`` or ``off``.
 
 This can be useful to prevent surprises from YAML parsers transforming
 ``[yes, FALSE, Off]`` into ``[true, false, false]`` or
 ``{y: 1, yes: 2, on: 3, true: 4, True: 5}`` into ``{y: 1, true: 5}``.
+
+.. rubric:: Options
+
+* ``allowed-values`` defines the list of truthy values which will be ignored
+  during linting. The default is ``['true', 'false']``, but can be changed to
+  any list containing: ``'TRUE'``, ``'True'``,  ``'true'``, ``'FALSE'``,
+  ``'False'``, ``'false'``, ``'YES'``, ``'Yes'``, ``'yes'``, ``'NO'``,
+  ``'No'``, ``'no'``, ``'ON'``, ``'On'``, ``'on'``, ``'OFF'``, ``'Off'``,
+  ``'off'``.
 
 .. rubric:: Examples
 
@@ -63,21 +72,45 @@ This can be useful to prevent surprises from YAML parsers transforming
     yes:  1
     on:   2
     True: 3
+
+#. With ``truthy: {allowed-values: ["yes", "no"]}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    - yes
+    - no
+    - "true"
+    - 'false'
+    - foo
+    - bar
+
+   the following code snippet would **FAIL**:
+   ::
+
+    - true
+    - false
+    - on
+    - off
 """
 
 import yaml
 
 from yamllint.linter import LintProblem
 
-ID = 'truthy'
-TYPE = 'token'
 
 TRUTHY = ['YES', 'Yes', 'yes',
           'NO', 'No', 'no',
-          'TRUE', 'True',  # 'true' is a boolean
-          'FALSE', 'False',  # 'false' is a boolean
+          'TRUE', 'True',  'true',
+          'FALSE', 'False', 'false',
           'ON', 'On', 'on',
           'OFF', 'Off', 'off']
+
+
+ID = 'truthy'
+TYPE = 'token'
+CONF = {'allowed-values': list(TRUTHY)}
+DEFAULT = {'allowed-values': ['true', 'false']}
 
 
 def check(conf, token, prev, next, nextnext, context):
@@ -85,7 +118,9 @@ def check(conf, token, prev, next, nextnext, context):
         return
 
     if isinstance(token, yaml.tokens.ScalarToken):
-        if token.value in TRUTHY and token.style is None:
+        if (token.value in (set(TRUTHY) - set(conf['allowed-values'])) and
+                token.style is None):
             yield LintProblem(token.start_mark.line + 1,
                               token.start_mark.column + 1,
-                              "truthy value should be true or false")
+                              "truthy value should be one of [" +
+                              ", ".join(sorted(conf['allowed-values'])) + "]")
