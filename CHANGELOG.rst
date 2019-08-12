@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.17.0 (2019-08-12)
+-------------------
+
+- Simplify installation instructions in the README
+- Add OpenBSD installation instructions
+- Make YAML file extensions configurable
+
 1.16.0 (2019-06-07)
 -------------------
 
