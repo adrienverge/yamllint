@@ -154,6 +154,10 @@ def run(argv=None):
             conf = YamlLintConfig(file=args.config_file)
         elif os.path.isfile('.yamllint'):
             conf = YamlLintConfig(file='.yamllint')
+        elif os.path.isfile('.yamllint.yaml'):
+            conf = YamlLintConfig(file='.yamllint.yaml')
+        elif os.path.isfile('.yamllint.yml'):
+            conf = YamlLintConfig(file='.yamllint.yml')
         elif os.path.isfile(user_global_config):
             conf = YamlLintConfig(file=user_global_config)
         else:
