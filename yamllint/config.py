@@ -33,7 +33,7 @@ class YamlLintConfig(object):
         self.ignore = None
 
         self.yaml_files = pathspec.PathSpec.from_lines(
-            'gitwildmatch', ['*.yaml', '*.yml'])
+            'gitwildmatch', ['*.yaml', '*.yml', '.yamllint'])
 
         if file is not None:
             with open(file) as f:

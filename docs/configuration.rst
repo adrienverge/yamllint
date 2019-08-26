@@ -126,6 +126,7 @@ configuration option. The default is:
  yaml-files:
  - '*.yaml'
  - '*.yml'
+ - '.yamllint'
 
 The same rules as for ignoring paths apply (``.gitignore``-style path pattern,
 see below).
