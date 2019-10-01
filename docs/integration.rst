@@ -10,8 +10,10 @@ Here is an example, to add in your .pre-commit-config.yaml
 .. code:: yaml
 
   ---
-  # Update the sha variable with the release version that you want, from the yamllint repo
+  # Update the rev variable with the release version that you want, from the yamllint repo
+  # You can pass your custom .yamllint with args attribute.
   - repo: https://github.com/adrienverge/yamllint.git
-    sha: v1.8.1
+    rev: v1.17.0
     hooks:
       - id: yamllint
+        args: [-c=/path/to/.yamllint]
