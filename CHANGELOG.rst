@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.18.0 (2019-10-15)
+-------------------
+
+- Lint ``.yamllint`` config file by default
+- Also read config from ``.yamllint.yml`` and ``.yamllint.yaml``
+- Improve documentation for ``yaml-files``
+- Update documentation for ``pre-commit``
+- Explicitly disable ``empty-values`` and ``octal-values`` rules
+
 1.17.0 (2019-08-12)
 -------------------
 
