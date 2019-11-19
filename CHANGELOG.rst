@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.19.0 (2019-11-19)
+-------------------
+
+- Allow disabling all checks for a file with ``# yamllint disable-file``
+
 1.18.0 (2019-10-15)
 -------------------
 
