@@ -532,3 +532,29 @@ class CommandLineTestCase(unittest.TestCase):
             'stdin:2:10: [error] syntax error: '
             'mapping values are not allowed here\n'))
         self.assertEqual(err, '')
+
+    def test_run_supress_warnings(self):
+        file = os.path.join(self.wd, 'a.yaml')
+
+        sys.stdout, sys.stderr = StringIO(), StringIO()
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run((file, '--no-warnings', '-f', 'auto'))
+
+        self.assertEqual(ctx.exception.code, 1)
+
+        out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
+        self.assertEqual(out, (
+            '%s\n'
+            '  2:4       error    trailing spaces  (trailing-spaces)\n'
+            '  3:4       error    no new line character at the end of file  '
+            '(new-line-at-end-of-file)\n'
+            '\n' % file))
+        self.assertEqual(err, '')
+
+        file = os.path.join(self.wd, 'warn.yaml')
+
+        sys.stdout, sys.stderr = StringIO(), StringIO()
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run((file, '--no-warnings', '-f', 'auto'))
+
+        self.assertEqual(ctx.exception.code, 0)
