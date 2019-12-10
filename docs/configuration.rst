@@ -116,6 +116,9 @@ return code will be:
  * ``1`` if one or more errors occur
  * ``2`` if no errors occur, but one or more warnings occur
 
+If the script is invoked with the ``-q`` (or ``--no-warning``) options, it will
+not output warning level problems, only error level.
+
 YAML files extensions
 ---------------------
 
