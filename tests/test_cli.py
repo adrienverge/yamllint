@@ -533,7 +533,7 @@ class CommandLineTestCase(unittest.TestCase):
             'mapping values are not allowed here\n'))
         self.assertEqual(err, '')
 
-    def test_run_supress_warnings(self):
+    def test_run_no_warnings(self):
         file = os.path.join(self.wd, 'a.yaml')
 
         sys.stdout, sys.stderr = StringIO(), StringIO()
@@ -558,3 +558,12 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run((file, '--no-warnings', '-f', 'auto'))
 
         self.assertEqual(ctx.exception.code, 0)
+
+    def test_run_no_warnings_and_strict(self):
+        file = os.path.join(self.wd, 'warn.yaml')
+
+        sys.stdout, sys.stderr = StringIO(), StringIO()
+        with self.assertRaises(SystemExit) as ctx:
+            cli.run((file, '--no-warnings', '-s'))
+
+        self.assertEqual(ctx.exception.code, 2)
