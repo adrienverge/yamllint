@@ -84,13 +84,13 @@ class Format(object):
         return line
 
 
-def show_problems(problems, file, args_format, quiet):
+def show_problems(problems, file, args_format, no_warn):
     max_level = 0
     first = True
 
     for problem in problems:
         max_level = max(max_level, PROBLEM_LEVELS[problem.level])
-        if quiet and (not problem.level == 'error'):
+        if no_warn and (problem.level != 'error'):
             continue
         if args_format == 'parsable':
             print(Format.parsable(problem, file))
@@ -135,7 +135,7 @@ def run(argv=None):
                         action='store_true',
                         help='return non-zero exit code on warnings '
                              'as well as errors')
-    parser.add_argument('-q', '--no-warnings',
+    parser.add_argument('--no-warnings',
                         action='store_true',
                         help='output only error level problems')
     parser.add_argument('-v', '--version', action='version',
@@ -182,7 +182,7 @@ def run(argv=None):
             print(e, file=sys.stderr)
             sys.exit(-1)
         prob_level = show_problems(problems, file, args_format=args.format,
-                                   quiet=args.no_warnings)
+                                   no_warn=args.no_warnings)
         max_level = max(max_level, prob_level)
 
     # read yaml from stdin
@@ -193,7 +193,7 @@ def run(argv=None):
             print(e, file=sys.stderr)
             sys.exit(-1)
         prob_level = show_problems(problems, 'stdin', args_format=args.format,
-                                   quiet=args.no_warnings)
+                                   no_warn=args.no_warnings)
         max_level = max(max_level, prob_level)
 
     if max_level == PROBLEM_LEVELS['error']:
