@@ -84,11 +84,14 @@ class Format(object):
         return line
 
 
-def show_problems(problems, file, args_format):
+def show_problems(problems, file, args_format, no_warn):
     max_level = 0
     first = True
 
     for problem in problems:
+        max_level = max(max_level, PROBLEM_LEVELS[problem.level])
+        if no_warn and (problem.level != 'error'):
+            continue
         if args_format == 'parsable':
             print(Format.parsable(problem, file))
         elif args_format == 'colored' or \
@@ -102,7 +105,6 @@ def show_problems(problems, file, args_format):
                 print(file)
                 first = False
             print(Format.standard(problem, file))
-        max_level = max(max_level, PROBLEM_LEVELS[problem.level])
 
     if not first and args_format != 'parsable':
         print('')
@@ -133,6 +135,9 @@ def run(argv=None):
                         action='store_true',
                         help='return non-zero exit code on warnings '
                              'as well as errors')
+    parser.add_argument('--no-warnings',
+                        action='store_true',
+                        help='output only error level problems')
     parser.add_argument('-v', '--version', action='version',
                         version='{} {}'.format(APP_NAME, APP_VERSION))
 
@@ -176,7 +181,8 @@ def run(argv=None):
         except EnvironmentError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
-        prob_level = show_problems(problems, file, args_format=args.format)
+        prob_level = show_problems(problems, file, args_format=args.format,
+                                   no_warn=args.no_warnings)
         max_level = max(max_level, prob_level)
 
     # read yaml from stdin
@@ -186,7 +192,8 @@ def run(argv=None):
         except EnvironmentError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
-        prob_level = show_problems(problems, 'stdin', args_format=args.format)
+        prob_level = show_problems(problems, 'stdin', args_format=args.format,
+                                   no_warn=args.no_warnings)
         max_level = max(max_level, prob_level)
 
     if max_level == PROBLEM_LEVELS['error']:
