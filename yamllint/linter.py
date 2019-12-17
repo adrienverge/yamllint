@@ -180,7 +180,7 @@ def get_syntax_error(buffer):
     except yaml.error.MarkedYAMLError as e:
         problem = LintProblem(e.problem_mark.line + 1,
                               e.problem_mark.column + 1,
-                              'syntax error: ' + e.problem)
+                              'syntax error: ' + e.problem + ' (syntax)')
         problem.level = 'error'
         return problem
 

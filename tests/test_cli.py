@@ -530,7 +530,7 @@ class CommandLineTestCase(unittest.TestCase):
         out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
         self.assertEqual(out, (
             'stdin:2:10: [error] syntax error: '
-            'mapping values are not allowed here\n'))
+            'mapping values are not allowed here (syntax)\n'))
         self.assertEqual(err, '')
 
     def test_run_no_warnings(self):
