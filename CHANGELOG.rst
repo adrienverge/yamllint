@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.20.0 (2019-12-26)
+-------------------
+
+- Add --no-warnings option to suppress warning messages
+- Use 'syntax' as rule name upon syntax errors
+
 1.19.0 (2019-11-19)
 -------------------
 
