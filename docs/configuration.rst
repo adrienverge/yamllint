@@ -43,6 +43,19 @@ It can be chosen using:
 
  yamllint -d relaxed file.yml
 
+There is another pre-defined configuration named ``semantics-only``.
+As its name suggests, it is more tolerant:
+
+.. literalinclude:: ../yamllint/conf/semantics-only.yaml
+   :language: yaml
+
+It can be chosen using:
+
+.. code:: bash
+
+ yamllint -d semantics-only file.yml
+
+
 Extending the default configuration
 -----------------------------------
 
