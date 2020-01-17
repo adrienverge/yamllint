@@ -59,7 +59,7 @@ class CommandLineTestCase(unittest.TestCase):
             'no-yaml.json': '---\n'
                             'key: value\n',
             # non-ASCII chars
-            'non-ascii/utf-8': (
+            'non-ascii/éçäγλνπ¥/utf-8': (
                 u'---\n'
                 u'- hétérogénéité\n'
                 u'# 19.99 €\n'
@@ -142,7 +142,7 @@ class CommandLineTestCase(unittest.TestCase):
             [os.path.join(self.wd, 'a.yaml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'no-yaml.json'),
-             os.path.join(self.wd, 'non-ascii/utf-8'),
+             os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
              os.path.join(self.wd, 'sub/ok.yaml'),
              os.path.join(self.wd, 'warn.yaml')]
@@ -158,7 +158,7 @@ class CommandLineTestCase(unittest.TestCase):
             [os.path.join(self.wd, 'a.yaml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'no-yaml.json'),
-             os.path.join(self.wd, 'non-ascii/utf-8'),
+             os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
              os.path.join(self.wd, 'sub/ok.yaml'),
              os.path.join(self.wd, 'warn.yaml')]
@@ -170,7 +170,7 @@ class CommandLineTestCase(unittest.TestCase):
                                      '  - \'**/utf-8\'\n')
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
-            [os.path.join(self.wd, 'non-ascii/utf-8')]
+            [os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8')]
         )
 
     def test_run_with_bad_arguments(self):
@@ -368,7 +368,7 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(err, '')
 
     def test_run_non_ascii_file(self):
-        file = os.path.join(self.wd, 'non-ascii', 'utf-8')
+        file = os.path.join(self.wd, 'non-ascii', 'éçäγλνπ¥', 'utf-8')
 
         # Make sure the default localization conditions on this "system"
         # support UTF-8 encoding.
