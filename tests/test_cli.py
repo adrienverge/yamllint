@@ -239,7 +239,19 @@ class CommandLineTestCase(unittest.TestCase):
 
         out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
         self.assertEqual(out, '')
-        self.assertRegexpMatches(err, r'^invalid config: not a dict')
+        self.assertRegexpMatches(err, r'No such file or directory')
+
+    def test_run_with_environment_variable(self):
+        sys.stdout, sys.stderr = StringIO(), StringIO()
+        rules = '{extends: default, rules: {document-start: {present: false}}}'
+        with self.assertRaises(SystemExit) as ctx:
+            os.environ['YAMLLINT_CONFIG'] = rules
+            cli.run((os.path.join(self.wd, 'warn.yaml'), ))
+
+        self.assertEqual(ctx.exception.code, 0)
+        out = sys.stdout.getvalue()
+        self.assertEqual(out, '')
+        del os.environ['YAMLLINT_CONFIG']
 
     def test_run_with_config_file(self):
         with open(os.path.join(self.wd, 'config'), 'w') as f:

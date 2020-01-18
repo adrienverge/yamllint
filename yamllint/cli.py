@@ -127,6 +127,7 @@ def run(argv=None):
                               help='path to a custom configuration')
     config_group.add_argument('-d', '--config-data', dest='config_data',
                               action='store',
+                              default=os.environ.get('YAMLLINT_CONFIG', ''),
                               help='custom configuration (as YAML source)')
     parser.add_argument('-f', '--format',
                         choices=('parsable', 'standard', 'colored', 'auto'),
@@ -151,8 +152,8 @@ def run(argv=None):
         user_global_config = os.path.expanduser('~/.config/yamllint/config')
 
     try:
-        if args.config_data is not None:
-            if args.config_data != '' and ':' not in args.config_data:
+        if args.config_data != '':
+            if ':' not in args.config_data:
                 args.config_data = 'extends: ' + args.config_data
             conf = YamlLintConfig(content=args.config_data)
         elif args.config_file is not None:
