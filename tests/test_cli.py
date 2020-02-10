@@ -88,6 +88,9 @@ class CommandLineTestCase(unittest.TestCase):
                 u'# 19.99 €\n'
                 u'- お早う御座います。\n'
                 u'# الأَبْجَدِيَّة العَرَبِيَّة\n').encode('utf-8'),
+            # dos line endings yaml
+            'dos.yml': '---\r\n'
+                       'dos: true',
         })
 
     @classmethod
@@ -101,6 +104,7 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
             [os.path.join(self.wd, 'a.yaml'),
+             os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
              os.path.join(self.wd, 'sub/ok.yaml'),
@@ -146,7 +150,8 @@ class CommandLineTestCase(unittest.TestCase):
                                      '  - \'*.yml\'\n')
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
-            [os.path.join(self.wd, 'empty.yml')]
+            [os.path.join(self.wd, 'dos.yml'),
+             os.path.join(self.wd, 'empty.yml')]
         )
 
         conf = config.YamlLintConfig('extends: default\n'
@@ -163,6 +168,7 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
             [os.path.join(self.wd, 'a.yaml'),
+             os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'no-yaml.json'),
              os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
@@ -179,6 +185,7 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
             [os.path.join(self.wd, 'a.yaml'),
+             os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'no-yaml.json'),
              os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
@@ -493,3 +500,20 @@ class CommandLineTestCase(unittest.TestCase):
         with RunContext(self) as ctx:
             cli.run((path, '--no-warnings', '-s'))
         self.assertEqual(ctx.returncode, 2)
+
+    def test_run_non_universal_newline(self):
+        path = os.path.join(self.wd, 'dos.yml')
+
+        with RunContext(self) as ctx:
+            cli.run(('-d', 'rules:\n  new-lines:\n    type: dos', path))
+        self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))
+
+        with RunContext(self) as ctx:
+            cli.run(('-d', 'rules:\n  new-lines:\n    type: unix', path))
+        expected_out = (
+            '%s\n'
+            '  1:4       error    wrong new line character: expected \\n'
+            '  (new-lines)\n'
+            '\n' % path)
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
