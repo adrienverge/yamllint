@@ -1,3 +1,27 @@
+yamllint (1.20.0-2) unstable; urgency=medium
+
+  * Removed 'Installing yamllint' section in the manpage (Closes: #947440)
+  * Moved maintainership into the Python Applications Packaging Team
+    (Closes: 947416)
+
+ -- Philipp Huebner <debalance@debian.org>  Fri, 28 Feb 2020 14:02:37 +0100
+
+yamllint (1.20.0-1) unstable; urgency=medium
+
+  * New upstream version 1.20.0
+  * Updated Standards-Version: 4.5.0 (no changes needed)
+  * Rules-Requires-Root: no
+
+ -- Philipp Huebner <debalance@debian.org>  Sun, 16 Feb 2020 00:39:28 +0100
+
+yamllint (1.18.0-1) unstable; urgency=medium
+
+  * New upstream version 1.18.0
+  * Added dh-python to build-depends
+  * Updated Standards-Version: 4.4.1 (no changes needed)
+
+ -- Philipp Huebner <debalance@debian.org>  Sun, 20 Oct 2019 19:40:24 +0200
+
 yamllint (1.16.0-1) unstable; urgency=medium
 
   * New upstream version 1.16.0
