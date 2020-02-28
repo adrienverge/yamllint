@@ -101,7 +101,7 @@ from yamllint.linter import LintProblem
 
 TRUTHY = ['YES', 'Yes', 'yes',
           'NO', 'No', 'no',
-          'TRUE', 'True',  'true',
+          'TRUE', 'True', 'true',
           'FALSE', 'False', 'false',
           'ON', 'On', 'on',
           'OFF', 'Off', 'off']

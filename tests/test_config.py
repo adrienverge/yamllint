@@ -448,11 +448,13 @@ class IgnorePathConfigTestCase(unittest.TestCase):
         out = sys.stdout.getvalue()
         out = '\n'.join(sorted(out.splitlines()))
 
+        docstart = '[warning] missing document start "---" (document-start)'
         keydup = '[error] duplication of key "key" in mapping (key-duplicates)'
         trailing = '[error] trailing spaces (trailing-spaces)'
         hyphen = '[error] too many spaces after hyphen (hyphens)'
 
         self.assertEqual(out, '\n'.join((
+            './.yamllint:1:1: ' + docstart,
             './bin/file.lint-me-anyway.yaml:3:3: ' + keydup,
             './bin/file.lint-me-anyway.yaml:4:17: ' + trailing,
             './bin/file.lint-me-anyway.yaml:5:5: ' + hyphen,

@@ -14,7 +14,8 @@ To use a custom configuration file, use the ``-c`` option:
 If ``-c`` is not provided, yamllint will look for a configuration file in the
 following locations (by order of preference):
 
-- ``.yamllint`` in the current working directory
+- ``.yamllint``, ``.yamllint.yaml`` or ``.yamllint.yml`` in the current working
+  directory
 - ``$XDG_CONFIG_HOME/yamllint/config``
 - ``~/.config/yamllint/config``
 
@@ -114,6 +115,25 @@ return code will be:
  * ``0`` if no errors or warnings occur
  * ``1`` if one or more errors occur
  * ``2`` if no errors occur, but one or more warnings occur
+
+If the script is invoked with the ``--no-warnings`` option, it won't output
+warning level problems, only error level ones.
+
+YAML files extensions
+---------------------
+
+To configure what yamllint should consider as YAML files, set ``yaml-files``
+configuration option. The default is:
+
+.. code-block:: yaml
+
+ yaml-files:
+   - '*.yaml'
+   - '*.yml'
+   - '.yamllint'
+
+The same rules as for ignoring paths apply (``.gitignore``-style path pattern,
+see below).
 
 Ignoring paths
 --------------

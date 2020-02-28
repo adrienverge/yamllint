@@ -302,3 +302,104 @@ class YamllintDirectivesTestCase(RuleTestCase):
                    '    c: [x]\n',
                    conf,
                    problem=(6, 2, 'comments-indentation'))
+
+    def test_disable_file_directive(self):
+        conf = ('comments: {min-spaces-from-content: 2}\n'
+                'comments-indentation: {}\n')
+        self.check('# yamllint disable-file\n'
+                   '---\n'
+                   '- a: 1 # comment too close\n'
+                   '  b:\n'
+                   ' # wrong indentation\n'
+                   '    c: [x]\n',
+                   conf)
+        self.check('#    yamllint disable-file\n'
+                   '---\n'
+                   '- a: 1 # comment too close\n'
+                   '  b:\n'
+                   ' # wrong indentation\n'
+                   '    c: [x]\n',
+                   conf)
+        self.check('#yamllint disable-file\n'
+                   '---\n'
+                   '- a: 1 # comment too close\n'
+                   '  b:\n'
+                   ' # wrong indentation\n'
+                   '    c: [x]\n',
+                   conf)
+        self.check('#yamllint disable-file    \n'
+                   '---\n'
+                   '- a: 1 # comment too close\n'
+                   '  b:\n'
+                   ' # wrong indentation\n'
+                   '    c: [x]\n',
+                   conf)
+        self.check('---\n'
+                   '# yamllint disable-file\n'
+                   '- a: 1 # comment too close\n'
+                   '  b:\n'
+                   ' # wrong indentation\n'
+                   '    c: [x]\n',
+                   conf,
+                   problem1=(3, 8, 'comments'),
+                   problem2=(5, 2, 'comments-indentation'))
+        self.check('# yamllint disable-file: rules cannot be specified\n'
+                   '---\n'
+                   '- a: 1 # comment too close\n'
+                   '  b:\n'
+                   ' # wrong indentation\n'
+                   '    c: [x]\n',
+                   conf,
+                   problem1=(3, 8, 'comments'),
+                   problem2=(5, 2, 'comments-indentation'))
+        self.check('AAAA yamllint disable-file\n'
+                   '---\n'
+                   '- a: 1 # comment too close\n'
+                   '  b:\n'
+                   ' # wrong indentation\n'
+                   '    c: [x]\n',
+                   conf,
+                   problem1=(1, 1, 'document-start'),
+                   problem2=(3, 8, 'comments'),
+                   problem3=(5, 2, 'comments-indentation'))
+
+    def test_disable_file_directive_not_at_first_position(self):
+        self.check('# yamllint disable-file\n'
+                   '---\n'
+                   '- bad  : colon and spaces   \n',
+                   self.conf)
+        self.check('---\n'
+                   '# yamllint disable-file\n'
+                   '- bad  : colon and spaces   \n',
+                   self.conf,
+                   problem1=(3, 7, 'colons'),
+                   problem2=(3, 26, 'trailing-spaces'))
+
+    def test_disable_file_directive_with_syntax_error(self):
+        self.check('# This file is not valid YAML (it is a Jinja template)\n'
+                   '{% if extra_info %}\n'
+                   'key1: value1\n'
+                   '{% endif %}\n'
+                   'key2: value2\n',
+                   self.conf,
+                   problem=(2, 2, 'syntax'))
+        self.check('# yamllint disable-file\n'
+                   '# This file is not valid YAML (it is a Jinja template)\n'
+                   '{% if extra_info %}\n'
+                   'key1: value1\n'
+                   '{% endif %}\n'
+                   'key2: value2\n',
+                   self.conf)
+
+    def test_disable_file_directive_with_dos_lines(self):
+        self.check('# yamllint disable-file\r\n'
+                   '---\r\n'
+                   '- bad  : colon and spaces   \r\n',
+                   self.conf)
+        self.check('# yamllint disable-file\r\n'
+                   '# This file is not valid YAML (it is a Jinja template)\r\n'
+                   '{% if extra_info %}\r\n'
+                   'key1: value1\r\n'
+                   '{% endif %}\r\n'
+                   'key2: value2\r\n',
+                   self.conf)

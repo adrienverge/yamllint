@@ -32,6 +32,9 @@ class YamlLintConfig(object):
 
         self.ignore = None
 
+        self.yaml_files = pathspec.PathSpec.from_lines(
+            'gitwildmatch', ['*.yaml', '*.yml', '.yamllint'])
+
         if file is not None:
             with open(file) as f:
                 content = f.read()
@@ -41,6 +44,9 @@ class YamlLintConfig(object):
 
     def is_file_ignored(self, filepath):
         return self.ignore and self.ignore.match_file(filepath)
+
+    def is_yaml_file(self, filepath):
+        return self.yaml_files.match_file(filepath)
 
     def enabled_rules(self, filepath):
         return [yamllint.rules.get(id) for id, val in self.rules.items()
@@ -95,6 +101,15 @@ class YamlLintConfig(object):
                     'invalid config: ignore should contain file patterns')
             self.ignore = pathspec.PathSpec.from_lines(
                 'gitwildmatch', conf['ignore'].splitlines())
+
+        if 'yaml-files' in conf:
+            if not (isinstance(conf['yaml-files'], list)
+                    and all(isinstance(i, str) for i in conf['yaml-files'])):
+                raise YamlLintConfigError(
+                    'invalid config: yaml-files '
+                    'should be a list of file patterns')
+            self.yaml_files = pathspec.PathSpec.from_lines('gitwildmatch',
+                                                           conf['yaml-files'])
 
     def validate(self):
         for id in self.rules:

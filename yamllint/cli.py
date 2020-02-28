@@ -27,13 +27,14 @@ from yamllint.config import YamlLintConfig, YamlLintConfigError
 from yamllint.linter import PROBLEM_LEVELS
 
 
-def find_files_recursively(items):
+def find_files_recursively(items, conf):
     for item in items:
         if os.path.isdir(item):
             for root, dirnames, filenames in os.walk(item):
-                for filename in [f for f in filenames
-                                 if f.endswith(('.yml', '.yaml'))]:
-                    yield os.path.join(root, filename)
+                for f in filenames:
+                    filepath = os.path.join(root, f)
+                    if conf.is_yaml_file(filepath):
+                        yield filepath
         else:
             yield item
 
@@ -83,11 +84,14 @@ class Format(object):
         return line
 
 
-def show_problems(problems, file, args_format):
+def show_problems(problems, file, args_format, no_warn):
     max_level = 0
     first = True
 
     for problem in problems:
+        max_level = max(max_level, PROBLEM_LEVELS[problem.level])
+        if no_warn and (problem.level != 'error'):
+            continue
         if args_format == 'parsable':
             print(Format.parsable(problem, file))
         elif args_format == 'colored' or \
@@ -101,7 +105,6 @@ def show_problems(problems, file, args_format):
                 print(file)
                 first = False
             print(Format.standard(problem, file))
-        max_level = max(max_level, PROBLEM_LEVELS[problem.level])
 
     if not first and args_format != 'parsable':
         print('')
@@ -132,6 +135,9 @@ def run(argv=None):
                         action='store_true',
                         help='return non-zero exit code on warnings '
                              'as well as errors')
+    parser.add_argument('--no-warnings',
+                        action='store_true',
+                        help='output only error level problems')
     parser.add_argument('-v', '--version', action='version',
                         version='{} {}'.format(APP_NAME, APP_VERSION))
 
@@ -153,6 +159,10 @@ def run(argv=None):
             conf = YamlLintConfig(file=args.config_file)
         elif os.path.isfile('.yamllint'):
             conf = YamlLintConfig(file='.yamllint')
+        elif os.path.isfile('.yamllint.yaml'):
+            conf = YamlLintConfig(file='.yamllint.yaml')
+        elif os.path.isfile('.yamllint.yml'):
+            conf = YamlLintConfig(file='.yamllint.yml')
         elif os.path.isfile(user_global_config):
             conf = YamlLintConfig(file=user_global_config)
         else:
@@ -163,7 +173,7 @@ def run(argv=None):
 
     max_level = 0
 
-    for file in find_files_recursively(args.files):
+    for file in find_files_recursively(args.files, conf):
         filepath = file[2:] if file.startswith('./') else file
         try:
             with open(file) as f:
@@ -171,7 +181,8 @@ def run(argv=None):
         except EnvironmentError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
-        prob_level = show_problems(problems, file, args_format=args.format)
+        prob_level = show_problems(problems, file, args_format=args.format,
+                                   no_warn=args.no_warnings)
         max_level = max(max_level, prob_level)
 
     # read yaml from stdin
@@ -181,7 +192,8 @@ def run(argv=None):
         except EnvironmentError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
-        prob_level = show_problems(problems, 'stdin', args_format=args.format)
+        prob_level = show_problems(problems, 'stdin', args_format=args.format,
+                                   no_warn=args.no_warnings)
         max_level = max(max_level, prob_level)
 
     if max_level == PROBLEM_LEVELS['error']:

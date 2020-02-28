@@ -28,7 +28,9 @@ class OctalValuesTestCase(RuleTestCase):
         self.check('user-city: 0o10', conf)
 
     def test_implicit_octal_values(self):
-        conf = ('octal-values: {forbid-implicit-octal: true}\n'
+        conf = ('octal-values:\n'
+                '  forbid-implicit-octal: true\n'
+                '  forbid-explicit-octal: false\n'
                 'new-line-at-end-of-file: disable\n'
                 'document-start: disable\n')
         self.check('user-city: 010', conf, problem=(1, 15))
@@ -50,7 +52,9 @@ class OctalValuesTestCase(RuleTestCase):
                    '  - 0e3\n', conf)
 
     def test_explicit_octal_values(self):
-        conf = ('octal-values: {forbid-explicit-octal: true}\n'
+        conf = ('octal-values:\n'
+                '  forbid-implicit-octal: false\n'
+                '  forbid-explicit-octal: true\n'
                 'new-line-at-end-of-file: disable\n'
                 'document-start: disable\n')
         self.check('user-city: 0o10', conf, problem=(1, 16))

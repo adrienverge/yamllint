@@ -38,37 +38,15 @@ Screenshot
 Installation
 ^^^^^^^^^^^^
 
-On Fedora / CentOS (note: `EPEL <https://fedoraproject.org/wiki/EPEL>`_ is
-required on CentOS):
-
-.. code:: bash
-
- sudo dnf install yamllint
-
-On Debian 8+ / Ubuntu 16.04+:
-
-.. code:: bash
-
- sudo apt-get install yamllint
-
-On FreeBSD:
-
-.. code:: sh
-
-  pkg install py27-yamllint
-  pkg install py36-yamllint
-
-On Mac OS 10.11+:
-
-.. code:: bash
-
- brew install yamllint
-
-Alternatively using pip, the Python package manager:
+Using pip, the Python package manager:
 
 .. code:: bash
 
  pip install --user yamllint
+
+yamllint is also packaged for all major operating systems, see installation
+examples (``dnf``, ``apt-get``...) `in the documentation
+<https://yamllint.readthedocs.io/en/stable/quickstart.html>`_.
 
 Usage
 ^^^^^

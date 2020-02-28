@@ -1,6 +1,33 @@
 Changelog
 =========
 
+1.20.0 (2019-12-26)
+-------------------
+
+- Add --no-warnings option to suppress warning messages
+- Use 'syntax' as rule name upon syntax errors
+
+1.19.0 (2019-11-19)
+-------------------
+
+- Allow disabling all checks for a file with ``# yamllint disable-file``
+
+1.18.0 (2019-10-15)
+-------------------
+
+- Lint ``.yamllint`` config file by default
+- Also read config from ``.yamllint.yml`` and ``.yamllint.yaml``
+- Improve documentation for ``yaml-files``
+- Update documentation for ``pre-commit``
+- Explicitly disable ``empty-values`` and ``octal-values`` rules
+
+1.17.0 (2019-08-12)
+-------------------
+
+- Simplify installation instructions in the README
+- Add OpenBSD installation instructions
+- Make YAML file extensions configurable
+
 1.16.0 (2019-06-07)
 -------------------
 

@@ -180,7 +180,7 @@ def get_syntax_error(buffer):
     except yaml.error.MarkedYAMLError as e:
         problem = LintProblem(e.problem_mark.line + 1,
                               e.problem_mark.column + 1,
-                              'syntax error: ' + e.problem)
+                              'syntax error: ' + e.problem + ' (syntax)')
         problem.level = 'error'
         return problem
 
@@ -188,6 +188,10 @@ def get_syntax_error(buffer):
 def _run(buffer, conf, filepath):
     assert hasattr(buffer, '__getitem__'), \
         '_run() argument must be a buffer, not a stream'
+
+    first_line = next(parser.line_generator(buffer)).content
+    if re.match(r'^#\s*yamllint disable-file\s*$', first_line):
+        return
 
     # If the document contains a syntax error, save it and yield it at the
     # right line
