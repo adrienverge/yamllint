@@ -30,6 +30,8 @@ class QuotedTestCase(RuleTestCase):
                    'foo: \'bar\'\n', conf)
         self.check('---\n'
                    'bar: 123\n', conf)
+        self.check('---\n'
+                   'bar: "123"\n', conf)
 
     def test_quote_type_any(self):
         conf = 'quoted-strings: {quote-type: any}\n'
@@ -37,11 +39,14 @@ class QuotedTestCase(RuleTestCase):
                    'boolean1: true\n'
                    'number1: 123\n'
                    'string1: foo\n'                          # fails
-                   'string2: "foo"\n'
-                   'string3: \'bar\'\n'
-                   'string4: !!str genericstring\n'
-                   'string5: !!str 456\n'
-                   'string6: !!str "quotedgenericstring"\n'
+                   'string2: "true"\n'
+                   'string3: "123"\n'
+                   'string4: \'true\'\n'
+                   'string5: "foo"\n'
+                   'string6: \'bar\'\n'
+                   'string7: !!str genericstring\n'
+                   'string8: !!str 456\n'
+                   'string9: !!str "quotedgenericstring"\n'
                    'binary: !!binary binstring\n'
                    'integer: !!int intstring\n'
                    'boolean2: !!bool boolstring\n'
@@ -69,15 +74,18 @@ class QuotedTestCase(RuleTestCase):
                    'number1: 123\n'
                    'string1: foo\n'                          # fails
                    'string2: "foo"\n'                        # fails
-                   'string3: \'bar\'\n'
-                   'string4: !!str genericstring\n'
-                   'string5: !!str 456\n'
-                   'string6: !!str "quotedgenericstring"\n'
+                   'string3: "true"\n'                       # fails
+                   'string4: "123"\n'                        # fails
+                   'string5: \'bar\'\n'
+                   'string6: !!str genericstring\n'
+                   'string7: !!str 456\n'
+                   'string8: !!str "quotedgenericstring"\n'
                    'binary: !!binary binstring\n'
                    'integer: !!int intstring\n'
                    'boolean2: !!bool boolstring\n'
                    'boolean3: !!bool "quotedboolstring"\n',
-                   conf, problem1=(4, 10), problem2=(5, 10))
+                   conf, problem1=(4, 10), problem2=(5, 10),
+                   problem3=(6, 10), problem4=(7, 10))
         self.check('---\n'
                    'multiline string 1: |\n'
                    '  line 1\n'
@@ -100,15 +108,18 @@ class QuotedTestCase(RuleTestCase):
                    'number1: 123\n'
                    'string1: foo\n'                          # fails
                    'string2: "foo"\n'
-                   'string3: \'bar\'\n'                      # fails
-                   'string4: !!str genericstring\n'
-                   'string5: !!str 456\n'
-                   'string6: !!str "quotedgenericstring"\n'
+                   'string3: \'true\'\n'                     # fails
+                   'string4: \'123\'\n'                      # fails
+                   'string5: \'bar\'\n'                      # fails
+                   'string6: !!str genericstring\n'
+                   'string7: !!str 456\n'
+                   'string8: !!str "quotedgenericstring"\n'
                    'binary: !!binary binstring\n'
                    'integer: !!int intstring\n'
                    'boolean2: !!bool boolstring\n'
                    'boolean3: !!bool "quotedboolstring"\n',
-                   conf, problem1=(4, 10), problem2=(6, 10))
+                   conf, problem1=(4, 10), problem2=(6, 10),
+                   problem3=(7, 10), problem4=(8, 10))
         self.check('---\n'
                    'multiline string 1: |\n'
                    '  line 1\n'

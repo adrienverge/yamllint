@@ -52,27 +52,30 @@ DEFAULT = {'quote-type': 'any'}
 def check(conf, token, prev, next, nextnext, context):
     quote_type = conf['quote-type']
 
-    if (isinstance(token, yaml.tokens.ScalarToken) and
+    if not (isinstance(token, yaml.tokens.ScalarToken) and
             isinstance(prev, (yaml.ValueToken, yaml.TagToken))):
-        # Ignore explicit types, e.g. !!str testtest or !!int 42
-        if (prev and isinstance(prev, yaml.tokens.TagToken) and
-                prev.value[0] == '!!'):
-            return
+        return
 
-        # Ignore numbers, booleans, etc.
+    # Ignore explicit types, e.g. !!str testtest or !!int 42
+    if (prev and isinstance(prev, yaml.tokens.TagToken) and
+            prev.value[0] == '!!'):
+        return
+
+    # Ignore numbers, booleans, etc.
+    if token.plain:
         resolver = yaml.resolver.Resolver()
         if resolver.resolve(yaml.nodes.ScalarNode, token.value,
                             (True, False)) != 'tag:yaml.org,2002:str':
             return
 
-        # Ignore multi-line strings
-        if (not token.plain) and (token.style == "|" or token.style == ">"):
-            return
+    # Ignore multi-line strings
+    if (not token.plain) and (token.style == "|" or token.style == ">"):
+        return
 
-        if ((quote_type == 'single' and token.style != "'") or
-                (quote_type == 'double' and token.style != '"') or
-                (quote_type == 'any' and token.style is None)):
-            yield LintProblem(
-                token.start_mark.line + 1,
-                token.start_mark.column + 1,
-                "string value is not quoted with %s quotes" % (quote_type))
+    if ((quote_type == 'single' and token.style != "'") or
+            (quote_type == 'double' and token.style != '"') or
+            (quote_type == 'any' and token.style is None)):
+        yield LintProblem(
+            token.start_mark.line + 1,
+            token.start_mark.column + 1,
+            "string value is not quoted with %s quotes" % (quote_type))
