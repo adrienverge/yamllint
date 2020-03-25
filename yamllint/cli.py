@@ -18,6 +18,7 @@ from __future__ import print_function
 
 import argparse
 import codecs
+import io
 import os
 import platform
 import sys
@@ -27,6 +28,17 @@ from yamllint import linter
 from yamllint.config import YamlLintConfig, YamlLintConfigError
 from yamllint.linter import PROBLEM_LEVELS
 
+
+def determine_encoding(file):
+    with io.open(file, 'rb') as raw_file:
+        data = raw_file.read()
+        if data.startswith(codecs.BOM_UTF16_LE):
+            encoding = 'utf-16-le'
+        elif data.startswith(codecs.BOM_UTF16_BE):
+            encoding = 'utf-16-be'
+        else:
+            encoding = 'utf-8'
+        return encoding
 
 def find_files_recursively(items, conf):
     for item in items:
@@ -177,7 +189,8 @@ def run(argv=None):
     for file in find_files_recursively(args.files, conf):
         filepath = file[2:] if file.startswith('./') else file
         try:
-            with codecs.open(file) as f:
+            encoding = determine_encoding(file)
+            with io.open(file, newline='', encoding=encoding) as f:
                 problems = linter.run(f, conf, filepath)
         except EnvironmentError as e:
             print(e, file=sys.stderr)
