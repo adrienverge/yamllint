@@ -93,9 +93,9 @@ class CommandLineTestCase(unittest.TestCase):
                        'dos: true',
             # UTF-16 Little Endian BOM
             'non-ascii/utf16le': b'\xff\xfe---\nutf16le: true\n',
-            #UTF-16 Big Endian
+            # UTF-16 Big Endian
             'non-ascii/utf16be': b'\xfe\xff---\nutf16be: true\n',
-            #UTF-8 BOM
+            # UTF-8 BOM
             'non-ascii/utf8': b'\xef\xbb\xbf---\nutf8: true\n',
         })
 
