@@ -50,9 +50,9 @@ class Comment(object):
         self.comment_before = comment_before
 
     def __str__(self):
-        end = self.buffer.find('\n', self.pointer)
+        end = self.buffer.find(b'\n', self.pointer)
         if end == -1:
-            end = self.buffer.find('\0', self.pointer)
+            end = self.buffer.find(b'\0', self.pointer)
         if end != -1:
             return self.buffer[self.pointer:end]
         return self.buffer[self.pointer:]
@@ -75,14 +75,14 @@ class Comment(object):
 def line_generator(buffer):
     line_no = 1
     cur = 0
-    next = buffer.find('\n')
+    next = buffer.find(b'\n')
     while next != -1:
         if next > 0 and buffer[next - 1] == '\r':
             yield Line(line_no, buffer, start=cur, end=next - 1)
         else:
             yield Line(line_no, buffer, start=cur, end=next)
         cur = next + 1
-        next = buffer.find('\n', cur)
+        next = buffer.find(b'\n', cur)
         line_no += 1
 
     yield Line(line_no, buffer, start=cur, end=len(buffer))
