@@ -91,6 +91,10 @@ class CommandLineTestCase(unittest.TestCase):
             # dos line endings yaml
             'dos.yml': '---\r\n'
                        'dos: true',
+            # UTF-16 BOM
+            'non-ascii/utf16': b'\xff\xfe---\nutf16: true\n',
+            #UTF-8 BOM
+            'non-ascii/utf8': b'\xef\xbb\xbf---\nutf8: true\n',
         })
 
     @classmethod
@@ -171,6 +175,8 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'no-yaml.json'),
+             os.path.join(self.wd, 'non-ascii/utf16'),
+             os.path.join(self.wd, 'non-ascii/utf8'),
              os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
              os.path.join(self.wd, 'sub/ok.yaml'),
@@ -188,6 +194,8 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'no-yaml.json'),
+             os.path.join(self.wd, 'non-ascii/utf16'),
+             os.path.join(self.wd, 'non-ascii/utf8'),
              os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
              os.path.join(self.wd, 'sub/ok.yaml'),
