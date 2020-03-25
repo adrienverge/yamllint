@@ -40,6 +40,7 @@ def determine_encoding(file):
             encoding = 'utf-8'
         return encoding
 
+
 def find_files_recursively(items, conf):
     for item in items:
         if os.path.isdir(item):
