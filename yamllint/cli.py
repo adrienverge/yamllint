@@ -189,7 +189,7 @@ def run(argv=None):
     # read yaml from stdin
     if args.stdin:
         try:
-            problems = linter.run(sys.stdin, conf, '')
+            problems = linter.run(sys.stdin.buffer, conf, '')
         except EnvironmentError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
