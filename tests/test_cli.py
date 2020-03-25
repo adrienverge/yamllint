@@ -91,8 +91,10 @@ class CommandLineTestCase(unittest.TestCase):
             # dos line endings yaml
             'dos.yml': '---\r\n'
                        'dos: true',
-            # UTF-16 BOM
-            'non-ascii/utf16': b'\xff\xfe---\nutf16: true\n',
+            # UTF-16 Little Endian BOM
+            'non-ascii/utf16le': b'\xff\xfe---\nutf16le: true\n',
+            #UTF-16 Big Endian
+            'non-ascii/utf16be': b'\xfe\xff---\nutf16be: true\n',
             #UTF-8 BOM
             'non-ascii/utf8': b'\xef\xbb\xbf---\nutf8: true\n',
         })
@@ -175,7 +177,8 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'no-yaml.json'),
-             os.path.join(self.wd, 'non-ascii/utf16'),
+             os.path.join(self.wd, 'non-ascii/utf16be'),
+             os.path.join(self.wd, 'non-ascii/utf16le'),
              os.path.join(self.wd, 'non-ascii/utf8'),
              os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
@@ -194,7 +197,8 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'no-yaml.json'),
-             os.path.join(self.wd, 'non-ascii/utf16'),
+             os.path.join(self.wd, 'non-ascii/utf16be'),
+             os.path.join(self.wd, 'non-ascii/utf16le'),
              os.path.join(self.wd, 'non-ascii/utf8'),
              os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
@@ -525,3 +529,18 @@ class CommandLineTestCase(unittest.TestCase):
             '\n' % path)
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+
+    def test_encoding_detection_utf16le(self):
+        path = os.path.join(self.wd, 'non-ascii/utf16le')
+        encoding = cli.determine_encoding(path)
+        self.assertEqual(encoding, 'utf-16-le')
+
+    def test_encoding_detection_utf16be(self):
+        path = os.path.join(self.wd, 'non-ascii/utf16be')
+        encoding = cli.determine_encoding(path)
+        self.assertEqual(encoding, 'utf-16-be')
+
+    def test_encoding_detection_utf8(self):
+        path = os.path.join(self.wd, 'non-ascii/utf8')
+        encoding = cli.determine_encoding(path)
+        self.assertEqual(encoding, 'utf-8')
