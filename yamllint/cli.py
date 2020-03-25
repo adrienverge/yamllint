@@ -31,14 +31,14 @@ from yamllint.linter import PROBLEM_LEVELS
 
 def determine_encoding(file):
     with io.open(file, 'rb') as raw_file:
-        data = raw_file.read()
-        if data.startswith(codecs.BOM_UTF16_LE):
-            encoding = 'utf-16-le'
-        elif data.startswith(codecs.BOM_UTF16_BE):
-            encoding = 'utf-16-be'
-        else:
-            encoding = 'utf-8'
-        return encoding
+        data = raw_file.read(4)
+    if data.startswith(codecs.BOM_UTF16_LE):
+        encoding = 'utf-16-le'
+    elif data.startswith(codecs.BOM_UTF16_BE):
+        encoding = 'utf-16-be'
+    else:
+        encoding = 'utf-8'
+    return encoding
 
 
 def find_files_recursively(items, conf):
