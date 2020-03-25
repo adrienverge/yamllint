@@ -105,8 +105,8 @@ def comments_between_tokens(token1, token2):
     pointer = token1.end_mark.pointer
 
     comment_before = None
-    for line in buf.split('\n'):
-        pos = line.find('#')
+    for line in buf.split(b'\n'):
+        pos = line.find(b'#')
         if pos != -1:
             comment = Comment(line_no, column_no + pos,
                               token1.end_mark.buffer, pointer + pos,
