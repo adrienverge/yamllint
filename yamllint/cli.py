@@ -87,13 +87,13 @@ class Format(object):
 
     @staticmethod
     def json(problem, filename):
-        return json.dumps({
+        return {
             "path": filename,
             "line": problem.line,
             "char": problem.column,
             "description": problem.message,
             "severity": problem.level,
-        })
+        }
 
 def show_problems(problems, file, args_format, no_warn):
     max_level = 0
@@ -107,7 +107,7 @@ def show_problems(problems, file, args_format, no_warn):
         if args_format == 'parsable':
             print(Format.parsable(problem, file))
         elif args_format == 'json':
-            problems_json.append(json.loads(Format.json(problem, file)))
+            problems_json.append(Format.json(problem, file))
         elif args_format == 'colored' or \
                 (args_format == 'auto' and supports_color()):
             if first:
