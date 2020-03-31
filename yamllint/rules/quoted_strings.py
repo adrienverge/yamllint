@@ -72,9 +72,11 @@ from yamllint.linter import LintProblem
 ID = 'quoted-strings'
 TYPE = 'token'
 CONF = {'quote-type': ('any', 'single', 'double'),
-        'required': (True, False, 'only-when-needed')}
+        'required': (True, False, 'only-when-needed'),
+        'quote-percent': (True, False)}
 DEFAULT = {'quote-type': 'any',
-           'required': True}
+           'required': True,
+           'quote-percent': False}
 
 DEFAULT_SCALAR_TAG = u'tag:yaml.org,2002:str'
 START_TOKENS = {'#', '*', '!', '?', '@', '`', '&',
@@ -128,6 +130,9 @@ def check(conf, token, prev, next, nextnext, context):
             msg = "string value is not quoted with %s quotes" % (quote_type)
 
     elif not token.plain:
+
+        if conf['quote-percent']:
+            START_TOKENS.add('%')
 
         # Quotes are disallowed when not needed
         if (tag == DEFAULT_SCALAR_TAG and token.value
