@@ -21,6 +21,7 @@ import io
 import os
 import platform
 import sys
+import json
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
 from yamllint import linter
@@ -84,10 +85,22 @@ class Format(object):
             line += '  \033[2m(%s)\033[0m' % problem.rule
         return line
 
+    @staticmethod
+    def json(problem, filename):
+        return json.dumps({
+            "path": filename,
+            "line": problem.line,
+            "char": problem.column,
+            "description": problem.message,
+            "code": "yamllint",
+            "name": "yamllint",
+            "severity": problem.level,
+        })
 
 def show_problems(problems, file, args_format, no_warn):
     max_level = 0
     first = True
+    problems_json = []
 
     for problem in problems:
         max_level = max(max_level, PROBLEM_LEVELS[problem.level])
@@ -95,6 +108,8 @@ def show_problems(problems, file, args_format, no_warn):
             continue
         if args_format == 'parsable':
             print(Format.parsable(problem, file))
+        elif args_format == 'json':
+            problems_json.append(json.loads(Format.json(problem, file)))
         elif args_format == 'colored' or \
                 (args_format == 'auto' and supports_color()):
             if first:
@@ -107,11 +122,13 @@ def show_problems(problems, file, args_format, no_warn):
                 first = False
             print(Format.standard(problem, file))
 
+    if args_format == 'json':
+        print(json.dumps(problems_json))
+
     if not first and args_format != 'parsable':
         print('')
 
     return max_level
-
 
 def run(argv=None):
     parser = argparse.ArgumentParser(prog=APP_NAME,
@@ -130,7 +147,7 @@ def run(argv=None):
                               action='store',
                               help='custom configuration (as YAML source)')
     parser.add_argument('-f', '--format',
-                        choices=('parsable', 'standard', 'colored', 'auto'),
+                        choices=('parsable', 'standard', 'colored', 'auto', 'json'),
                         default='auto', help='format for parsing output')
     parser.add_argument('-s', '--strict',
                         action='store_true',
