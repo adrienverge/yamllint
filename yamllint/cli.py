@@ -92,8 +92,6 @@ class Format(object):
             "line": problem.line,
             "char": problem.column,
             "description": problem.message,
-            "code": "yamllint",
-            "name": "yamllint",
             "severity": problem.level,
         })
 
@@ -130,6 +128,7 @@ def show_problems(problems, file, args_format, no_warn):
 
     return max_level
 
+
 def run(argv=None):
     parser = argparse.ArgumentParser(prog=APP_NAME,
                                      description=APP_DESCRIPTION)
@@ -147,7 +146,7 @@ def run(argv=None):
                               action='store',
                               help='custom configuration (as YAML source)')
     parser.add_argument('-f', '--format',
-                        choices=('parsable', 'standard', 'colored', 'auto', 'json'),
+                        choices=('parsable', 'standard', 'colored', 'json', 'auto'),
                         default='auto', help='format for parsing output')
     parser.add_argument('-s', '--strict',
                         action='store_true',

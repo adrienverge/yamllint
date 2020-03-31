@@ -101,9 +101,8 @@ machine (for instance for :doc:`syntax highlighting in text editors
  file.yml:57:1: [error] trailing spaces (trailing-spaces)
  file.yml:60:3: [error] wrong indentation: expected 4 but found 2 (indentation)
 
-Add the ``-f json`` arguments if you need an output formatted as json.
+Add the ``-f json`` arguments if you need an output formatted as JSON.
 The output will then look like:
-
 
 ::
 
