@@ -25,6 +25,7 @@ import pty
 import shutil
 import sys
 import unittest
+import json
 
 from tests.common import build_temp_workspace
 
@@ -517,3 +518,11 @@ class CommandLineTestCase(unittest.TestCase):
             '\n' % path)
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+
+    def test_json_output(self):
+        path = os.path.join(self.wd, 'a.yaml')
+
+        with RunContext(self) as ctx:
+            cli.run(('-f', 'json', path))
+        print (ctx.stdout)
+        self.assertTrue(json.loads(ctx.stdout))
