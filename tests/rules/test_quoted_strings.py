@@ -344,3 +344,24 @@ class QuotedTestCase(RuleTestCase):
                    '  "word 1\\\n'
                    '   word 2"\n',
                    conf, problem1=(9, 3))
+
+    def test_needed_extra_regex(self):
+        conf1 = 'quoted-strings: {quote-type: single, ' + \
+                                 'required: only-when-needed, ' + \
+                                 'needed-extra-regex: ""}\n'
+
+        self.check('---\n'
+                   'string1: foo\n'
+                   'string2: \'foo\'\n'                      # fails
+                   'string3: \'%foo\'\n',                    # fails
+                   conf1, problem1=(3, 10), problem2=(4, 10))
+
+        conf2 = 'quoted-strings: {quote-type: single, ' + \
+                                 'required: only-when-needed, ' + \
+                                 'needed-extra-regex: ^%.*$}\n'
+
+        self.check('---\n'
+                   'string1: foo\n'
+                   'string2: \'foo\'\n'                      # fails
+                   'string3: \'%foo\'\n',
+                   conf2, problem1=(3, 10))

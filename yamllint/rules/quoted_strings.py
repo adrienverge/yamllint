@@ -65,6 +65,7 @@ used.
     foo: 'bar'
 """
 
+import re
 import yaml
 
 from yamllint.linter import LintProblem
@@ -72,9 +73,11 @@ from yamllint.linter import LintProblem
 ID = 'quoted-strings'
 TYPE = 'token'
 CONF = {'quote-type': ('any', 'single', 'double'),
-        'required': (True, False, 'only-when-needed')}
+        'required': (True, False, 'only-when-needed'),
+        'needed-extra-regex': str}
 DEFAULT = {'quote-type': 'any',
-           'required': True}
+           'required': True,
+           'needed-extra-regex': ''}
 
 DEFAULT_SCALAR_TAG = u'tag:yaml.org,2002:str'
 START_TOKENS = {'#', '*', '!', '?', '@', '`', '&',
@@ -132,8 +135,11 @@ def check(conf, token, prev, next, nextnext, context):
         # Quotes are disallowed when not needed
         if (tag == DEFAULT_SCALAR_TAG and token.value
                 and token.value[0] not in START_TOKENS):
-            msg = "string value is redundantly quoted with %s quotes" % (
-                quote_type)
+            extra_regex = conf['needed-extra-regex']
+
+            if extra_regex == '' or not re.match(extra_regex, token.value):
+                msg = "string value is redundantly quoted with %s quotes" % (
+                    quote_type)
 
         # But when used need to match config
         elif token.style and not quote_match(quote_type, token.style):
