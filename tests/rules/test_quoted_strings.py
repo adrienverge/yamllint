@@ -420,7 +420,7 @@ class QuotedTestCase(RuleTestCase):
     def test_needed_extra_regex_4(self):
         conf = 'quoted-strings: {quote-type: single, ' + \
                                 'required: only-when-needed, ' + \
-                                'needed-extra-regex: ".+ .+"}\n'
+                                'needed-extra-regex: " "}\n'
 
         self.check('---\n'
                    'string1: \'foo\'\n'                      # fails
