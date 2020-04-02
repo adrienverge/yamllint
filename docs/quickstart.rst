@@ -112,8 +112,6 @@ The output will then look like:
       "line": 6,
       "char": 2,
       "description": "[warning] missing starting space in comment (comments)",
-      "code": "yamllint",
-      "name": "yamllint",
       "severity": "warning"
     }
   ]
