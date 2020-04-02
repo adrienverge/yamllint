@@ -26,6 +26,8 @@ used.
 * ``required`` defines whether using quotes in string values is required
   (``true``, default) or not (``false``), or only allowed when really needed
   (``only-when-needed``).
+* ``needed-extra-regex`` allows strings matching the given PCRE regex to be
+  quoted even when quoting is only allowed when really needed
 
 **Note**: Multi-line strings (with ``|`` or ``>``) will not be checked.
 
@@ -63,9 +65,22 @@ used.
    ::
 
     foo: 'bar'
+
+#. With ``quoted-strings: {quote-type: single, required: only-when-needed, needed-extra-regex: ^%.*%$ }``
+
+   the following code snippet would **PASS**:
+   ::
+
+    foo: '%bar%'
+
+   the following code snippet would **FAIL**:
+   ::
+
+    foo: 'bar'
 """
 
 import re
+
 import yaml
 
 from yamllint.linter import LintProblem
@@ -137,7 +152,7 @@ def check(conf, token, prev, next, nextnext, context):
                 and token.value[0] not in START_TOKENS):
             extra_regex = conf['needed-extra-regex']
 
-            if extra_regex == '' or not re.match(extra_regex, token.value):
+            if extra_regex == '' or not re.search(extra_regex, token.value):
                 msg = "string value is redundantly quoted with %s quotes" % (
                     quote_type)
 

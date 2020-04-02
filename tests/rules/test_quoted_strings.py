@@ -345,23 +345,98 @@ class QuotedTestCase(RuleTestCase):
                    '   word 2"\n',
                    conf, problem1=(9, 3))
 
-    def test_needed_extra_regex(self):
-        conf1 = 'quoted-strings: {quote-type: single, ' + \
-                                 'required: only-when-needed, ' + \
-                                 'needed-extra-regex: ""}\n'
+    def test_needed_extra_regex_1(self):
+        conf = 'quoted-strings: {quote-type: single, ' + \
+                                'required: only-when-needed, ' + \
+                                'needed-extra-regex: ^%.*%$}\n'
 
         self.check('---\n'
-                   'string1: foo\n'
-                   'string2: \'foo\'\n'                      # fails
-                   'string3: \'%foo\'\n',                    # fails
-                   conf1, problem1=(3, 10), problem2=(4, 10))
+                   'string1: \'$foo$\'\n'                    # fails
+                   'string2: \'%foo%\'\n',
+                   conf, problem1=(2, 10))
+        self.check('---\n'
+                   'multiline string 1: |\n'
+                   '  \'%line 1\n'
+                   '  line 2%\'\n'
+                   'multiline string 2: >\n'
+                   '  \'%word 1\n'
+                   '  word 2%\'\n'
+                   'multiline string 3:\n'
+                   '  \'%word 1\n'
+                   '  word 2%\'\n'
+                   'multiline string 4:\n'
+                   '  "\'%word 1\\\n'         # fails
+                   '   word 2%\'"\n',
+                   conf, problem1=(12, 3))
 
-        conf2 = 'quoted-strings: {quote-type: single, ' + \
-                                 'required: only-when-needed, ' + \
-                                 'needed-extra-regex: ^%.*$}\n'
+    def test_needed_extra_regex_2(self):
+        conf = 'quoted-strings: {quote-type: single, ' + \
+                                'required: only-when-needed, ' + \
+                                'needed-extra-regex: ^%}\n'
 
         self.check('---\n'
-                   'string1: foo\n'
-                   'string2: \'foo\'\n'                      # fails
-                   'string3: \'%foo\'\n',
-                   conf2, problem1=(3, 10))
+                   'string1: \'$foo\'\n'                     # fails
+                   'string2: \'%foo\'\n',
+                   conf, problem1=(2, 10))
+        self.check('---\n'
+                   'multiline string 1: |\n'
+                   '  \'%line 1\n'
+                   '  line 2\'\n'
+                   'multiline string 2: >\n'
+                   '  \'%word 1\n'
+                   '  word 2\'\n'
+                   'multiline string 3:\n'
+                   '  \'%word 1\n'
+                   '  word 2\'\n'
+                   'multiline string 4:\n'
+                   '  "\'%word 1\\\n'         # fails
+                   '   word 2\'"\n',
+                   conf, problem1=(12, 3))
+
+    def test_needed_extra_regex_3(self):
+        conf = 'quoted-strings: {quote-type: single, ' + \
+                                'required: only-when-needed, ' + \
+                                'needed-extra-regex: ;$}\n'
+
+        self.check('---\n'
+                   'string1: \'foo,\'\n'                     # fails
+                   'string2: \'foo;\'\n',
+                   conf, problem1=(2, 10))
+        self.check('---\n'
+                   'multiline string 1: |\n'
+                   '  \'line 1;\n'
+                   '  line 2\'\n'
+                   'multiline string 2: >\n'
+                   '  \'word 1;\n'
+                   '  word 2\'\n'
+                   'multiline string 3:\n'
+                   '  \'word 1;\n'            # fails
+                   '  word 2\'\n'
+                   'multiline string 4:\n'
+                   '  "\'word 1;\\\n'         # fails
+                   '   word 2\'"\n',
+                   conf, problem1=(9, 3), problem2=(12, 3))
+
+    def test_needed_extra_regex_4(self):
+        conf = 'quoted-strings: {quote-type: single, ' + \
+                                'required: only-when-needed, ' + \
+                                'needed-extra-regex: ".+ .+"}\n'
+
+        self.check('---\n'
+                   'string1: \'foo\'\n'                      # fails
+                   'string2: \'foo bar\'\n',
+                   conf, problem1=(2, 10))
+        self.check('---\n'
+                   'multiline string 1: |\n'
+                   '  \'line1\n'
+                   '  line2\'\n'
+                   'multiline string 2: >\n'
+                   '  \'word1\n'
+                   '  word2\'\n'
+                   'multiline string 3:\n'
+                   '  \'word1\n'
+                   '  word2\'\n'
+                   'multiline string 4:\n'
+                   '  "\'word1\\\n'           # fails
+                   '   word2\'"\n',
+                   conf, problem1=(12, 3))
