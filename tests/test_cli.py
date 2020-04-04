@@ -92,11 +92,13 @@ class CommandLineTestCase(unittest.TestCase):
             'dos.yml': '---\r\n'
                        'dos: true',
             # UTF-16 Little Endian BOM
-            'non-ascii/utf16le': b'\xff\xfe' + u'---\nutf16le: true\n'.encode('utf-16-le'),
+            'non-ascii/utf-16-le':
+                b'\xff\xfe' + u'---\nutf16le: true\n'.encode('utf-16-le'),
             # UTF-16 Big Endian
-            'non-ascii/utf16be': b'\xfe\xff' + u'---\nutf16be: true\n'.encode('utf-16-be'),
+            'non-ascii/utf-16-be':
+                b'\xfe\xff' + u'---\nutf16be: true\n'.encode('utf-16-be'),
             # UTF-8 BOM
-            'non-ascii/utf8': b'\xef\xbb\xbf---\nutf8: true\n',
+            'non-ascii/utf-8': b'\xef\xbb\xbf---\nutf8: true\n',
         })
 
     @classmethod
@@ -177,9 +179,9 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'no-yaml.json'),
-             os.path.join(self.wd, 'non-ascii/utf16be'),
-             os.path.join(self.wd, 'non-ascii/utf16le'),
-             os.path.join(self.wd, 'non-ascii/utf8'),
+             os.path.join(self.wd, 'non-ascii/utf-16-be'),
+             os.path.join(self.wd, 'non-ascii/utf-16-le'),
+             os.path.join(self.wd, 'non-ascii/utf-8'),
              os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
              os.path.join(self.wd, 'sub/ok.yaml'),
@@ -197,9 +199,9 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'no-yaml.json'),
-             os.path.join(self.wd, 'non-ascii/utf16be'),
-             os.path.join(self.wd, 'non-ascii/utf16le'),
-             os.path.join(self.wd, 'non-ascii/utf8'),
+             os.path.join(self.wd, 'non-ascii/utf-16-be'),
+             os.path.join(self.wd, 'non-ascii/utf-16-le'),
+             os.path.join(self.wd, 'non-ascii/utf-8'),
              os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
              os.path.join(self.wd, 'sub/ok.yaml'),
@@ -531,19 +533,19 @@ class CommandLineTestCase(unittest.TestCase):
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
     def test_encoding_detection_utf16le(self):
-        path = os.path.join(self.wd, 'non-ascii/utf16le')
+        path = os.path.join(self.wd, 'non-ascii/utf-16-le')
         with RunContext(self) as ctx:
             cli.run(('-f', 'parsable', path))
         self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))
 
     def test_encoding_detection_utf16be(self):
-        path = os.path.join(self.wd, 'non-ascii/utf16be')
+        path = os.path.join(self.wd, 'non-ascii/utf-16-be')
         with RunContext(self) as ctx:
             cli.run(('-f', 'parsable', path))
         self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))
 
     def test_encoding_detection_utf8(self):
-        path = os.path.join(self.wd, 'non-ascii/utf8')
+        path = os.path.join(self.wd, 'non-ascii/utf-8')
         with RunContext(self) as ctx:
             cli.run(('-f', 'parsable', path))
         self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))

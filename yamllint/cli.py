@@ -17,12 +17,13 @@
 from __future__ import print_function
 
 import argparse
-import chardet
 import contextlib
 import io
 import os
 import platform
 import sys
+
+import chardet
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
 from yamllint import linter
@@ -38,9 +39,10 @@ def yamlopen(fp, **iowrapper_kwargs):
             raw_data = raw_file.read()
             encoding = chardet.detect(raw_data).get('encoding') or 'utf-8'
             raw_file.seek(0)
-        with io.TextIOWrapper(raw_file, encoding=encoding, **iowrapper_kwargs) as decoded:
+        with io.TextIOWrapper(
+            raw_file, encoding=encoding, **iowrapper_kwargs
+        ) as decoded:
             yield decoded
-
 
 def find_files_recursively(items, conf):
     for item in items:
