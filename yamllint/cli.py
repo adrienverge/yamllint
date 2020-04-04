@@ -33,16 +33,17 @@ from yamllint.linter import PROBLEM_LEVELS
 
 @contextlib.contextmanager
 def yamlopen(fp, **iowrapper_kwargs):
-    encoding = iowrapper_kwargs.pop('encoding', None)
     with io.open(fp, mode='rb') as raw_file:
-        if encoding is None:
+        if iowrapper_kwargs.get('encoding'):
+            with io.TextIOWrapper(raw_file, **iowrapper_kwargs) as decoded:
+                yield decoded
+        else:
             raw_data = raw_file.read()
             encoding = chardet.detect(raw_data).get('encoding') or 'utf-8'
-            raw_file.seek(0)
-        with io.TextIOWrapper(
-            raw_file, encoding=encoding, **iowrapper_kwargs
-        ) as decoded:
-            yield decoded
+            iowrapper_kwargs['encoding'] = encoding
+            buffer = io.BytesIO(raw_data)
+            with io.TextIOWrapper(buffer, **iowrapper_kwargs) as decoded:
+                yield decoded
 
 
 def find_files_recursively(items, conf):
