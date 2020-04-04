@@ -41,8 +41,8 @@ def yamlopen(fp, **iowrapper_kwargs):
             raw_data = raw_file.read()
             encoding = chardet.detect(raw_data).get('encoding') or 'utf-8'
             iowrapper_kwargs['encoding'] = encoding
-            buffer = io.BytesIO(raw_data)
-            with io.TextIOWrapper(buffer, **iowrapper_kwargs) as decoded:
+            buff = io.BytesIO(raw_data)
+            with io.TextIOWrapper(buff, **iowrapper_kwargs) as decoded:
                 yield decoded
 
 
