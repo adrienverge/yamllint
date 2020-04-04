@@ -214,7 +214,8 @@ class CommandLineTestCase(unittest.TestCase):
                                      '  - \'**/utf-8\'\n')
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
-            [os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8')]
+            [os.path.join(self.wd, 'non-ascii/utf-8'),
+             os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8')]
         )
 
     def test_run_with_bad_arguments(self):
