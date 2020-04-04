@@ -51,6 +51,6 @@ setup(
     packages=find_packages(exclude=['tests', 'tests.*']),
     entry_points={'console_scripts': ['yamllint=yamllint.cli:run']},
     package_data={'yamllint': ['conf/*.yaml']},
-    install_requires=['pathspec >=0.5.3', 'pyyaml'],
+    install_requires=['pathspec >=0.5.3', 'pyyaml', 'chardet'],
     test_suite='tests',
 )

@@ -92,9 +92,9 @@ class CommandLineTestCase(unittest.TestCase):
             'dos.yml': '---\r\n'
                        'dos: true',
             # UTF-16 Little Endian BOM
-            'non-ascii/utf16le': b'\xff\xfe---\nutf16le: true\n',
+            'non-ascii/utf16le': b'\xff\xfe' + u'---\nutf16le: true\n'.encode('utf-16-le'),
             # UTF-16 Big Endian
-            'non-ascii/utf16be': b'\xfe\xff---\nutf16be: true\n',
+            'non-ascii/utf16be': b'\xfe\xff' + u'---\nutf16be: true\n'.encode('utf-16-be'),
             # UTF-8 BOM
             'non-ascii/utf8': b'\xef\xbb\xbf---\nutf8: true\n',
         })
@@ -532,15 +532,18 @@ class CommandLineTestCase(unittest.TestCase):
 
     def test_encoding_detection_utf16le(self):
         path = os.path.join(self.wd, 'non-ascii/utf16le')
-        encoding = cli.determine_encoding(path)
-        self.assertEqual(encoding, 'utf-16-le')
+        with RunContext(self) as ctx:
+            cli.run(('-f', 'parsable', path))
+        self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))
 
     def test_encoding_detection_utf16be(self):
         path = os.path.join(self.wd, 'non-ascii/utf16be')
-        encoding = cli.determine_encoding(path)
-        self.assertEqual(encoding, 'utf-16-be')
+        with RunContext(self) as ctx:
+            cli.run(('-f', 'parsable', path))
+        self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))
 
     def test_encoding_detection_utf8(self):
         path = os.path.join(self.wd, 'non-ascii/utf8')
-        encoding = cli.determine_encoding(path)
-        self.assertEqual(encoding, 'utf-8')
+        with RunContext(self) as ctx:
+            cli.run(('-f', 'parsable', path))
+        self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))

@@ -17,7 +17,8 @@
 from __future__ import print_function
 
 import argparse
-import codecs
+import chardet
+import contextlib
 import io
 import os
 import platform
@@ -29,16 +30,16 @@ from yamllint.config import YamlLintConfig, YamlLintConfigError
 from yamllint.linter import PROBLEM_LEVELS
 
 
-def determine_encoding(file):
-    with io.open(file, 'rb') as raw_file:
-        data = raw_file.read(4)
-    if data.startswith(codecs.BOM_UTF16_LE):
-        encoding = 'utf-16-le'
-    elif data.startswith(codecs.BOM_UTF16_BE):
-        encoding = 'utf-16-be'
-    else:
-        encoding = 'utf-8'
-    return encoding
+@contextlib.contextmanager
+def yamlopen(fp, **iowrapper_kwargs):
+    encoding = iowrapper_kwargs.pop('encoding', None)
+    with io.open(fp, mode='rb') as raw_file:
+        if encoding is None:
+            raw_data = raw_file.read()
+            encoding = chardet.detect(raw_data).get('encoding') or 'utf-8'
+            raw_file.seek(0)
+        with io.TextIOWrapper(raw_file, encoding=encoding, **iowrapper_kwargs) as decoded:
+            yield decoded
 
 
 def find_files_recursively(items, conf):
@@ -190,8 +191,7 @@ def run(argv=None):
     for file in find_files_recursively(args.files, conf):
         filepath = file[2:] if file.startswith('./') else file
         try:
-            encoding = determine_encoding(file)
-            with io.open(file, newline='', encoding=encoding) as f:
+            with yamlopen(file, newline='') as f:
                 problems = linter.run(f, conf, filepath)
         except EnvironmentError as e:
             print(e, file=sys.stderr)
