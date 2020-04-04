@@ -99,6 +99,8 @@ class CommandLineTestCase(unittest.TestCase):
                 b'\xfe\xff' + u'---\nutf16be: true\n'.encode('utf-16-be'),
             # UTF-8 BOM
             'non-ascii/utf-8': b'\xef\xbb\xbf---\nutf8: true\n',
+            # Random bytes that have no possible encoding
+            'non-ascii/undetectable': b'\x05\xfc\x17A\xb6\x15\x15\x90>9'
         })
 
     @classmethod
@@ -179,6 +181,7 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'no-yaml.json'),
+             os.path.join(self.wd, 'non-ascii/undetectable'),
              os.path.join(self.wd, 'non-ascii/utf-16-be'),
              os.path.join(self.wd, 'non-ascii/utf-16-le'),
              os.path.join(self.wd, 'non-ascii/utf-8'),
@@ -199,6 +202,7 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'no-yaml.json'),
+             os.path.join(self.wd, 'non-ascii/undetectable'),
              os.path.join(self.wd, 'non-ascii/utf-16-be'),
              os.path.join(self.wd, 'non-ascii/utf-16-le'),
              os.path.join(self.wd, 'non-ascii/utf-8'),
@@ -550,3 +554,37 @@ class CommandLineTestCase(unittest.TestCase):
         with RunContext(self) as ctx:
             cli.run(('-f', 'parsable', path))
         self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))
+
+    def test_detected_encoding_utf8(self):
+        path = os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8')
+        with cli.yamlopen(path) as yaml_file:
+            yaml_file.read()
+        self.assertEqual(yaml_file.encoding, 'utf-8')
+
+    def test_detected_encoding_utf8_sig(self):
+        path = os.path.join(self.wd, 'non-ascii/utf-8')
+        with cli.yamlopen(path) as yaml_file:
+            yaml_file.read()
+        self.assertEqual(yaml_file.encoding, 'UTF-8-SIG')
+
+    def test_detected_encoding_utf16(self):
+        path = os.path.join(self.wd, 'non-ascii/utf-16-le')
+        with cli.yamlopen(path) as yaml_file:
+            yaml_file.read()
+        self.assertEqual(yaml_file.encoding, 'UTF-16')
+        path = os.path.join(self.wd, 'non-ascii/utf-16-be')
+        with cli.yamlopen(path) as yaml_file:
+            yaml_file.read()
+        self.assertEqual(yaml_file.encoding, 'UTF-16')
+
+    def test_explicit_encoding(self):
+        path = os.path.join(self.wd, 'a.yaml')
+        with cli.yamlopen(path, encoding='windows-1252') as yaml_file:
+            yaml_file.read()
+        self.assertEqual(yaml_file.encoding, 'windows-1252')
+
+    def test_default_encoding(self):
+        path = os.path.join(self.wd, 'non-ascii/undetectable')
+        with cli.yamlopen(path) as yaml_file:
+            encoding = yaml_file.encoding
+        self.assertEqual(encoding, 'utf-8')
