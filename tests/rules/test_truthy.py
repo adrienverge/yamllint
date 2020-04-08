@@ -138,5 +138,9 @@ class TruthyTestCase(RuleTestCase):
                    'on: 0\n'
                    'OFF: 0\n'
                    'Off: 0\n'
-                   'off: 0\n',
+                   'off: 0\n'
+                   'YES:\n'
+                   '  Yes:\n'
+                   '    yes:\n'
+                   '      on: 0\n',
                    conf)
