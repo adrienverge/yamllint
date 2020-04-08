@@ -26,8 +26,8 @@ used.
 * ``required`` defines whether using quotes in string values is required
   (``true``, default) or not (``false``), or only allowed when really needed
   (``only-when-needed``).
-* ``needed-extra-regex`` allows strings matching the given PCRE regex to be
-  quoted even when quoting is only allowed when really needed
+* ``needed-extra-regex`` requires strings matching the given PCRE regex to be
+  quoted even when quoting is only allowed when really needed.
 
 **Note**: Multi-line strings (with ``|`` or ``>``) will not be checked.
 
@@ -77,6 +77,7 @@ used.
    ::
 
     foo: 'bar'
+    foo: %bar%
 """
 
 import re
