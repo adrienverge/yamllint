@@ -348,52 +348,28 @@ class QuotedTestCase(RuleTestCase):
     def test_needed_extra_regex_1(self):
         conf = 'quoted-strings: {quote-type: single, ' + \
                                 'required: only-when-needed, ' + \
-                                'needed-extra-regex: ^%.*%$}\n'
+                                'needed-extra-regex: ^http://}\n'
 
         self.check('---\n'
-                   'string1: \'$foo$\'\n'                    # fails
-                   'string2: \'%foo%\'\n',
+                   'string1: \'localhost\'\n'                # fails
+                   'string2: \'http://localhost\'\n',
                    conf, problem1=(2, 10))
         self.check('---\n'
                    'multiline string 1: |\n'
-                   '  \'%line 1\n'
-                   '  line 2%\'\n'
+                   '  localhost\n'
+                   '  http://localhost\n'
                    'multiline string 2: >\n'
-                   '  \'%word 1\n'
-                   '  word 2%\'\n'
+                   '  localhost\n'
+                   '  http://localhost\n'
                    'multiline string 3:\n'
-                   '  \'%word 1\n'
-                   '  word 2%\'\n'
+                   '  localhost\n'            # fails
+                   '  http://localhost\n'
                    'multiline string 4:\n'
-                   '  "\'%word 1\\\n'         # fails
-                   '   word 2%\'"\n',
+                   '  "localhost\\\n'
+                   '   http://localhost"\n',
                    conf, problem1=(12, 3))
 
     def test_needed_extra_regex_2(self):
-        conf = 'quoted-strings: {quote-type: single, ' + \
-                                'required: only-when-needed, ' + \
-                                'needed-extra-regex: ^%}\n'
-
-        self.check('---\n'
-                   'string1: \'$foo\'\n'                     # fails
-                   'string2: \'%foo\'\n',
-                   conf, problem1=(2, 10))
-        self.check('---\n'
-                   'multiline string 1: |\n'
-                   '  \'%line 1\n'
-                   '  line 2\'\n'
-                   'multiline string 2: >\n'
-                   '  \'%word 1\n'
-                   '  word 2\'\n'
-                   'multiline string 3:\n'
-                   '  \'%word 1\n'
-                   '  word 2\'\n'
-                   'multiline string 4:\n'
-                   '  "\'%word 1\\\n'         # fails
-                   '   word 2\'"\n',
-                   conf, problem1=(12, 3))
-
-    def test_needed_extra_regex_3(self):
         conf = 'quoted-strings: {quote-type: single, ' + \
                                 'required: only-when-needed, ' + \
                                 'needed-extra-regex: ;$}\n'
@@ -404,20 +380,20 @@ class QuotedTestCase(RuleTestCase):
                    conf, problem1=(2, 10))
         self.check('---\n'
                    'multiline string 1: |\n'
-                   '  \'line 1;\n'
-                   '  line 2\'\n'
+                   '  line 1;\n'
+                   '  line 2,\n'
                    'multiline string 2: >\n'
-                   '  \'word 1;\n'
-                   '  word 2\'\n'
+                   '  word 1;\n'
+                   '  word 2,\n'
                    'multiline string 3:\n'
-                   '  \'word 1;\n'            # fails
-                   '  word 2\'\n'
+                   '  word 1;\n'              # fails
+                   '  word 2,\n'
                    'multiline string 4:\n'
-                   '  "\'word 1;\\\n'         # fails
-                   '   word 2\'"\n',
-                   conf, problem1=(9, 3), problem2=(12, 3))
+                   '  "word 1;\\\n'
+                   '   word 2,"\n',
+                   conf, problem2=(12, 3))
 
-    def test_needed_extra_regex_4(self):
+    def test_needed_extra_regex_3(self):
         conf = 'quoted-strings: {quote-type: single, ' + \
                                 'required: only-when-needed, ' + \
                                 'needed-extra-regex: " "}\n'
@@ -428,15 +404,15 @@ class QuotedTestCase(RuleTestCase):
                    conf, problem1=(2, 10))
         self.check('---\n'
                    'multiline string 1: |\n'
-                   '  \'line1\n'
-                   '  line2\'\n'
+                   '  line1\n'
+                   '  line2\n'
                    'multiline string 2: >\n'
-                   '  \'word1\n'
-                   '  word2\'\n'
+                   '  word1\n'
+                   '  word2\n'
                    'multiline string 3:\n'
-                   '  \'word1\n'
-                   '  word2\'\n'
+                   '  word1\n'
+                   '  word2\n'
                    'multiline string 4:\n'
-                   '  "\'word1\\\n'           # fails
-                   '   word2\'"\n',
+                   '  "word1\\\n'             # fails
+                   '   word2"\n',
                    conf, problem1=(12, 3))
