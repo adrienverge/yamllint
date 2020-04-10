@@ -137,76 +137,6 @@ class QuotedTestCase(RuleTestCase):
                    '   word 2"\n',
                    conf, problem1=(9, 3))
 
-    def test_disallow_redundant_quotes(self):
-        conf = 'quoted-strings: {required: only-when-needed}\n'
-
-        self.check('---\n'
-                   'boolean1: true\n'
-                   'number1: 123\n'
-                   'string1: foo\n'
-                   'string2: "foo"\n'                        # fails
-                   'string3: "true"\n'
-                   'string4: "123"\n'
-                   'string5: \'bar\'\n'                      # fails
-                   'string6: !!str genericstring\n'
-                   'string7: !!str 456\n'
-                   'string8: !!str "quotedgenericstring"\n'
-                   'binary: !!binary binstring\n'
-                   'integer: !!int intstring\n'
-                   'boolean2: !!bool boolstring\n'
-                   'boolean3: !!bool "quotedboolstring"\n',
-                   conf, problem1=(5, 10), problem2=(8, 10))
-        self.check('---\n'
-                   'multiline string 1: |\n'
-                   '  line 1\n'
-                   '  line 2\n'
-                   'multiline string 2: >\n'
-                   '  word 1\n'
-                   '  word 2\n'
-                   'multiline string 3:\n'
-                   '  word 1\n'
-                   '  word 2\n'
-                   'multiline string 4:\n'
-                   '  "word 1\\\n'            # fails
-                   '   word 2"\n',
-                   conf, problem1=(12, 3))
-
-    def test_disallow_redundant_single_quotes(self):
-        conf = 'quoted-strings: {quote-type: single, ' + \
-                                'required: only-when-needed}\n'
-
-        self.check('---\n'
-                   'boolean1: true\n'
-                   'number1: 123\n'
-                   'string1: foo\n'
-                   'string2: "foo"\n'                        # fails
-                   'string3: "true"\n'                       # fails
-                   'string4: "123"\n'                        # fails
-                   'string5: \'bar\'\n'                      # fails
-                   'string6: !!str genericstring\n'
-                   'string7: !!str 456\n'
-                   'string8: !!str "quotedgenericstring"\n'
-                   'binary: !!binary binstring\n'
-                   'integer: !!int intstring\n'
-                   'boolean2: !!bool boolstring\n'
-                   'boolean3: !!bool "quotedboolstring"\n',
-                   conf, problem1=(5, 10), problem2=(6, 10),
-                   problem3=(7, 10), problem4=(8, 10))
-        self.check('---\n'
-                   'multiline string 1: |\n'
-                   '  line 1\n'
-                   '  line 2\n'
-                   'multiline string 2: >\n'
-                   '  word 1\n'
-                   '  word 2\n'
-                   'multiline string 3:\n'
-                   '  word 1\n'
-                   '  word 2\n'
-                   'multiline string 4:\n'
-                   '  "word 1\\\n'            # fails
-                   '   word 2"\n',
-                   conf, problem1=(12, 3))
-
     def test_single_quotes_required(self):
         conf = 'quoted-strings: {quote-type: single, required: true}\n'
 
@@ -242,7 +172,7 @@ class QuotedTestCase(RuleTestCase):
                    '   word 2"\n',
                    conf, problem1=(9, 3), problem2=(12, 3))
 
-    def test_any_quotes_relaxed(self):
+    def test_any_quotes_not_required(self):
         conf = 'quoted-strings: {quote-type: any, required: false}\n'
 
         self.check('---\n'
@@ -276,7 +206,7 @@ class QuotedTestCase(RuleTestCase):
                    '   word 2"\n',
                    conf)
 
-    def test_single_quotes_relaxed(self):
+    def test_single_quotes_not_required(self):
         conf = 'quoted-strings: {quote-type: single, required: false}\n'
 
         self.check('---\n'
@@ -344,3 +274,73 @@ class QuotedTestCase(RuleTestCase):
                    '  "word 1\\\n'
                    '   word 2"\n',
                    conf, problem1=(9, 3))
+
+    def test_only_when_needed(self):
+        conf = 'quoted-strings: {required: only-when-needed}\n'
+
+        self.check('---\n'
+                   'boolean1: true\n'
+                   'number1: 123\n'
+                   'string1: foo\n'
+                   'string2: "foo"\n'                        # fails
+                   'string3: "true"\n'
+                   'string4: "123"\n'
+                   'string5: \'bar\'\n'                      # fails
+                   'string6: !!str genericstring\n'
+                   'string7: !!str 456\n'
+                   'string8: !!str "quotedgenericstring"\n'
+                   'binary: !!binary binstring\n'
+                   'integer: !!int intstring\n'
+                   'boolean2: !!bool boolstring\n'
+                   'boolean3: !!bool "quotedboolstring"\n',
+                   conf, problem1=(5, 10), problem2=(8, 10))
+        self.check('---\n'
+                   'multiline string 1: |\n'
+                   '  line 1\n'
+                   '  line 2\n'
+                   'multiline string 2: >\n'
+                   '  word 1\n'
+                   '  word 2\n'
+                   'multiline string 3:\n'
+                   '  word 1\n'
+                   '  word 2\n'
+                   'multiline string 4:\n'
+                   '  "word 1\\\n'            # fails
+                   '   word 2"\n',
+                   conf, problem1=(12, 3))
+
+    def test_only_when_needed_single_quotes(self):
+        conf = ('quoted-strings: {quote-type: single,\n'
+                '                 required: only-when-needed}\n')
+
+        self.check('---\n'
+                   'boolean1: true\n'
+                   'number1: 123\n'
+                   'string1: foo\n'
+                   'string2: "foo"\n'                        # fails
+                   'string3: "true"\n'                       # fails
+                   'string4: "123"\n'                        # fails
+                   'string5: \'bar\'\n'                      # fails
+                   'string6: !!str genericstring\n'
+                   'string7: !!str 456\n'
+                   'string8: !!str "quotedgenericstring"\n'
+                   'binary: !!binary binstring\n'
+                   'integer: !!int intstring\n'
+                   'boolean2: !!bool boolstring\n'
+                   'boolean3: !!bool "quotedboolstring"\n',
+                   conf, problem1=(5, 10), problem2=(6, 10),
+                   problem3=(7, 10), problem4=(8, 10))
+        self.check('---\n'
+                   'multiline string 1: |\n'
+                   '  line 1\n'
+                   '  line 2\n'
+                   'multiline string 2: >\n'
+                   '  word 1\n'
+                   '  word 2\n'
+                   'multiline string 3:\n'
+                   '  word 1\n'
+                   '  word 2\n'
+                   'multiline string 4:\n'
+                   '  "word 1\\\n'            # fails
+                   '   word 2"\n',
+                   conf, problem1=(12, 3))
