@@ -128,6 +128,7 @@ def check(conf, token, prev, next, nextnext, context):
 
     quote_type = conf['quote-type']
     required = conf['required']
+    extra_regex = conf['needed-extra-regex']
 
     # Completely relaxed about quotes (same as the rule being disabled)
     if required is False and quote_type == 'any':
@@ -150,12 +151,10 @@ def check(conf, token, prev, next, nextnext, context):
 
         # Quotes are disallowed when not needed
         if (tag == DEFAULT_SCALAR_TAG and token.value
-                and token.value[0] not in START_TOKENS):
-            extra_regex = conf['needed-extra-regex']
-
-            if extra_regex == '' or not re.search(extra_regex, token.value):
-                msg = "string value is redundantly quoted with %s quotes" % (
-                    quote_type)
+                and token.value[0] not in START_TOKENS and (extra_regex == ''
+                or not re.search(extra_regex, token.value))):
+            msg = "string value is redundantly quoted with %s quotes" % (
+                quote_type)
 
         # But when used need to match config
         elif token.style and not quote_match(quote_type, token.style):
