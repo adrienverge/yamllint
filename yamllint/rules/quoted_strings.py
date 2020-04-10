@@ -26,6 +26,11 @@ used.
 * ``required`` defines whether using quotes in string values is required
   (``true``, default) or not (``false``), or only allowed when really needed
   (``only-when-needed``).
+* ``extra-required`` is a list of PCRE regexes to force string values to be
+  quoted, if they match any regex. This option can only be used with
+  ``required: false`` and  ``required: only-when-needed``.
+* ``extra-allowed`` is a list of PCRE regexes to allow quoted string values,
+  even if ``required: only-when-needed`` is set.
 
 **Note**: Multi-line strings (with ``|`` or ``>``) will not be checked.
 
@@ -63,7 +68,43 @@ used.
    ::
 
     foo: 'bar'
+
+#. With ``quoted-strings: {required: false, extra-required: [^http://,
+   ^ftp://]}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    - localhost
+    - "localhost"
+    - "http://localhost"
+    - "ftp://localhost"
+
+   the following code snippet would **FAIL**:
+   ::
+
+    - http://localhost
+    - ftp://localhost
+
+#. With ``quoted-strings: {required: only-when-needed, extra-allowed:
+   [^http://, ^ftp://], extra-required: [QUOTED]}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    - localhost
+    - "http://localhost"
+    - "ftp://localhost"
+    - "this is a string that needs to be QUOTED"
+
+   the following code snippet would **FAIL**:
+   ::
+
+    - "localhost"
+    - this is a string that needs to be QUOTED
 """
+
+import re
 
 import yaml
 
@@ -72,9 +113,23 @@ from yamllint.linter import LintProblem
 ID = 'quoted-strings'
 TYPE = 'token'
 CONF = {'quote-type': ('any', 'single', 'double'),
-        'required': (True, False, 'only-when-needed')}
+        'required': (True, False, 'only-when-needed'),
+        'extra-required': [str],
+        'extra-allowed': [str]}
 DEFAULT = {'quote-type': 'any',
-           'required': True}
+           'required': True,
+           'extra-required': [],
+           'extra-allowed': []}
+
+
+def VALIDATE(conf):
+    if conf['required'] is True and len(conf['extra-allowed']) > 0:
+        return 'cannot use both "required: true" and "extra-allowed"'
+    if conf['required'] is True and len(conf['extra-required']) > 0:
+        return 'cannot use both "required: true" and "extra-required"'
+    if conf['required'] is False and len(conf['extra-allowed']) > 0:
+        return 'cannot use both "required: false" and "extra-allowed"'
+
 
 DEFAULT_SCALAR_TAG = u'tag:yaml.org,2002:str'
 
@@ -125,36 +180,48 @@ def check(conf, token, prev, next, nextnext, context):
         return
 
     quote_type = conf['quote-type']
-    required = conf['required']
-
-    # Completely relaxed about quotes (same as the rule being disabled)
-    if required is False and quote_type == 'any':
-        return
 
     msg = None
-    if required is True:
+    if conf['required'] is True:
 
         # Quotes are mandatory and need to match config
         if token.style is None or not _quote_match(quote_type, token.style):
-            msg = "string value is not quoted with %s quotes" % (quote_type)
+            msg = "string value is not quoted with %s quotes" % quote_type
 
-    elif required is False:
+    elif conf['required'] is False:
 
         # Quotes are not mandatory but when used need to match config
         if token.style and not _quote_match(quote_type, token.style):
-            msg = "string value is not quoted with %s quotes" % (quote_type)
+            msg = "string value is not quoted with %s quotes" % quote_type
 
-    elif not token.plain:
+        elif not token.style:
+            is_extra_required = any(re.search(r, token.value)
+                                    for r in conf['extra-required'])
+            if is_extra_required:
+                msg = "string value is not quoted"
 
-        # Quotes are disallowed when not needed
-        if (tag == DEFAULT_SCALAR_TAG and token.value and
+    elif conf['required'] == 'only-when-needed':
+
+        # Quotes are not strictly needed here
+        if (token.style and tag == DEFAULT_SCALAR_TAG and token.value and
                 not _quotes_are_needed(token.value)):
-            msg = "string value is redundantly quoted with %s quotes" % (
-                quote_type)
+            is_extra_required = any(re.search(r, token.value)
+                                    for r in conf['extra-required'])
+            is_extra_allowed = any(re.search(r, token.value)
+                                   for r in conf['extra-allowed'])
+            if not (is_extra_required or is_extra_allowed):
+                msg = "string value is redundantly quoted with %s quotes" % (
+                    quote_type)
 
         # But when used need to match config
         elif token.style and not _quote_match(quote_type, token.style):
-            msg = "string value is not quoted with %s quotes" % (quote_type)
+            msg = "string value is not quoted with %s quotes" % quote_type
+
+        elif not token.style:
+            is_extra_required = len(conf['extra-required']) and any(
+                re.search(r, token.value) for r in conf['extra-required'])
+            if is_extra_required:
+                msg = "string value is not quoted"
 
     if msg is not None:
         yield LintProblem(
