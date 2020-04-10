@@ -156,41 +156,6 @@ class QuotedTestCase(RuleTestCase):
                    '   word 2"\n',
                    conf, problem1=(9, 3))
 
-    def test_single_quotes_required(self):
-        conf = 'quoted-strings: {quote-type: single, required: true}\n'
-
-        self.check('---\n'
-                   'boolean1: true\n'
-                   'number1: 123\n'
-                   'string1: foo\n'                          # fails
-                   'string2: "foo"\n'                        # fails
-                   'string3: "true"\n'                       # fails
-                   'string4: "123"\n'                        # fails
-                   'string5: \'bar\'\n'
-                   'string6: !!str genericstring\n'
-                   'string7: !!str 456\n'
-                   'string8: !!str "quotedgenericstring"\n'
-                   'binary: !!binary binstring\n'
-                   'integer: !!int intstring\n'
-                   'boolean2: !!bool boolstring\n'
-                   'boolean3: !!bool "quotedboolstring"\n',
-                   conf, problem1=(4, 10), problem2=(5, 10),
-                   problem3=(6, 10), problem4=(7, 10))
-        self.check('---\n'
-                   'multiline string 1: |\n'
-                   '  line 1\n'
-                   '  line 2\n'
-                   'multiline string 2: >\n'
-                   '  word 1\n'
-                   '  word 2\n'
-                   'multiline string 3:\n'
-                   '  word 1\n'               # fails
-                   '  word 2\n'
-                   'multiline string 4:\n'
-                   '  "word 1\\\n'            # fails
-                   '   word 2"\n',
-                   conf, problem1=(9, 3), problem2=(12, 3))
-
     def test_any_quotes_not_required(self):
         conf = 'quoted-strings: {quote-type: any, required: false}\n'
 
