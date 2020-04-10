@@ -177,6 +177,12 @@ def validate_rule_conf(rule, conf):
         for optkey in options:
             if optkey not in conf:
                 conf[optkey] = options_default[optkey]
+
+        if hasattr(rule, 'VALIDATE'):
+            res = rule.VALIDATE(conf)
+            if res:
+                raise YamlLintConfigError('invalid config: %s: %s' %
+                                          (rule.ID, res))
     else:
         raise YamlLintConfigError(('invalid config: rule "%s": should be '
                                    'either "enable", "disable" or a dict')
