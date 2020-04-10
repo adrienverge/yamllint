@@ -89,7 +89,10 @@ def quote_match(quote_type, token_style):
 
 def check(conf, token, prev, next, nextnext, context):
     if not (isinstance(token, yaml.tokens.ScalarToken) and
-            isinstance(prev, (yaml.ValueToken, yaml.TagToken))):
+            isinstance(prev, (yaml.BlockEntryToken, yaml.FlowEntryToken,
+                              yaml.FlowSequenceStartToken, yaml.TagToken,
+                              yaml.ValueToken))):
+
         return
 
     # Ignore explicit types, e.g. !!str testtest or !!int 42
