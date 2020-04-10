@@ -16,6 +16,8 @@
 
 from tests.common import RuleTestCase
 
+from yamllint import config
+
 
 class QuotedTestCase(RuleTestCase):
     rule_id = 'quoted-strings'
@@ -357,3 +359,79 @@ class QuotedTestCase(RuleTestCase):
                    'k5: :wq\n'
                    'k6: ":wq"\n',                  # fails
                    conf, problem1=(3, 5), problem2=(5, 5), problem3=(7, 5))
+
+    def test_only_when_needed_extras(self):
+        conf = ('quoted-strings:\n'
+                '  required: true\n'
+                '  extra-allowed: [^http://]\n')
+        self.assertRaises(config.YamlLintConfigError, self.check, '', conf)
+
+        conf = ('quoted-strings:\n'
+                '  required: true\n'
+                '  extra-required: [^http://]\n')
+        self.assertRaises(config.YamlLintConfigError, self.check, '', conf)
+
+        conf = ('quoted-strings:\n'
+                '  required: false\n'
+                '  extra-allowed: [^http://]\n')
+        self.assertRaises(config.YamlLintConfigError, self.check, '', conf)
+
+        conf = ('quoted-strings:\n'
+                '  required: true\n')
+        self.check('---\n'
+                   '- 123\n'
+                   '- "123"\n'
+                   '- localhost\n'                  # fails
+                   '- "localhost"\n'
+                   '- http://localhost\n'           # fails
+                   '- "http://localhost"\n'
+                   '- ftp://localhost\n'            # fails
+                   '- "ftp://localhost"\n',
+                   conf, problem1=(4, 3), problem2=(6, 3), problem3=(8, 3))
+
+        conf = ('quoted-strings:\n'
+                '  required: only-when-needed\n'
+                '  extra-allowed: [^ftp://]\n'
+                '  extra-required: [^http://]\n')
+        self.check('---\n'
+                   '- 123\n'
+                   '- "123"\n'
+                   '- localhost\n'
+                   '- "localhost"\n'                # fails
+                   '- http://localhost\n'           # fails
+                   '- "http://localhost"\n'
+                   '- ftp://localhost\n'
+                   '- "ftp://localhost"\n',
+                   conf, problem1=(5, 3), problem2=(6, 3))
+
+        conf = ('quoted-strings:\n'
+                '  required: false\n'
+                '  extra-required: [^http://, ^ftp://]\n')
+        self.check('---\n'
+                   '- 123\n'
+                   '- "123"\n'
+                   '- localhost\n'
+                   '- "localhost"\n'
+                   '- http://localhost\n'           # fails
+                   '- "http://localhost"\n'
+                   '- ftp://localhost\n'            # fails
+                   '- "ftp://localhost"\n',
+                   conf, problem1=(6, 3), problem2=(8, 3))
+
+        conf = ('quoted-strings:\n'
+                '  required: only-when-needed\n'
+                '  extra-allowed: [^ftp://, ";$", " "]\n')
+        self.check('---\n'
+                   '- localhost\n'
+                   '- "localhost"\n'                # fails
+                   '- ftp://localhost\n'
+                   '- "ftp://localhost"\n'
+                   '- i=i+1\n'
+                   '- "i=i+1"\n'                # fails
+                   '- i=i+2;\n'
+                   '- "i=i+2;"\n'
+                   '- foo\n'
+                   '- "foo"\n'                      # fails
+                   '- foo bar\n'
+                   '- "foo bar"\n',
+                   conf, problem1=(3, 3), problem2=(7, 3), problem3=(11, 3))
