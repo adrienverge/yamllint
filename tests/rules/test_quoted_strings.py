@@ -51,8 +51,14 @@ class QuotedTestCase(RuleTestCase):
                    'binary: !!binary binstring\n'
                    'integer: !!int intstring\n'
                    'boolean2: !!bool boolstring\n'
-                   'boolean3: !!bool "quotedboolstring"\n',
-                   conf, problem=(4, 10))
+                   'boolean3: !!bool "quotedboolstring"\n'
+                   'block-seq:\n'
+                   '  - foo\n'                               # fails
+                   '  - "foo"\n'
+                   'flow-seq: [foo, "foo"]\n'                # fails
+                   'flow-map: {a: foo, b: "foo"}\n',         # fails
+                   conf, problem1=(4, 10), problem2=(17, 5),
+                   problem3=(19, 12), problem4=(20, 15))
         self.check('---\n'
                    'multiline string 1: |\n'
                    '  line 1\n'
@@ -85,9 +91,16 @@ class QuotedTestCase(RuleTestCase):
                    'binary: !!binary binstring\n'
                    'integer: !!int intstring\n'
                    'boolean2: !!bool boolstring\n'
-                   'boolean3: !!bool "quotedboolstring"\n',
-                   conf, problem1=(4, 10), problem2=(5, 10),
-                   problem3=(6, 10), problem4=(7, 10))
+                   'boolean3: !!bool "quotedboolstring"\n'
+                   'block-seq:\n'
+                   '  - foo\n'                               # fails
+                   '  - "foo"\n'                             # fails
+                   'flow-seq: [foo, "foo"]\n'                # fails
+                   'flow-map: {a: foo, b: "foo"}\n',         # fails
+                   conf, problem1=(4, 10), problem2=(5, 10), problem3=(6, 10),
+                   problem4=(7, 10), problem5=(17, 5), problem6=(18, 5),
+                   problem7=(19, 12), problem8=(19, 17), problem9=(20, 15),
+                   problem10=(20, 23))
         self.check('---\n'
                    'multiline string 1: |\n'
                    '  line 1\n'
@@ -120,8 +133,14 @@ class QuotedTestCase(RuleTestCase):
                    'binary: !!binary binstring\n'
                    'integer: !!int intstring\n'
                    'boolean2: !!bool boolstring\n'
-                   'boolean3: !!bool "quotedboolstring"\n',
-                   conf, problem1=(4, 10), problem2=(8, 10))
+                   'boolean3: !!bool "quotedboolstring"\n'
+                   'block-seq:\n'
+                   '  - foo\n'                               # fails
+                   '  - "foo"\n'
+                   'flow-seq: [foo, "foo"]\n'                # fails
+                   'flow-map: {a: foo, b: "foo"}\n',         # fails
+                   conf, problem1=(4, 10), problem2=(8, 10), problem3=(17, 5),
+                   problem4=(19, 12), problem5=(20, 15))
         self.check('---\n'
                    'multiline string 1: |\n'
                    '  line 1\n'
@@ -189,7 +208,12 @@ class QuotedTestCase(RuleTestCase):
                    'binary: !!binary binstring\n'
                    'integer: !!int intstring\n'
                    'boolean2: !!bool boolstring\n'
-                   'boolean3: !!bool "quotedboolstring"\n',
+                   'boolean3: !!bool "quotedboolstring"\n'
+                   'block-seq:\n'
+                   '  - foo\n'                               # fails
+                   '  - "foo"\n'
+                   'flow-seq: [foo, "foo"]\n'                # fails
+                   'flow-map: {a: foo, b: "foo"}\n',         # fails
                    conf)
         self.check('---\n'
                    'multiline string 1: |\n'
@@ -223,9 +247,14 @@ class QuotedTestCase(RuleTestCase):
                    'binary: !!binary binstring\n'
                    'integer: !!int intstring\n'
                    'boolean2: !!bool boolstring\n'
-                   'boolean3: !!bool "quotedboolstring"\n',
-                   conf, problem2=(5, 10),
-                   problem3=(6, 10), problem4=(7, 10))
+                   'boolean3: !!bool "quotedboolstring"\n'
+                   'block-seq:\n'
+                   '  - foo\n'                               # fails
+                   '  - "foo"\n'
+                   'flow-seq: [foo, "foo"]\n'                # fails
+                   'flow-map: {a: foo, b: "foo"}\n',         # fails
+                   conf, problem1=(5, 10), problem2=(6, 10), problem3=(7, 10),
+                   problem4=(18, 5), problem5=(19, 17), problem6=(20, 23))
         self.check('---\n'
                    'multiline string 1: |\n'
                    '  line 1\n'
@@ -292,8 +321,14 @@ class QuotedTestCase(RuleTestCase):
                    'binary: !!binary binstring\n'
                    'integer: !!int intstring\n'
                    'boolean2: !!bool boolstring\n'
-                   'boolean3: !!bool "quotedboolstring"\n',
-                   conf, problem1=(5, 10), problem2=(8, 10))
+                   'boolean3: !!bool "quotedboolstring"\n'
+                   'block-seq:\n'
+                   '  - foo\n'
+                   '  - "foo"\n'                             # fails
+                   'flow-seq: [foo, "foo"]\n'                # fails
+                   'flow-map: {a: foo, b: "foo"}\n',         # fails
+                   conf, problem1=(5, 10), problem2=(8, 10), problem3=(18, 5),
+                   problem4=(19, 17), problem5=(20, 23))
         self.check('---\n'
                    'multiline string 1: |\n'
                    '  line 1\n'
@@ -327,9 +362,15 @@ class QuotedTestCase(RuleTestCase):
                    'binary: !!binary binstring\n'
                    'integer: !!int intstring\n'
                    'boolean2: !!bool boolstring\n'
-                   'boolean3: !!bool "quotedboolstring"\n',
-                   conf, problem1=(5, 10), problem2=(6, 10),
-                   problem3=(7, 10), problem4=(8, 10))
+                   'boolean3: !!bool "quotedboolstring"\n'
+                   'block-seq:\n'
+                   '  - foo\n'
+                   '  - "foo"\n'                             # fails
+                   'flow-seq: [foo, "foo"]\n'                # fails
+                   'flow-map: {a: foo, b: "foo"}\n',         # fails
+                   conf, problem1=(5, 10), problem2=(6, 10), problem3=(7, 10),
+                   problem4=(8, 10), problem5=(18, 5), problem6=(19, 17),
+                   problem7=(20, 23))
         self.check('---\n'
                    'multiline string 1: |\n'
                    '  line 1\n'
