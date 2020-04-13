@@ -77,14 +77,28 @@ DEFAULT = {'quote-type': 'any',
            'required': True}
 
 DEFAULT_SCALAR_TAG = u'tag:yaml.org,2002:str'
-START_TOKENS = {'#', '*', '!', '?', '@', '`', '&',
-                ',', '-', '{', '}', '[', ']', ':'}
 
 
-def quote_match(quote_type, token_style):
+def _quote_match(quote_type, token_style):
     return ((quote_type == 'any') or
             (quote_type == 'single' and token_style == "'") or
             (quote_type == 'double' and token_style == '"'))
+
+
+def _quotes_are_needed(string):
+    loader = yaml.BaseLoader('key: ' + string)
+    # Remove the 5 first tokens corresponding to 'key: ' (StreamStartToken,
+    # BlockMappingStartToken, KeyToken, ScalarToken(value=key), ValueToken)
+    for _ in range(5):
+        loader.get_token()
+    try:
+        a, b = loader.get_token(), loader.get_token()
+        if (isinstance(a, yaml.ScalarToken) and a.style is None and
+                isinstance(b, yaml.BlockEndToken)):
+            return False
+        return True
+    except yaml.scanner.ScannerError:
+        return True
 
 
 def check(conf, token, prev, next, nextnext, context):
@@ -121,25 +135,25 @@ def check(conf, token, prev, next, nextnext, context):
     if required is True:
 
         # Quotes are mandatory and need to match config
-        if token.style is None or not quote_match(quote_type, token.style):
+        if token.style is None or not _quote_match(quote_type, token.style):
             msg = "string value is not quoted with %s quotes" % (quote_type)
 
     elif required is False:
 
         # Quotes are not mandatory but when used need to match config
-        if token.style and not quote_match(quote_type, token.style):
+        if token.style and not _quote_match(quote_type, token.style):
             msg = "string value is not quoted with %s quotes" % (quote_type)
 
     elif not token.plain:
 
         # Quotes are disallowed when not needed
-        if (tag == DEFAULT_SCALAR_TAG and token.value
-                and token.value[0] not in START_TOKENS):
+        if (tag == DEFAULT_SCALAR_TAG and token.value and
+                not _quotes_are_needed(token.value)):
             msg = "string value is redundantly quoted with %s quotes" % (
                 quote_type)
 
         # But when used need to match config
-        elif token.style and not quote_match(quote_type, token.style):
+        elif token.style and not _quote_match(quote_type, token.style):
             msg = "string value is not quoted with %s quotes" % (quote_type)
 
     if msg is not None:

@@ -316,3 +316,44 @@ class QuotedTestCase(RuleTestCase):
                    '  "word 1\\\n'            # fails
                    '   word 2"\n',
                    conf, problem1=(12, 3))
+
+    def test_only_when_needed_corner_cases(self):
+        conf = 'quoted-strings: {required: only-when-needed}\n'
+
+        self.check('---\n'
+                   '- ""\n'
+                   '- "- item"\n'
+                   '- "key: value"\n'
+                   '- "%H:%M:%S"\n'
+                   '- "%wheel ALL=(ALL) NOPASSWD: ALL"\n'
+                   '- \'"quoted"\'\n'
+                   '- "\'foo\' == \'bar\'"\n'
+                   '- "\'Mac\' in ansible_facts.product_name"\n',
+                   conf)
+        self.check('---\n'
+                   'k1: ""\n'
+                   'k2: "- item"\n'
+                   'k3: "key: value"\n'
+                   'k4: "%H:%M:%S"\n'
+                   'k5: "%wheel ALL=(ALL) NOPASSWD: ALL"\n'
+                   'k6: \'"quoted"\'\n'
+                   'k7: "\'foo\' == \'bar\'"\n'
+                   'k8: "\'Mac\' in ansible_facts.product_name"\n',
+                   conf)
+
+        self.check('---\n'
+                   '- ---\n'
+                   '- "---"\n'                     # fails
+                   '- ----------\n'
+                   '- "----------"\n'              # fails
+                   '- :wq\n'
+                   '- ":wq"\n',                    # fails
+                   conf, problem1=(3, 3), problem2=(5, 3), problem3=(7, 3))
+        self.check('---\n'
+                   'k1: ---\n'
+                   'k2: "---"\n'                   # fails
+                   'k3: ----------\n'
+                   'k4: "----------"\n'            # fails
+                   'k5: :wq\n'
+                   'k6: ":wq"\n',                  # fails
+                   conf, problem1=(3, 5), problem2=(5, 5), problem3=(7, 5))
