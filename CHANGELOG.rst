@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.22.0 (2020-04-13)
+-------------------
+
+- Add ``check-keys`` option to the ``truthy`` rule
+- Fix ``quoted-strings`` rule not working on sequences items
+- Sunset Python 2
+
 1.21.0 (2020-03-24)
 -------------------
 
