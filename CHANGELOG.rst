@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.22.1 (2020-04-15)
+-------------------
+
+- Fix ``quoted-strings`` rule with ``only-when-needed`` on corner cases
+
 1.22.0 (2020-04-13)
 -------------------
 
