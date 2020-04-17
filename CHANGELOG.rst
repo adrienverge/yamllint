@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.23.0 (2020-04-17)
+-------------------
+
+- Allow rules to validate their configuration
+- Add options ``extra-required`` and ``extra-allowed`` to ``quoted-strings``
+
 1.22.1 (2020-04-15)
 -------------------
 
