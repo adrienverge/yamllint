@@ -1,6 +1,24 @@
 Changelog
 =========
 
+1.23.0 (2020-04-17)
+-------------------
+
+- Allow rules to validate their configuration
+- Add options ``extra-required`` and ``extra-allowed`` to ``quoted-strings``
+
+1.22.1 (2020-04-15)
+-------------------
+
+- Fix ``quoted-strings`` rule with ``only-when-needed`` on corner cases
+
+1.22.0 (2020-04-13)
+-------------------
+
+- Add ``check-keys`` option to the ``truthy`` rule
+- Fix ``quoted-strings`` rule not working on sequences items
+- Sunset Python 2
+
 1.21.0 (2020-03-24)
 -------------------
 
