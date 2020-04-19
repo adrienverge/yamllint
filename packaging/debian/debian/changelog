@@ -1,3 +1,9 @@
+yamllint (1.21.0-1) unstable; urgency=medium
+
+  * New upstream version 1.21.0
+
+ -- Philipp Huebner <debalance@debian.org>  Sat, 11 Apr 2020 17:15:13 +0200
+
 yamllint (1.20.0-2) unstable; urgency=medium
 
   * Removed 'Installing yamllint' section in the manpage (Closes: #947440)
