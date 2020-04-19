@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.21.0 (2020-03-24)
+-------------------
+
+- Fix ``new-lines`` rule on Python 3 with DOS line endings
+- Fix ``quoted-strings`` rule not working for string values matching scalars
+- Add ``required: only-when-needed`` option to the ``quoted-strings`` rule
+
 1.20.0 (2019-12-26)
 -------------------
 
