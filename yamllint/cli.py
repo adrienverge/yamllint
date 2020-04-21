@@ -144,8 +144,10 @@ def run(argv=None):
 
     args = parser.parse_args(argv)
 
+    if 'YAMLLINTRC' in os.environ:
+        user_global_config = os.path.expanduser(os.environ['YAMLLINTRC'])
     # User-global config is supposed to be in ~/.config/yamllint/config
-    if 'XDG_CONFIG_HOME' in os.environ:
+    elif 'XDG_CONFIG_HOME' in os.environ:
         user_global_config = os.path.join(
             os.environ['XDG_CONFIG_HOME'], 'yamllint', 'config')
     else:
