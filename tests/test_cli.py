@@ -288,7 +288,7 @@ class CommandLineTestCase(unittest.TestCase):
     def test_run_with_user_yamllintrc_config_file(self):
         config = os.path.join(self.wd, 'fake-local-config')
         self.addCleanup(os.remove, config)
-        self.addCleanup(os.environ.unsetenv, 'YAMLLINTRC')
+        self.addCleanup(os.environ.__delitem__, 'YAMLLINTRC')
         os.environ['YAMLLINTRC'] = config
 
         with open(config, 'w') as f:
