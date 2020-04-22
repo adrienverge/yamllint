@@ -285,6 +285,26 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run((os.path.join(self.wd, 'a.yaml'), ))
         self.assertEqual(ctx.returncode, 1)
 
+    def test_run_with_user_yamllintrc_config_file(self):
+        config = os.path.join(self.wd, 'fake-local-config')
+        self.addCleanup(os.remove, config)
+        self.addCleanup(os.environ.unsetenv, 'YAMLLINTRC')
+        os.environ['YAMLLINTRC'] = config
+
+        with open(config, 'w') as f:
+            f.write('rules: {trailing-spaces: disable}')
+
+        with RunContext(self) as ctx:
+            cli.run((os.path.join(self.wd, 'a.yaml'), ))
+        self.assertEqual(ctx.returncode, 0)
+
+        with open(config, 'w') as f:
+            f.write('rules: {trailing-spaces: enable}')
+
+        with RunContext(self) as ctx:
+            cli.run((os.path.join(self.wd, 'a.yaml'), ))
+        self.assertEqual(ctx.returncode, 1)
+
     def test_run_version(self):
         with RunContext(self) as ctx:
             cli.run(('--version', ))
