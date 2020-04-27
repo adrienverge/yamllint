@@ -24,6 +24,7 @@ import os
 import pty
 import shutil
 import sys
+import tempfile
 import unittest
 
 from tests.common import build_temp_workspace
@@ -286,24 +287,23 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(ctx.returncode, 1)
 
     def test_run_with_user_yamllintrc_config_file(self):
-        config = os.path.join(self.wd, 'fake-local-config')
-        self.addCleanup(os.remove, config)
-        self.addCleanup(os.environ.__delitem__, 'YAMLLINTRC')
-        os.environ['YAMLLINTRC'] = config
+        self.addCleanup(os.environ.__delitem__, 'YAMLLINT_CONFIG_FILE')
 
-        with open(config, 'w') as f:
+        with tempfile.NamedTemporaryFile('w') as f:
+            os.environ['YAMLLINT_CONFIG_FILE'] = f.name
             f.write('rules: {trailing-spaces: disable}')
+            f.flush()
+            with RunContext(self) as ctx:
+                cli.run((os.path.join(self.wd, 'a.yaml'), ))
+            self.assertEqual(ctx.returncode, 0)
 
-        with RunContext(self) as ctx:
-            cli.run((os.path.join(self.wd, 'a.yaml'), ))
-        self.assertEqual(ctx.returncode, 0)
-
-        with open(config, 'w') as f:
+        with tempfile.NamedTemporaryFile('w') as f:
+            os.environ['YAMLLINT_CONFIG_FILE'] = f.name
             f.write('rules: {trailing-spaces: enable}')
-
-        with RunContext(self) as ctx:
-            cli.run((os.path.join(self.wd, 'a.yaml'), ))
-        self.assertEqual(ctx.returncode, 1)
+            f.flush()
+            with RunContext(self) as ctx:
+                cli.run((os.path.join(self.wd, 'a.yaml'), ))
+            self.assertEqual(ctx.returncode, 1)
 
     def test_run_version(self):
         with RunContext(self) as ctx:
