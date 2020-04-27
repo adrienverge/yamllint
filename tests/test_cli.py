@@ -286,7 +286,7 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run((os.path.join(self.wd, 'a.yaml'), ))
         self.assertEqual(ctx.returncode, 1)
 
-    def test_run_with_user_yamllintrc_config_file(self):
+    def test_run_with_user_yamllint_config_file_in_env(self):
         self.addCleanup(os.environ.__delitem__, 'YAMLLINT_CONFIG_FILE')
 
         with tempfile.NamedTemporaryFile('w') as f:
