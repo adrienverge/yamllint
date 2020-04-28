@@ -16,6 +16,7 @@ following locations (by order of preference):
 
 - ``.yamllint``, ``.yamllint.yaml`` or ``.yamllint.yml`` in the current working
   directory
+- the file referenced by ``$YAMLLINT_CONFIG_FILE``, if set
 - ``$XDG_CONFIG_HOME/yamllint/config``
 - ``~/.config/yamllint/config``
 
