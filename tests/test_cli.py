@@ -24,6 +24,7 @@ import os
 import pty
 import shutil
 import sys
+import tempfile
 import unittest
 
 from tests.common import build_temp_workspace
@@ -284,6 +285,25 @@ class CommandLineTestCase(unittest.TestCase):
         with RunContext(self) as ctx:
             cli.run((os.path.join(self.wd, 'a.yaml'), ))
         self.assertEqual(ctx.returncode, 1)
+
+    def test_run_with_user_yamllint_config_file_in_env(self):
+        self.addCleanup(os.environ.__delitem__, 'YAMLLINT_CONFIG_FILE')
+
+        with tempfile.NamedTemporaryFile('w') as f:
+            os.environ['YAMLLINT_CONFIG_FILE'] = f.name
+            f.write('rules: {trailing-spaces: disable}')
+            f.flush()
+            with RunContext(self) as ctx:
+                cli.run((os.path.join(self.wd, 'a.yaml'), ))
+            self.assertEqual(ctx.returncode, 0)
+
+        with tempfile.NamedTemporaryFile('w') as f:
+            os.environ['YAMLLINT_CONFIG_FILE'] = f.name
+            f.write('rules: {trailing-spaces: enable}')
+            f.flush()
+            with RunContext(self) as ctx:
+                cli.run((os.path.join(self.wd, 'a.yaml'), ))
+            self.assertEqual(ctx.returncode, 1)
 
     def test_run_version(self):
         with RunContext(self) as ctx:
