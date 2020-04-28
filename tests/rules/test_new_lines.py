@@ -40,6 +40,16 @@ class NewLinesTestCase(RuleTestCase):
         self.check('---\ntext\n', conf)
         self.check('---\r\ntext\r\n', conf, problem=(1, 4))
 
+    def test_unix_type_required_st_sp(self):
+        # If we find a CRLF when looking for Unix newlines, yamllint
+        # should always raise, regardless of logic with
+        # require-starting-space.
+        conf = ('new-line-at-end-of-file: disable\n'
+                'new-lines: {type: unix}\n'
+                'comments:\n'
+                '  require-starting-space: true\n')
+        self.check('---\r\n#\r\n', conf, problem=(1, 4))
+
     def test_dos_type(self):
         conf = ('new-line-at-end-of-file: disable\n'
                 'new-lines: {type: dos}\n')
