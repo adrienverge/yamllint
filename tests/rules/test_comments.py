@@ -186,6 +186,27 @@ class CommentsTestCase(RuleTestCase):
                    'inline: comment  #\n'
                    'foo: bar\n', conf)
 
+    def test_empty_comment_crlf_dos_newlines(self):
+        conf = ('comments:\n'
+                '  require-starting-space: true\n'
+                '  min-spaces-from-content: 2\n'
+                'new-lines:\n'
+                '  type: dos\n')
+        self.check('---\r\n'
+                   '# This is paragraph 1.\r\n'
+                   '#\r\n'
+                   '# This is paragraph 2.\r\n', conf)
+
+    def test_empty_comment_crlf_disabled_newlines(self):
+        conf = ('comments:\n'
+                '  require-starting-space: true\n'
+                '  min-spaces-from-content: 2\n'
+                'new-lines: disable\n')
+        self.check('---\r\n'
+                   '# This is paragraph 1.\r\n'
+                   '#\r\n'
+                   '# This is paragraph 2.\r\n', conf)
+
     def test_first_line(self):
         conf = ('comments:\n'
                 '  require-starting-space: true\n'

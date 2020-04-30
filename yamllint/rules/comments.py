@@ -97,7 +97,9 @@ def check(conf, comment):
                     comment.column_no == 1 and
                     re.match(r'^!\S', comment.buffer[text_start:])):
                 return
-            elif comment.buffer[text_start] not in (' ', '\n', '\0'):
+            # We can test for both \r and \r\n just by checking first char
+            # \r itself is a valid newline on some older OS.
+            elif comment.buffer[text_start] not in {' ', '\n', '\r', '\x00'}:
                 column = comment.column_no + text_start - comment.pointer
                 yield LintProblem(comment.line_no,
                                   column,
