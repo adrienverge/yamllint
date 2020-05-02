@@ -186,6 +186,15 @@ def get_syntax_error(buffer):
                               'syntax error: ' + e.problem + ' (syntax)')
         problem.level = 'error'
         return problem
+    except yaml.reader.ReaderError as e:
+        # we need to convert position into line+column
+        line = buffer.count('\n', 0, e.position)
+        col = e.position - (buffer.rindex('\n', 0, e.position) if line else 1)
+        problem = LintProblem(line + 1,
+                              col,
+                              'syntax error: ' + e.reason + ' (syntax)')
+        problem.level = 'error'
+        return problem
 
 
 def _run(buffer, conf, filepath):

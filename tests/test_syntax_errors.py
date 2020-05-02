@@ -92,3 +92,28 @@ class YamlLintTestCase(RuleTestCase):
                    '    a:\n'
                    '      set\n'
                    '...\n', None)
+
+    def test_invalid_char_last(self):
+        self.check('---\nkey: value\t\n',
+                   None, problem=(2, 11))
+
+    def test_invalid_char_first(self):
+        self.check('---\n\tkey: value\n',
+                   None, problem=(2, 1))
+
+    def test_invalid_char_on_second_line(self):
+        self.check('---\nfoo: bar\n\toutput: foo\n',
+                   None, problem=(3, 1))
+
+    def test_invalid_chars(self):
+        # We expect to identify only the first syntax error as this kind of
+        # error is fatal (stops parsing)
+        self.check('---\nkey: \tfoo\tbar\n',
+                   None,
+                   problem=(2, 6))
+
+    def test_invalid_char_with_other_rule(self):
+        self.check('key: value\t\n',
+                   None,
+                   problem1=(1, 1, 'document-start'),
+                   problem2=(1, 11))
