@@ -1,0 +1,18 @@
+# Docker Compose file to run the test suite and linter
+---
+version: "3"
+
+services:
+  test:
+    build: .
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: python setup.py test
+
+  lint:
+    build: .
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: sh -c "flake8 . ; yamllint --strict . ; doc8 -e .rst ."
