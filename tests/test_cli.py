@@ -73,6 +73,9 @@ class CommandLineTestCase(unittest.TestCase):
             # file in dir
             'sub/ok.yaml': '---\n'
                            'key: value\n',
+            # directory that looks like a yaml file
+            'sub/directory.yaml/not-yaml.txt': '',
+            'sub/directory.yaml/empty.yml': '',
             # file in very nested dir
             's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml': '---\n'
                                                        'key: value\n'
@@ -108,6 +111,7 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
+             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
              os.path.join(self.wd, 'sub/ok.yaml'),
              os.path.join(self.wd, 'warn.yaml')],
         )
@@ -132,6 +136,7 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(cli.find_files_recursively(items, conf)),
             [os.path.join(self.wd, '/etc/another/file'),
+             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
              os.path.join(self.wd, 'sub/ok.yaml')],
         )
 
@@ -152,7 +157,8 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
             [os.path.join(self.wd, 'dos.yml'),
-             os.path.join(self.wd, 'empty.yml')]
+             os.path.join(self.wd, 'empty.yml'),
+             os.path.join(self.wd, 'sub/directory.yaml/empty.yml')]
         )
 
         conf = config.YamlLintConfig('extends: default\n'
@@ -174,6 +180,8 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'no-yaml.json'),
              os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
+             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
+             os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
              os.path.join(self.wd, 'sub/ok.yaml'),
              os.path.join(self.wd, 'warn.yaml')]
         )
@@ -191,6 +199,8 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'no-yaml.json'),
              os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
+             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
+             os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
              os.path.join(self.wd, 'sub/ok.yaml'),
              os.path.join(self.wd, 'warn.yaml')]
         )

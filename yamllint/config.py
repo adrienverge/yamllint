@@ -46,7 +46,7 @@ class YamlLintConfig(object):
         return self.ignore and self.ignore.match_file(filepath)
 
     def is_yaml_file(self, filepath):
-        return self.yaml_files.match_file(filepath)
+        return self.yaml_files.match_file(os.path.basename(filepath))
 
     def enabled_rules(self, filepath):
         return [yamllint.rules.get(id) for id, val in self.rules.items()
