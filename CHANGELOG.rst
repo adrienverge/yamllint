@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.24.0 (2020-07-15)
+-------------------
+
+- Specify config with environment variable ``YAMLLINT_CONFIG_FILE``
+- Fix bug with CRLF in ``new-lines`` and ``require-starting-space``
+- Do not run linter on directories whose names look like YAML files
+- Add ``locale`` config option and make ``key-ordering`` locale-aware
+
 1.23.0 (2020-04-17)
 -------------------
 
