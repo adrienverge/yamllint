@@ -35,6 +35,8 @@ class YamlLintConfig(object):
         self.yaml_files = pathspec.PathSpec.from_lines(
             'gitwildmatch', ['*.yaml', '*.yml', '.yamllint'])
 
+        self.locale = 'C.UTF-8'
+
         if file is not None:
             with open(file) as f:
                 content = f.read()
@@ -110,6 +112,12 @@ class YamlLintConfig(object):
                     'should be a list of file patterns')
             self.yaml_files = pathspec.PathSpec.from_lines('gitwildmatch',
                                                            conf['yaml-files'])
+
+        if 'locale' in conf:
+            if not isinstance(conf['locale'], str):
+                raise YamlLintConfigError(
+                    'invalid config: locale should be a string')
+            self.locale = conf['locale']
 
     def validate(self):
         for id in self.rules:

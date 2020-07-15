@@ -16,8 +16,10 @@
 
 """
 Use this rule to enforce alphabetical ordering of keys in mappings. The sorting
-order uses the Unicode code point number. As a result, the ordering is
-case-sensitive and not accent-friendly (see examples below).
+order uses the Unicode code point number as a default. As a result, the
+ordering is case-sensitive and not accent-friendly (see examples below).
+This can be changed by setting the global ``locale`` option.  This allows to
+sort case and accents properly.
 
 .. rubric:: Examples
 
@@ -63,7 +65,23 @@ case-sensitive and not accent-friendly (see examples below).
 
     - haïr: true
       hais: true
+
+#. With global option ``locale: "en_US.UTF-8"`` and rule ``key-ordering: {}``
+
+   as opposed to before, the following code snippet would now **PASS**:
+   ::
+
+    - t-shirt: 1
+      T-shirt: 2
+      t-shirts: 3
+      T-shirts: 4
+    - hair: true
+      haïr: true
+      hais: true
+      haïssable: true
 """
+
+from locale import strcoll
 
 import yaml
 
@@ -101,7 +119,8 @@ def check(conf, token, prev, next, nextnext, context):
         # This check is done because KeyTokens can be found inside flow
         # sequences... strange, but allowed.
         if len(context['stack']) > 0 and context['stack'][-1].type == MAP:
-            if any(next.value < key for key in context['stack'][-1].keys):
+            if any(strcoll(next.value, key) < 0
+                   for key in context['stack'][-1].keys):
                 yield LintProblem(
                     next.start_mark.line + 1, next.start_mark.column + 1,
                     'wrong ordering of key "%s" in mapping' % next.value)
