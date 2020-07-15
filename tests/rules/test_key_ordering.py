@@ -114,7 +114,7 @@ class KeyOrderingTestCase(RuleTestCase):
                    ']\n', conf)
 
     def test_locale_case(self):
-        self.addCleanup(locale.setlocale, locale.LC_ALL, 'C.UTF-8')
+        self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
         try:
             locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
         except locale.Error:
@@ -133,7 +133,7 @@ class KeyOrderingTestCase(RuleTestCase):
                    problem=(4, 1))
 
     def test_locale_accents(self):
-        self.addCleanup(locale.setlocale, locale.LC_ALL, 'C.UTF-8')
+        self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
         try:
             locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
         except locale.Error:

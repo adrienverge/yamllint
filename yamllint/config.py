@@ -35,7 +35,7 @@ class YamlLintConfig(object):
         self.yaml_files = pathspec.PathSpec.from_lines(
             'gitwildmatch', ['*.yaml', '*.yml', '.yamllint'])
 
-        self.locale = 'C.UTF-8'
+        self.locale = None
 
         if file is not None:
             with open(file) as f:

@@ -197,10 +197,10 @@ It is possible to set the ``locale`` option globally. This is passed to Python's
 `locale.setlocale
 <https://docs.python.org/3/library/locale.html#locale.setlocale>`_,
 so an empty string ``""`` will use the system default locale, while e.g.
-``"en_US.UTF-8"`` will use that. If unset, the default is ``"C.UTF-8"``.
+``"en_US.UTF-8"`` will use that.
 
 Currently this only affects the ``key-ordering`` rule. The default will order
-by Unicode code point number, while other locales will sort case and accents
+by Unicode code point number, while locales will sort case and accents
 properly as well.
 
 .. code-block:: yaml

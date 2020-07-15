@@ -331,17 +331,24 @@ class CommandLineTestCase(unittest.TestCase):
             self.assertEqual(ctx.returncode, 1)
 
     def test_run_with_locale(self):
-        self.addCleanup(locale.setlocale, locale.LC_ALL, 'C.UTF-8')
+        self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
         try:
             locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
         except locale.Error:
             self.skipTest('locale en_US.UTF-8 not available')
+        locale.setlocale(locale.LC_ALL, (None, None))
 
         # C + en.yaml should fail
         with RunContext(self) as ctx:
             cli.run(('-d', 'rules: { key-ordering: enable }',
                      os.path.join(self.wd, 'en.yaml')))
         self.assertEqual(ctx.returncode, 1)
+
+        # C + c.yaml should pass
+        with RunContext(self) as ctx:
+            cli.run(('-d', 'rules: { key-ordering: enable }',
+                    os.path.join(self.wd, 'c.yaml')))
+        self.assertEqual(ctx.returncode, 0)
 
         # en_US + en.yaml should pass
         with RunContext(self) as ctx:
@@ -356,12 +363,6 @@ class CommandLineTestCase(unittest.TestCase):
                            'rules: { key-ordering: enable }',
                      os.path.join(self.wd, 'c.yaml')))
         self.assertEqual(ctx.returncode, 1)
-
-        # C + c.yaml should pass
-        with RunContext(self) as ctx:
-            cli.run(('-d', 'rules: { key-ordering: enable }',
-                    os.path.join(self.wd, 'c.yaml')))
-        self.assertEqual(ctx.returncode, 0)
 
     def test_run_version(self):
         with RunContext(self) as ctx:
@@ -420,6 +421,15 @@ class CommandLineTestCase(unittest.TestCase):
 
     def test_run_non_ascii_file(self):
         path = os.path.join(self.wd, 'non-ascii', 'éçäγλνπ¥', 'utf-8')
+
+        # Make sure the default localization conditions on this "system"
+        # support UTF-8 encoding.
+        loc = locale.getlocale()
+        try:
+            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+        except locale.Error:
+            locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+        self.addCleanup(locale.setlocale, locale.LC_ALL, loc)
 
         with RunContext(self) as ctx:
             cli.run(('-f', 'parsable', path))

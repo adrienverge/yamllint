@@ -176,7 +176,8 @@ def run(argv=None):
         print(e, file=sys.stderr)
         sys.exit(-1)
 
-    locale.setlocale(locale.LC_ALL, conf.locale)
+    if conf.locale is not None:
+        locale.setlocale(locale.LC_ALL, conf.locale)
 
     max_level = 0
 
