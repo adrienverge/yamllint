@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.24.1 (2020-07-15)
+-------------------
+
+- Revert ``locale`` config option from version 1.24.0 because of a bug
+
 1.24.0 (2020-07-15)
 -------------------
 
