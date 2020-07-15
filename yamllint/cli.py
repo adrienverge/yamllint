@@ -18,7 +18,6 @@ from __future__ import print_function
 
 import argparse
 import io
-import locale
 import os
 import platform
 import sys
@@ -175,8 +174,6 @@ def run(argv=None):
     except YamlLintConfigError as e:
         print(e, file=sys.stderr)
         sys.exit(-1)
-
-    locale.setlocale(locale.LC_ALL, conf.locale)
 
     max_level = 0
 

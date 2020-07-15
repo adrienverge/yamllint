@@ -95,13 +95,6 @@ class CommandLineTestCase(unittest.TestCase):
             # dos line endings yaml
             'dos.yml': '---\r\n'
                        'dos: true',
-            # different key-ordering by locale
-            'c.yaml': '---\n'
-                      'A: true\n'
-                      'a: true',
-            'en.yaml': '---\n'
-                       'a: true\n'
-                       'A: true'
         })
 
     @classmethod
@@ -115,10 +108,8 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
             [os.path.join(self.wd, 'a.yaml'),
-             os.path.join(self.wd, 'c.yaml'),
              os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
-             os.path.join(self.wd, 'en.yaml'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
              os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
              os.path.join(self.wd, 'sub/ok.yaml'),
@@ -155,8 +146,6 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
             [os.path.join(self.wd, 'a.yaml'),
-             os.path.join(self.wd, 'c.yaml'),
-             os.path.join(self.wd, 'en.yaml'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
              os.path.join(self.wd, 'sub/ok.yaml'),
              os.path.join(self.wd, 'warn.yaml')]
@@ -186,10 +175,8 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
             [os.path.join(self.wd, 'a.yaml'),
-             os.path.join(self.wd, 'c.yaml'),
              os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
-             os.path.join(self.wd, 'en.yaml'),
              os.path.join(self.wd, 'no-yaml.json'),
              os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
@@ -207,10 +194,8 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
             [os.path.join(self.wd, 'a.yaml'),
-             os.path.join(self.wd, 'c.yaml'),
              os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
-             os.path.join(self.wd, 'en.yaml'),
              os.path.join(self.wd, 'no-yaml.json'),
              os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
@@ -330,39 +315,6 @@ class CommandLineTestCase(unittest.TestCase):
                 cli.run((os.path.join(self.wd, 'a.yaml'), ))
             self.assertEqual(ctx.returncode, 1)
 
-    def test_run_with_locale(self):
-        self.addCleanup(locale.setlocale, locale.LC_ALL, 'C.UTF-8')
-        try:
-            locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-        except locale.Error:
-            self.skipTest('locale en_US.UTF-8 not available')
-
-        # C + en.yaml should fail
-        with RunContext(self) as ctx:
-            cli.run(('-d', 'rules: { key-ordering: enable }',
-                     os.path.join(self.wd, 'en.yaml')))
-        self.assertEqual(ctx.returncode, 1)
-
-        # en_US + en.yaml should pass
-        with RunContext(self) as ctx:
-            cli.run(('-d', 'locale: en_US.UTF-8\n'
-                           'rules: { key-ordering: enable }',
-                     os.path.join(self.wd, 'en.yaml')))
-        self.assertEqual(ctx.returncode, 0)
-
-        # en_US + c.yaml should fail
-        with RunContext(self) as ctx:
-            cli.run(('-d', 'locale: en_US.UTF-8\n'
-                           'rules: { key-ordering: enable }',
-                     os.path.join(self.wd, 'c.yaml')))
-        self.assertEqual(ctx.returncode, 1)
-
-        # C + c.yaml should pass
-        with RunContext(self) as ctx:
-            cli.run(('-d', 'rules: { key-ordering: enable }',
-                    os.path.join(self.wd, 'c.yaml')))
-        self.assertEqual(ctx.returncode, 0)
-
     def test_run_version(self):
         with RunContext(self) as ctx:
             cli.run(('--version', ))
@@ -420,6 +372,15 @@ class CommandLineTestCase(unittest.TestCase):
 
     def test_run_non_ascii_file(self):
         path = os.path.join(self.wd, 'non-ascii', 'éçäγλνπ¥', 'utf-8')
+
+        # Make sure the default localization conditions on this "system"
+        # support UTF-8 encoding.
+        loc = locale.getlocale()
+        try:
+            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+        except locale.Error:
+            locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+        self.addCleanup(locale.setlocale, locale.LC_ALL, loc)
 
         with RunContext(self) as ctx:
             cli.run(('-f', 'parsable', path))
