@@ -331,7 +331,9 @@ class CommandLineTestCase(unittest.TestCase):
             self.assertEqual(ctx.returncode, 1)
 
     def test_run_with_locale(self):
-        self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
+        # check for availability of locale, otherwise skip the test
+        # reset to default before running the test,
+        # as the first two runs don't use setlocale()
         try:
             locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
         except locale.Error:
@@ -349,6 +351,10 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-d', 'rules: { key-ordering: enable }',
                     os.path.join(self.wd, 'c.yaml')))
         self.assertEqual(ctx.returncode, 0)
+
+        # the next two runs use setlocale() inside,
+        # so we need to clean up afterwards
+        self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
 
         # en_US + en.yaml should pass
         with RunContext(self) as ctx:
@@ -424,12 +430,11 @@ class CommandLineTestCase(unittest.TestCase):
 
         # Make sure the default localization conditions on this "system"
         # support UTF-8 encoding.
-        loc = locale.getlocale()
         try:
-            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+            locale.setlocale(locale.LC_ALL, (None, 'UTF-8'))
         except locale.Error:
-            locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-        self.addCleanup(locale.setlocale, locale.LC_ALL, loc)
+            self.skipTest('no UTF-8 locale available')
+        self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
 
         with RunContext(self) as ctx:
             cli.run(('-f', 'parsable', path))
