@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.24.2 (2020-07-16)
+-------------------
+
+- Add ``locale`` config option and make ``key-ordering`` locale-aware
+
 1.24.1 (2020-07-15)
 -------------------
 
