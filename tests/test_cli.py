@@ -61,7 +61,16 @@ class CommandLineTestCase(unittest.TestCase):
     def setUpClass(cls):
         super(CommandLineTestCase, cls).setUpClass()
 
-        cls.wd = build_temp_workspace({
+        # Check system's UTF-8 availability, because without it
+        # using UTF-8 paths will break
+        try:
+            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+            cls.utf8_missing = False
+            locale.setlocale(locale.LC_ALL, (None, None))
+        except locale.Error:
+            cls.utf8_missing = True
+
+        workspace_def = {
             # .yaml file at root
             'a.yaml': '---\n'
                       '- 1   \n'
@@ -85,13 +94,6 @@ class CommandLineTestCase(unittest.TestCase):
             # non-YAML file
             'no-yaml.json': '---\n'
                             'key: value\n',
-            # non-ASCII chars
-            'non-ascii/éçäγλνπ¥/utf-8': (
-                u'---\n'
-                u'- hétérogénéité\n'
-                u'# 19.99 €\n'
-                u'- お早う御座います。\n'
-                u'# الأَبْجَدِيَّة العَرَبِيَّة\n').encode('utf-8'),
             # dos line endings yaml
             'dos.yml': '---\r\n'
                        'dos: true',
@@ -102,7 +104,18 @@ class CommandLineTestCase(unittest.TestCase):
             'en.yaml': '---\n'
                        'a: true\n'
                        'A: true'
-        })
+        }
+
+        if not cls.utf8_missing:
+            # non-ASCII chars
+            workspace_def['non-ascii/éçäγλνπ¥/utf-8'] = (
+                u'---\n'
+                u'- hétérogénéité\n'
+                u'# 19.99 €\n'
+                u'- お早う御座います。\n'
+                u'# الأَبْجَدِيَّة العَرَبِيَّة\n').encode('utf-8')
+
+        cls.wd = build_temp_workspace(workspace_def)
 
     @classmethod
     def tearDownClass(cls):
@@ -185,18 +198,23 @@ class CommandLineTestCase(unittest.TestCase):
                                      '  - \'*\'\n')
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
-            [os.path.join(self.wd, 'a.yaml'),
-             os.path.join(self.wd, 'c.yaml'),
-             os.path.join(self.wd, 'dos.yml'),
-             os.path.join(self.wd, 'empty.yml'),
-             os.path.join(self.wd, 'en.yaml'),
-             os.path.join(self.wd, 'no-yaml.json'),
-             os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
-             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
-             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
-             os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
-             os.path.join(self.wd, 'sub/ok.yaml'),
-             os.path.join(self.wd, 'warn.yaml')]
+            sorted(
+                [os.path.join(self.wd, 'a.yaml'),
+                 os.path.join(self.wd, 'c.yaml'),
+                 os.path.join(self.wd, 'dos.yml'),
+                 os.path.join(self.wd, 'empty.yml'),
+                 os.path.join(self.wd, 'en.yaml'),
+                 os.path.join(self.wd, 'no-yaml.json'),
+                 os.path.join(self.wd,
+                              's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
+                 os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
+                 os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
+                 os.path.join(self.wd, 'sub/ok.yaml'),
+                 os.path.join(self.wd, 'warn.yaml')]
+                +
+                ([] if self.utf8_missing else
+                 [os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8')])
+            )
         )
 
         conf = config.YamlLintConfig('extends: default\n'
@@ -206,18 +224,23 @@ class CommandLineTestCase(unittest.TestCase):
                                      '  - \'**\'\n')
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
-            [os.path.join(self.wd, 'a.yaml'),
-             os.path.join(self.wd, 'c.yaml'),
-             os.path.join(self.wd, 'dos.yml'),
-             os.path.join(self.wd, 'empty.yml'),
-             os.path.join(self.wd, 'en.yaml'),
-             os.path.join(self.wd, 'no-yaml.json'),
-             os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
-             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
-             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
-             os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
-             os.path.join(self.wd, 'sub/ok.yaml'),
-             os.path.join(self.wd, 'warn.yaml')]
+            sorted(
+                [os.path.join(self.wd, 'a.yaml'),
+                 os.path.join(self.wd, 'c.yaml'),
+                 os.path.join(self.wd, 'dos.yml'),
+                 os.path.join(self.wd, 'empty.yml'),
+                 os.path.join(self.wd, 'en.yaml'),
+                 os.path.join(self.wd, 'no-yaml.json'),
+                 os.path.join(self.wd,
+                              's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
+                 os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
+                 os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
+                 os.path.join(self.wd, 'sub/ok.yaml'),
+                 os.path.join(self.wd, 'warn.yaml')]
+                 +
+                ([] if self.utf8_missing else
+                 [os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8')])
+            )
         )
 
         conf = config.YamlLintConfig('extends: default\n'
@@ -226,6 +249,7 @@ class CommandLineTestCase(unittest.TestCase):
                                      '  - \'**/utf-8\'\n')
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
+            [] if self.utf8_missing else
             [os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8')]
         )
 
@@ -426,16 +450,13 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))
 
     def test_run_non_ascii_file(self):
-        path = os.path.join(self.wd, 'non-ascii', 'éçäγλνπ¥', 'utf-8')
+        if self.utf8_missing:
+            self.skipTest('C.UTF-8 locale not available')
 
-        # Make sure the default localization conditions on this "system"
-        # support UTF-8 encoding.
-        try:
-            locale.setlocale(locale.LC_ALL, (None, 'UTF-8'))
-        except locale.Error:
-            self.skipTest('no UTF-8 locale available')
+        locale.setlocale(locale.LC_ALL, 'C.UTF-8')
         self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
 
+        path = os.path.join(self.wd, 'non-ascii', 'éçäγλνπ¥', 'utf-8')
         with RunContext(self) as ctx:
             cli.run(('-f', 'parsable', path))
         self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))
