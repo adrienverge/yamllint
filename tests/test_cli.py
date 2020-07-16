@@ -237,7 +237,7 @@ class CommandLineTestCase(unittest.TestCase):
                  os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
                  os.path.join(self.wd, 'sub/ok.yaml'),
                  os.path.join(self.wd, 'warn.yaml')]
-                 +
+                +
                 ([] if self.utf8_missing else
                  [os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8')])
             )
