@@ -62,7 +62,7 @@ class CommandLineTestCase(unittest.TestCase):
         super(CommandLineTestCase, cls).setUpClass()
 
         # Check system's UTF-8 availability, because without it
-        # using UTF-8 paths will break
+        # using UTF-8 paths like 'éçäγλνπ¥' will break on Python ⩽ 3.6
         try:
             locale.setlocale(locale.LC_ALL, 'C.UTF-8')
             cls.utf8_missing = False
