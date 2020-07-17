@@ -56,11 +56,8 @@ class RunContext(object):
         return self._raises_ctx.exception.code
 
 
-# Check system's UTF-8 availability, because without it using UTF-8 paths
-# like 'éçäγλνπ¥' will break on Python ⩽ 3.6
-def utf8_paths_supported():
-    if sys.version_info >= (3, 7):
-        return True
+# Check system's UTF-8 availability
+def utf8_available():
     try:
         locale.setlocale(locale.LC_ALL, 'C.UTF-8')
         locale.setlocale(locale.LC_ALL, (None, None))
@@ -123,7 +120,7 @@ class CommandLineTestCase(unittest.TestCase):
 
         shutil.rmtree(cls.wd)
 
-    @unittest.skipIf(not utf8_paths_supported(), 'UTF-8 paths not supported')
+    @unittest.skipIf(not utf8_available() and sys.version_info < (3, 7), 'UTF-8 paths with python < 3.7 and without locale not supported')
     def test_find_files_recursively(self):
         conf = config.YamlLintConfig('extends: default')
         self.assertEqual(
@@ -439,7 +436,7 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-f', 'parsable', path))
         self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))
 
-    @unittest.skipIf(not utf8_paths_supported(), 'UTF-8 paths not supported')
+    @unittest.skipIf(not utf8_available(), 'C.UTF-8 not available')
     def test_run_non_ascii_file(self):
         locale.setlocale(locale.LC_ALL, 'C.UTF-8')
         self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
