@@ -120,7 +120,8 @@ class CommandLineTestCase(unittest.TestCase):
 
         shutil.rmtree(cls.wd)
 
-    @unittest.skipIf(not utf8_available() and sys.version_info < (3, 7), 'UTF-8 paths with python < 3.7 and without locale not supported')
+    @unittest.skipIf(not utf8_available() and sys.version_info < (3, 7),
+                     'UTF-8 paths not supported')
     def test_find_files_recursively(self):
         conf = config.YamlLintConfig('extends: default')
         self.assertEqual(
