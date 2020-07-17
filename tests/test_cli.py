@@ -74,7 +74,7 @@ class CommandLineTestCase(unittest.TestCase):
     def setUpClass(cls):
         super(CommandLineTestCase, cls).setUpClass()
 
-        workspace_def = {
+        cls.wd = build_temp_workspace({
             # .yaml file at root
             'a.yaml': '---\n'
                       '- 1   \n'
@@ -98,6 +98,13 @@ class CommandLineTestCase(unittest.TestCase):
             # non-YAML file
             'no-yaml.json': '---\n'
                             'key: value\n',
+            # non-ASCII chars
+            'non-ascii/éçäγλνπ¥/utf-8': (
+                u'---\n'
+                u'- hétérogénéité\n'
+                u'# 19.99 €\n'
+                u'- お早う御座います。\n'
+                u'# الأَبْجَدِيَّة العَرَبِيَّة\n').encode('utf-8'),
             # dos line endings yaml
             'dos.yml': '---\r\n'
                        'dos: true',
@@ -108,18 +115,7 @@ class CommandLineTestCase(unittest.TestCase):
             'en.yaml': '---\n'
                        'a: true\n'
                        'A: true'
-        }
-
-        if utf8_paths_supported():
-            # non-ASCII chars
-            workspace_def['non-ascii/éçäγλνπ¥/utf-8'] = (
-                u'---\n'
-                u'- hétérogénéité\n'
-                u'# 19.99 €\n'
-                u'- お早う御座います。\n'
-                u'# الأَبْجَدِيَّة العَرَبِيَّة\n').encode('utf-8')
-
-        cls.wd = build_temp_workspace(workspace_def)
+        })
 
     @classmethod
     def tearDownClass(cls):
@@ -445,9 +441,8 @@ class CommandLineTestCase(unittest.TestCase):
 
     @unittest.skipIf(not utf8_paths_supported(), 'UTF-8 paths not supported')
     def test_run_non_ascii_file(self):
-        if sys.version_info < (3, 7):
-            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
-            self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
+        locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+        self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
 
         path = os.path.join(self.wd, 'non-ascii', 'éçäγλνπ¥', 'utf-8')
         with RunContext(self) as ctx:
