@@ -56,19 +56,23 @@ class RunContext(object):
         return self._raises_ctx.exception.code
 
 
+# Check system's UTF-8 availability, because without it using UTF-8 paths
+# like 'éçäγλνπ¥' will break on Python ⩽ 3.6
+def utf8_paths_supported():
+    if sys.version_info >= (3, 7):
+        return True
+    try:
+        locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+        locale.setlocale(locale.LC_ALL, (None, None))
+        return True
+    except locale.Error:
+        return False
+
+
 class CommandLineTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         super(CommandLineTestCase, cls).setUpClass()
-
-        # Check system's UTF-8 availability, because without it
-        # using UTF-8 paths like 'éçäγλνπ¥' will break on Python ⩽ 3.6
-        try:
-            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
-            cls.utf8_missing = False
-            locale.setlocale(locale.LC_ALL, (None, None))
-        except locale.Error:
-            cls.utf8_missing = True
 
         workspace_def = {
             # .yaml file at root
@@ -106,7 +110,7 @@ class CommandLineTestCase(unittest.TestCase):
                        'A: true'
         }
 
-        if not cls.utf8_missing:
+        if utf8_paths_supported():
             # non-ASCII chars
             workspace_def['non-ascii/éçäγλνπ¥/utf-8'] = (
                 u'---\n'
@@ -123,6 +127,7 @@ class CommandLineTestCase(unittest.TestCase):
 
         shutil.rmtree(cls.wd)
 
+    @unittest.skipIf(not utf8_paths_supported(), 'UTF-8 paths not supported')
     def test_find_files_recursively(self):
         conf = config.YamlLintConfig('extends: default')
         self.assertEqual(
@@ -198,23 +203,18 @@ class CommandLineTestCase(unittest.TestCase):
                                      '  - \'*\'\n')
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
-            sorted(
-                [os.path.join(self.wd, 'a.yaml'),
-                 os.path.join(self.wd, 'c.yaml'),
-                 os.path.join(self.wd, 'dos.yml'),
-                 os.path.join(self.wd, 'empty.yml'),
-                 os.path.join(self.wd, 'en.yaml'),
-                 os.path.join(self.wd, 'no-yaml.json'),
-                 os.path.join(self.wd,
-                              's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
-                 os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
-                 os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
-                 os.path.join(self.wd, 'sub/ok.yaml'),
-                 os.path.join(self.wd, 'warn.yaml')]
-                +
-                ([] if self.utf8_missing else
-                 [os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8')])
-            )
+            [os.path.join(self.wd, 'a.yaml'),
+             os.path.join(self.wd, 'c.yaml'),
+             os.path.join(self.wd, 'dos.yml'),
+             os.path.join(self.wd, 'empty.yml'),
+             os.path.join(self.wd, 'en.yaml'),
+             os.path.join(self.wd, 'no-yaml.json'),
+             os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
+             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
+             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
+             os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
+             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd, 'warn.yaml')]
         )
 
         conf = config.YamlLintConfig('extends: default\n'
@@ -224,23 +224,18 @@ class CommandLineTestCase(unittest.TestCase):
                                      '  - \'**\'\n')
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
-            sorted(
-                [os.path.join(self.wd, 'a.yaml'),
-                 os.path.join(self.wd, 'c.yaml'),
-                 os.path.join(self.wd, 'dos.yml'),
-                 os.path.join(self.wd, 'empty.yml'),
-                 os.path.join(self.wd, 'en.yaml'),
-                 os.path.join(self.wd, 'no-yaml.json'),
-                 os.path.join(self.wd,
-                              's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
-                 os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
-                 os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
-                 os.path.join(self.wd, 'sub/ok.yaml'),
-                 os.path.join(self.wd, 'warn.yaml')]
-                +
-                ([] if self.utf8_missing else
-                 [os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8')])
-            )
+            [os.path.join(self.wd, 'a.yaml'),
+             os.path.join(self.wd, 'c.yaml'),
+             os.path.join(self.wd, 'dos.yml'),
+             os.path.join(self.wd, 'empty.yml'),
+             os.path.join(self.wd, 'en.yaml'),
+             os.path.join(self.wd, 'no-yaml.json'),
+             os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
+             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
+             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
+             os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
+             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd, 'warn.yaml')]
         )
 
         conf = config.YamlLintConfig('extends: default\n'
@@ -249,7 +244,6 @@ class CommandLineTestCase(unittest.TestCase):
                                      '  - \'**/utf-8\'\n')
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
-            [] if self.utf8_missing else
             [os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8')]
         )
 
@@ -449,12 +443,11 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-f', 'parsable', path))
         self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))
 
+    @unittest.skipIf(not utf8_paths_supported(), 'UTF-8 paths not supported')
     def test_run_non_ascii_file(self):
-        if self.utf8_missing:
-            self.skipTest('C.UTF-8 locale not available')
-
-        locale.setlocale(locale.LC_ALL, 'C.UTF-8')
-        self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
+        if sys.version_info < (3, 7):
+            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+            self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
 
         path = os.path.join(self.wd, 'non-ascii', 'éçäγλνπ¥', 'utf-8')
         with RunContext(self) as ctx:
