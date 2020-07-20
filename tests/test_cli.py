@@ -96,7 +96,7 @@ class CommandLineTestCase(unittest.TestCase):
             'no-yaml.json': '---\n'
                             'key: value\n',
             # non-ASCII chars
-            'non-ascii/éçäγλνπ¥/utf-8': (
+            u'non-ascii/éçäγλνπ¥/utf-8': (
                 u'---\n'
                 u'- hétérogénéité\n'
                 u'# 19.99 €\n'
