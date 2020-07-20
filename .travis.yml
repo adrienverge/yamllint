@@ -8,10 +8,14 @@ python:
   - 3.7
   - 3.8
   - nightly
+env:
+  - REMOVE_LOCALES=false
+  - REMOVE_LOCALES=true
 install:
   - pip install pyyaml coveralls flake8 flake8-import-order doc8
   - if [[ $TRAVIS_PYTHON_VERSION != 2* ]]; then pip install sphinx; fi
   - pip install .
+  - if [[ $REMOVE_LOCALES = "true" ]]; then sudo rm -rf /usr/lib/locale/*; fi
 script:
   - if [[ $TRAVIS_PYTHON_VERSION != nightly ]]; then flake8 .; fi
   - if [[ $TRAVIS_PYTHON_VERSION != 2* ]]; then doc8 $(git ls-files '*.rst'); fi

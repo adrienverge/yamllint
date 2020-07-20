@@ -56,6 +56,16 @@ class RunContext(object):
         return self._raises_ctx.exception.code
 
 
+# Check system's UTF-8 availability
+def utf8_available():
+    try:
+        locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+        locale.setlocale(locale.LC_ALL, (None, None))
+        return True
+    except locale.Error:
+        return False
+
+
 class CommandLineTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -86,7 +96,7 @@ class CommandLineTestCase(unittest.TestCase):
             'no-yaml.json': '---\n'
                             'key: value\n',
             # non-ASCII chars
-            'non-ascii/éçäγλνπ¥/utf-8': (
+            u'non-ascii/éçäγλνπ¥/utf-8': (
                 u'---\n'
                 u'- hétérogénéité\n'
                 u'# 19.99 €\n'
@@ -110,6 +120,8 @@ class CommandLineTestCase(unittest.TestCase):
 
         shutil.rmtree(cls.wd)
 
+    @unittest.skipIf(not utf8_available() and sys.version_info < (3, 7),
+                     'UTF-8 paths not supported')
     def test_find_files_recursively(self):
         conf = config.YamlLintConfig('extends: default')
         self.assertEqual(
@@ -425,17 +437,12 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-f', 'parsable', path))
         self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))
 
+    @unittest.skipIf(not utf8_available(), 'C.UTF-8 not available')
     def test_run_non_ascii_file(self):
-        path = os.path.join(self.wd, 'non-ascii', 'éçäγλνπ¥', 'utf-8')
-
-        # Make sure the default localization conditions on this "system"
-        # support UTF-8 encoding.
-        try:
-            locale.setlocale(locale.LC_ALL, (None, 'UTF-8'))
-        except locale.Error:
-            self.skipTest('no UTF-8 locale available')
+        locale.setlocale(locale.LC_ALL, 'C.UTF-8')
         self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
 
+        path = os.path.join(self.wd, 'non-ascii', 'éçäγλνπ¥', 'utf-8')
         with RunContext(self) as ctx:
             cli.run(('-f', 'parsable', path))
         self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))
