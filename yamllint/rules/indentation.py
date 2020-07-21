@@ -38,7 +38,7 @@ Use this rule to control the indentation.
 
  rules:
    indentation:
-     spaces: consistent
+     spaces: 'consistent'
      indent-sequences: true
      check-multi-line-strings: false
 
