@@ -22,6 +22,14 @@ Use this rule to require or forbid the use of document end marker (``...``).
 * Set ``present`` to ``true`` when the document end marker is required, or to
   ``false`` when it is forbidden.
 
+.. rubric:: Default values
+
+.. code-block:: yaml
+
+ rules:
+   document-end:
+     present: true
+
 .. rubric:: Examples
 
 #. With ``document-end: {present: true}``

@@ -28,6 +28,16 @@ Use this rule to control the position and formatting of comments.
   content. It defines the minimal required number of spaces between a comment
   and its preceding content.
 
+.. rubric:: Default values
+
+.. code-block:: yaml
+
+ rules:
+   comments:
+     require-starting-space: true
+     ignore-shebangs: true
+     min-spaces-from-content: 2
+
 .. rubric:: Examples
 
 #. With ``comments: {require-starting-space: true}``

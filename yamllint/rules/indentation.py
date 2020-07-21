@@ -32,6 +32,16 @@ Use this rule to control the indentation.
 * ``check-multi-line-strings`` defines whether to lint indentation in
   multi-line strings. Set to ``true`` to enable, ``false`` to disable.
 
+.. rubric:: Default values
+
+.. code-block:: yaml
+
+ rules:
+   indentation:
+     spaces: consistent
+     indent-sequences: true
+     check-multi-line-strings: false
+
 .. rubric:: Examples
 
 #. With ``indentation: {spaces: 1}``

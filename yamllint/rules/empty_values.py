@@ -23,6 +23,15 @@ Use this rule to prevent nodes with empty content, that implicitly result in
 * Use ``forbid-in-block-mappings`` to prevent empty values in block mappings.
 * Use ``forbid-in-flow-mappings`` to prevent empty values in flow mappings.
 
+.. rubric:: Default values
+
+.. code-block:: yaml
+
+ rules:
+   empty-values:
+     forbid-in-block-mappings: true
+     forbid-in-flow-mappings: true
+
 .. rubric:: Examples
 
 #. With ``empty-values: {forbid-in-block-mappings: true}``

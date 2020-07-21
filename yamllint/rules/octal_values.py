@@ -20,6 +20,20 @@ start with ``0`` are interpreted as octal, but this is not always wanted.
 For instance ``010`` is the city code of Beijing, and should not be
 converted to ``8``.
 
+.. rubric:: Options
+
+* Use ``forbid-implicit-octal`` to prevent numbers starting with ``0``.
+* Use ``forbid-explicit-octal`` to prevent numbers starting with ``0o``.
+
+.. rubric:: Default values
+
+.. code-block:: yaml
+
+ rules:
+   octal-values:
+     forbid-implicit-octal: true
+     forbid-explicit-octal: true
+
 .. rubric:: Examples
 
 #. With ``octal-values: {forbid-implicit-octal: true}``

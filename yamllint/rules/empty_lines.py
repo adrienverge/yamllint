@@ -25,6 +25,16 @@ Use this rule to set a maximal number of allowed consecutive blank lines.
 * ``max-end`` defines the maximal number of empty lines allowed at the end of
   the file.  This option takes precedence over ``max``.
 
+.. rubric:: Default values
+
+.. code-block:: yaml
+
+ rules:
+   empty-lines:
+     max: 2
+     max-start: 0
+     max-end: 0
+
 .. rubric:: Examples
 
 #. With ``empty-lines: {max: 1}``

@@ -26,6 +26,16 @@ Use this rule to control the number of spaces before and after commas (``,``).
 * ``max-spaces-after`` defines the maximal number of spaces allowed after
   commas (use ``-1`` to disable).
 
+.. rubric:: Default values
+
+.. code-block:: yaml
+
+ rules:
+   commas:
+     max-spaces-before: 0
+     min-spaces-after: 1
+     max-spaces-after: 1
+
 .. rubric:: Examples
 
 #. With ``commas: {max-spaces-before: 0}``
