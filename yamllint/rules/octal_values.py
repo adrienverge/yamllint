@@ -25,7 +25,7 @@ converted to ``8``.
 * Use ``forbid-implicit-octal`` to prevent numbers starting with ``0``.
 * Use ``forbid-explicit-octal`` to prevent numbers starting with ``0o``.
 
-.. rubric:: Default values
+.. rubric:: Default values (when enabled)
 
 .. code-block:: yaml
 

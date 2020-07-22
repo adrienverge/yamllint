@@ -22,7 +22,7 @@ Use this rule to control the number of spaces after hyphens (``-``).
 * ``max-spaces-after`` defines the maximal number of spaces allowed after
   hyphens.
 
-.. rubric:: Default values
+.. rubric:: Default values (when enabled)
 
 .. code-block:: yaml
 

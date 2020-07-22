@@ -30,7 +30,7 @@ recommend running yamllint with Python 3.
 * ``allow-non-breakable-inline-mappings`` implies ``allow-non-breakable-words``
   and extends it to also allow non-breakable words in inline mappings.
 
-.. rubric:: Default values
+.. rubric:: Default values (when enabled)
 
 .. code-block:: yaml
 

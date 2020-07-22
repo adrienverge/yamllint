@@ -28,7 +28,7 @@ Use this rule to control the number of spaces inside braces (``{`` and ``}``).
 * ``max-spaces-inside-empty`` defines the maximal number of spaces allowed
   inside empty braces.
 
-.. rubric:: Default values
+.. rubric:: Default values (when enabled)
 
 .. code-block:: yaml
 

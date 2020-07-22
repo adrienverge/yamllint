@@ -28,7 +28,7 @@ Use this rule to control the position and formatting of comments.
   content. It defines the minimal required number of spaces between a comment
   and its preceding content.
 
-.. rubric:: Default values
+.. rubric:: Default values (when enabled)
 
 .. code-block:: yaml
 

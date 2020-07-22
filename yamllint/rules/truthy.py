@@ -34,7 +34,7 @@ This can be useful to prevent surprises from YAML parsers transforming
   ``truthy`` rule applies to both keys and values. Set this option to ``false``
   to prevent this.
 
-.. rubric:: Default values
+.. rubric:: Default values (when enabled)
 
 .. code-block:: yaml
 

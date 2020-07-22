@@ -29,7 +29,7 @@ Use this rule to control the number of spaces inside brackets (``[`` and
 * ``max-spaces-inside-empty`` defines the maximal number of spaces allowed
   inside empty brackets.
 
-.. rubric:: Default values
+.. rubric:: Default values (when enabled)
 
 .. code-block:: yaml
 

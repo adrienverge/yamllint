@@ -22,7 +22,7 @@ Use this rule to require or forbid the use of document start marker (``---``).
 * Set ``present`` to ``true`` when the document start marker is required, or to
   ``false`` when it is forbidden.
 
-.. rubric:: Default values
+.. rubric:: Default values (when enabled)
 
 .. code-block:: yaml
 

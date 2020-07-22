@@ -24,7 +24,7 @@ Use this rule to control the number of spaces before and after colons (``:``).
 * ``max-spaces-after`` defines the maximal number of spaces allowed after
   colons (use ``-1`` to disable).
 
-.. rubric:: Default values
+.. rubric:: Default values (when enabled)
 
 .. code-block:: yaml
 

@@ -23,7 +23,7 @@ Use this rule to prevent nodes with empty content, that implicitly result in
 * Use ``forbid-in-block-mappings`` to prevent empty values in block mappings.
 * Use ``forbid-in-flow-mappings`` to prevent empty values in flow mappings.
 
-.. rubric:: Default values
+.. rubric:: Default values (when enabled)
 
 .. code-block:: yaml
 
