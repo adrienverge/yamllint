@@ -21,6 +21,14 @@ Use this rule to force the type of new line characters.
 
 * Set ``type`` to ``unix`` to use UNIX-typed new line characters (``\\n``), or
   ``dos`` to use DOS-typed new line characters (``\\r\\n``).
+
+.. rubric:: Default values (when enabled)
+
+.. code-block:: yaml
+
+ rules:
+   new-lines:
+     type: unix
 """
 
 

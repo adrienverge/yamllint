@@ -30,6 +30,16 @@ recommend running yamllint with Python 3.
 * ``allow-non-breakable-inline-mappings`` implies ``allow-non-breakable-words``
   and extends it to also allow non-breakable words in inline mappings.
 
+.. rubric:: Default values (when enabled)
+
+.. code-block:: yaml
+
+ rules:
+   line-length:
+     max: 80
+     allow-non-breakable-words: true
+     allow-non-breakable-inline-mappings: false
+
 .. rubric:: Examples
 
 #. With ``line-length: {max: 70}``

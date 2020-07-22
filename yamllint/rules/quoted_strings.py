@@ -34,6 +34,17 @@ used.
 
 **Note**: Multi-line strings (with ``|`` or ``>``) will not be checked.
 
+.. rubric:: Default values (when enabled)
+
+.. code-block:: yaml
+
+ rules:
+   quoted-strings:
+     quote-type: any
+     required: true
+     extra-required: []
+     extra-allowed: []
+
 .. rubric:: Examples
 
 #. With ``quoted-strings: {quote-type: any, required: true}``
