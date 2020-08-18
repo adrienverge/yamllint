@@ -76,7 +76,7 @@ Use this rule to control the number of spaces before and after commas (``,``).
    ::
 
     strange var:
-      [10, 20,30, {x: 1, y: 2}]
+      [10, 20, 30, {x: 1, y: 2}]
 
    the following code snippet would **FAIL**:
    ::
