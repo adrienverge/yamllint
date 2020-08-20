@@ -8,6 +8,20 @@ python:
   - 3.7
   - 3.8
   - nightly
+jobs:
+  include:
+    - python: 2.7
+      os: osx
+      env: REMOVE_LOCALES=false
+    - python: 2.7
+      os: osx
+      env: REMOVE_LOCALES=true
+    - python: 3.8
+      os: osx
+      env: REMOVE_LOCALES=false
+    - python: 3.8
+      os: osx
+      env: REMOVE_LOCALES=true
 env:
   - REMOVE_LOCALES=false
   - REMOVE_LOCALES=true

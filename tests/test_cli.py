@@ -308,13 +308,14 @@ class CommandLineTestCase(unittest.TestCase):
 
         self.addCleanup(os.environ.update, HOME=os.environ['HOME'])
         os.environ['HOME'] = home
+        os.environ.pop('XDG_CONFIG_HOME', None)
 
         with open(config, 'w') as f:
             f.write('rules: {trailing-spaces: disable}')
 
         with RunContext(self) as ctx:
             cli.run((os.path.join(self.wd, 'a.yaml'), ))
-        self.assertEqual(ctx.returncode, 0)
+        self.assertEqual(ctx.returncode, 0, msg="%s" % config)
 
         with open(config, 'w') as f:
             f.write('rules: {trailing-spaces: enable}')
@@ -347,9 +348,9 @@ class CommandLineTestCase(unittest.TestCase):
         # reset to default before running the test,
         # as the first two runs don't use setlocale()
         try:
-            locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
         except locale.Error:
-            self.skipTest('locale en_US.UTF-8 not available')
+            self.skipTest('locale C.UTF-8 not available')
         locale.setlocale(locale.LC_ALL, (None, None))
 
         # C + en.yaml should fail

@@ -116,9 +116,9 @@ class KeyOrderingTestCase(RuleTestCase):
     def test_locale_case(self):
         self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
         try:
-            locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
         except locale.Error:
-            self.skipTest('locale en_US.UTF-8 not available')
+            self.skipTest('locale C.UTF-8 not available')
         conf = ('key-ordering: enable')
         self.check('---\n'
                    't-shirt: 1\n'
@@ -135,9 +135,9 @@ class KeyOrderingTestCase(RuleTestCase):
     def test_locale_accents(self):
         self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
         try:
-            locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
         except locale.Error:
-            self.skipTest('locale en_US.UTF-8 not available')
+            self.skipTest('locale C.UTF-8 not available')
         conf = ('key-ordering: enable')
         self.check('---\n'
                    'hair: true\n'
