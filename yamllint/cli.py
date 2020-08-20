@@ -117,12 +117,13 @@ def show_problems(problems, file, args_format, no_warn):
 def run(argv=None):
     parser = argparse.ArgumentParser(prog=APP_NAME,
                                      description=APP_DESCRIPTION)
-    files_group = parser.add_mutually_exclusive_group(required=True)
+    files_group = parser.add_mutually_exclusive_group()
     files_group.add_argument('files', metavar='FILE_OR_DIR', nargs='*',
-                             default=(),
-                             help='files to check')
-    files_group.add_argument('-', action='store_true', dest='stdin',
-                             help='read from standard input')
+                             default=("."),
+                             help='files to check, defaults to "."')
+    files_group.add_argument(
+        '-', action='store_true', dest='stdin', default=False,
+        help='read from standard input, ignoring other positional arguments')
     config_group = parser.add_mutually_exclusive_group()
     config_group.add_argument('-c', '--config-file', dest='config_file',
                               action='store',
@@ -181,20 +182,20 @@ def run(argv=None):
 
     max_level = 0
 
-    for file in find_files_recursively(args.files, conf):
-        filepath = file[2:] if file.startswith('./') else file
-        try:
-            with io.open(file, newline='') as f:
-                problems = linter.run(f, conf, filepath)
-        except EnvironmentError as e:
-            print(e, file=sys.stderr)
-            sys.exit(-1)
-        prob_level = show_problems(problems, file, args_format=args.format,
-                                   no_warn=args.no_warnings)
-        max_level = max(max_level, prob_level)
-
-    # read yaml from stdin
-    if args.stdin:
+    if not args.stdin:
+        for file in find_files_recursively(args.files, conf):
+            filepath = file[2:] if file.startswith('./') else file
+            try:
+                with io.open(file, newline='') as f:
+                    problems = linter.run(f, conf, filepath)
+            except EnvironmentError as e:
+                print(e, file=sys.stderr)
+                sys.exit(-1)
+            prob_level = show_problems(problems, file, args_format=args.format,
+                                       no_warn=args.no_warnings)
+            max_level = max(max_level, prob_level)
+    else:
+        # read yaml from stdin
         try:
             problems = linter.run(sys.stdin, conf, '')
         except EnvironmentError as e:
