@@ -123,8 +123,8 @@ warning level problems, only error level ones.
 YAML files extensions
 ---------------------
 
-To configure what yamllint should consider as YAML files, set ``yaml-files``
-configuration option. The default is:
+To configure what yamllint should consider as YAML files when listing
+directories, set ``yaml-files`` configuration option. The default is:
 
 .. code-block:: yaml
 
