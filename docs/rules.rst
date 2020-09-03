@@ -64,6 +64,16 @@ empty-values
 
 .. automodule:: yamllint.rules.empty_values
 
+flow-mapping
+--------------
+
+.. automodule:: yamllint.rules.flow_mapping
+
+flow-sequence
+--------------
+
+.. automodule:: yamllint.rules.flow_sequence
+
 hyphens
 -------
 
