@@ -19,6 +19,8 @@ rules:
     level: warning
   empty-lines: enable
   empty-values: disable
+  flow-mapping: disable
+  flow-sequence: disable
   hyphens: enable
   indentation: enable
   key-duplicates: enable

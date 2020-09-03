@@ -18,6 +18,8 @@ rules:
   document-start: disable
   empty-lines:
     level: warning
+  flow-mapping: disable
+  flow-sequence: disable
   hyphens:
     level: warning
   indentation:
