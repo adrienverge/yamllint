@@ -71,6 +71,8 @@ converted to ``8``.
       city-code: 0o10
 """
 
+import re
+
 import yaml
 
 from yamllint.linter import LintProblem
@@ -84,6 +86,10 @@ DEFAULT = {'forbid-implicit-octal': True,
            'forbid-explicit-octal': True}
 
 
+def _is_octal_number(string):
+    return re.match(r'^[0-7]+$', string) is not None
+
+
 def check(conf, token, prev, next, nextnext, context):
     if prev and isinstance(prev, yaml.tokens.TagToken):
         return
@@ -92,7 +98,8 @@ def check(conf, token, prev, next, nextnext, context):
         if isinstance(token, yaml.tokens.ScalarToken):
             if not token.style:
                 val = token.value
-                if val.isdigit() and len(val) > 1 and val[0] == '0':
+                if (val.isdigit() and len(val) > 1 and val[0] == '0' and
+                        _is_octal_number(val[1:])):
                     yield LintProblem(
                         token.start_mark.line + 1, token.end_mark.column + 1,
                         'forbidden implicit octal value "%s"' %
@@ -102,7 +109,8 @@ def check(conf, token, prev, next, nextnext, context):
         if isinstance(token, yaml.tokens.ScalarToken):
             if not token.style:
                 val = token.value
-                if len(val) > 2 and val[:2] == '0o' and val[2:].isdigit():
+                if (len(val) > 2 and val[:2] == '0o' and
+                        _is_octal_number(val[2:])):
                     yield LintProblem(
                         token.start_mark.line + 1, token.end_mark.column + 1,
                         'forbidden explicit octal value "%s"' %

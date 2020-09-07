@@ -50,6 +50,8 @@ class OctalValuesTestCase(RuleTestCase):
                    '  - 0.10\n'
                    '  - .01\n'
                    '  - 0e3\n', conf)
+        self.check('with-decimal-digits: 012345678', conf)
+        self.check('with-decimal-digits: 012345679', conf)
 
     def test_explicit_octal_values(self):
         conf = ('octal-values:\n'
@@ -74,3 +76,5 @@ class OctalValuesTestCase(RuleTestCase):
                    '  - .01\n'
                    '  - 0e3\n', conf)
         self.check('user-city: "010"', conf)
+        self.check('with-decimal-digits: 0o012345678', conf)
+        self.check('with-decimal-digits: 0o012345679', conf)
