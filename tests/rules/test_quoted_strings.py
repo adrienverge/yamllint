@@ -330,7 +330,8 @@ class QuotedTestCase(RuleTestCase):
                    '- "%wheel ALL=(ALL) NOPASSWD: ALL"\n'
                    '- \'"quoted"\'\n'
                    '- "\'foo\' == \'bar\'"\n'
-                   '- "\'Mac\' in ansible_facts.product_name"\n',
+                   '- "\'Mac\' in ansible_facts.product_name"\n'
+                   '- \'foo # bar\'\n',
                    conf)
         self.check('---\n'
                    'k1: ""\n'
