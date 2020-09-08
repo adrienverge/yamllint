@@ -160,7 +160,7 @@ def _quotes_are_needed(string):
     try:
         a, b = loader.get_token(), loader.get_token()
         if (isinstance(a, yaml.ScalarToken) and a.style is None and
-                isinstance(b, yaml.BlockEndToken)):
+                isinstance(b, yaml.BlockEndToken) and a.value == string):
             return False
         return True
     except yaml.scanner.ScannerError:
