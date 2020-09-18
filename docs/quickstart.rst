@@ -101,6 +101,22 @@ machine (for instance for :doc:`syntax highlighting in text editors
  file.yml:57:1: [error] trailing spaces (trailing-spaces)
  file.yml:60:3: [error] wrong indentation: expected 4 but found 2 (indentation)
 
+Add the ``-f json`` arguments if you need an output formatted as JSON.
+The output will then look like:
+
+::
+
+ [
+    {
+      "path": "file.yml",
+      "line": 6,
+      "char": 2,
+      "description": "[warning] missing starting space in comment (comments)",
+      "severity": "warning"
+    }
+  ]
+
+
 If you have a custom linting configuration file (see :doc:`how to configure
 yamllint <configuration>`), it can be passed to yamllint using the ``-c``
 option:
