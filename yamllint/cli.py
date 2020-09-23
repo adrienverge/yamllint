@@ -109,7 +109,9 @@ def show_problems(problems, file, args_format, no_warn):
             continue
         if args_format == 'parsable':
             print(Format.parsable(problem, file))
-        elif args_format == 'github':
+        elif args_format == 'github' or (args_format == 'auto' and
+                                         'GITHUB_ACTIONS' in os.environ and
+                                         'GITHUB_WORKFLOW' in os.environ):
             print(Format.github(problem, file))
         elif args_format == 'colored' or \
                 (args_format == 'auto' and supports_color()):
