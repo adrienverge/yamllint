@@ -17,3 +17,37 @@ Here is an example, to add in your .pre-commit-config.yaml
     hooks:
       - id: yamllint
         args: [-c=/path/to/.yamllint]
+
+Integration with GitHub Actions
+-------------------------------
+
+yamllint auto-detects when it's running inside of `GitHub
+Actions<https://github.com/features/actions>` and automatically uses the suited
+output format to decorate code with linting errors automatically. You can also
+force the GitHub Actions output with ``yamllint --format github``.
+
+An example workflow using GitHub Actions:
+
+.. code:: yaml
+
+   ---
+   name: yamllint test
+
+   on: push
+
+   jobs:
+     test:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v2
+
+         - name: Set up Python
+           uses: actions/setup-python@v2
+           with:
+             python-version: 3.8
+
+         - name: Install yamllint
+           run: pip install yamllint
+
+         - name: Lint YAML files
+           run: yamllint .
