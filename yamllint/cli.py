@@ -85,6 +85,19 @@ class Format(object):
             line += '  \033[2m(%s)\033[0m' % problem.rule
         return line
 
+    @staticmethod
+    def github(problem, filename):
+        line = '::'
+        line += problem.level
+        line += ' file=' + filename + ','
+        line += 'line=' + format(problem.line) + ','
+        line += 'col=' + format(problem.column)
+        line += '::'
+        if problem.rule:
+            line += '[' + problem.rule + '] '
+        line += problem.desc
+        return line
+
 
 def show_problems(problems, file, args_format, no_warn):
     max_level = 0
@@ -96,6 +109,8 @@ def show_problems(problems, file, args_format, no_warn):
             continue
         if args_format == 'parsable':
             print(Format.parsable(problem, file))
+        elif args_format == 'github':
+            print(Format.github(problem, file))
         elif args_format == 'colored' or \
                 (args_format == 'auto' and supports_color()):
             if first:
@@ -131,7 +146,8 @@ def run(argv=None):
                               action='store',
                               help='custom configuration (as YAML source)')
     parser.add_argument('-f', '--format',
-                        choices=('parsable', 'standard', 'colored', 'auto'),
+                        choices=('parsable', 'standard', 'colored', 'github',
+                                 'auto'),
                         default='auto', help='format for parsing output')
     parser.add_argument('-s', '--strict',
                         action='store_true',
