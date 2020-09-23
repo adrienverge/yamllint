@@ -549,6 +549,20 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
+    def test_run_format_github(self):
+        path = os.path.join(self.wd, 'a.yaml')
+
+        with RunContext(self) as ctx:
+            cli.run((path, '--format', 'github'))
+        expected_out = (
+            '::error file=%s,line=2,col=4::[trailing-spaces] trailing'
+            ' spaces\n'
+            '::error file=%s,line=3,col=4::[new-line-at-end-of-file] no'
+            ' new line character at the end of file\n'
+            % (path, path))
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+
     def test_run_read_from_stdin(self):
         # prepares stdin with an invalid yaml string so that we can check
         # for its specific error, and be assured that stdin was read
