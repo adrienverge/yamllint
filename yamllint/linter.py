@@ -87,7 +87,8 @@ def get_cosmetic_problems(buffer, conf, filepath):
                 return  # this certainly wasn't a yamllint directive comment
 
             if re.match(r'^# yamllint disable( rule:\S+)*\s*$', comment):
-                rules = [item[5:] for item in comment[18:].split(' ')][1:]
+                items = comment[18:].rstrip().split(' ')
+                rules = [item[5:] for item in items][1:]
                 if len(rules) == 0:
                     self.rules = self.all_rules.copy()
                 else:
@@ -96,7 +97,8 @@ def get_cosmetic_problems(buffer, conf, filepath):
                             self.rules.add(id)
 
             elif re.match(r'^# yamllint enable( rule:\S+)*\s*$', comment):
-                rules = [item[5:] for item in comment[17:].split(' ')][1:]
+                items = comment[17:].rstrip().split(' ')
+                rules = [item[5:] for item in items][1:]
                 if len(rules) == 0:
                     self.rules.clear()
                 else:
@@ -114,7 +116,8 @@ def get_cosmetic_problems(buffer, conf, filepath):
                 return  # this certainly wasn't a yamllint directive comment
 
             if re.match(r'^# yamllint disable-line( rule:\S+)*\s*$', comment):
-                rules = [item[5:] for item in comment[23:].split(' ')][1:]
+                items = comment[23:].rstrip().split(' ')
+                rules = [item[5:] for item in items][1:]
                 if len(rules) == 0:
                     self.rules = self.all_rules.copy()
                 else:

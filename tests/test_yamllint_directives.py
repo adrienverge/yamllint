@@ -232,6 +232,34 @@ class YamllintDirectivesTestCase(RuleTestCase):
                    problem1=(3, 18, 'trailing-spaces'),
                    problem2=(4, 8, 'colons'))
 
+    def test_disable_directive_with_rules_and_dos_lines(self):
+        conf = self.conf + 'new-lines: {type: dos}\n'
+        self.check('---\r\n'
+                   '- [valid , YAML]\r\n'
+                   '# yamllint disable rule:trailing-spaces\r\n'
+                   '- trailing spaces    \r\n'
+                   '- bad   : colon\r\n'
+                   '- [valid , YAML]\r\n'
+                   '# yamllint enable rule:trailing-spaces\r\n'
+                   '- bad  : colon and spaces   \r\n'
+                   '- [valid , YAML]\r\n',
+                   conf,
+                   problem1=(5, 8, 'colons'),
+                   problem2=(8, 7, 'colons'),
+                   problem3=(8, 26, 'trailing-spaces'))
+        self.check('---\r\n'
+                   '- [valid , YAML]\r\n'
+                   '- trailing spaces    \r\n'
+                   '- bad   : colon\r\n'
+                   '- [valid , YAML]\r\n'
+                   '# yamllint disable-line rule:colons\r\n'
+                   '- bad  : colon and spaces   \r\n'
+                   '- [valid , YAML]\r\n',
+                   conf,
+                   problem1=(3, 18, 'trailing-spaces'),
+                   problem2=(4, 8, 'colons'),
+                   problem3=(7, 26, 'trailing-spaces'))
+
     def test_directive_on_last_line(self):
         conf = 'new-line-at-end-of-file: {}'
         self.check('---\n'
