@@ -1,0 +1,6 @@
+pyyaml
+coveralls
+flake8
+flake8-import-order
+doc8
+sphinx; python_version > '2.7'
