@@ -13,7 +13,9 @@ Pull Request Process
 
    .. code:: bash
 
-    python setup.py test
+    pip install --user .
+    python -m unittest discover  # all tests...
+    python -m unittest tests/rules/test_commas.py  # or just some tests (faster)
 
 3. If you add code that should be tested, add tests.
 
