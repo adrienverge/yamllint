@@ -246,19 +246,19 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(())
         self.assertNotEqual(ctx.returncode, 0)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegexpMatches(ctx.stderr, r'^usage')
+        self.assertRegex(ctx.stderr, r'^usage')
 
         with RunContext(self) as ctx:
             cli.run(('--unknown-arg', ))
         self.assertNotEqual(ctx.returncode, 0)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegexpMatches(ctx.stderr, r'^usage')
+        self.assertRegex(ctx.stderr, r'^usage')
 
         with RunContext(self) as ctx:
             cli.run(('-c', './conf.yaml', '-d', 'relaxed', 'file'))
         self.assertNotEqual(ctx.returncode, 0)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegexpMatches(
+        self.assertRegex(
             ctx.stderr.splitlines()[-1],
             r'^yamllint: error: argument -d\/--config-data: '
             r'not allowed with argument -c\/--config-file$'
@@ -269,21 +269,21 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-', 'file'))
         self.assertNotEqual(ctx.returncode, 0)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegexpMatches(ctx.stderr, r'^usage')
+        self.assertRegex(ctx.stderr, r'^usage')
 
     def test_run_with_bad_config(self):
         with RunContext(self) as ctx:
             cli.run(('-d', 'rules: {a: b}', 'file'))
         self.assertEqual(ctx.returncode, -1)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegexpMatches(ctx.stderr, r'^invalid config: no such rule')
+        self.assertRegex(ctx.stderr, r'^invalid config: no such rule')
 
     def test_run_with_empty_config(self):
         with RunContext(self) as ctx:
             cli.run(('-d', '', 'file'))
         self.assertEqual(ctx.returncode, -1)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegexpMatches(ctx.stderr, r'^invalid config: not a dict')
+        self.assertRegex(ctx.stderr, r'^invalid config: not a dict')
 
     def test_run_with_config_file(self):
         with open(os.path.join(self.wd, 'config'), 'w') as f:
@@ -386,7 +386,7 @@ class CommandLineTestCase(unittest.TestCase):
         with RunContext(self) as ctx:
             cli.run(('--version', ))
         self.assertEqual(ctx.returncode, 0)
-        self.assertRegexpMatches(ctx.stdout + ctx.stderr, r'yamllint \d+\.\d+')
+        self.assertRegex(ctx.stdout + ctx.stderr, r'yamllint \d+\.\d+')
 
     def test_run_non_existing_file(self):
         path = os.path.join(self.wd, 'i-do-not-exist.yaml')
@@ -395,7 +395,7 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-f', 'parsable', path))
         self.assertEqual(ctx.returncode, -1)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegexpMatches(ctx.stderr, r'No such file or directory')
+        self.assertRegex(ctx.stderr, r'No such file or directory')
 
     def test_run_one_problem_file(self):
         path = os.path.join(self.wd, 'a.yaml')
