@@ -48,7 +48,7 @@ class SimpleConfigTestCase(unittest.TestCase):
             config.YamlLintConfig('not: valid: yaml')
 
     def test_unknown_rule(self):
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
                 config.YamlLintConfigError,
                 'invalid config: no such rule: "this-one-does-not-exist"'):
             config.YamlLintConfig('rules:\n'
@@ -67,7 +67,7 @@ class SimpleConfigTestCase(unittest.TestCase):
         self.assertEqual(c.rules['colons']['max-spaces-after'], 1)
 
     def test_unknown_option(self):
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
                 config.YamlLintConfigError,
                 'invalid config: unknown option "abcdef" for rule "colons"'):
             config.YamlLintConfig('rules:\n'
@@ -105,7 +105,7 @@ class SimpleConfigTestCase(unittest.TestCase):
         self.assertEqual(c.rules['indentation']['check-multi-line-strings'],
                          False)
 
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
                 config.YamlLintConfigError,
                 'invalid config: option "indent-sequences" of "indentation" '
                 'should be in '):
