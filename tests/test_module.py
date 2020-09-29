@@ -47,7 +47,7 @@ class ModuleTestCase(unittest.TestCase):
             subprocess.check_output([PYTHON, '-m', 'yamllint'],
                                     stderr=subprocess.STDOUT)
         self.assertEqual(ctx.exception.returncode, 2)
-        self.assertRegexpMatches(ctx.exception.output.decode(),
+        self.assertRegex(ctx.exception.output.decode(),
                                  r'^usage: yamllint')
 
     def test_run_module_on_bad_dir(self):
@@ -55,7 +55,7 @@ class ModuleTestCase(unittest.TestCase):
             subprocess.check_output([PYTHON, '-m', 'yamllint',
                                      '/does/not/exist'],
                                     stderr=subprocess.STDOUT)
-        self.assertRegexpMatches(ctx.exception.output.decode(),
+        self.assertRegex(ctx.exception.output.decode(),
                                  r'No such file or directory')
 
     def test_run_module_on_file(self):
