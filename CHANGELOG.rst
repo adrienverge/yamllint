@@ -1,6 +1,23 @@
 Changelog
 =========
 
+1.25.0 (2020-09-29)
+-------------------
+
+- Run tests on Travis both with and without UTF-8 locales
+- Improve documentationon with default values to rules with options
+- Improve documentation with a Python API usage example
+- Fix documentation on ``commas`` examples
+- Packaging: move setuptools' configuration from ``setup.py`` to ``setup.cfg``
+- Packaging: add extra info in PyPI metadata
+- Improve documentation on ``yaml-files``
+- Fix ``octal-values`` to prevent detection of ``8`` and ``9`` as octal values
+- Fix ``quoted-strings`` Fix detecting strings with hashtag as requiring quotes
+- Add ``forbid`` configuration to the ``braces`` and ``brackets`` rules
+- Fix runtime dependencies missing ``setuptools``
+- Add a new output format for GitHub Annotations (``--format github``)
+- Fix DOS lines messing with rule IDs in directives
+
 1.24.2 (2020-07-16)
 -------------------
 
