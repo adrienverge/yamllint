@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import yamllint.plugins
 from yamllint.rules import (
     braces,
     brackets,
@@ -62,9 +63,14 @@ _RULES = {
     truthy.ID: truthy,
 }
 
+_EXTERNAL_RULES = yamllint.plugins.get_plugin_rules_map()
 
-def get(id):
-    if id not in _RULES:
-        raise ValueError('no such rule: "%s"' % id)
 
-    return _RULES[id]
+def get(rule_id):
+    if rule_id in _RULES:
+        return _RULES[rule_id]
+
+    if rule_id in _EXTERNAL_RULES:
+        return _EXTERNAL_RULES[rule_id]
+
+    raise ValueError('no such rule: "%s"' % rule_id)
