@@ -46,6 +46,7 @@ def load_plugin_rules_itr(entry_points=None, group=PACKAGE_GROUP):
                 if rule_id in rule_ids or not validate_rule_module(rule_mod):
                     continue
 
+                print(rule_id, rule_mod)###
                 yield (rule_id, rule_mod)
                 rule_ids.add(rule_id)
 
