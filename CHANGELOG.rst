@@ -5,7 +5,7 @@ Changelog
 -------------------
 
 - Run tests on Travis both with and without UTF-8 locales
-- Improve documentationon with default values to rules with options
+- Improve documentation with default values to rules with options
 - Improve documentation with a Python API usage example
 - Fix documentation on ``commas`` examples
 - Packaging: move setuptools' configuration from ``setup.py`` to ``setup.cfg``
