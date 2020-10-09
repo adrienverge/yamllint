@@ -31,6 +31,15 @@ from yamllint import config
 
 
 class SimpleConfigTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(SimpleConfigTestCase, cls).setUpClass()
+
+        # https://docs.python.org/3/library/unittest.html#deprecated-aliases
+        if sys.version_info < (3, 2):
+            cls.assertRegex = cls.assertRegexpMatches
+            cls.assertRaisesRegex = cls.assertRaisesRegexp
+
     def test_parse_config(self):
         new = config.YamlLintConfig('rules:\n'
                                     '  colons:\n'
