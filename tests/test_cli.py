@@ -71,6 +71,11 @@ class CommandLineTestCase(unittest.TestCase):
     def setUpClass(cls):
         super(CommandLineTestCase, cls).setUpClass()
 
+        # https://docs.python.org/3/library/unittest.html#deprecated-aliases
+        if sys.version_info < (3, 2):
+            cls.assertRegex = cls.assertRegexpMatches
+            cls.assertRaisesRegex = cls.assertRaisesRegexp
+
         cls.wd = build_temp_workspace({
             # .yaml file at root
             'a.yaml': '---\n'
