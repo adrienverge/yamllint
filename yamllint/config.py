@@ -32,8 +32,14 @@ class YamlLintConfig(object):
 
         self.ignore = None
 
-        self.yaml_files = pathspec.PathSpec.from_lines(
-            'gitwildmatch', ['*.yaml', '*.yml', '.yamllint'])
+        self.yaml_files = pathspec.PathSpec.from_lines('gitwildmatch', [
+            '*.yaml',
+            '!*.yaml/',
+            '*.yml',
+            '!*.yml/',
+            '.yamllint',
+            '!.yamllint/',
+        ])
 
         self.locale = None
 
@@ -48,7 +54,7 @@ class YamlLintConfig(object):
         return self.ignore and self.ignore.match_file(filepath)
 
     def is_yaml_file(self, filepath):
-        return self.yaml_files.match_file(os.path.basename(filepath))
+        return self.yaml_files.match_file(filepath)
 
     def enabled_rules(self, filepath):
         return [yamllint.rules.get(id) for id, val in self.rules.items()

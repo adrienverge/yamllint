@@ -2,8 +2,11 @@
 
 yaml-files:
   - '*.yaml'
+  - '!*.yaml/'
   - '*.yml'
+  - '!*.yml/'
   - '.yamllint'
+  - '!.yamllint/'
 
 rules:
   braces: enable
