@@ -66,7 +66,7 @@ You can configure yamllint to run on ``arc lint``. Here is an example
         "type": "script-and-regex",
         "script-and-regex.script": "yamllint",
         "script-and-regex.regex": "/^(?P<line>\\d+):(?P<offset>\\d+) +(?P<severity>warning|error) +(?P<message>.*) +\\((?P<name>.*)\\)$/m",
-        "include": "(\\.yml$)"
+        "include": "(\\.(yml|yaml)$)"
       }
     }
   }
