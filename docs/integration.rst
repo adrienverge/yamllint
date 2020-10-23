@@ -55,8 +55,8 @@ An example workflow using GitHub Actions:
 Integration with Arcanist
 -------------------------
 
-You can configure yamllint to run on ``arc lint``. Here is an example ``.arclint`` file that
-makes use of this configuration.
+You can configure yamllint to run on ``arc lint``. Here is an example
+``.arclint`` file that makes use of this configuration.
 
 .. code:: json
 
