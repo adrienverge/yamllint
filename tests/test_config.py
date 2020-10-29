@@ -14,12 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import importlib
 from io import StringIO
 import os
 import shutil
 import sys
 import tempfile
 import unittest
+import unittest.mock
 
 from tests.common import build_temp_workspace
 
@@ -475,3 +477,38 @@ class IgnorePathConfigTestCase(unittest.TestCase):
             './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:4:17: ' + trailing,
             './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:5:5: ' + hyphen,
         )))
+
+
+class MissingModulePath(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super(MissingModulePath, cls).setUpClass()
+        cls.mock_module_path = unittest.mock.patch.dict(config.__dict__,
+                                                        {'_MODULE_PATH': None})
+
+    def setUp(self):
+        if 'importlib.resources' in sys.modules:
+            del sys.modules['importlib.resources']
+
+    @unittest.skipIf(sys.version_info < (3, 7),
+                     'importlib.resources not supported')
+    def test_missing_module_path(self):
+        '''When __file__ is undefined, importlib.resources should be used'''
+        with self.mock_module_path:
+            importlib.reload(config)
+            self.assertTrue(config.__dict__['_MODULE_PATH'] is None)
+            self.assertTrue('importlib.resources' in sys.modules.keys())
+            self.assertTrue(config.get_extended_config('default') is not None)
+
+    @unittest.skipIf(sys.version_info < (3, 7),
+                     'importlib.resources not supported')
+    def test_missing_importlib_resources(self):
+        '''When __file__ is undefined and importlib.resources is unavailable,
+        an ImportError exception is expected.'''
+        with self.mock_module_path:
+            sys.modules['importlib.resources'] = None  # force an ImportError
+            error_regex = '.*importlib.resources library is required.*'
+            with self.assertRaisesRegex(ImportError, error_regex):
+                importlib.reload(config)
+            self.assertTrue(config.__dict__['_MODULE_PATH'] is None)

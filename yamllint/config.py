@@ -19,7 +19,34 @@ import os.path
 import pathspec
 import yaml
 
+import yamllint.conf
 import yamllint.rules
+
+try:
+    _MODULE_PATH  # allows unit tests to patch this
+except NameError:
+    try:
+        _MODULE_PATH = __file__
+    except NameError:  # pragma: no cover
+        _MODULE_PATH = None
+
+if _MODULE_PATH is not None:
+    def _get_config(name):
+        module_dir = os.path.dirname(os.path.realpath(_MODULE_PATH))
+        config_path = os.path.join(module_dir, 'conf', name)
+        with open(config_path) as config:
+            return config.read()
+else:
+    try:
+        from importlib.resources import read_text
+    except ImportError as exc:
+        _IMPORT_ERR_MESSAGE = (
+            "The importlib.resources library is required to locate resources "
+            "when __file__ is not defined")
+        raise ImportError(_IMPORT_ERR_MESSAGE) from exc
+
+    def _get_config(name):
+        return read_text(yamllint.conf, name)
 
 
 class YamlLintConfigError(Exception):
@@ -90,8 +117,8 @@ class YamlLintConfig(object):
 
         # Does this conf override another conf that we need to load?
         if 'extends' in conf:
-            path = get_extended_config_file(conf['extends'])
-            base = YamlLintConfig(file=path)
+            config = get_extended_config(conf['extends'])
+            base = YamlLintConfig(content=config)
             try:
                 self.extend(base)
             except Exception as e:
@@ -200,14 +227,11 @@ def validate_rule_conf(rule, conf):
     return conf
 
 
-def get_extended_config_file(name):
+def get_extended_config(name):
     # Is it a standard conf shipped with yamllint...
     if '/' not in name:
-        std_conf = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                'conf', name + '.yaml')
-
-        if os.path.isfile(std_conf):
-            return std_conf
-
+        resource = name + '.yaml'
+        return _get_config(resource)
     # or a custom conf on filesystem?
-    return name
+    with open(name) as config:
+        return config.read()
