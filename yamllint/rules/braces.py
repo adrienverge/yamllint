@@ -22,7 +22,8 @@ braces (``{`` and ``}``).
 
 * ``forbid`` is used to forbid the use of flow mappings which are denoted by
   surrounding braces (``{`` and ``}``). Use ``true`` to forbid the use of flow
-  mappings completely.
+  mappings completely. Use ``non-empty`` to forbid the use of all flow
+  mappings except for empty ones.
 * ``min-spaces-inside`` defines the minimal number of spaces required inside
   braces.
 * ``max-spaces-inside`` defines the maximal number of spaces allowed inside
@@ -54,6 +55,18 @@ braces (``{`` and ``}``).
     object:
       key1: 4
       key2: 8
+
+   the following code snippet would **FAIL**:
+   ::
+
+    object: { key1: 4, key2: 8 }
+
+#. With ``braces: {forbid: non-empty}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    object: {}
 
    the following code snippet would **FAIL**:
    ::
@@ -128,7 +141,7 @@ from yamllint.rules.common import spaces_after, spaces_before
 
 ID = 'braces'
 TYPE = 'token'
-CONF = {'forbid': bool,
+CONF = {'forbid': (bool, 'non-empty'),
         'min-spaces-inside': int,
         'max-spaces-inside': int,
         'min-spaces-inside-empty': int,
@@ -141,7 +154,14 @@ DEFAULT = {'forbid': False,
 
 
 def check(conf, token, prev, next, nextnext, context):
-    if conf['forbid'] and isinstance(token, yaml.FlowMappingStartToken):
+    if conf['forbid'] == True and isinstance(token, yaml.FlowMappingStartToken):
+        yield LintProblem(token.start_mark.line + 1,
+                          token.end_mark.column + 1,
+                          'forbidden flow mapping')
+
+    elif (conf['forbid'] == 'non-empty' and
+      isinstance(token, yaml.FlowMappingStartToken) and
+      not isinstance(next, yaml.FlowMappingEndToken)):
         yield LintProblem(token.start_mark.line + 1,
                           token.end_mark.column + 1,
                           'forbidden flow mapping')

@@ -22,7 +22,8 @@ inside brackets (``[`` and ``]``).
 
 * ``forbid`` is used to forbid the use of flow sequences which are denoted by
   surrounding brackets (``[`` and ``]``). Use ``true`` to forbid the use of
-  flow sequences completely.
+  flow sequences completely. Use ``non-empty`` to forbid the use of all flow
+  sequences except for empty ones.
 * ``min-spaces-inside`` defines the minimal number of spaces required inside
   brackets.
 * ``max-spaces-inside`` defines the maximal number of spaces allowed inside
@@ -55,6 +56,18 @@ inside brackets (``[`` and ``]``).
       - 1
       - 2
       - abc
+
+   the following code snippet would **FAIL**:
+   ::
+
+    object: [ 1, 2, abc ]
+
+#. With ``brackets: {forbid: non-empty}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    object: []
 
    the following code snippet would **FAIL**:
    ::
@@ -129,7 +142,7 @@ from yamllint.rules.common import spaces_after, spaces_before
 
 ID = 'brackets'
 TYPE = 'token'
-CONF = {'forbid': bool,
+CONF = {'forbid': (bool, 'non-empty'),
         'min-spaces-inside': int,
         'max-spaces-inside': int,
         'min-spaces-inside-empty': int,
@@ -142,7 +155,14 @@ DEFAULT = {'forbid': False,
 
 
 def check(conf, token, prev, next, nextnext, context):
-    if conf['forbid'] and isinstance(token, yaml.FlowSequenceStartToken):
+    if conf['forbid'] == True and isinstance(token, yaml.FlowSequenceStartToken):
+        yield LintProblem(token.start_mark.line + 1,
+                          token.end_mark.column + 1,
+                          'forbidden flow sequence')
+
+    elif (conf['forbid'] == 'non-empty' and
+      isinstance(token, yaml.FlowSequenceStartToken) and
+      not isinstance(next, yaml.FlowSequenceEndToken)):
         yield LintProblem(token.start_mark.line + 1,
                           token.end_mark.column + 1,
                           'forbidden flow sequence')
