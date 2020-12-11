@@ -154,14 +154,15 @@ DEFAULT = {'forbid': False,
 
 
 def check(conf, token, prev, next, nextnext, context):
-    if conf['forbid'] == True and isinstance(token, yaml.FlowMappingStartToken):
+    if (conf['forbid'] is True and
+            isinstance(token, yaml.FlowMappingStartToken)):
         yield LintProblem(token.start_mark.line + 1,
                           token.end_mark.column + 1,
                           'forbidden flow mapping')
 
     elif (conf['forbid'] == 'non-empty' and
-      isinstance(token, yaml.FlowMappingStartToken) and
-      not isinstance(next, yaml.FlowMappingEndToken)):
+            isinstance(token, yaml.FlowMappingStartToken) and
+            not isinstance(next, yaml.FlowMappingEndToken)):
         yield LintProblem(token.start_mark.line + 1,
                           token.end_mark.column + 1,
                           'forbidden flow mapping')

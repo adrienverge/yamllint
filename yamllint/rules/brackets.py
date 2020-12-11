@@ -155,14 +155,15 @@ DEFAULT = {'forbid': False,
 
 
 def check(conf, token, prev, next, nextnext, context):
-    if conf['forbid'] == True and isinstance(token, yaml.FlowSequenceStartToken):
+    if (conf['forbid'] is True and
+            isinstance(token, yaml.FlowSequenceStartToken)):
         yield LintProblem(token.start_mark.line + 1,
                           token.end_mark.column + 1,
                           'forbidden flow sequence')
 
     elif (conf['forbid'] == 'non-empty' and
-      isinstance(token, yaml.FlowSequenceStartToken) and
-      not isinstance(next, yaml.FlowSequenceEndToken)):
+            isinstance(token, yaml.FlowSequenceStartToken) and
+            not isinstance(next, yaml.FlowSequenceEndToken)):
         yield LintProblem(token.start_mark.line + 1,
                           token.end_mark.column + 1,
                           'forbidden flow sequence')
