@@ -69,6 +69,13 @@ class ColonTestCase(RuleTestCase):
         self.check('---\n'
                    'array: []\n', conf)
         self.check('---\n'
+                   'array: [\n\n'
+                   ']\n', conf)
+        self.check('---\n'
+                   'array: [\n'
+                   '# a comment\n'
+                   ']\n', conf)
+        self.check('---\n'
                    'array: [a, b]\n', conf, problem=(2, 9))
         self.check('---\n'
                    'array: [\n'
