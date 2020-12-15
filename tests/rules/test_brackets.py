@@ -60,6 +60,29 @@ class ColonTestCase(RuleTestCase):
                    '  b\n'
                    ']\n', conf, problem=(2, 9))
 
+        conf = ('brackets:\n'
+                '  forbid: non-empty\n')
+        self.check('---\n'
+                   'array:\n'
+                   '  - a\n'
+                   '  - b\n', conf)
+        self.check('---\n'
+                   'array: []\n', conf)
+        self.check('---\n'
+                   'array: [\n\n'
+                   ']\n', conf)
+        self.check('---\n'
+                   'array: [\n'
+                   '# a comment\n'
+                   ']\n', conf)
+        self.check('---\n'
+                   'array: [a, b]\n', conf, problem=(2, 9))
+        self.check('---\n'
+                   'array: [\n'
+                   '  a,\n'
+                   '  b\n'
+                   ']\n', conf, problem=(2, 9))
+
     def test_min_spaces(self):
         conf = ('brackets:\n'
                 '  max-spaces-inside: -1\n'
