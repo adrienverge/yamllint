@@ -28,6 +28,16 @@ from yamllint import config
 
 
 class SimpleConfigTestCase(unittest.TestCase):
+    def test_no_warnings_config(self):
+        new = config.YamlLintConfig('extends: default')
+        self.assertFalse(new.no_warnings)
+
+        new = config.YamlLintConfig('no-warnings: false')
+        self.assertFalse(new.no_warnings)
+
+        new = config.YamlLintConfig('no-warnings: true')
+        self.assertTrue(new.no_warnings)
+
     def test_parse_config(self):
         new = config.YamlLintConfig('rules:\n'
                                     '  colons:\n'
