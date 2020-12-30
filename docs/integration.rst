@@ -74,11 +74,13 @@ You can configure yamllint to run on ``arc lint``. Here is an example
 Integration with Mega-Linter
 ----------------------------
 
-``Mega-Linter`` runs yamllint amongst 70 linters out of the box on any CI system (GitHub Actions, Jenkins & others).
+``Mega-Linter`` runs yamllint amongst 70 linters out of the box on
+any CI system (GitHub Actions, Jenkins & others).
 
 Installation instructions: https://nvuillam.github.io/mega-linter/
 
-Here is an example of ``.mega-linter.yml`` configuration file if you want to only run yamllint
+Here is an example of ``.mega-linter.yml`` configuration file if
+you want to only run yamllint
 
 .. code:: yaml
 
