@@ -70,3 +70,17 @@ You can configure yamllint to run on ``arc lint``. Here is an example
       }
     }
   }
+
+Integration with `Mega-Linter<https://nvuillam.github.io/mega-linter/>`
+-------------------------
+
+``Mega-Linter`` runs yamllint amongst 70 linters out of the box. Here is an example of
+``.mega-linter`` file if you want to only run yamllint
+
+.. code:: yaml
+
+  ---
+  # Configuration file for Mega-Linter
+  # See all available variables at https://nvuillam.github.io/mega-linter/configuration/ and in linters documentation
+
+  ENABLE_LINTERS: YAML_YAMLLINT
