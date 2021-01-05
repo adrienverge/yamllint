@@ -14,10 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 import os
 import shutil
 import sys
@@ -31,15 +28,6 @@ from yamllint import config
 
 
 class SimpleConfigTestCase(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super(SimpleConfigTestCase, cls).setUpClass()
-
-        # https://docs.python.org/3/library/unittest.html#deprecated-aliases
-        if sys.version_info < (3, 2):
-            cls.assertRegex = cls.assertRegexpMatches
-            cls.assertRaisesRegex = cls.assertRaisesRegexp
-
     def test_parse_config(self):
         new = config.YamlLintConfig('rules:\n'
                                     '  colons:\n'

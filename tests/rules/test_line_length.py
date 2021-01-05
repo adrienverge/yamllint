@@ -14,9 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-import unittest
-
 from tests.common import RuleTestCase
 
 
@@ -159,7 +156,6 @@ class LineLengthTestCase(RuleTestCase):
                    '  {% this line is' + 99 * ' really' + ' long %}\n',
                    conf, problem=(3, 81))
 
-    @unittest.skipIf(sys.version_info < (3, 0), 'Python 2 not supported')
     def test_unicode(self):
         conf = 'line-length: {max: 53}'
         self.check('---\n'

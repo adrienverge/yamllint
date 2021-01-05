@@ -26,15 +26,6 @@ PYTHON = sys.executable or 'python'
 
 
 class ModuleTestCase(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super(ModuleTestCase, cls).setUpClass()
-
-        # https://docs.python.org/3/library/unittest.html#deprecated-aliases
-        if sys.version_info < (3, 2):
-            cls.assertRegex = cls.assertRegexpMatches
-            cls.assertRaisesRegex = cls.assertRaisesRegexp
-
     def setUp(self):
         self.wd = tempfile.mkdtemp(prefix='yamllint-tests-')
 
