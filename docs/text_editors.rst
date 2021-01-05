@@ -33,6 +33,11 @@ Emacs
 If you are `flycheck <https://github.com/flycheck/flycheck>`_ user, you can use
 `flycheck-yamllint <https://github.com/krzysztof-magosa/flycheck-yamllint>`_ integration.
 
+Micro
+-----
+
+The ``lint`` plugin by default included and enabled in `micro <https://micro-editor.github.io/>`_ uses yamllint to check all files of filetype yaml each time the buffer is saved, or when the ``> lint`` command is executed. yamllint will be run in the background and micro will display the linter's messages in the sidebar upon completion.
+
 Other text editors
 ------------------
 
