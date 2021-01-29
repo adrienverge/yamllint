@@ -1,6 +1,16 @@
 Changelog
 =========
 
+1.26.0 (2021-01-29)
+-------------------
+
+- End support for Python 2 and Python 3.4, add support for Python 3.9
+- Add ``forbid: non-empty`` option to ``braces`` and ``brackets`` rules
+- Fix ``quoted-strings`` for explicit octal recognition
+- Add documentation for integration with Arcanist
+- Fix typos in changelog and README
+- Stop using deprecated ``python setup.py test`` in tests
+
 1.25.0 (2020-09-29)
 -------------------
 
