@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import fileinput
 import os.path
 
 import pathspec
@@ -96,7 +97,21 @@ class YamlLintConfig:
             except Exception as e:
                 raise YamlLintConfigError('invalid config: %s' % e)
 
-        if 'ignore' in conf:
+        if 'ignore' in conf and 'ignore-from-file' in conf:
+            raise YamlLintConfigError(
+                'invalid config: ignore and ignore-from-file keys cannot be '
+                'used together')
+        elif 'ignore-from-file' in conf:
+            if isinstance(conf['ignore-from-file'], str):
+                conf['ignore-from-file'] = [conf['ignore-from-file']]
+            if not (isinstance(conf['ignore-from-file'], list) and all(
+                    isinstance(ln, str) for ln in conf['ignore-from-file'])):
+                raise YamlLintConfigError(
+                    'invalid config: ignore-from-file should contain '
+                    'filename(s), either as a list or string')
+            with fileinput.input(conf['ignore-from-file']) as f:
+                self.ignore = pathspec.PathSpec.from_lines('gitwildmatch', f)
+        elif 'ignore' in conf:
             if not isinstance(conf['ignore'], str):
                 raise YamlLintConfigError(
                     'invalid config: ignore should contain file patterns')
@@ -150,7 +165,7 @@ def validate_rule_conf(rule, conf):
         options = getattr(rule, 'CONF', {})
         options_default = getattr(rule, 'DEFAULT', {})
         for optkey in conf:
-            if optkey in ('ignore', 'level'):
+            if optkey in ('ignore', 'ignore-from-file', 'level'):
                 continue
             if optkey not in options:
                 raise YamlLintConfigError(
