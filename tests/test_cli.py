@@ -297,6 +297,7 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-c', f.name, os.path.join(self.wd, 'a.yaml')))
         self.assertEqual(ctx.returncode, 1)
 
+    @unittest.skipIf(os.environ.get('GITHUB_RUN_ID'), '$HOME not overridable')
     def test_run_with_user_global_config_file(self):
         home = os.path.join(self.wd, 'fake-home')
         dir = os.path.join(home, '.config', 'yamllint')
