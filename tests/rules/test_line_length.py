@@ -116,6 +116,16 @@ class LineLengthTestCase(RuleTestCase):
                    'long_line: http://localhost/very/very/long/url\n'
                    '...\n', conf, problem=(2, 21))
 
+        conf = 'line-length: {max: 20, allow-non-breakable-words: true}'
+        self.check('---\n'
+                   '# http://www.verylongurlurlurlurlurlurlurlurl.com\n'
+                   'key:\n'
+                   '  value:\n', conf)
+        self.check('---\n'
+                   '## http://www.verylongurlurlurlurlurlurlurlurl.com\n'
+                   'key:\n'
+                   '  value:\n', conf)
+
         conf = ('line-length: {max: 20, allow-non-breakable-words: true}\n'
                 'trailing-spaces: disable')
         self.check('---\n'
