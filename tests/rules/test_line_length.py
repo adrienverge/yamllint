@@ -120,11 +120,22 @@ class LineLengthTestCase(RuleTestCase):
         self.check('---\n'
                    '# http://www.verylongurlurlurlurlurlurlurlurl.com\n'
                    'key:\n'
-                   '  value:\n', conf)
+                   '  subkey: value\n', conf)
         self.check('---\n'
                    '## http://www.verylongurlurlurlurlurlurlurlurl.com\n'
                    'key:\n'
-                   '  value:\n', conf)
+                   '  subkey: value\n', conf)
+        self.check('---\n'
+                   '# # http://www.verylongurlurlurlurlurlurlurlurl.com\n'
+                   'key:\n'
+                   '  subkey: value\n', conf,
+                   problem=(2, 21))
+        self.check('---\n'
+                   '#A http://www.verylongurlurlurlurlurlurlurlurl.com\n'
+                   'key:\n'
+                   '  subkey: value\n', conf,
+                   problem1=(2, 2, 'comments'),
+                   problem2=(2, 21, 'line-length'))
 
         conf = ('line-length: {max: 20, allow-non-breakable-words: true}\n'
                 'trailing-spaces: disable')
