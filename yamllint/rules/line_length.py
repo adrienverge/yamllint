@@ -140,7 +140,11 @@ def check(conf, line):
                 start += 1
 
             if start != line.end:
-                if line.buffer[start] in ('#', '-'):
+                if line.buffer[start] == '#':
+                    while line.buffer[start] == '#':
+                        start += 1
+                    start += 1
+                elif line.buffer[start] == '-':
                     start += 2
 
                 if line.buffer.find(' ', start, line.end) == -1:
