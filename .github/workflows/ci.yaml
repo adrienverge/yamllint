@@ -45,6 +45,8 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.pyver }}
+      - name: Fix GitHub Actions path
+        run: echo /home/runner/.local/bin >>$GITHUB_PATH
       - run: python -m pip install coveralls
       - run: python -m pip install .
       - run: coverage run --source=yamllint -m unittest discover
