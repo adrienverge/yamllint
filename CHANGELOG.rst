@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.26.1 (2021-04-06)
+-------------------
+
+- Remove runtime dependency ``setuptools`` for Python < 3.8
+- Fix ``line_length`` to skip all hash signs starting comment
+
 1.26.0 (2021-01-29)
 -------------------
 
