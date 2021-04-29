@@ -207,7 +207,7 @@ def run(argv=None):
         except EnvironmentError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
-        prob_level = show_problems(problems, file, args_format=args.format,
+        prob_level = show_problems(problems, filepath, args_format=args.format,
                                    no_warn=args.no_warnings)
         max_level = max(max_level, prob_level)
 
