@@ -21,6 +21,10 @@ Use this rule to require or forbid the use of document start marker (``---``).
 
 * Set ``present`` to ``true`` when the document start marker is required, or to
   ``false`` when it is forbidden.
+* ``min-empty-lines-after`` defines the minimal number of empty lines after the
+  document start marker.
+* ``max-empty-lines-after`` defines the maximal number of empty lines after the
+  document start marker.
 
 .. rubric:: Default values (when enabled)
 
@@ -79,8 +83,12 @@ from yamllint.linter import LintProblem
 
 ID = 'document-start'
 TYPE = 'token'
-CONF = {'present': bool}
-DEFAULT = {'present': True}
+CONF = {'present': bool,
+        'max-empty-lines-after': int,
+        'min-empty-lines-after': int}
+DEFAULT = {'present': True,
+           'max-empty-lines-after': -1,
+           'min-empty-lines-after': 0}
 
 
 def check(conf, token, prev, next, nextnext, context):
@@ -93,6 +101,21 @@ def check(conf, token, prev, next, nextnext, context):
                                    yaml.StreamEndToken))):
             yield LintProblem(token.start_mark.line + 1, 1,
                               'missing document start "---"')
+
+        if isinstance(prev, yaml.DocumentStartToken):
+            empty_lines = token.start_mark.line - prev.start_mark.line - 1
+
+            if (conf['max-empty-lines-after'] >= 0 and
+                    empty_lines > conf['max-empty-lines-after']):
+                yield LintProblem(token.start_mark.line + 1,
+                                  token.start_mark.column + 1,
+                                  'too many empty lines after document start')
+
+            if (conf['min-empty-lines-after'] > 0 and
+                    empty_lines < conf['min-empty-lines-after']):
+                yield LintProblem(token.start_mark.line + 1,
+                                  token.start_mark.column + 1,
+                                  'too few empty lines after document start')
 
     else:
         if isinstance(token, yaml.DocumentStartToken):
