@@ -201,6 +201,8 @@ def run(argv=None):
 
     for file in find_files_recursively(args.files, conf):
         filepath = file[2:] if file.startswith('./') else file
+        if(conf.is_file_ignored(filepath) or None):
+            continue
         try:
             with io.open(file, newline='') as f:
                 problems = linter.run(f, conf, filepath)
