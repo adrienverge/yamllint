@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.26.3 (2021-08-21)
+-------------------
+
+- Restore runtime dependency ``setuptools`` for Python < 3.8
+
 1.26.2 (2021-08-03)
 -------------------
 
