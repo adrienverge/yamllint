@@ -19,8 +19,15 @@ Use this rule to control the position and formatting of comments.
 
 .. rubric:: Options
 
+    # cloud-init expects the first line to be #cloud-config and this conflicts with
+    # the rules.comments.require-starting-space directive.
+    # See https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.comments
+
 * Use ``require-starting-space`` to require a space character right after the
   ``#``. Set to ``true`` to enable, ``false`` to disable.
+* Use ``ignore-cloud-init-cloud-config`` to ignore a
+  `#cloud-config cloud-init directive <https://cloudinit.readthedocs.io/en/latest/topics/format.html#cloud-config-data>`_ at the beginning of
+  the file when ``require-starting-space`` is set.
 * Use ``ignore-shebangs`` to ignore a
   `shebang <https://en.wikipedia.org/wiki/Shebang_(Unix)>`_ at the beginning of
   the file when ``require-starting-space`` is set.
@@ -82,9 +89,11 @@ from yamllint.linter import LintProblem
 ID = 'comments'
 TYPE = 'comment'
 CONF = {'require-starting-space': bool,
+        'ignore-cloud-init-cloud-config': bool,
         'ignore-shebangs': bool,
         'min-spaces-from-content': int}
 DEFAULT = {'require-starting-space': True,
+           'ignore-cloud-init-cloud-config': True,
            'ignore-shebangs': True,
            'min-spaces-from-content': 2}
 
@@ -106,6 +115,11 @@ def check(conf, comment):
                     comment.line_no == 1 and
                     comment.column_no == 1 and
                     re.match(r'^!\S', comment.buffer[text_start:])):
+                return
+            elif (conf['ignore-cloud-init-cloud-config'] and
+                    comment.line_no == 1 and
+                    comment.column_no == 1 and
+                    re.match(r'^cloud-config', comment.buffer[text_start:])):
                 return
             # We can test for both \r and \r\n just by checking first char
             # \r itself is a valid newline on some older OS.

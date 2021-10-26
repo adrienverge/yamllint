@@ -80,6 +80,23 @@ class CommentsTestCase(RuleTestCase):
                    problem3=(9, 2), problem4=(10, 4),
                    problem5=(15, 3))
 
+    def test_cloud_init_cloud_config(self):
+        conf = ('comments:\n'
+                '  require-starting-space: true\n'
+                '  ignore-cloud-init-cloud-config: false\n'
+                'document-start: disable\n')
+        self.check('#cloud-config\n',
+                   conf, problem1=(1, 2))
+        self.check('# cloud-config\n', conf)
+
+    def test_ignore_cloud_init_cloud_config(self):
+        conf = ('comments:\n'
+                '  require-starting-space: true\n'
+                '  ignore-cloud-init-cloud-config: true\n'
+                'document-start: disable\n')
+        self.check('#cloud-config\n', conf)
+        self.check('# cloud-config\n', conf)
+
     def test_shebang(self):
         conf = ('comments:\n'
                 '  require-starting-space: true\n'
