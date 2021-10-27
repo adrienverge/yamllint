@@ -17,8 +17,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Set up Python
         uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
       - run: python -m pip install flake8 flake8-import-order doc8 sphinx
       - run: python -m pip install .
       - run: flake8 .
@@ -30,23 +28,23 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version:
-          - 3.6
-          - 3.7
-          - 3.8
-          - 3.9
-          - 3.10
-          - nightly
+          - '3.6'
+          - '3.7'
+          - '3.8'
+          - '3.9'
+          - '3.10'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.pyver }}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.pyver }}
-      - name: Fix GitHub Actions path
-        run: echo /home/runner/.local/bin >>$GITHUB_PATH
+          python-version: ${{ matrix.python-version }}
+      - name: Append GitHub Actions system path
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - run: pip install coveralls
       - run: pip install .
       - run: coverage run --source=yamllint -m unittest discover
