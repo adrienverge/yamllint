@@ -22,6 +22,7 @@ import locale
 import os
 import platform
 import sys
+from xml.sax.saxutils import escape
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
 from yamllint import linter
@@ -98,10 +99,22 @@ class Format(object):
         line += problem.desc
         return line
 
+    @staticmethod
+    def checkstyle(problem):
+        line = '    <error line="%d" column="%d" severity="%s"' % (
+            problem.line, problem.column, problem.level)
+        if problem.rule:
+            line += ' source="%s"' % problem.rule
+        line += ' "message="%s"/>' % escape(problem.desc)
+        return line
+
 
 def show_problems(problems, file, args_format, no_warn):
     max_level = 0
     first = True
+
+    if args_format == 'checkstyle':
+        print('  <file name="%s">' % file)
 
     for problem in problems:
         max_level = max(max_level, PROBLEM_LEVELS[problem.level])
@@ -109,6 +122,8 @@ def show_problems(problems, file, args_format, no_warn):
             continue
         if args_format == 'parsable':
             print(Format.parsable(problem, file))
+        elif args_format == 'checkstyle':
+            print(Format.checkstyle(problem))
         elif args_format == 'github' or (args_format == 'auto' and
                                          'GITHUB_ACTIONS' in os.environ and
                                          'GITHUB_WORKFLOW' in os.environ):
@@ -127,6 +142,9 @@ def show_problems(problems, file, args_format, no_warn):
 
     if not first and args_format != 'parsable':
         print('')
+
+    if args_format == 'checkstyle':
+        print('  </file>')
 
     return max_level
 
@@ -149,7 +167,7 @@ def run(argv=None):
                               help='custom configuration (as YAML source)')
     parser.add_argument('-f', '--format',
                         choices=('parsable', 'standard', 'colored', 'github',
-                                 'auto'),
+                                 'checkstyle', 'auto'),
                         default='auto', help='format for parsing output')
     parser.add_argument('-s', '--strict',
                         action='store_true',
@@ -199,6 +217,10 @@ def run(argv=None):
 
     max_level = 0
 
+    if args.format == 'checkstyle':
+        print('<?xml version="1.0" encoding="UTF-8"?>')
+        print('<checkstyle version="5.0">')
+
     for file in find_files_recursively(args.files, conf):
         filepath = file[2:] if file.startswith('./') else file
         try:
@@ -221,6 +243,9 @@ def run(argv=None):
         prob_level = show_problems(problems, 'stdin', args_format=args.format,
                                    no_warn=args.no_warnings)
         max_level = max(max_level, prob_level)
+
+    if args.format == 'checkstyle':
+        print('</checkstyle>')
 
     if max_level == PROBLEM_LEVELS['error']:
         return_code = 1
