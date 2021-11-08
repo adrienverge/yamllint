@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from yamllint.rules import (
+    anchors,
     braces,
     brackets,
     colons,
@@ -39,6 +40,7 @@ from yamllint.rules import (
 )
 
 _RULES = {
+    anchors.ID: anchors,
     braces.ID: braces,
     brackets.ID: brackets,
     colons.ID: colons,
