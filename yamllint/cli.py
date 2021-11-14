@@ -93,6 +93,10 @@ class Format(object):
         line += 'line=' + format(problem.line) + ','
         line += 'col=' + format(problem.column)
         line += '::'
+        line += format(problem.line)
+        line += ':'
+        line += format(problem.column)
+        line += ' '
         if problem.rule:
             line += '[' + problem.rule + '] '
         line += problem.desc
@@ -117,6 +121,9 @@ def show_problems(problems, file, args_format, no_warn):
         if args_format == 'parsable':
             print(Format.parsable(problem, file))
         elif args_format == 'github':
+            if first:
+                print('::group::%s' % file)
+                first = False
             print(Format.github(problem, file))
         elif args_format == 'colored':
             if first:
@@ -128,6 +135,9 @@ def show_problems(problems, file, args_format, no_warn):
                 print(file)
                 first = False
             print(Format.standard(problem, file))
+
+    if not first and args_format == 'github':
+        print('::endgroup::')
 
     if not first and args_format != 'parsable':
         print('')
