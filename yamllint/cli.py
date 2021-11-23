@@ -104,7 +104,7 @@ def show_problems(problems, file, args_format, no_warn):
     first = True
 
     if args_format == 'auto':
-        if ('GITHUB_ACTIONS' in os.environ and \
+        if ('GITHUB_ACTIONS' in os.environ and
                 'GITHUB_WORKFLOW' in os.environ):
             args_format = 'github'
         elif supports_color():
