@@ -103,18 +103,22 @@ def show_problems(problems, file, args_format, no_warn):
     max_level = 0
     first = True
 
+    if args_format == 'auto':
+        if ('GITHUB_ACTIONS' in os.environ and
+                'GITHUB_WORKFLOW' in os.environ):
+            args_format = 'github'
+        elif supports_color():
+            args_format = 'colored'
+
     for problem in problems:
         max_level = max(max_level, PROBLEM_LEVELS[problem.level])
         if no_warn and (problem.level != 'error'):
             continue
         if args_format == 'parsable':
             print(Format.parsable(problem, file))
-        elif args_format == 'github' or (args_format == 'auto' and
-                                         'GITHUB_ACTIONS' in os.environ and
-                                         'GITHUB_WORKFLOW' in os.environ):
+        elif args_format == 'github':
             print(Format.github(problem, file))
-        elif args_format == 'colored' or \
-                (args_format == 'auto' and supports_color()):
+        elif args_format == 'colored':
             if first:
                 print('\033[4m%s\033[0m' % file)
                 first = False
