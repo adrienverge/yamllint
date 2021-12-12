@@ -74,8 +74,6 @@ Use this rule to control the position and formatting of comments.
 """
 
 
-import re
-
 from yamllint.linter import LintProblem
 
 
