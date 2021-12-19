@@ -74,8 +74,6 @@ Use this rule to control the position and formatting of comments.
 """
 
 
-import re
-
 from yamllint.linter import LintProblem
 
 
@@ -105,7 +103,7 @@ def check(conf, comment):
             if (conf['ignore-shebangs'] and
                     comment.line_no == 1 and
                     comment.column_no == 1 and
-                    re.match(r'^!\S', comment.buffer[text_start:])):
+                    comment.buffer[text_start] == '!'):
                 return
             # We can test for both \r and \r\n just by checking first char
             # \r itself is a valid newline on some older OS.
