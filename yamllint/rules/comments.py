@@ -103,7 +103,7 @@ def check(conf, comment):
             if (conf['ignore-shebangs'] and
                     comment.line_no == 1 and
                     comment.column_no == 1 and
-                    comment.buffer[text_start:].startswith('!')):
+                    comment.buffer[text_start] == '!'):
                 return
             # We can test for both \r and \r\n just by checking first char
             # \r itself is a valid newline on some older OS.
