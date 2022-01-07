@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2021 Sergei Mikhailov
 #
 # This program is free software: you can redistribute it and/or modify
@@ -67,22 +66,12 @@ key: &otherkeyanchor a
 otherkey: *othermissedkeyanchor
 '''
 
-DUPLICATE_ANCHORS = '''---
-first_block: &keyanchor
-  key: a
 
-second_block: &keyanchor
-  key: b
-
-target_block: *keyanchor
-'''
-
-
-class AnchorsTestCase(RuleTestCase):
-    rule_id = 'anchors'
+class UnknownAliasesTestCase(RuleTestCase):
+    rule_id = 'unknown-aliases'
 
     def test_disabled(self):
-        conf = 'anchors: disable'
+        conf = 'unknown-aliases: disable'
 
         self.check(HIT_ANCHOR_POINTER, conf)
         self.check(HIT_ANCHOR_MERGE, conf)
@@ -93,25 +82,18 @@ class AnchorsTestCase(RuleTestCase):
         self.check(MISS_ANCHOR_MERGE, conf)
         self.check(MULTI_MISS_ANCHOR_POINTER, conf)
         self.check(MULTI_DOC_MISS_ANCHOR_POINTER, conf)
-        self.check(DUPLICATE_ANCHORS, conf)
 
     def test_enabled(self):
-        conf = 'anchors: enable'
+        conf = 'unknown-aliases: enable'
 
         self.check(HIT_ANCHOR_POINTER, conf)
         self.check(HIT_ANCHOR_MERGE, conf)
         self.check(MULTI_HIT_ANCHOR_POINTER, conf)
         self.check(MULTI_DOC_HIT_ANCHOR_POINTER, conf)
 
-        self.check(MISS_ANCHOR_POINTER, conf,
-                   problem=(3, 11))
-        self.check(MISS_ANCHOR_MERGE, conf,
-                   problem_first=(5, 7),
-                   problem_second=(5, 7))
+        self.check(MISS_ANCHOR_POINTER, conf, problem=(3,11))
+        self.check(MISS_ANCHOR_MERGE, conf, problem=(5, 7))
         self.check(MULTI_MISS_ANCHOR_POINTER, conf,
-                   problem_first=(3, 11),
-                   problem_second=(4, 16))
+                   problem1=(3, 11), problem2=(4, 16))
         self.check(MULTI_DOC_MISS_ANCHOR_POINTER, conf,
-                   problem_first=(3, 11), problem_second=(6, 11))
-        self.check(DUPLICATE_ANCHORS, conf,
-                   problem=(5, 15))
+                   problem1=(3, 11), problem2=(6, 11))

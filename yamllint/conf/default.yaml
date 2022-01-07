@@ -6,7 +6,7 @@ yaml-files:
   - '.yamllint'
 
 rules:
-  anchors: enable
+  anchor-duplicates: disable
   braces: enable
   brackets: enable
   colons: enable
@@ -33,3 +33,4 @@ rules:
   trailing-spaces: enable
   truthy:
     level: warning
+  unknown-aliases: enable

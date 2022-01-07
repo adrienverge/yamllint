@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from yamllint.rules import (
-    anchors,
+    anchor_duplicates,
     braces,
     brackets,
     colons,
@@ -37,10 +37,11 @@ from yamllint.rules import (
     quoted_strings,
     trailing_spaces,
     truthy,
+    unknown_aliases,
 )
 
 _RULES = {
-    anchors.ID: anchors,
+    anchor_duplicates.ID: anchor_duplicates,
     braces.ID: braces,
     brackets.ID: brackets,
     colons.ID: colons,
@@ -63,6 +64,7 @@ _RULES = {
     quoted_strings.ID: quoted_strings,
     trailing_spaces.ID: trailing_spaces,
     truthy.ID: truthy,
+    unknown_aliases.ID: unknown_aliases,
 }
 
 
