@@ -119,3 +119,5 @@ def show_all_problems(all_problems, args_format, no_warn):
     for file, problem in all_problems.items():
         curr_level = show_problems(problem, file, args_format, no_warn)
         max_level = max(curr_level, max_level)
+
+    return max_level
