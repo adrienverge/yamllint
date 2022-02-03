@@ -5,6 +5,7 @@ import os
 import platform
 import sys
 import json
+import datetime
 
 from yamllint.linter import PROBLEM_LEVELS
 
@@ -21,6 +22,16 @@ def supports_color():
 def run_on_gh():
     """Return if the currnet job is on github."""
     return 'GITHUB_ACTIONS' in os.environ and 'GITHUB_WORKFLOW' in os.environ
+
+
+def escape_xml(text):
+    """Escape text for XML."""
+    text = text.replace('&', '&amp;')
+    text = text.replace('<', '&lt;')
+    text = text.replace('>', '&gt;')
+    text = text.replace('"', '&quot;')
+    text = text.replace('"', '&apos;')
+    return text
 
 
 class Formater(object):
@@ -219,7 +230,52 @@ class JSONFormater(Formater):
         lst = []
         for k, v in all_problems.items():
             lst += self.show_problems_for_file(v, k)
-        return json.dumps(lst, indent=4)
+        return json.dumps(lst, indent=4) + '\n'
+
+    def show_problems_for_file(self, problems, file):
+        """Show all problems of a specific file."""
+        return list(map(self.show_problem, problems, [file] * len(problems)))
+
+    def show_problem(self, problem, file):
+        """Show all problems of a specific file."""
+        return {**problem.dict, "file": file}
+
+
+class JunitFormater(Formater):
+    """The parsable formater."""
+    name = 'junitxml'
+
+    def show_problems_for_all_files(self, all_problems):
+        """Show all problems of all files."""
+        string = '<?xml version="1.0" encoding="utf-8"?>\n<testsuites>\n'
+
+        errors = warnings = 0
+        lst = []
+        for k, v in all_problems.items():
+            lst += self.show_problems_for_file(v, k)
+
+        lines = []
+        for item in lst:
+            if item['level'] is None:
+                continue
+            elif item['level'] == 'warning':
+                warnings += 1
+                to_append = '<testcase classname="%s:%d:%d" name="%s" time="0.0"><failure message="%s"><\/failure><\/testcase>'  # noqa
+            elif item['level'] == 'error':
+                errors += 1
+                to_append = '<testcase classname="%s:%d:%d" name="%s" time="0.0"><error message="%s"><\/error><\/testcase>'  # noqa
+            lines.append(' ' * 8 + to_append % (
+                item['file'],
+                item['line'],
+                item['column'],
+                item['rule'],
+                escape_xml(item['desc']))
+            )
+
+        string += ' '*4 + '<testsuite name="pytest" errors="%d" failures="%d" skipped="0" tests="%d" time="0" timestamp="%s" hostname="%s">\n' % (errors, warnings, errors + warnings, datetime.datetime.now().isoformat(), platform.node())  # noqa
+        string += '\n'.join(lines) + '\n'
+        string += '    </testsuite>\n</testsuites>\n'
+        return string
 
     def show_problems_for_file(self, problems, file):
         """Show all problems of a specific file."""
