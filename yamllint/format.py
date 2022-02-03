@@ -71,7 +71,6 @@ class Format(object):
 
 
 def show_problems(problems, file, args_format, no_warn):
-    max_level = 0
     first = True
 
     if args_format == 'auto':
@@ -82,7 +81,6 @@ def show_problems(problems, file, args_format, no_warn):
             args_format = 'colored'
 
     for problem in problems:
-        max_level = max(max_level, PROBLEM_LEVELS[problem.level])
         if no_warn and (problem.level != 'error'):
             continue
         if args_format == 'parsable':
@@ -109,15 +107,16 @@ def show_problems(problems, file, args_format, no_warn):
     if not first and args_format != 'parsable':
         print('')
 
-    return max_level
+
+def max_level(problems):
+    """Return the max level of all problems."""
+    return max(PROBLEM_LEVELS[problem.level] for problem in problems)
 
 
 def show_all_problems(all_problems, args_format, no_warn):
     """Print all problems, return the max level."""
-    max_level = 0
 
     for file, problem in all_problems.items():
-        curr_level = show_problems(problem, file, args_format, no_warn)
-        max_level = max(curr_level, max_level)
+        show_problems(problem, file, args_format, no_warn)
 
-    return max_level
+    return max_level(all_problems)
