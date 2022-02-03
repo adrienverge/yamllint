@@ -62,6 +62,17 @@ class LintProblem(object):
     def __repr__(self):
         return '%d:%d: %s' % (self.line, self.column, self.message)
 
+    @property
+    def dict(self):
+        """Return self as a dictionary."""
+        return {
+            "line": self.line,
+            "column": self.column,
+            "desc": self.desc,
+            "rule": self.rule,
+            "level": self.level,
+        }
+
 
 def get_cosmetic_problems(buffer, conf, filepath):
     rules = conf.enabled_rules(filepath)

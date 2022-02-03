@@ -4,6 +4,7 @@ from __future__ import print_function
 import os
 import platform
 import sys
+import json
 
 from yamllint.linter import PROBLEM_LEVELS
 
@@ -207,6 +208,26 @@ class StandardFormater(Formater):
             line += '  (%s)' % problem.rule
         line += '\n'
         return line
+
+
+class JSONFormater(Formater):
+    """The parsable formater."""
+    name = 'json'
+
+    def show_problems_for_all_files(self, all_problems):
+        """Show all problems of all files."""
+        lst = []
+        for k, v in all_problems.items():
+            lst += self.show_problems_for_file(v, k)
+        return json.dumps(lst, indent=4)
+
+    def show_problems_for_file(self, problems, file):
+        """Show all problems of a specific file."""
+        return list(map(self.show_problem, problems, [file] * len(problems)))
+
+    def show_problem(self, problem, file):
+        """Show all problems of a specific file."""
+        return {**problem.dict, "file": file}
 
 
 def max_level(all_problems):

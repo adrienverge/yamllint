@@ -59,7 +59,7 @@ def run(argv=None):
                               help='custom configuration (as YAML source)')
     parser.add_argument('-f', '--format',
                         choices=('parsable', 'standard', 'colored', 'github',
-                                 'auto'),
+                                 'json', 'auto'),
                         default='auto', help='format for parsing output')
     parser.add_argument('-s', '--strict',
                         action='store_true',
