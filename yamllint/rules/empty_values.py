@@ -22,6 +22,7 @@ Use this rule to prevent nodes with empty content, that implicitly result in
 
 * Use ``forbid-in-block-mappings`` to prevent empty values in block mappings.
 * Use ``forbid-in-flow-mappings`` to prevent empty values in flow mappings.
+* Use ``forbid-key-without-values-eof`` to prevent empty values at the end of a file.
 
 .. rubric:: Default values (when enabled)
 
@@ -31,6 +32,7 @@ Use this rule to prevent nodes with empty content, that implicitly result in
    empty-values:
      forbid-in-block-mappings: true
      forbid-in-flow-mappings: true
+     forbid-key-without-values-eof: false
 
 .. rubric:: Examples
 
@@ -73,23 +75,35 @@ Use this rule to prevent nodes with empty content, that implicitly result in
 
     {a: 1, b:, c: 3}
 
+#. With ``empty-values: {forbid-key-without-values-eof: true}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    key: value
+
+   the following code snippet would **FAIL**:
+   ::
+
+    key:value
+
 """
 
 import yaml
 
 from yamllint.linter import LintProblem
 
-
 ID = 'empty-values'
 TYPE = 'token'
 CONF = {'forbid-in-block-mappings': bool,
-        'forbid-in-flow-mappings': bool}
+        'forbid-in-flow-mappings': bool,
+        'forbid-key-without-values-eof': bool}
 DEFAULT = {'forbid-in-block-mappings': True,
-           'forbid-in-flow-mappings': True}
+           'forbid-in-flow-mappings': True,
+           'forbid-key-without-values-eof': False}
 
 
 def check(conf, token, prev, next, nextnext, context):
-
     if conf['forbid-in-block-mappings']:
         if isinstance(token, yaml.ValueToken) and isinstance(next, (
                 yaml.KeyToken, yaml.BlockEndToken)):
@@ -103,3 +117,13 @@ def check(conf, token, prev, next, nextnext, context):
             yield LintProblem(token.start_mark.line + 1,
                               token.end_mark.column + 1,
                               'empty value in flow mapping')
+
+    if conf['forbid-key-without-values-eof']:
+        if isinstance(prev, (yaml.KeyToken, yaml.DocumentStartToken,
+                             yaml.StreamStartToken)) \
+                and isinstance(token, yaml.ScalarToken) \
+                and isinstance(next, (yaml.DocumentEndToken,
+                                      yaml.StreamEndToken)):
+            yield LintProblem(token.start_mark.line + 1,
+                              token.end_mark.column + 1,
+                              'key with no value found')

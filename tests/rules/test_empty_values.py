@@ -62,6 +62,30 @@ class EmptyValuesTestCase(RuleTestCase):
                    'implicitly-null:with-colons:in-key2:\n', conf,
                    problem1=(2, 37))
 
+    def test_forbid_key_without_values_eof(self):
+        conf = ('empty-values: {forbid-in-block-mappings: false,\n'
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-key-without-values-eof: true}\n')
+        self.check('---\n'
+                   'implicitly-null\n', conf, problem1=(2, 16))
+        self.check('---\n'
+                   'implicitly-null:\n', conf)
+        self.check('---\n'
+                   'explicitly-null: null\n', conf)
+        self.check('---\n'
+                   'implicitly-null:with-colons:in-key\n', conf,
+                   problem1=(2, 35))
+        self.check('---\n'
+                   'implicitly-null:with-colons:in-key:\n', conf)
+        self.check('---\n'
+                   'explicitly-null:with-colons:in-key: null\n', conf)
+        self.check('---\n'
+                   'implicitly-null:with-colons:in-key\n'
+                   'key: value\n', conf, problem1=(3, 4, 'syntax'))
+        self.check('---\n'
+                   'implicitly-null:with-colons:in-key:\n'
+                   'key: value\n', conf)
+
     def test_in_block_mappings_all_lines(self):
         conf = ('empty-values: {forbid-in-block-mappings: true,\n'
                 '               forbid-in-flow-mappings: false}\n')
