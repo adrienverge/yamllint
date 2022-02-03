@@ -118,7 +118,7 @@ def run(argv=None):
         except EnvironmentError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
-        all_problems[file] = problems
+        all_problems[file] = [pb for pb in problems if pb]
 
     if args.stdin:
         # read yaml from stdin
@@ -127,7 +127,7 @@ def run(argv=None):
         except EnvironmentError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
-        all_problems['stdin'] = problems
+        all_problems['stdin'] = [pb for pb in problems if pb]
 
     max_level = show_all_problems(
         all_problems,
