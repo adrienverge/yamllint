@@ -16,6 +16,7 @@ def supports_color():
     return (supported_platform and
             hasattr(sys.stdout, 'isatty') and sys.stdout.isatty())
 
+
 class Format(object):
     @staticmethod
     def parsable(problem, filename):
@@ -109,3 +110,12 @@ def show_problems(problems, file, args_format, no_warn):
         print('')
 
     return max_level
+
+
+def show_all_problems(all_problems, args_format, no_warn):
+    """Print all problems, return the max level."""
+    max_level = 0
+
+    for file, problem in all_problems.items():
+        curr_level = show_problems(problem, file, args_format, no_warn)
+        max_level = max(curr_level, max_level)

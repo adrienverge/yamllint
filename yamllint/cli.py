@@ -26,7 +26,7 @@ from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
 from yamllint import linter
 from yamllint.config import YamlLintConfig, YamlLintConfigError
 from yamllint.linter import PROBLEM_LEVELS
-from yamllint.format import show_problems
+from yamllint.format import show_all_problems
 
 
 def find_files_recursively(items, conf):
@@ -107,7 +107,8 @@ def run(argv=None):
     if conf.locale is not None:
         locale.setlocale(locale.LC_ALL, conf.locale)
 
-    max_level = 0
+    # problems dict: {file: problems}
+    all_problems = dict()
 
     for file in find_files_recursively(args.files, conf):
         filepath = file[2:] if file.startswith('./') else file
@@ -117,20 +118,22 @@ def run(argv=None):
         except EnvironmentError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
-        prob_level = show_problems(problems, file, args_format=args.format,
-                                   no_warn=args.no_warnings)
-        max_level = max(max_level, prob_level)
+        all_problems[file] = problems
 
-    # read yaml from stdin
     if args.stdin:
+        # read yaml from stdin
         try:
             problems = linter.run(sys.stdin, conf, '')
         except EnvironmentError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
-        prob_level = show_problems(problems, 'stdin', args_format=args.format,
-                                   no_warn=args.no_warnings)
-        max_level = max(max_level, prob_level)
+        all_problems['stdin'] = problems
+
+    max_level = show_all_problems(
+        all_problems,
+        args_format=args.format,
+        no_warn=args.no_warnings
+    )
 
     if max_level == PROBLEM_LEVELS['error']:
         return_code = 1
