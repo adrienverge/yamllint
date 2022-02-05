@@ -71,6 +71,7 @@ class LintProblem(object):
             "desc": self.desc,
             "rule": self.rule,
             "level": self.level,
+            "message": f"[{self.level}] {self.message}"
         }
 
 
