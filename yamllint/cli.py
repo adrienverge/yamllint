@@ -26,7 +26,7 @@ from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
 from yamllint import linter
 from yamllint.config import YamlLintConfig, YamlLintConfigError
 from yamllint.linter import PROBLEM_LEVELS
-from yamllint.format import show_all_problems
+from yamllint.format import show_all_problems, Formater
 
 
 def find_files_recursively(items, conf):
@@ -58,8 +58,7 @@ def run(argv=None):
                               action='store',
                               help='custom configuration (as YAML source)')
     parser.add_argument('-f', '--format',
-                        choices=('parsable', 'standard', 'colored', 'github',
-                                 'json', 'junitxml', 'codeclimate', 'auto'),
+                        choices=[*Formater.get_formaters_names(), 'auto'],
                         default='auto', help='format for parsing output')
     parser.add_argument('-s', '--strict',
                         action='store_true',

@@ -53,6 +53,11 @@ class Formater(object):
     name = ''
 
     @classmethod
+    def get_formaters_names(cls):
+        """Return all formaters names."""
+        return [f.name for f in cls.__subclasses__()]
+
+    @classmethod
     def get_formater(cls, name, no_warn):
         """Return a formater instance."""
 
