@@ -108,7 +108,7 @@ class ParsableFormater(Formater):
 
 
 class GithubFormater(Formater):
-    """The parsable formater."""
+    """The github formater."""
     name = 'github'
 
     def show_problems_for_all_files(self, all_problems):
@@ -149,7 +149,7 @@ class GithubFormater(Formater):
 
 
 class ColoredFormater(Formater):
-    """The parsable formater."""
+    """The colored formater."""
     name = 'colored'
 
     def show_problems_for_all_files(self, all_problems):
@@ -187,7 +187,7 @@ class ColoredFormater(Formater):
 
 
 class StandardFormater(Formater):
-    """The parsable formater."""
+    """The standard formater."""
     name = 'standard'
 
     def show_problems_for_all_files(self, all_problems):
@@ -222,7 +222,7 @@ class StandardFormater(Formater):
 
 
 class JSONFormater(Formater):
-    """The parsable formater."""
+    """The json formater."""
     name = 'json'
 
     def show_problems_for_all_files(self, all_problems):
