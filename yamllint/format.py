@@ -238,7 +238,7 @@ class JSONFormater(Formater):
 
     def show_problem(self, problem, file):
         """Show all problems of a specific file."""
-        return {**problem.dict, "file": file}
+        return {**problem.dict, "path": file}
 
 
 class JunitFormater(Formater):
