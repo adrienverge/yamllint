@@ -10,6 +10,13 @@ import datetime
 from yamllint.linter import PROBLEM_LEVELS
 
 
+CODECLIMATE_SEVERITY = {
+    None: "info",
+    'warning': "minor",
+    'error': "major",
+}
+
+
 def supports_color():
     supported_platform = not (platform.system() == 'Windows' and not
                               ('ANSICON' in os.environ or
@@ -32,6 +39,12 @@ def escape_xml(text):
     text = text.replace('"', '&quot;')
     text = text.replace('"', '&apos;')
     return text
+
+
+def severity_from_level(level):
+    if isinstance(level, int):
+        level = PROBLEM_LEVELS[level]
+    return CODECLIMATE_SEVERITY[level]
 
 
 class Formater(object):
@@ -284,6 +297,66 @@ class JunitFormater(Formater):
     def show_problem(self, problem, file):
         """Show all problems of a specific file."""
         return {**problem.dict, "file": file}
+
+
+class CodeclimateFormater(Formater):
+    """The codeclimate formater."""
+    name = 'codeclimate'
+
+    def show_problems_for_all_files(self, all_problems):
+        """Show all problems of all files."""
+        lst = []
+        for k, v in all_problems.items():
+            lst += self.show_problems_for_file(v, k)
+        return json.dumps(lst, indent=4) + '\n'
+
+    def show_problems_for_file(self, problems, file):
+        """Show all problems of a specific file."""
+        return list(map(self.show_problem, problems, [file] * len(problems)))
+
+    def show_problem(self, problem, file):
+        """Show all problems of a specific file.
+
+        Using the codeclimate format.
+        https://github.com/codeclimate/platform/blob/master/spec/analyzers/SPEC.md#data-types
+
+
+        * `type` -- **Required**. Must always be "issue".
+        * `check_name` -- **Required**. A unique name representing the static analysis check that emitted this issue.
+        * `description` -- **Required**. A string explaining the issue that was detected.
+        * `content` -- **Optional**. A markdown snippet describing the issue, including deeper explanations and links to other resources.
+        * `categories` -- **Required**. At least one category indicating the nature of the issue being reported.
+        * `location` -- **Required**. A `Location` object representing the place in the source code where the issue was discovered.
+        * `trace` -- **Optional.** A `Trace` object representing other interesting source code locations related to this issue.
+        * `remediation_points` -- **Optional**. An integer indicating a rough estimate of how long it would take to resolve the reported issue.
+        * `severity` -- **Optional**. A `Severity` string (`info`, `minor`, `major`, `critical`, or `blocker`) describing the potential impact of the issue found.
+        * `fingerprint` -- **Optional**. A unique, deterministic identifier for the specific issue being reported to allow a user to exclude it from future analyses.
+        
+        For now the categories doc is empty, just put Style.
+        https://github.com/codeclimate/platform/blob/master/spec/analyzers/SPEC.md#categories
+        
+        I don't find a value of remdiation_points, just set it at 1k.
+        
+        I don't know how to calculate the fingerprint, maybe with a sha but it will be slow.
+        """  # noqa
+        return {
+            "type": "issue",
+            "check_name": problem.rule,
+            "description": problem.desc,
+            "content": problem.message,
+            "categories": ["Style"],
+            "location": {
+                "path": file,
+                "positions": {
+                    "begin": {
+                        "line": problem.line,
+                        "column": problem.column
+                    },
+                }
+            },
+            "remediation_points": 1_000,
+            "severity": severity_from_level(problem.level)
+        }
 
 
 def max_level(all_problems):
