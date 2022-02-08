@@ -93,6 +93,7 @@ import yaml
 
 from yamllint.linter import LintProblem
 
+
 ID = 'empty-values'
 TYPE = 'token'
 CONF = {'forbid-in-block-mappings': bool,
