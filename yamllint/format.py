@@ -255,8 +255,23 @@ class JSONFormater(Formater):
         return list(map(self.show_problem, problems, [file] * len(problems)))
 
     def show_problem(self, problem, file):
-        """Show all problems of a specific file."""
-        return {**problem.dict, "path": file}
+        """Show all problems of a specific file.
+
+        The desired format is:
+
+        >>> {
+        >>>     "path": "dir/file.yaml",
+        >>>     "line": 1337,
+        >>>     "column": 42,
+        >>>     "message": "duplication of key \"k\" in mapping",
+        >>>     "rule": "key-duplicates",
+        >>>     "level": "error"
+        >>> }
+        """
+        dico = problem.dict
+        dico["message"] = dico.pop("desc")
+        dico["path"] = file
+        return dico
 
 
 class JunitFormater(Formater):
