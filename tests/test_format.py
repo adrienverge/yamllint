@@ -2,7 +2,21 @@
 import unittest
 import string
 
-from yamllint.format import escape_xml, severity_from_level
+from yamllint.format import (
+    escape_xml,
+    severity_from_level,
+    Formater,
+    ParsableFormater,
+    GithubFormater,
+    ColoredFormater,
+    StandardFormater,
+    JSONFormater,
+    JunitFormater,
+    CodeclimateFormater
+)
+
+
+INPUT = []
 
 
 class TextToXMLTestCase(unittest.TestCase):
@@ -38,3 +52,42 @@ class CodeClimateSeverityTestCase(unittest.TestCase):
     def test_specials_chars(self):
         for inp, out in self.expected.items():
             self.assertEqual(severity_from_level(inp), out)
+
+
+class FormaterTestCase(unittest.TestCase):
+
+    sublcasses = {
+        "parsable": ParsableFormater,
+        "github": GithubFormater,
+        "colored": ColoredFormater,
+        "standard": StandardFormater,
+        "json": JSONFormater,
+        "junitxml": JunitFormater,
+        "codeclimate": CodeclimateFormater
+    }
+
+    def test_get_formaters_names(self):
+        self.assertEqual(
+            set(Formater.get_formaters_names()),
+            set(self.sublcasses.keys())
+        )
+
+    def test_get_formater(self):
+        for no_warn in [True, False]:
+            for name, cls in self.sublcasses.items():
+                res = Formater.get_formater(name, no_warn)
+                self.assertTrue(isinstance(res, cls))
+                self.assertEqual(res.no_warn, no_warn)
+
+    def test_unknown_formater(self):
+        with self.assertRaises(ValueError):
+            Formater.get_formater("unknown", False)
+
+    def test_abstract_class(self):
+        inst = Formater(False)
+        with self.assertRaises(NotImplementedError):
+            inst.show_problems_for_all_files([])
+        with self.assertRaises(NotImplementedError):
+            inst.show_problems_for_file([], "a")
+        with self.assertRaises(NotImplementedError):
+            inst.show_problem(None, "a")
