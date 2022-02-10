@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import string
+import ddt
 
 from yamllint.format import (
     escape_xml,
@@ -90,15 +91,32 @@ class FormaterTestCase(unittest.TestCase):
             inst.show_problem(None, "a")
 
 
+NONE = {}
+NO_ERROR = {"file1.yml": []}
+ONE_ERROR = {}
+ONE_WARNING = {}
+
+
+@ddt.ddt
 class FormatersTestCase(unittest.TestCase):
 
-    args = [
-        (ParsableFormater(True), {"file1.yml": []}, ""),
-    ]
-
-    def test_all_formaters(self):
-        for inst, inp, ret in self.args:
-            self.assertEqual(
-                inst.show_problems_for_all_files(inp),
-                ret
-            )
+    @ddt.data(
+        (ParsableFormater(True), NONE, ""),
+        (GithubFormater(True), NONE, ""),
+        (ColoredFormater(True), NONE, ""),
+        (StandardFormater(True), NONE, ""),
+        (JSONFormater(True), NONE, "[]\n"),
+        (CodeclimateFormater(True), NONE, "[]\n"),
+        (ParsableFormater(True), NO_ERROR, ""),
+        (GithubFormater(True), NO_ERROR, ""),
+        (ColoredFormater(True), NO_ERROR, ""),
+        (StandardFormater(True), NO_ERROR, ""),
+        (JSONFormater(True), NO_ERROR, "[]\n"),
+        (CodeclimateFormater(True), NO_ERROR, "[]\n"),
+    )
+    @ddt.unpack
+    def test_all_formaters(self, inst, inp, ret):
+        self.assertEqual(
+            inst.show_problems_for_all_files(inp),
+            ret
+        )

@@ -14,6 +14,7 @@ Pull Request Process
    .. code:: bash
 
     pip install --user .
+    pip install ddt
     python -m unittest discover  # all tests...
     python -m unittest tests/rules/test_commas.py  # or just some tests (faster)
 
