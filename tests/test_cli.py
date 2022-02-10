@@ -305,6 +305,9 @@ class CommandLineTestCase(unittest.TestCase):
         config = os.path.join(dir, 'config')
 
         self.addCleanup(os.environ.update, HOME=os.environ['HOME'])
+        # remove other env vars to make sure we are using the HOME config file.
+        os.environ.pop('YAMLLINT_CONFIG_FILE', None)
+        os.environ.pop('XDG_CONFIG_HOME', None)
         os.environ['HOME'] = home
 
         with open(config, 'w') as f:
