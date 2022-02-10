@@ -16,9 +16,6 @@ from yamllint.format import (
 )
 
 
-INPUT = []
-
-
 class TextToXMLTestCase(unittest.TestCase):
 
     specials = {
@@ -91,3 +88,17 @@ class FormaterTestCase(unittest.TestCase):
             inst.show_problems_for_file([], "a")
         with self.assertRaises(NotImplementedError):
             inst.show_problem(None, "a")
+
+
+class FormatersTestCase(unittest.TestCase):
+
+    args = [
+        (ParsableFormater(True), {"file1.yml": []}, ""),
+    ]
+
+    def test_all_formaters(self):
+        for inst, inp, ret in self.args:
+            self.assertEqual(
+                inst.show_problems_for_all_files(inp),
+                ret
+            )

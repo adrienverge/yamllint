@@ -381,7 +381,11 @@ class CodeclimateFormater(Formater):
 
 def max_level(all_problems):
     """Return the max level of all problems."""
-    all_levels = [problem.level for problems in all_problems.values() for problem in problems]
+    all_levels = [
+        problem.level
+        for problems in all_problems.values()
+        for problem in problems
+    ]
     if all_levels:
         return max(map(lambda x: PROBLEM_LEVELS[x], all_levels))
     return 0
