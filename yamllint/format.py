@@ -37,7 +37,7 @@ def escape_xml(text):
     text = text.replace('<', '&lt;')
     text = text.replace('>', '&gt;')
     text = text.replace('"', '&quot;')
-    text = text.replace('"', '&apos;')
+    text = text.replace("'", '&apos;')
     return text
 
 
