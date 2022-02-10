@@ -3,6 +3,7 @@ import unittest
 import string
 import ddt
 
+from yamllint.linter import LintProblem
 from yamllint.format import (
     escape_xml,
     severity_from_level,
@@ -93,8 +94,27 @@ class FormaterTestCase(unittest.TestCase):
 
 NONE = {}
 NO_ERROR = {"file1.yml": []}
-ONE_ERROR = {}
-ONE_WARNING = {}
+ONE_NOTHING = {"file1.yml": [
+    LintProblem(1, 1, desc="desc of None", rule="my-rule")
+]}
+ONE_ERROR = {"file1.yml": [
+    LintProblem(
+        line=1,
+        column=2,
+        desc="desc of error",
+        rule="my-rule",
+        level="error"
+    )
+]}
+ONE_WARNING = {"file1.yml": [
+    LintProblem(
+        line=1,
+        column=2,
+        desc="desc of warn",
+        rule="my-rule",
+        level="warning"
+    )
+]}
 
 
 @ddt.ddt
@@ -113,6 +133,24 @@ class FormatersTestCase(unittest.TestCase):
         (StandardFormater(True), NO_ERROR, ""),
         (JSONFormater(True), NO_ERROR, "[]\n"),
         (CodeclimateFormater(True), NO_ERROR, "[]\n"),
+        (ParsableFormater(True), ONE_NOTHING, ""),
+        (GithubFormater(True), ONE_NOTHING, ""),
+        (ColoredFormater(True), ONE_NOTHING, ""),
+        (StandardFormater(True), ONE_NOTHING, ""),
+        (JSONFormater(True), ONE_NOTHING, '[]\n'),
+        (CodeclimateFormater(True), ONE_NOTHING, '[]\n'),
+        (ParsableFormater(True), ONE_WARNING, ""),
+        (GithubFormater(True), ONE_WARNING, ""),
+        (ColoredFormater(True), ONE_WARNING, ""),
+        (StandardFormater(True), ONE_WARNING, ""),
+        (JSONFormater(True), ONE_WARNING, '[\n    {\n        "line": 1,\n        "column": 2,\n        "rule": "my-rule",\n        "level": "warning",\n        "message": "desc of warn",\n        "path": "file1.yml"\n    }\n]\n'),
+        (CodeclimateFormater(True), ONE_WARNING, '[\n    {\n        "type": "issue",\n        "check_name": "my-rule",\n        "description": "desc of warn",\n        "content": "desc of warn (my-rule)",\n        "categories": [\n            "Style"\n        ],\n        "location": {\n            "path": "file1.yml",\n            "positions": {\n                "begin": {\n                    "line": 1,\n                    "column": 2\n                }\n            }\n        },\n        "remediation_points": 1000,\n        "severity": "minor"\n    }\n]\n'),
+        (ParsableFormater(True), ONE_ERROR, 'file1.yml:1:2: [error] desc of error (my-rule)\n'),
+        (GithubFormater(True), ONE_ERROR, '::group::file1.yml\n::error file=file1.yml,line=1,col=2::1:2 [my-rule] desc of error\n::endgroup::\n\n'),
+        (ColoredFormater(True), ONE_ERROR, '\x1b[4mfile1.yml\x1b[0m\n  \x1b[2m1:2\x1b[0m       \x1b[31merror\x1b[0m    desc of error  \x1b[2m(my-rule)\x1b[0m\n\n'),
+        (StandardFormater(True), ONE_ERROR, 'file1.yml\n  1:2       error    desc of error  (my-rule)\n\n'),
+        (JSONFormater(True), ONE_ERROR, '[\n    {\n        "line": 1,\n        "column": 2,\n        "rule": "my-rule",\n        "level": "error",\n        "message": "desc of error",\n        "path": "file1.yml"\n    }\n]\n'),
+        (CodeclimateFormater(True), ONE_ERROR, '[\n    {\n        "type": "issue",\n        "check_name": "my-rule",\n        "description": "desc of error",\n        "content": "desc of error (my-rule)",\n        "categories": [\n            "Style"\n        ],\n        "location": {\n            "path": "file1.yml",\n            "positions": {\n                "begin": {\n                    "line": 1,\n                    "column": 2\n                }\n            }\n        },\n        "remediation_points": 1000,\n        "severity": "major"\n    }\n]\n'),
     )
     @ddt.unpack
     def test_all_formaters(self, inst, inp, ret):
