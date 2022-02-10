@@ -252,7 +252,16 @@ class JSONFormater(Formater):
 
     def show_problems_for_file(self, problems, file):
         """Show all problems of a specific file."""
-        return list(map(self.show_problem, problems, [file] * len(problems)))
+        return list(
+            filter(
+                lambda x: x["level"] == "error" or not self.no_warn,
+                map(
+                    self.show_problem,
+                    problems,
+                    [file] * len(problems)
+                )
+            )
+        )
 
     def show_problem(self, problem, file):
         """Show all problems of a specific file.
@@ -332,7 +341,16 @@ class CodeclimateFormater(Formater):
 
     def show_problems_for_file(self, problems, file):
         """Show all problems of a specific file."""
-        return list(map(self.show_problem, problems, [file] * len(problems)))
+        return list(
+            filter(
+                lambda x: x["severity"] == "major" or not self.no_warn,
+                map(
+                    self.show_problem,
+                    problems,
+                    [file] * len(problems)
+                )
+            )
+        )
 
     def show_problem(self, problem, file):
         """Show all problems of a specific file.
