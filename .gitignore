@@ -8,3 +8,4 @@ __pycache__
 .venv
 venv
 .coverage
+coverage.xml
