@@ -33,7 +33,14 @@ PROBLEM_LEVELS = {
 
 class LintProblem(object):
     """Represents a linting problem found by yamllint."""
-    def __init__(self, line, column, desc='<no description>', rule=None, level=None):
+    def __init__(
+        self,
+        line,
+        column,
+        desc='<no description>',
+        rule=None,
+        level=None
+    ):
         #: Line on which the problem was found (starting at 1)
         self.line = line
         #: Column on which the problem was found (starting at 1)
