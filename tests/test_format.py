@@ -32,6 +32,8 @@ class TextToXMLTestCase(unittest.TestCase):
         ('>', '&gt;'),
         ('"', '&quot;'),
         ("'", '&apos;'),
+        ("too many blank lines (3 > 2)", 'too many blank lines (3 &gt; 2)'),
+        ('line too long (100 > 80 characters)', 'line too long (100 &gt; 80 characters)')
     )
     @ddt.unpack
     def test_specials_chars(self, inp, out):
