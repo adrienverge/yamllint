@@ -121,6 +121,7 @@ ONE_WARNING = {"file1.yml": [
 class FormatersTestCase(unittest.TestCase):
 
     @ddt.data(
+        # No errors
         (ParsableFormater(True), NONE, ""),
         (GithubFormater(True), NONE, ""),
         (ColoredFormater(True), NONE, ""),
@@ -139,12 +140,28 @@ class FormatersTestCase(unittest.TestCase):
         (StandardFormater(True), ONE_NOTHING, ""),
         (JSONFormater(True), ONE_NOTHING, '[]\n'),
         (CodeclimateFormater(True), ONE_NOTHING, '[]\n'),
+        # Errors with no level are ignored
+        (ParsableFormater(False), ONE_NOTHING, ""),
+        (GithubFormater(False), ONE_NOTHING, ""),
+        (ColoredFormater(False), ONE_NOTHING, ""),
+        (StandardFormater(False), ONE_NOTHING, ""),
+        (JSONFormater(False), ONE_NOTHING, '[]\n'),
+        (CodeclimateFormater(False), ONE_NOTHING, '[]\n'),
+        # 1 Skipped warning
         (ParsableFormater(True), ONE_WARNING, ""),
         (GithubFormater(True), ONE_WARNING, ""),
         (ColoredFormater(True), ONE_WARNING, ""),
         (StandardFormater(True), ONE_WARNING, ""),
         (JSONFormater(True), ONE_WARNING, '[]\n'),
         (CodeclimateFormater(True), ONE_WARNING, '[]\n'),
+        # 1 Unskipped warning
+        (ParsableFormater(False), ONE_WARNING, 'file1.yml:1:2: [warning] desc of warn (my-rule)\n'),
+        (GithubFormater(False), ONE_WARNING, '::group::file1.yml\n::warning file=file1.yml,line=1,col=2::1:2 [my-rule] desc of warn\n::endgroup::\n\n'),
+        (ColoredFormater(False), ONE_WARNING, '\x1b[4mfile1.yml\x1b[0m\n  \x1b[2m1:2\x1b[0m       \x1b[33mwarning\x1b[0m  desc of warn  \x1b[2m(my-rule)\x1b[0m\n\n'),
+        (StandardFormater(False), ONE_WARNING, 'file1.yml\n  1:2       warning  desc of warn  (my-rule)\n\n'),
+        (JSONFormater(False), ONE_WARNING, '[\n    {\n        "line": 1,\n        "column": 2,\n        "rule": "my-rule",\n        "level": "warning",\n        "message": "desc of warn",\n        "path": "file1.yml"\n    }\n]\n'),
+        (CodeclimateFormater(False), ONE_WARNING, '[\n    {\n        "type": "issue",\n        "check_name": "my-rule",\n        "description": "desc of warn",\n        "content": "desc of warn (my-rule)",\n        "categories": [\n            "Style"\n        ],\n        "location": {\n            "path": "file1.yml",\n            "positions": {\n                "begin": {\n                    "line": 1,\n                    "column": 2\n                }\n            }\n        },\n        "remediation_points": 1000,\n        "severity": "minor"\n    }\n]\n'),
+        # 1 Error
         (ParsableFormater(True), ONE_ERROR, 'file1.yml:1:2: [error] desc of error (my-rule)\n'),
         (GithubFormater(True), ONE_ERROR, '::group::file1.yml\n::error file=file1.yml,line=1,col=2::1:2 [my-rule] desc of error\n::endgroup::\n\n'),
         (ColoredFormater(True), ONE_ERROR, '\x1b[4mfile1.yml\x1b[0m\n  \x1b[2m1:2\x1b[0m       \x1b[31merror\x1b[0m    desc of error  \x1b[2m(my-rule)\x1b[0m\n\n'),
@@ -155,7 +172,7 @@ class FormatersTestCase(unittest.TestCase):
     @ddt.unpack
     def test_all_formaters(self, inst, inp, ret):
         if inst.show_problems_for_all_files(inp) != ret:
-            print(f"\n{inst.__class__.__name__}\n" + inst.show_problems_for_all_files(inp))
+            print(f"\n{inst.__class__.__name__}\n" + repr(inst.show_problems_for_all_files(inp)))
         self.assertEqual(
             inst.show_problems_for_all_files(inp),
             ret
