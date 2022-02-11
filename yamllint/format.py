@@ -307,9 +307,7 @@ class JunitFormater(Formater):
 
         lines = []
         for item in lst:
-            if item['level'] is None:
-                continue
-            elif item['level'] == 'warning':
+            if item['level'] == 'warning':
                 warnings += 1
                 to_append = '<testcase classname="%s:%d:%d" name="%s" time="0.0"><failure message="%s"><\/failure><\/testcase>'  # noqa
             elif item['level'] == 'error':
@@ -323,7 +321,7 @@ class JunitFormater(Formater):
                 escape_xml(item['desc']))
             )
 
-        string += ' '*4 + '<testsuite name="pytest" errors="%d" failures="%d" skipped="0" tests="%d" time="0" timestamp="%s" hostname="%s">\n' % (errors, warnings, errors + warnings, datetime.datetime.now().isoformat(), platform.node())  # noqa
+        string += ' '*4 + '<testsuite name="yamllint" errors="%d" failures="%d" skipped="0" tests="%d" time="0" timestamp="%s" hostname="%s">\n' % (errors, warnings, errors + warnings, datetime.datetime.now().isoformat(), platform.node())  # noqa
         string += '\n'.join(lines) + '\n'
         string += '    </testsuite>\n</testsuites>\n'
         return string

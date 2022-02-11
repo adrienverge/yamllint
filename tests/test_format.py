@@ -8,6 +8,7 @@ from yamllint.linter import LintProblem
 from yamllint.format import (
     escape_xml,
     severity_from_level,
+    max_level,
     Formater,
     ParsableFormater,
     GithubFormater,
@@ -218,5 +219,52 @@ class FormatersTestCase(unittest.TestCase):
         )
 
 
-# TODO : test max level
-# TODO : test junit
+@ddt.ddt
+class MaxLevelTestCase(unittest.TestCase):
+
+    @ddt.data(
+        (NONE, 0),
+        (NO_ERROR, 0),
+        (ONE_NOTHING, 0),
+        (ONE_ERROR, 2),
+        (ONE_WARNING, 1),
+        (MIXED_ONE_FILE, 2),
+        (MIXED_MULT_FILE, 2),
+    )
+    @ddt.unpack
+    def test_all_formaters(self, inp, ret):
+        self.assertEqual(max_level(inp), ret)
+
+@ddt.ddt
+class JunitTestCase(unittest.TestCase):
+
+    @ddt.data(
+        (NONE, False, [], ['<\/error><\/testcase>', '<\/failure><\/testcase>'], 7),
+        (NO_ERROR, False, [], ['<\/error><\/testcase>', '<\/failure><\/testcase>'], 7),
+        (ONE_NOTHING, False, [], ['<\/error><\/testcase>', '<\/failure><\/testcase>'], 7),
+        (ONE_ERROR, False, ['<\/error><\/testcase>'], ['<\/failure><\/testcase>'], 7),
+        (ONE_WARNING, False, ['<\/failure><\/testcase>'], ['<\/error><\/testcase>'], 7),
+        (ONE_WARNING, True, [], ['<\/error><\/testcase>', '<\/failure><\/testcase>'], 7),
+        (MIXED_ONE_FILE, False, ['<\/error><\/testcase>', '<\/failure><\/testcase>'], [], 8),
+        (MIXED_MULT_FILE, False, ['<\/error><\/testcase>', '<\/failure><\/testcase>'], [], 8),
+    )
+    @ddt.unpack
+    def test_all_formaters(self, inp, no_warn, contain, not_contain, length):
+        res = JunitFormater(no_warn).show_problems_for_all_files(inp)
+        self.assertTrue(res.startswith(
+            '<?xml version="1.0" encoding="utf-8"?>\n' \
+            '<testsuites>\n' \
+            '    <testsuite name="yamllint" '
+        ))
+
+        for e in contain:
+            self.assertTrue(e in res)
+        for e in not_contain:
+            self.assertFalse(e in res)
+
+        self.assertTrue(res.endswith(
+            '\n' \
+            '    </testsuite>\n' \
+            '</testsuites>\n'))
+        
+        self.assertEqual(len(res.split('\n')), length)
