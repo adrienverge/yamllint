@@ -106,7 +106,10 @@ class ParsableFormater(Formater):
         """Show all problems of a specific file."""
         string = ''
         for problem in problems:
-            string += self.show_problem(problem, file)
+            if problem.level is not None and (
+                    problem.level == "error" or not self.no_warn
+            ):
+                string += self.show_problem(problem, file)
         return string
 
     def show_problem(self, problem, file):
@@ -140,7 +143,10 @@ class GithubFormater(Formater):
         """Show all problems of a specific file."""
         string = '::group::%s\n' % file
         for problem in problems:
-            string += self.show_problem(problem, file)
+            if problem.level is not None and (
+                    problem.level == "error" or not self.no_warn
+            ):
+                string += self.show_problem(problem, file)
         if string == '::group::%s\n' % file:
             return ''
         return string + '::endgroup::\n\n'
@@ -181,7 +187,10 @@ class ColoredFormater(Formater):
         """Show all problems of a specific file."""
         string = '\033[4m%s\033[0m\n' % file
         for problem in problems:
-            string += self.show_problem(problem, file)
+            if problem.level is not None and (
+                    problem.level == "error" or not self.no_warn
+            ):
+                string += self.show_problem(problem, file)
         if string == '\033[4m%s\033[0m\n' % file:
             return ''
         return string + '\n'
@@ -219,7 +228,10 @@ class StandardFormater(Formater):
         """Show all problems of a specific file."""
         string = file + '\n'
         for problem in problems:
-            string += self.show_problem(problem, file)
+            if problem.level is not None and (
+                    problem.level == "error" or not self.no_warn
+            ):
+                string += self.show_problem(problem, file)
         if string == file + '\n':
             return ''
         return string + '\n'
@@ -252,16 +264,13 @@ class JSONFormater(Formater):
 
     def show_problems_for_file(self, problems, file):
         """Show all problems of a specific file."""
-        return list(
-            filter(
-                lambda x: x["level"] == "error" or not self.no_warn,
-                map(
-                    self.show_problem,
-                    problems,
-                    [file] * len(problems)
-                )
-            )
-        )
+        lst = []
+        for problem in problems:
+            if problem.level is not None and (
+                    problem.level == "error" or not self.no_warn
+            ):
+                lst.append(self.show_problem(problem, file))
+        return lst
 
     def show_problem(self, problem, file):
         """Show all problems of a specific file.
@@ -321,7 +330,13 @@ class JunitFormater(Formater):
 
     def show_problems_for_file(self, problems, file):
         """Show all problems of a specific file."""
-        return list(map(self.show_problem, problems, [file] * len(problems)))
+        lst = []
+        for problem in problems:
+            if problem.level is not None and (
+                    problem.level == "error" or not self.no_warn
+            ):
+                lst.append(self.show_problem(problem, file))
+        return lst
 
     def show_problem(self, problem, file):
         """Show all problems of a specific file."""
@@ -341,16 +356,13 @@ class CodeclimateFormater(Formater):
 
     def show_problems_for_file(self, problems, file):
         """Show all problems of a specific file."""
-        return list(
-            filter(
-                lambda x: x["severity"] == "major" or not self.no_warn,
-                map(
-                    self.show_problem,
-                    problems,
-                    [file] * len(problems)
-                )
-            )
-        )
+        lst = []
+        for problem in problems:
+            if problem.level is not None and (
+                    problem.level == "error" or not self.no_warn
+            ):
+                lst.append(self.show_problem(problem, file))
+        return lst
 
     def show_problem(self, problem, file):
         """Show all problems of a specific file.
@@ -405,7 +417,7 @@ def max_level(all_problems):
         for problem in problems
     ]
     if all_levels:
-        return max(map(lambda x: PROBLEM_LEVELS[x], all_levels))
+        return max(map(lambda x: int(PROBLEM_LEVELS[x]), all_levels))
     return 0
 
 
