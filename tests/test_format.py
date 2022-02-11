@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# flake8: noqa
 import unittest
 import string
 import ddt
@@ -115,6 +116,16 @@ ONE_WARNING = {"file1.yml": [
         level="warning"
     )
 ]}
+MIXED_ONE_FILE = {"file1.yml": [
+    ONE_NOTHING["file1.yml"][0],
+    ONE_ERROR["file1.yml"][0],
+    ONE_WARNING["file1.yml"][0]
+]}
+MIXED_MULT_FILE = {
+    "file1.yml": ONE_NOTHING["file1.yml"],
+    "file2.yml": ONE_ERROR["file1.yml"],
+    "file3.yml": ONE_WARNING["file1.yml"]
+}
 
 
 @ddt.ddt
@@ -168,11 +179,23 @@ class FormatersTestCase(unittest.TestCase):
         (StandardFormater(True), ONE_ERROR, 'file1.yml\n  1:2       error    desc of error  (my-rule)\n\n'),
         (JSONFormater(True), ONE_ERROR, '[\n    {\n        "line": 1,\n        "column": 2,\n        "rule": "my-rule",\n        "level": "error",\n        "message": "desc of error",\n        "path": "file1.yml"\n    }\n]\n'),
         (CodeclimateFormater(True), ONE_ERROR, '[\n    {\n        "type": "issue",\n        "check_name": "my-rule",\n        "description": "desc of error",\n        "content": "desc of error (my-rule)",\n        "categories": [\n            "Style"\n        ],\n        "location": {\n            "path": "file1.yml",\n            "positions": {\n                "begin": {\n                    "line": 1,\n                    "column": 2\n                }\n            }\n        },\n        "remediation_points": 1000,\n        "severity": "major"\n    }\n]\n'),
+        # mixed warn / err on the same file
+        (ParsableFormater(False), MIXED_ONE_FILE, 'file1.yml:1:2: [error] desc of error (my-rule)\nfile1.yml:1:2: [warning] desc of warn (my-rule)\n'),
+        (GithubFormater(False), MIXED_ONE_FILE, '::group::file1.yml\n::error file=file1.yml,line=1,col=2::1:2 [my-rule] desc of error\n::warning file=file1.yml,line=1,col=2::1:2 [my-rule] desc of warn\n::endgroup::\n\n'),
+        (ColoredFormater(False), MIXED_ONE_FILE, '\x1b[4mfile1.yml\x1b[0m\n  \x1b[2m1:2\x1b[0m       \x1b[31merror\x1b[0m    desc of error  \x1b[2m(my-rule)\x1b[0m\n  \x1b[2m1:2\x1b[0m       \x1b[33mwarning\x1b[0m  desc of warn  \x1b[2m(my-rule)\x1b[0m\n\n'),
+        (StandardFormater(False), MIXED_ONE_FILE, 'file1.yml\n  1:2       error    desc of error  (my-rule)\n  1:2       warning  desc of warn  (my-rule)\n\n'),
+        (JSONFormater(False), MIXED_ONE_FILE, '[\n    {\n        "line": 1,\n        "column": 2,\n        "rule": "my-rule",\n        "level": "error",\n        "message": "desc of error",\n        "path": "file1.yml"\n    },\n    {\n        "line": 1,\n        "column": 2,\n        "rule": "my-rule",\n        "level": "warning",\n        "message": "desc of warn",\n        "path": "file1.yml"\n    }\n]\n'),
+        (CodeclimateFormater(False), MIXED_ONE_FILE, '[\n    {\n        "type": "issue",\n        "check_name": "my-rule",\n        "description": "desc of error",\n        "content": "desc of error (my-rule)",\n        "categories": [\n            "Style"\n        ],\n        "location": {\n            "path": "file1.yml",\n            "positions": {\n                "begin": {\n                    "line": 1,\n                    "column": 2\n                }\n            }\n        },\n        "remediation_points": 1000,\n        "severity": "major"\n    },\n    {\n        "type": "issue",\n        "check_name": "my-rule",\n        "description": "desc of warn",\n        "content": "desc of warn (my-rule)",\n        "categories": [\n            "Style"\n        ],\n        "location": {\n            "path": "file1.yml",\n            "positions": {\n                "begin": {\n                    "line": 1,\n                    "column": 2\n                }\n            }\n        },\n        "remediation_points": 1000,\n        "severity": "minor"\n    }\n]\n'),
+        # mixed warn / err on multiples files
+        (ParsableFormater(False), MIXED_MULT_FILE, 'file2.yml:1:2: [error] desc of error (my-rule)\nfile3.yml:1:2: [warning] desc of warn (my-rule)\n'),
+        (GithubFormater(False), MIXED_MULT_FILE, '::group::file2.yml\n::error file=file2.yml,line=1,col=2::1:2 [my-rule] desc of error\n::endgroup::\n\n::group::file3.yml\n::warning file=file3.yml,line=1,col=2::1:2 [my-rule] desc of warn\n::endgroup::\n\n'),
+        (ColoredFormater(False), MIXED_MULT_FILE, '\x1b[4mfile2.yml\x1b[0m\n  \x1b[2m1:2\x1b[0m       \x1b[31merror\x1b[0m    desc of error  \x1b[2m(my-rule)\x1b[0m\n\n\x1b[4mfile3.yml\x1b[0m\n  \x1b[2m1:2\x1b[0m       \x1b[33mwarning\x1b[0m  desc of warn  \x1b[2m(my-rule)\x1b[0m\n\n'),
+        (StandardFormater(False), MIXED_MULT_FILE, 'file2.yml\n  1:2       error    desc of error  (my-rule)\n\nfile3.yml\n  1:2       warning  desc of warn  (my-rule)\n\n'),
+        (JSONFormater(False), MIXED_MULT_FILE, '[\n    {\n        "line": 1,\n        "column": 2,\n        "rule": "my-rule",\n        "level": "error",\n        "message": "desc of error",\n        "path": "file2.yml"\n    },\n    {\n        "line": 1,\n        "column": 2,\n        "rule": "my-rule",\n        "level": "warning",\n        "message": "desc of warn",\n        "path": "file3.yml"\n    }\n]\n'),
+        (CodeclimateFormater(False), MIXED_MULT_FILE, '[\n    {\n        "type": "issue",\n        "check_name": "my-rule",\n        "description": "desc of error",\n        "content": "desc of error (my-rule)",\n        "categories": [\n            "Style"\n        ],\n        "location": {\n            "path": "file2.yml",\n            "positions": {\n                "begin": {\n                    "line": 1,\n                    "column": 2\n                }\n            }\n        },\n        "remediation_points": 1000,\n        "severity": "major"\n    },\n    {\n        "type": "issue",\n        "check_name": "my-rule",\n        "description": "desc of warn",\n        "content": "desc of warn (my-rule)",\n        "categories": [\n            "Style"\n        ],\n        "location": {\n            "path": "file3.yml",\n            "positions": {\n                "begin": {\n                    "line": 1,\n                    "column": 2\n                }\n            }\n        },\n        "remediation_points": 1000,\n        "severity": "minor"\n    }\n]\n'),
     )
     @ddt.unpack
     def test_all_formaters(self, inst, inp, ret):
-        if inst.show_problems_for_all_files(inp) != ret:
-            print(f"\n{inst.__class__.__name__}\n" + repr(inst.show_problems_for_all_files(inp)))
         self.assertEqual(
             inst.show_problems_for_all_files(inp),
             ret
