@@ -14,10 +14,10 @@ This page describes the rules and their options.
    :local:
    :depth: 1
 
-anchor-duplicates
-------
+anchors
+-------
 
-.. automodule:: yamllint.rules.anchor_duplicates
+.. automodule:: yamllint.rules.anchors
 
 braces
 ------
@@ -129,8 +129,3 @@ truthy
 ---------------
 
 .. automodule:: yamllint.rules.truthy
-
-unknown-aliases
----------------
-
-.. automodule:: yamllint.rules.unknown_aliases
