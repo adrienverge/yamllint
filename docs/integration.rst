@@ -23,8 +23,8 @@ Integration with GitHub Actions
 
 yamllint auto-detects when it's running inside of `GitHub
 Actions <https://github.com/features/actions>`_ and automatically uses the suited
-output format to decorate code with linting errors automatically. You can also
-force the GitHub Actions output with ``yamllint --format github``.
+output format to decorate code with linting errors. You can also force the
+GitHub Actions output with ``yamllint --format github``.
 
 An example workflow using GitHub Actions:
 
