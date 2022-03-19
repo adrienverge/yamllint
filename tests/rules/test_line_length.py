@@ -181,13 +181,13 @@ class LineLengthTestCase(RuleTestCase):
         conf = 'line-length: {max: 53}'
         self.check('---\n'
                    '# This is a test to check if “line-length” works nice\n'
-                   'with: “unicode characters” that span accross bytes! ↺\n',
+                   'with: “unicode characters” that span across bytes! ↺\n',
                    conf)
-        conf = 'line-length: {max: 52}'
+        conf = 'line-length: {max: 51}'
         self.check('---\n'
                    '# This is a test to check if “line-length” works nice\n'
-                   'with: “unicode characters” that span accross bytes! ↺\n',
-                   conf, problem1=(2, 53), problem2=(3, 53))
+                   'with: “unicode characters” that span across bytes! ↺\n',
+                   conf, problem1=(2, 52), problem2=(3, 52))
 
     def test_with_dos_newlines(self):
         conf = ('line-length: {max: 10}\n'
