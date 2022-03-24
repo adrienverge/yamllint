@@ -14,11 +14,11 @@ To use a custom configuration file, use the ``-c`` option:
 If ``-c`` is not provided, yamllint will look for a configuration file in the
 following locations (by order of preference):
 
-- ``.yamllint``, ``.yamllint.yaml`` or ``.yamllint.yml`` in the current working
-  directory
-- the file referenced by ``$YAMLLINT_CONFIG_FILE``, if set
-- ``$XDG_CONFIG_HOME/yamllint/config``
-- ``~/.config/yamllint/config``
+- a file named ``.yamllint``, ``.yamllint.yaml``, or ``.yamllint.yml`` in the
+  current working directory
+- a filename referenced by ``$YAMLLINT_CONFIG_FILE``, if set
+- a file named ``$XDG_CONFIG_HOME/yamllint/config`` or
+  ``~/.config/yamllint/config``, if present
 
 Finally if no config file is found, the default configuration is applied.
 
