@@ -1,3 +1,10 @@
+# certificate files
+certs/*.crt
+certs/*.pem
+
+# tox results
+tox_run.md
+
 __pycache__
 *.py[cod]
 /docs/_build

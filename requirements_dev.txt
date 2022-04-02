@@ -1,0 +1,35 @@
+# dev devcontainer convenience
+# ~~~~~~~ tox.ini ~~~~~~~
+# none
+
+# ~~~~~~~ setup.py ~~~~~~~
+# none
+
+# ~~~~~~~ setup.cfg ~~~~~~~
+sphinx
+flake8
+pathspec >= 0.5.3
+pyyaml
+setuptools
+
+# ~~~~~~~ pyproject.toml ~~~~~~~
+# none
+
+# ~~~~~~~ mkdocs.yml ~~~~~~~
+# none
+
+# ~~~~~~~ pre-commit-config.yaml ~~~~~~~
+# none
+
+# ~~~~~~~ bitbucket-pipelines.yml ~~~~~~~
+# none
+
+# ~~~~~~~ future use ~~~~~~~
+tox==3.24.5
+GitPython==3.1.27
+covdefaults>=2.2
+coverage
+distlib
+pytest
+pytest-env
+re-assert
