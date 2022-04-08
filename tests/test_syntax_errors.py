@@ -94,7 +94,8 @@ class YamlLintTestCase(RuleTestCase):
                    '...\n', None)
 
     def test_invalid_char_last(self):
-        self.check('---\nkey: value\t\n',
+        self.check('---\n'
+                   'key: value\t\n',
                    None, problem=(2, 11))
 
     def test_invalid_char_first(self):
