@@ -61,6 +61,30 @@ class ColonTestCase(RuleTestCase):
                    '  a: 1\n'
                    '}\n', conf, problem=(2, 8))
 
+        conf = ('braces:\n'
+                '  forbid: non-empty\n')
+        self.check('---\n'
+                   'dict:\n'
+                   '  a: 1\n', conf)
+        self.check('---\n'
+                   'dict: {}\n', conf)
+        self.check('---\n'
+                   'dict: {\n'
+                   '}\n', conf)
+        self.check('---\n'
+                   'dict: {\n'
+                   '# commented: value\n'
+                   '# another: value2\n'
+                   '}\n', conf)
+        self.check('---\n'
+                   'dict: {a}\n', conf, problem=(2, 8))
+        self.check('---\n'
+                   'dict: {a: 1}\n', conf, problem=(2, 8))
+        self.check('---\n'
+                   'dict: {\n'
+                   '  a: 1\n'
+                   '}\n', conf, problem=(2, 8))
+
     def test_min_spaces(self):
         conf = ('braces:\n'
                 '  max-spaces-inside: -1\n'

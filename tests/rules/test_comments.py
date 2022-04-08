@@ -97,7 +97,7 @@ class CommentsTestCase(RuleTestCase):
                    '#!/bin/env my-interpreter\n'
                    '', conf,
                    problem1=(1, 2), problem2=(3, 2), problem3=(4, 2))
-        self.check('#! not a shebang\n',
+        self.check('#! is a valid shebang too\n',
                    conf, problem1=(1, 2))
         self.check('key:  #!/not/a/shebang\n',
                    conf, problem1=(1, 8))
@@ -117,8 +117,7 @@ class CommentsTestCase(RuleTestCase):
                    '#comment\n'
                    '#!/bin/env my-interpreter\n', conf,
                    problem2=(3, 2), problem3=(4, 2))
-        self.check('#! not a shebang\n',
-                   conf, problem1=(1, 2))
+        self.check('#! is a valid shebang too\n', conf)
         self.check('key:  #!/not/a/shebang\n',
                    conf, problem1=(1, 8))
 

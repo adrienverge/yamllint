@@ -436,3 +436,21 @@ class QuotedTestCase(RuleTestCase):
                    '- foo bar\n'
                    '- "foo bar"\n',
                    conf, problem1=(3, 3), problem2=(7, 3), problem3=(11, 3))
+
+    def test_octal_values(self):
+        conf = 'quoted-strings: {required: true}\n'
+
+        self.check('---\n'
+                   '- 100\n'
+                   '- 0100\n'
+                   '- 0o100\n'
+                   '- 777\n'
+                   '- 0777\n'
+                   '- 0o777\n'
+                   '- 800\n'
+                   '- 0800\n'
+                   '- 0o800\n'
+                   '- "0800"\n'
+                   '- "0o800"\n',
+                   conf,
+                   problem1=(9, 3), problem2=(10, 3))

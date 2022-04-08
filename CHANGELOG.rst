@@ -1,6 +1,32 @@
 Changelog
 =========
 
+1.26.3 (2021-08-21)
+-------------------
+
+- Restore runtime dependency ``setuptools`` for Python < 3.8
+
+1.26.2 (2021-08-03)
+-------------------
+
+- Fix ``python_requires`` to comply with PEP 345 and PEP 440
+
+1.26.1 (2021-04-06)
+-------------------
+
+- Remove runtime dependency ``setuptools`` for Python < 3.8
+- Fix ``line_length`` to skip all hash signs starting comment
+
+1.26.0 (2021-01-29)
+-------------------
+
+- End support for Python 2 and Python 3.4, add support for Python 3.9
+- Add ``forbid: non-empty`` option to ``braces`` and ``brackets`` rules
+- Fix ``quoted-strings`` for explicit octal recognition
+- Add documentation for integration with Arcanist
+- Fix typos in changelog and README
+- Stop using deprecated ``python setup.py test`` in tests
+
 1.25.0 (2020-09-29)
 -------------------
 

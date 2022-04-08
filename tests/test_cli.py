@@ -14,10 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 import fcntl
 import locale
 import os
@@ -246,19 +243,19 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(())
         self.assertNotEqual(ctx.returncode, 0)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegexpMatches(ctx.stderr, r'^usage')
+        self.assertRegex(ctx.stderr, r'^usage')
 
         with RunContext(self) as ctx:
             cli.run(('--unknown-arg', ))
         self.assertNotEqual(ctx.returncode, 0)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegexpMatches(ctx.stderr, r'^usage')
+        self.assertRegex(ctx.stderr, r'^usage')
 
         with RunContext(self) as ctx:
             cli.run(('-c', './conf.yaml', '-d', 'relaxed', 'file'))
         self.assertNotEqual(ctx.returncode, 0)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegexpMatches(
+        self.assertRegex(
             ctx.stderr.splitlines()[-1],
             r'^yamllint: error: argument -d\/--config-data: '
             r'not allowed with argument -c\/--config-file$'
@@ -269,21 +266,21 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-', 'file'))
         self.assertNotEqual(ctx.returncode, 0)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegexpMatches(ctx.stderr, r'^usage')
+        self.assertRegex(ctx.stderr, r'^usage')
 
     def test_run_with_bad_config(self):
         with RunContext(self) as ctx:
             cli.run(('-d', 'rules: {a: b}', 'file'))
         self.assertEqual(ctx.returncode, -1)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegexpMatches(ctx.stderr, r'^invalid config: no such rule')
+        self.assertRegex(ctx.stderr, r'^invalid config: no such rule')
 
     def test_run_with_empty_config(self):
         with RunContext(self) as ctx:
             cli.run(('-d', '', 'file'))
         self.assertEqual(ctx.returncode, -1)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegexpMatches(ctx.stderr, r'^invalid config: not a dict')
+        self.assertRegex(ctx.stderr, r'^invalid config: not a dict')
 
     def test_run_with_config_file(self):
         with open(os.path.join(self.wd, 'config'), 'w') as f:
@@ -300,6 +297,7 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-c', f.name, os.path.join(self.wd, 'a.yaml')))
         self.assertEqual(ctx.returncode, 1)
 
+    @unittest.skipIf(os.environ.get('GITHUB_RUN_ID'), '$HOME not overridable')
     def test_run_with_user_global_config_file(self):
         home = os.path.join(self.wd, 'fake-home')
         dir = os.path.join(home, '.config', 'yamllint')
@@ -386,7 +384,7 @@ class CommandLineTestCase(unittest.TestCase):
         with RunContext(self) as ctx:
             cli.run(('--version', ))
         self.assertEqual(ctx.returncode, 0)
-        self.assertRegexpMatches(ctx.stdout + ctx.stderr, r'yamllint \d+\.\d+')
+        self.assertRegex(ctx.stdout + ctx.stderr, r'yamllint \d+\.\d+')
 
     def test_run_non_existing_file(self):
         path = os.path.join(self.wd, 'i-do-not-exist.yaml')
@@ -395,7 +393,7 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-f', 'parsable', path))
         self.assertEqual(ctx.returncode, -1)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegexpMatches(ctx.stderr, r'No such file or directory')
+        self.assertRegex(ctx.stderr, r'No such file or directory')
 
     def test_run_one_problem_file(self):
         path = os.path.join(self.wd, 'a.yaml')
@@ -555,11 +553,13 @@ class CommandLineTestCase(unittest.TestCase):
         with RunContext(self) as ctx:
             cli.run((path, '--format', 'github'))
         expected_out = (
-            '::error file=%s,line=2,col=4::[trailing-spaces] trailing'
+            '::group::%s\n'
+            '::error file=%s,line=2,col=4::2:4 [trailing-spaces] trailing'
             ' spaces\n'
-            '::error file=%s,line=3,col=4::[new-line-at-end-of-file] no'
+            '::error file=%s,line=3,col=4::3:4 [new-line-at-end-of-file] no'
             ' new line character at the end of file\n'
-            % (path, path))
+            '::endgroup::\n\n'
+            % (path, path, path))
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
@@ -573,11 +573,13 @@ class CommandLineTestCase(unittest.TestCase):
             os.environ['GITHUB_WORKFLOW'] = 'something'
             cli.run((path, ))
         expected_out = (
-            '::error file=%s,line=2,col=4::[trailing-spaces] trailing'
+            '::group::%s\n'
+            '::error file=%s,line=2,col=4::2:4 [trailing-spaces] trailing'
             ' spaces\n'
-            '::error file=%s,line=3,col=4::[new-line-at-end-of-file] no'
+            '::error file=%s,line=3,col=4::3:4 [new-line-at-end-of-file] no'
             ' new line character at the end of file\n'
-            % (path, path))
+            '::endgroup::\n\n'
+            % (path, path, path))
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 

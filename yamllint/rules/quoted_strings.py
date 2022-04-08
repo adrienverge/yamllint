@@ -144,6 +144,17 @@ def VALIDATE(conf):
 
 DEFAULT_SCALAR_TAG = u'tag:yaml.org,2002:str'
 
+# https://stackoverflow.com/a/36514274
+yaml.resolver.Resolver.add_implicit_resolver(
+    'tag:yaml.org,2002:int',
+    re.compile(r'''^(?:[-+]?0b[0-1_]+
+               |[-+]?0o?[0-7_]+
+               |[-+]?0[0-7_]+
+               |[-+]?(?:0|[1-9][0-9_]*)
+               |[-+]?0x[0-9a-fA-F_]+
+               |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9])+)$''', re.X),
+    list('-+0123456789'))
+
 
 def _quote_match(quote_type, token_style):
     return ((quote_type == 'any') or

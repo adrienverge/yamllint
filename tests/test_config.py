@@ -14,10 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 import os
 import shutil
 import sys
@@ -48,7 +45,7 @@ class SimpleConfigTestCase(unittest.TestCase):
             config.YamlLintConfig('not: valid: yaml')
 
     def test_unknown_rule(self):
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
                 config.YamlLintConfigError,
                 'invalid config: no such rule: "this-one-does-not-exist"'):
             config.YamlLintConfig('rules:\n'
@@ -67,7 +64,7 @@ class SimpleConfigTestCase(unittest.TestCase):
         self.assertEqual(c.rules['colons']['max-spaces-after'], 1)
 
     def test_unknown_option(self):
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
                 config.YamlLintConfigError,
                 'invalid config: unknown option "abcdef" for rule "colons"'):
             config.YamlLintConfig('rules:\n'
@@ -105,7 +102,7 @@ class SimpleConfigTestCase(unittest.TestCase):
         self.assertEqual(c.rules['indentation']['check-multi-line-strings'],
                          False)
 
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
                 config.YamlLintConfigError,
                 'invalid config: option "indent-sequences" of "indentation" '
                 'should be in '):

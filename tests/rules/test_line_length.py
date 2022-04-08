@@ -14,9 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-import unittest
-
 from tests.common import RuleTestCase
 
 
@@ -119,6 +116,27 @@ class LineLengthTestCase(RuleTestCase):
                    'long_line: http://localhost/very/very/long/url\n'
                    '...\n', conf, problem=(2, 21))
 
+        conf = 'line-length: {max: 20, allow-non-breakable-words: true}'
+        self.check('---\n'
+                   '# http://www.verylongurlurlurlurlurlurlurlurl.com\n'
+                   'key:\n'
+                   '  subkey: value\n', conf)
+        self.check('---\n'
+                   '## http://www.verylongurlurlurlurlurlurlurlurl.com\n'
+                   'key:\n'
+                   '  subkey: value\n', conf)
+        self.check('---\n'
+                   '# # http://www.verylongurlurlurlurlurlurlurlurl.com\n'
+                   'key:\n'
+                   '  subkey: value\n', conf,
+                   problem=(2, 21))
+        self.check('---\n'
+                   '#A http://www.verylongurlurlurlurlurlurlurlurl.com\n'
+                   'key:\n'
+                   '  subkey: value\n', conf,
+                   problem1=(2, 2, 'comments'),
+                   problem2=(2, 21, 'line-length'))
+
         conf = ('line-length: {max: 20, allow-non-breakable-words: true}\n'
                 'trailing-spaces: disable')
         self.check('---\n'
@@ -159,18 +177,17 @@ class LineLengthTestCase(RuleTestCase):
                    '  {% this line is' + 99 * ' really' + ' long %}\n',
                    conf, problem=(3, 81))
 
-    @unittest.skipIf(sys.version_info < (3, 0), 'Python 2 not supported')
     def test_unicode(self):
         conf = 'line-length: {max: 53}'
         self.check('---\n'
                    '# This is a test to check if “line-length” works nice\n'
-                   'with: “unicode characters” that span accross bytes! ↺\n',
+                   'with: “unicode characters” that span across bytes! ↺\n',
                    conf)
-        conf = 'line-length: {max: 52}'
+        conf = 'line-length: {max: 51}'
         self.check('---\n'
                    '# This is a test to check if “line-length” works nice\n'
-                   'with: “unicode characters” that span accross bytes! ↺\n',
-                   conf, problem1=(2, 53), problem2=(3, 53))
+                   'with: “unicode characters” that span across bytes! ↺\n',
+                   conf, problem1=(2, 52), problem2=(3, 52))
 
     def test_with_dos_newlines(self):
         conf = ('line-length: {max: 10}\n'

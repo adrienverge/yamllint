@@ -18,8 +18,8 @@
 Use this rule to enforce alphabetical ordering of keys in mappings. The sorting
 order uses the Unicode code point number as a default. As a result, the
 ordering is case-sensitive and not accent-friendly (see examples below).
-This can be changed by setting the global ``locale`` option.  This allows to
-sort case and accents properly.
+This can be changed by setting the global ``locale`` option.  This allows one
+to sort case and accents properly.
 
 .. rubric:: Examples
 

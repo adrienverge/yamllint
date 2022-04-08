@@ -19,11 +19,7 @@ indentation, etc.
    :target: https://yamllint.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation status
 
-Written in Python (compatible with Python 2 & 3).
-
-⚠ Python 2 upstream support stopped on January 1, 2020. yamllint will keep
-best-effort support for Python 2.7 until January 1, 2021. Past that date,
-yamllint will drop all Python 2-related code.
+Written in Python (compatible with Python 3 only).
 
 Documentation
 -------------

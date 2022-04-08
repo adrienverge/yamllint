@@ -17,10 +17,6 @@
 """
 Use this rule to set a limit to lines length.
 
-Note: with Python 2, the ``line-length`` rule may not work properly with
-unicode characters because of the way strings are represented in bytes. We
-recommend running yamllint with Python 3.
-
 .. rubric:: Options
 
 * ``max`` defines the maximal (inclusive) length of lines.
@@ -144,7 +140,11 @@ def check(conf, line):
                 start += 1
 
             if start != line.end:
-                if line.buffer[start] in ('#', '-'):
+                if line.buffer[start] == '#':
+                    while line.buffer[start] == '#':
+                        start += 1
+                    start += 1
+                elif line.buffer[start] == '-':
                     start += 2
 
                 if line.buffer.find(' ', start, line.end) == -1:

@@ -42,5 +42,7 @@ Pull Request Process
 
 6. Write a `good commit message
    <http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html>`_.
+   If the pull request has multiple commits, each must be atomic (single
+   irreducible change that makes sense on its own).
 
 7. Then, open a pull request.
