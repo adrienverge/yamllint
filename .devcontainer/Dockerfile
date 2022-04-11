@@ -5,9 +5,9 @@ ARG VARIANT="3.10-bullseye"
 FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
 
 # CA Certificate using a script that read the files from the ./certs directory
-COPY certs/. /usr/local/share/ca-certificates/
-ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/my_company.pem
-RUN sudo update-ca-certificates
+#COPY certs/. /usr/local/share/ca-certificates/
+#ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/my_company.pem
+#RUN sudo update-ca-certificates
 
 # [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
 ARG NODE_VERSION="none"
@@ -53,3 +53,7 @@ RUN rm -rf /tmp/pip-tmp
 
 # [Optional] Uncomment this line to install global node packages.
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
+
+# [Optional] Uncomment this line to install sqlite.
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends sqlite3

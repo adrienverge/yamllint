@@ -6,11 +6,10 @@
 # none
 
 # ~~~~~~~ setup.cfg ~~~~~~~
-sphinx
-flake8
-pathspec >= 0.5.3
-pyyaml
-setuptools
+Sphinx~=4.5.0
+flake8~=4.0.1
+pathspec~=0.9.0
+PyYAML~=6.0
 
 # ~~~~~~~ pyproject.toml ~~~~~~~
 # none
@@ -25,11 +24,11 @@ setuptools
 # none
 
 # ~~~~~~~ future use ~~~~~~~
-tox==3.24.5
-GitPython==3.1.27
-covdefaults>=2.2
-coverage
-distlib
-pytest
-pytest-env
-re-assert
+tox~=3.24.5
+GitPython~=3.1.27
+covdefaults~=2.2.0
+coverage~=6.3.2
+distlib~=0.3.4
+pytest~=7.1.1
+pytest-env~=0.6.2
+re-assert~=1.1.0

@@ -1,25 +1,31 @@
 # user devcontainer convenience
+# ~~~~~~~ vscode extensions support ~~~~~~~
+esbonio~=0.10.2
+
 # ~~~~~~~ project demo ~~~~~~~
-datamodel-code-generator
-orjson==3.6.7
-pydantic==1.9.0
-SQLAlchemy==1.4.33
-ruamel.yaml
-typing==3.7.4.3
-ujson==5.1.0
+datamodel-code-generator~=0.11.15
+orjson~=3.6.7
+pydantic~=1.8.2
+SQLAlchemy~=1.4.33
+ruamel.yaml~=0.17.21
+typing~=3.7.4.3
+ujson~=5.1.0
+MonkeyType~=22.2.0
+typeshed-client~=2.0.4
+pyre-check~=0.9.10
 
 # ~~~~~~~ awesome development ~~~~~~~
-beautifulsoup4==4.10.0
-Cython==0.29.26;sys_platform!='win32'
-devtools==0.8.0
-openpyxl==3.0.9
-pandas==1.4.1
-python-dotenv==0.19.2
-typing-extensions==4.0.1
-XlsxWriter==3.0.3
+beautifulsoup4~=4.10.0
+Cython~=0.29.26;sys_platform!='win32'
+devtools~=0.8.0
+openpyxl~=3.0.9
+pandas~=1.4.1
+python-dotenv~=0.19.2
+typing-extensions~=4.0.1
+XlsxWriter~=3.0.3
 
 # ~~~~~~~ notebooks & visualization ~~~~~~~
-ipykernel==6.11.0
-jupyterlab==3.3.2
-matplotlib==3.5.1
-seaborn==0.11.2
+ipykernel~=6.11.0
+jupyterlab~=3.3.2
+matplotlib~=3.5.1
+seaborn~=0.11.2
