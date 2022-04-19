@@ -87,6 +87,10 @@ class KeyDuplicatesTestCase(RuleTestCase):
                    'anchor_reference:\n'
                    '  <<: *anchor_one\n'
                    '  <<: *anchor_two\n', conf)
+        self.check('---\n'
+                   '{a:1, b:2}}\n', conf, problem=(2, 11, 'syntax'))
+        self.check('---\n'
+                   '[a, b, c]]\n', conf, problem=(2, 10, 'syntax'))
 
     def test_enabled(self):
         conf = 'key-duplicates: enable'
@@ -165,6 +169,10 @@ class KeyDuplicatesTestCase(RuleTestCase):
                    'anchor_reference:\n'
                    '  <<: *anchor_one\n'
                    '  <<: *anchor_two\n', conf)
+        self.check('---\n'
+                   '{a:1, b:2}}\n', conf, problem=(2, 11, 'syntax'))
+        self.check('---\n'
+                   '[a, b, c]]\n', conf, problem=(2, 10, 'syntax'))
 
     def test_key_tokens_in_flow_sequences(self):
         conf = 'key-duplicates: enable'
