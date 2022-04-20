@@ -84,7 +84,8 @@ def check(conf, token, prev, next, nextnext, context):
     elif isinstance(token, (yaml.BlockEndToken,
                             yaml.FlowMappingEndToken,
                             yaml.FlowSequenceEndToken)):
-        context['stack'].pop()
+        if len(context['stack']) > 0:
+            context['stack'].pop()
     elif (isinstance(token, yaml.KeyToken) and
           isinstance(next, yaml.ScalarToken)):
         # This check is done because KeyTokens can be found inside flow
