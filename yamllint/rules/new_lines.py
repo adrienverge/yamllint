@@ -29,8 +29,17 @@ Use this rule to force the type of new line characters.
  rules:
    new-lines:
      type: unix
+
+**only** on windows (if `sys.platform == "win32"`):
+
+.. code-block:: yaml
+
+ rules:
+   new-lines:
+     type: dos
 """
 
+from sys import platform
 
 from yamllint.linter import LintProblem
 
@@ -38,7 +47,10 @@ from yamllint.linter import LintProblem
 ID = 'new-lines'
 TYPE = 'line'
 CONF = {'type': ('unix', 'dos')}
-DEFAULT = {'type': 'unix'}
+if platform == "win32":
+  DEFAULT = {'type': 'dos'}
+else:
+  DEFAULT = {'type': 'unix'}
 
 
 def check(conf, line):
