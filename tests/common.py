@@ -13,7 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import contextlib
 import os
+import shutil
 import tempfile
 import unittest
 
@@ -68,3 +70,17 @@ def build_temp_workspace(files):
                 f.write(content)
 
     return tempdir
+
+
+@contextlib.contextmanager
+def temp_workspace(files):
+    """Provide a temporary workspace that is automatically cleaned up."""
+    backup_wd = os.getcwd()
+    wd = build_temp_workspace(files)
+
+    try:
+        os.chdir(wd)
+        yield
+    finally:
+        os.chdir(backup_wd)
+        shutil.rmtree(wd)

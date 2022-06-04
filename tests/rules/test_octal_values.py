@@ -32,6 +32,7 @@ class OctalValuesTestCase(RuleTestCase):
                 '  forbid-explicit-octal: false\n'
                 'new-line-at-end-of-file: disable\n'
                 'document-start: disable\n')
+        self.check('after-tag: !custom_tag 010', conf)
         self.check('user-city: 010', conf, problem=(1, 15))
         self.check('user-city: abc', conf)
         self.check('user-city: 010,0571', conf)
