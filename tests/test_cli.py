@@ -24,7 +24,7 @@ import sys
 import tempfile
 import unittest
 
-from tests.common import build_temp_workspace
+from tests.common import build_temp_workspace, temp_workspace
 
 from yamllint import cli
 from yamllint import config
@@ -59,7 +59,7 @@ def utf8_available():
         locale.setlocale(locale.LC_ALL, 'C.UTF-8')
         locale.setlocale(locale.LC_ALL, (None, None))
         return True
-    except locale.Error:
+    except locale.Error:  # pragma: no cover
         return False
 
 
@@ -282,6 +282,16 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(ctx.stdout, '')
         self.assertRegex(ctx.stderr, r'^invalid config: not a dict')
 
+    def test_run_with_implicit_extends_config(self):
+        path = os.path.join(self.wd, 'warn.yaml')
+
+        with RunContext(self) as ctx:
+            cli.run(('-d', 'default', '-f', 'parsable', path))
+        expected_out = ('%s:1:1: [warning] missing document start "---" '
+                        '(document-start)\n' % path)
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr), (0, expected_out, ''))
+
     def test_run_with_config_file(self):
         with open(os.path.join(self.wd, 'config'), 'w') as f:
             f.write('rules: {trailing-spaces: disable}')
@@ -321,6 +331,19 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run((os.path.join(self.wd, 'a.yaml'), ))
         self.assertEqual(ctx.returncode, 1)
 
+    def test_run_with_user_xdg_config_home_in_env(self):
+        self.addCleanup(os.environ.__delitem__, 'XDG_CONFIG_HOME')
+
+        with tempfile.TemporaryDirectory('w') as d:
+            os.environ['XDG_CONFIG_HOME'] = d
+            os.makedirs(os.path.join(d, 'yamllint'))
+            with open(os.path.join(d, 'yamllint', 'config'), 'w') as f:
+                f.write('extends: relaxed')
+            with RunContext(self) as ctx:
+                cli.run(('-f', 'parsable', os.path.join(self.wd, 'warn.yaml')))
+
+        self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr), (0, '', ''))
+
     def test_run_with_user_yamllint_config_file_in_env(self):
         self.addCleanup(os.environ.__delitem__, 'YAMLLINT_CONFIG_FILE')
 
@@ -346,7 +369,7 @@ class CommandLineTestCase(unittest.TestCase):
         # as the first two runs don't use setlocale()
         try:
             locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-        except locale.Error:
+        except locale.Error:  # pragma: no cover
             self.skipTest('locale en_US.UTF-8 not available')
         locale.setlocale(locale.LC_ALL, (None, None))
 
@@ -547,6 +570,19 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
+    def test_run_format_colored_warning(self):
+        path = os.path.join(self.wd, 'warn.yaml')
+
+        with RunContext(self) as ctx:
+            cli.run((path, '--format', 'colored'))
+        expected_out = (
+            '\033[4m%s\033[0m\n'
+            '  \033[2m1:1\033[0m       \033[33mwarning\033[0m  '
+            'missing document start "---"  \033[2m(document-start)\033[0m\n'
+            '\n' % path)
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr), (0, expected_out, ''))
+
     def test_run_format_github(self):
         path = os.path.join(self.wd, 'a.yaml')
 
@@ -642,3 +678,27 @@ class CommandLineTestCase(unittest.TestCase):
             '\n' % path)
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+
+
+class CommandLineConfigTestCase(unittest.TestCase):
+    def test_config_file(self):
+        workspace = {'a.yml': 'hello: world\n'}
+        conf = ('---\n'
+                'extends: relaxed\n')
+
+        for conf_file in ('.yamllint', '.yamllint.yml', '.yamllint.yaml'):
+            with self.subTest(conf_file):
+                with temp_workspace(workspace):
+                    with RunContext(self) as ctx:
+                        cli.run(('-f', 'parsable', '.'))
+
+                self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
+                                 (0, './a.yml:1:1: [warning] missing document '
+                                     'start "---" (document-start)\n', ''))
+
+                with temp_workspace({**workspace, **{conf_file: conf}}):
+                    with RunContext(self) as ctx:
+                        cli.run(('-f', 'parsable', '.'))
+
+                self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
+                                 (0, '', ''))

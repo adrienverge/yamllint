@@ -117,7 +117,7 @@ class KeyOrderingTestCase(RuleTestCase):
         self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
         try:
             locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-        except locale.Error:
+        except locale.Error:  # pragma: no cover
             self.skipTest('locale en_US.UTF-8 not available')
         conf = ('key-ordering: enable')
         self.check('---\n'
@@ -136,7 +136,7 @@ class KeyOrderingTestCase(RuleTestCase):
         self.addCleanup(locale.setlocale, locale.LC_ALL, (None, None))
         try:
             locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-        except locale.Error:
+        except locale.Error:  # pragma: no cover
             self.skipTest('locale en_US.UTF-8 not available')
         conf = ('key-ordering: enable')
         self.check('---\n'

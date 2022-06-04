@@ -55,3 +55,13 @@ class LinterTestCase(unittest.TestCase):
              u'# الأَبْجَدِيَّة العَرَبِيَّة\n')
         linter.run(s, self.fake_config())
         linter.run(s.encode('utf-8'), self.fake_config())
+
+    def test_linter_problem_repr_without_rule(self):
+        problem = linter.LintProblem(1, 2, 'problem')
+
+        self.assertEqual(str(problem), '1:2: problem')
+
+    def test_linter_problem_repr_with_rule(self):
+        problem = linter.LintProblem(1, 2, 'problem', 'rule-id')
+
+        self.assertEqual(str(problem), '1:2: problem (rule-id)')

@@ -190,6 +190,41 @@ class SimpleConfigTestCase(unittest.TestCase):
                           config.validate_rule_conf, Rule,
                           {'multiple': ['item4']})
 
+    def test_invalid_rule(self):
+        with self.assertRaisesRegex(
+                config.YamlLintConfigError,
+                'invalid config: rule "colons": should be either '
+                '"enable", "disable" or a dict'):
+            config.YamlLintConfig('rules:\n'
+                                  '  colons: invalid\n')
+
+    def test_invalid_ignore(self):
+        with self.assertRaisesRegex(
+                config.YamlLintConfigError,
+                'invalid config: ignore should contain file patterns'):
+            config.YamlLintConfig('ignore: yes\n')
+
+    def test_invalid_rule_ignore(self):
+        with self.assertRaisesRegex(
+                config.YamlLintConfigError,
+                'invalid config: ignore should contain file patterns'):
+            config.YamlLintConfig('rules:\n'
+                                  '  colons:\n'
+                                  '    ignore: yes\n')
+
+    def test_invalid_locale(self):
+        with self.assertRaisesRegex(
+                config.YamlLintConfigError,
+                'invalid config: locale should be a string'):
+            config.YamlLintConfig('locale: yes\n')
+
+    def test_invalid_yaml_files(self):
+        with self.assertRaisesRegex(
+                config.YamlLintConfigError,
+                'invalid config: yaml-files should be a list of file '
+                'patterns'):
+            config.YamlLintConfig('yaml-files: yes\n')
+
 
 class ExtendedConfigTestCase(unittest.TestCase):
     def test_extend_on_object(self):
@@ -333,6 +368,16 @@ class ExtendedConfigTestCase(unittest.TestCase):
 
         self.assertEqual(c.rules['colons']['max-spaces-before'], 0)
         self.assertEqual(c.rules['colons']['max-spaces-after'], 1)
+
+    def test_extended_ignore(self):
+        with tempfile.NamedTemporaryFile('w') as f:
+            f.write('ignore: |\n'
+                    '  *.template.yaml\n')
+            f.flush()
+            c = config.YamlLintConfig('extends: ' + f.name + '\n')
+
+        self.assertEqual(c.ignore.match_file('test.template.yaml'), True)
+        self.assertEqual(c.ignore.match_file('test.yaml'), False)
 
 
 class ExtendedLibraryConfigTestCase(unittest.TestCase):
