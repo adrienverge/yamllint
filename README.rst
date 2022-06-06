@@ -74,7 +74,7 @@ Usage
  # Output a parsable format (for syntax checking in editors like Vim, emacs...)
  yamllint -f parsable file.yaml
 
-`Read more in the complete documentation! <https://yamllint.readthedocs.io/>`_
+`Read more in the complete documentation! <https://yamllint.readthedocs.io/>`__
 
 Features
 ^^^^^^^^
@@ -132,7 +132,7 @@ Specific files can be ignored (totally or for some rules only) using a
        *.ignore-trailing-spaces.yaml
        /ascii-art/*
 
-`Read more in the complete documentation! <https://yamllint.readthedocs.io/>`_
+`Read more in the complete documentation! <https://yamllint.readthedocs.io/>`__
 
 License
 -------
