@@ -40,6 +40,11 @@ specific line:
  # yamllint disable-line
  -  {    all : rules ,are disabled   for this line}
 
+You can't make yamllint ignore invalid YAML syntax on a line (which generates a
+`syntax error`), such as when templating a YAML file with Jinja. In some cases,
+you can workaround this by putting the templating syntax in a YAML comment. See
+`Putting template flow control in comments`_.
+
 If you need to disable multiple rules, it is allowed to chain rules like this:
 ``# yamllint disable-line rule:hyphens rule:commas rule:indentation``.
 
@@ -99,4 +104,33 @@ or:
  {% if extra_info %}
  key1: value1
  {% endif %}
+ key2: value2
+
+Putting template flow control in comments
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Alternatively for templating you can wrap the template statements in comments
+to make it a valid YAML file. As long as the templating language doesn't use
+the same comment symbol, it should be a valid template and valid YAML (pre and
+post-template processing).
+
+Example of a Jinja2 code that cannot be parsed as YAML because it contains
+invalid tokens ``{%`` and ``%}``:
+
+.. code-block:: yaml
+
+ # This file IS NOT valid YAML and will procuce syntax errors
+ {% if extra_info %}
+ key1: value1
+ {% endif %}
+ key2: value2
+
+But it can be fixed using YAML comments:
+
+.. code-block:: yaml
+
+ # This file IS valid YAML because the Jinja is in a YAML comment
+ # {% if extra_info %}
+ key1: value1
+ # {% endif %}
  key2: value2
