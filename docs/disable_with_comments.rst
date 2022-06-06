@@ -89,7 +89,6 @@ For instance:
  key: value 2
 
  - This line is waaaaaaaaaay too long but yamllint will not report anything about it.
-   This line will be checked by yamllint.
 
 or:
 
