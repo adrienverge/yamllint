@@ -64,6 +64,12 @@ empty-values
 
 .. automodule:: yamllint.rules.empty_values
 
+float-values
+------------
+
+.. automodule:: yamllint.rules.float_values
+
+
 hyphens
 -------
 
