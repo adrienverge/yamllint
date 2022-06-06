@@ -19,6 +19,7 @@ rules:
     level: warning
   empty-lines: enable
   empty-values: disable
+  float-values: disable
   hyphens: enable
   indentation: enable
   key-duplicates: enable
