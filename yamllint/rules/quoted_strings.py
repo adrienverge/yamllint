@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2018 ClearScore
 #
 # This program is free software: you can redistribute it and/or modify
