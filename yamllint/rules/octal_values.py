@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2017 ScienJus
 #
 # This program is free software: you can redistribute it and/or modify

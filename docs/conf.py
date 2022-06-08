@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # yamllint documentation build configuration file, created by
 # sphinx-quickstart on Thu Jan 21 21:18:52 2016.
 
