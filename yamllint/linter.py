@@ -80,10 +80,7 @@ def get_cosmetic_problems(buffer, conf, filepath):
             self.all_rules = {r.ID for r in rules}
 
         def process_comment(self, comment):
-            try:
-                comment = str(comment)
-            except UnicodeError:
-                return  # this certainly wasn't a yamllint directive comment
+            comment = str(comment)
 
             if re.match(r'^# yamllint disable( rule:\S+)*\s*$', comment):
                 items = comment[18:].rstrip().split(' ')
@@ -109,10 +106,7 @@ def get_cosmetic_problems(buffer, conf, filepath):
 
     class DisableLineDirective(DisableDirective):
         def process_comment(self, comment):
-            try:
-                comment = str(comment)
-            except UnicodeError:
-                return  # this certainly wasn't a yamllint directive comment
+            comment = str(comment)
 
             if re.match(r'^# yamllint disable-line( rule:\S+)*\s*$', comment):
                 items = comment[23:].rstrip().split(' ')
