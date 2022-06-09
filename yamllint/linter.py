@@ -199,15 +199,11 @@ def _run(buffer, conf, filepath):
                 syntax_error.column <= problem.column):
             yield syntax_error
 
-            # If there is already a yamllint error at the same place, discard
-            # it as it is probably redundant (and maybe it's just a 'warning',
+            # Discard the problem since it is at the same place as the syntax
+            # error and is probably redundant (and maybe it's just a 'warning',
             # in which case the script won't even exit with a failure status).
-            if (syntax_error.line == problem.line and
-                    syntax_error.column == problem.column):
-                syntax_error = None
-                continue
-
             syntax_error = None
+            continue
 
         yield problem
 
