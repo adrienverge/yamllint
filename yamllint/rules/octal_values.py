@@ -84,9 +84,7 @@ CONF = {'forbid-implicit-octal': bool,
 DEFAULT = {'forbid-implicit-octal': True,
            'forbid-explicit-octal': True}
 
-
-def _is_octal_number(string):
-    return re.match(r'^[0-7]+$', string) is not None
+IS_OCTAL_NUMBER_PATTERN = re.compile(r'^[0-7]+$')
 
 
 def check(conf, token, prev, next, nextnext, context):
@@ -98,7 +96,7 @@ def check(conf, token, prev, next, nextnext, context):
             if not token.style:
                 val = token.value
                 if (val.isdigit() and len(val) > 1 and val[0] == '0' and
-                        _is_octal_number(val[1:])):
+                        IS_OCTAL_NUMBER_PATTERN.match(val[1:]) is not None):
                     yield LintProblem(
                         token.start_mark.line + 1, token.end_mark.column + 1,
                         'forbidden implicit octal value "%s"' %
@@ -109,7 +107,7 @@ def check(conf, token, prev, next, nextnext, context):
             if not token.style:
                 val = token.value
                 if (len(val) > 2 and val[:2] == '0o' and
-                        _is_octal_number(val[2:])):
+                        IS_OCTAL_NUMBER_PATTERN.match(val[2:]) is not None):
                     yield LintProblem(
                         token.start_mark.line + 1, token.end_mark.column + 1,
                         'forbidden explicit octal value "%s"' %
