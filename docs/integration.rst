@@ -22,29 +22,22 @@ Integration with GitHub Actions
 -------------------------------
 
 yamllint auto-detects when it's running inside of `GitHub
-Actions <https://github.com/features/actions>`_ and automatically uses the suited
-output format to decorate code with linting errors. You can also force the
-GitHub Actions output with ``yamllint --format github``.
+Actions <https://github.com/features/actions>`_ and automatically uses the
+suited output format to decorate code with linting errors. You can also force
+the GitHub Actions output with ``yamllint --format github``.
 
-An example workflow using GitHub Actions:
+An minimal example workflow using GitHub Actions:
 
 .. code:: yaml
 
    ---
-   name: yamllint test
-
-   on: push
+   on: push  # yamllint disable-line rule:truthy
 
    jobs:
-     test:
+     lint:
        runs-on: ubuntu-latest
        steps:
-         - uses: actions/checkout@v2
-
-         - name: Set up Python
-           uses: actions/setup-python@v2
-           with:
-             python-version: 3.8
+         - uses: actions/checkout@v3
 
          - name: Install yamllint
            run: pip install yamllint
