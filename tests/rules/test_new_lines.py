@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from unittest import mock
+
 from tests.common import RuleTestCase
 
 
@@ -58,3 +60,37 @@ class NewLinesTestCase(RuleTestCase):
         self.check('\r\n', conf)
         self.check('---\ntext\n', conf, problem=(1, 4))
         self.check('---\r\ntext\r\n', conf)
+
+    def test_platform_type(self):
+        conf = ('new-line-at-end-of-file: disable\n'
+                'new-lines: {type: platform}\n')
+
+        self.check('', conf)
+
+        # mock the Linux new-line-character
+        with mock.patch('yamllint.rules.new_lines.linesep', '\n'):
+            self.check('\n', conf)
+            self.check('\r\n', conf, problem=(1, 1))
+            self.check('---\ntext\n', conf)
+            self.check('---\r\ntext\r\n', conf, problem=(1, 4))
+            self.check('---\r\ntext\n', conf, problem=(1, 4))
+            # FIXME: the following tests currently don't work
+            # because only the first line is checked for line-endings
+            # see: issue #475
+            # ---
+            # self.check('---\ntext\r\nfoo\n', conf, problem=(2, 4))
+            # self.check('---\ntext\r\n', conf, problem=(2, 4))
+
+        # mock the Windows new-line-character
+        with mock.patch('yamllint.rules.new_lines.linesep', '\r\n'):
+            self.check('\r\n', conf)
+            self.check('\n', conf, problem=(1, 1))
+            self.check('---\r\ntext\r\n', conf)
+            self.check('---\ntext\n', conf, problem=(1, 4))
+            self.check('---\ntext\r\n', conf, problem=(1, 4))
+            # FIXME: the following tests currently don't work
+            # because only the first line is checked for line-endings
+            # see: issue #475
+            # ---
+            # self.check('---\r\ntext\nfoo\r\n', conf, problem=(2, 4))
+            # self.check('---\r\ntext\n', conf, problem=(2, 4))
