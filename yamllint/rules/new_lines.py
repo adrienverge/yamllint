@@ -48,6 +48,6 @@ def check(conf, line):
                 yield LintProblem(1, line.end - line.start + 1,
                                   'wrong new line character: expected \\r\\n')
         else:
-            if line.buffer[line.end] == '\r':
+            if line.buffer[line.end] != '\n':
                 yield LintProblem(1, line.end - line.start + 1,
                                   'wrong new line character: expected \\n')
