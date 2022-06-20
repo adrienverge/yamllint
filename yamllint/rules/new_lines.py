@@ -18,8 +18,11 @@ Use this rule to force the type of new line characters.
 
 .. rubric:: Options
 
-* Set ``type`` to ``unix`` to use UNIX-typed new line characters (``\\n``), or
-  ``dos`` to use DOS-typed new line characters (``\\r\\n``).
+* Set ``type`` to ``unix`` to enforce UNIX-typed new line characters (``\\n``),
+  set ``type`` to ``dos`` to enforce DOS-typed new line characters
+  (``\\r\\n``), or set ``type`` to ``platform`` to infer the type from the
+  system running yamllint (``\\n`` on POSIX / UNIX / Linux / Mac OS systems or
+  ``\\r\\n`` on DOS / Windows systems).
 
 .. rubric:: Default values (when enabled)
 
@@ -30,19 +33,22 @@ Use this rule to force the type of new line characters.
      type: unix
 """
 
+from os import linesep
 
 from yamllint.linter import LintProblem
 
 
 ID = 'new-lines'
 TYPE = 'line'
-CONF = {'type': ('unix', 'dos')}
+CONF = {'type': ('unix', 'dos', 'platform')}
 DEFAULT = {'type': 'unix'}
 
 
 def check(conf, line):
     if conf['type'] == 'unix':
         newline_char = '\n'
+    elif conf['type'] == 'platform':
+        newline_char = linesep
     elif conf['type'] == 'dos':
         newline_char = '\r\n'
 
