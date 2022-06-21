@@ -33,6 +33,11 @@ Emacs
 If you are `flycheck <https://github.com/flycheck/flycheck>`_ user, you can use
 `flycheck-yamllint <https://github.com/krzysztof-magosa/flycheck-yamllint>`_ integration.
 
+Visual Studio Code
+------------------
+
+https://marketplace.visualstudio.com/items?itemName=fnando.linter
+
 IntelliJ
 --------
 
