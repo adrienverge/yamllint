@@ -20,7 +20,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 project = APP_NAME
-copyright = __copyright__
+copyright = __copyright__.lstrip('Copyright ')
 
 version = APP_VERSION
 release = APP_VERSION
