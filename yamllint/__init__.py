@@ -25,6 +25,6 @@ APP_VERSION = '1.26.3'
 APP_DESCRIPTION = __doc__
 
 __author__ = u'Adrien Vergé'
-__copyright__ = u'Copyright 2016, Adrien Vergé'
+__copyright__ = u'Copyright 2022, Adrien Vergé'
 __license__ = 'GPLv3'
 __version__ = APP_VERSION
