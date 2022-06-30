@@ -188,6 +188,9 @@ def _run(buffer, conf, filepath):
     first_line = next(parser.line_generator(buffer)).content
     if re.match(r'^#\s*yamllint disable-file\s*$', first_line):
         return
+    elif first_line.startswith('$ANSIBLE_VAULT;'):
+        # We ignore Ansible vaults.
+        return
 
     # If the document contains a syntax error, save it and yield it at the
     # right line
