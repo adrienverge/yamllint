@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.27.1 (2022-07-08)
+-------------------
+
+- Fix failing test on ``key-duplicates`` for old PyYAML versions
+
 1.27.0 (2022-07-08)
 -------------------
 
