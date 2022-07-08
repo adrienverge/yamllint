@@ -129,14 +129,14 @@ def check(conf, token, prev, next, nextnext, context):
         yield LintProblem(
             token.start_mark.line + 1,
             token.start_mark.column + 1,
-            'forbidden not a number value "%s"' % token.value,
+            f'forbidden not a number value "{token.value}"',
         )
 
     if conf['forbid-inf'] and IS_INF_PATTERN.match(val):
         yield LintProblem(
             token.start_mark.line + 1,
             token.start_mark.column + 1,
-            f"forbidden infinite value {token.value}",
+            f'forbidden infinite value "{token.value}"',
         )
 
     if conf[
@@ -145,7 +145,7 @@ def check(conf, token, prev, next, nextnext, context):
         yield LintProblem(
             token.start_mark.line + 1,
             token.start_mark.column + 1,
-            f"forbidden scientific notation {token.value}",
+            f'forbidden scientific notation "{token.value}"',
         )
 
     if conf[
@@ -154,5 +154,5 @@ def check(conf, token, prev, next, nextnext, context):
         yield LintProblem(
             token.start_mark.line + 1,
             token.start_mark.column + 1,
-            f"forbidden decimal missing 0 prefix {token.value}",
+            f'forbidden decimal missing 0 prefix "{token.value}"',
         )
