@@ -87,7 +87,7 @@ class KeyDuplicatesTestCase(RuleTestCase):
                    '  <<: *anchor_one\n'
                    '  <<: *anchor_two\n', conf)
         self.check('---\n'
-                   '{a:1, b:2}}\n', conf, problem=(2, 11, 'syntax'))
+                   '{a: 1, b: 2}}\n', conf, problem=(2, 13, 'syntax'))
         self.check('---\n'
                    '[a, b, c]]\n', conf, problem=(2, 10, 'syntax'))
 
@@ -169,7 +169,7 @@ class KeyDuplicatesTestCase(RuleTestCase):
                    '  <<: *anchor_one\n'
                    '  <<: *anchor_two\n', conf)
         self.check('---\n'
-                   '{a:1, b:2}}\n', conf, problem=(2, 11, 'syntax'))
+                   '{a: 1, b: 2}}\n', conf, problem=(2, 13, 'syntax'))
         self.check('---\n'
                    '[a, b, c]]\n', conf, problem=(2, 10, 'syntax'))
 
