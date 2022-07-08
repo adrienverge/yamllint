@@ -1,6 +1,26 @@
 Changelog
 =========
 
+1.27.0 (2022-07-08)
+-------------------
+
+- Add support for Python 3.10, drop Python 3.5
+- Fix GitHub Actions workflow
+- Refactor ``--format=auto`` logic
+- Update GitHub format output to use groups
+- Rule ``comments``: allow whitespace after the shebang marker
+- Multiple minor fixes in documetation
+- Configure Sphinx to make man page show up in apropos
+- Attempt to clarify configuration file location in documentation
+- Rule ``key-duplicates``: don't crash on redundant closing brackets or braces
+- Use ``rstcheck`` to lint documentation on the CI
+- Remove UTF-8 headers in Python files, since Python 2 isn't supported
+- Add various tests to increase coverage
+- Rule ``octal-values``: pre-compile regex for performance
+- Add sections for Visual Studio Code and IntelliJ in documentation
+- Rule ``new-lines``: add the ``type: platform`` config option
+- Add the new rule ``float-values``
+
 1.26.3 (2021-08-21)
 -------------------
 
