@@ -1,4 +1,4 @@
-| |GitHub Badge| |PyPi version Badge| |Python version Badge|
+| |GitHub Badge| |PyPi version Badge| |Python version Badge| |License Badge|
 | |CI status Badge| |Coverage Badge| |Docs Badge|
 
 
@@ -126,12 +126,6 @@ Specific files can be ignored (totally or for some rules only) using a
 
 `Read more in the complete documentation! <https://yamllint.readthedocs.io/>`__
 
-License
--------
-
-`GPL version 3 <LICENSE>`_
-
-
 
 .. |GitHub Badge| image:: https://badges.aleen42.com/src/github.svg
    :target: https://github.com/adrienverge/yamllint
@@ -142,6 +136,9 @@ License
 .. |Python version Badge| image:: https://img.shields.io/pypi/pyversions/yamllint
    :target: https://pypi.org/project/yamllint/
    :alt: supported Python versions
+.. |License Badge| image:: https://img.shields.io/pypi/l/yamllint?color=blue
+   :target: LICENSE
+   :alt: License
 
 .. |CI status Badge| image:: https://travis-ci.org/adrienverge/yamllint.svg?branch=master
    :target: https://travis-ci.org/adrienverge/yamllint
