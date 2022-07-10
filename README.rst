@@ -1,3 +1,7 @@
+| |GitHub Badge| |PyPi version Badge| |Python version Badge|
+| |CI status Badge| |Coverage Badge| |Docs Badge|
+
+
 yamllint
 ========
 
@@ -6,18 +10,6 @@ A linter for YAML files.
 yamllint does not only check for syntax validity, but for weirdnesses like key
 repetition and cosmetic problems such as lines length, trailing spaces,
 indentation, etc.
-
-.. image::
-   https://travis-ci.org/adrienverge/yamllint.svg?branch=master
-   :target: https://travis-ci.org/adrienverge/yamllint
-   :alt: CI tests status
-.. image::
-   https://coveralls.io/repos/github/adrienverge/yamllint/badge.svg?branch=master
-   :target: https://coveralls.io/github/adrienverge/yamllint?branch=master
-   :alt: Code coverage status
-.. image:: https://readthedocs.org/projects/yamllint/badge/?version=latest
-   :target: https://yamllint.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation status
 
 Written in Python (compatible with Python 3 only).
 
@@ -138,3 +130,25 @@ License
 -------
 
 `GPL version 3 <LICENSE>`_
+
+
+
+.. |GitHub Badge| image:: https://badges.aleen42.com/src/github.svg
+   :target: https://github.com/adrienverge/yamllint
+   :alt: Github Repository
+.. |PyPi version Badge| image:: https://img.shields.io/pypi/v/yamllint
+   :target: https://pypi.org/project/yamllint/
+   :alt: PyPI package version
+.. |Python version Badge| image:: https://img.shields.io/pypi/pyversions/yamllint
+   :target: https://pypi.org/project/yamllint/
+   :alt: supported Python versions
+
+.. |CI status Badge| image:: https://travis-ci.org/adrienverge/yamllint.svg?branch=master
+   :target: https://travis-ci.org/adrienverge/yamllint
+   :alt: CI tests status
+.. |Coverage Badge| image:: https://coveralls.io/repos/github/adrienverge/yamllint/badge.svg?branch=master
+   :target: https://coveralls.io/github/adrienverge/yamllint?branch=master
+   :alt: Code coverage status
+.. |Docs Badge| image:: https://readthedocs.org/projects/yamllint/badge/?version=latest
+   :target: https://yamllint.readthedocs.io/en/latest/
+   :alt: Documentation status
