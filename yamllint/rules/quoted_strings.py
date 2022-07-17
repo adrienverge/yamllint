@@ -228,7 +228,7 @@ def check(conf, token, prev, next, nextnext, context):
         return
 
     # Ignore multi-line strings
-    if (not token.plain) and (token.style == "|" or token.style == ">"):
+    if not token.plain and token.style in ("|", ">"):
         return
 
     quote_type = conf['quote-type']
