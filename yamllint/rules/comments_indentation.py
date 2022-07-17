@@ -117,8 +117,7 @@ def check(conf, comment):
     #         # comment
     #         - 1
     #         - 2
-    if prev_line_indent <= next_line_indent:
-        prev_line_indent = next_line_indent
+    prev_line_indent = max(prev_line_indent, next_line_indent)
 
     # If two indents are valid but a previous comment went back to normal
     # indent, for the next ones to do the same. In other words, avoid this:
