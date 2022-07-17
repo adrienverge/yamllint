@@ -218,7 +218,7 @@ ROOT, B_MAP, F_MAP, B_SEQ, F_SEQ, B_ENT, KEY, VAL = range(8)
 labels = ('ROOT', 'B_MAP', 'F_MAP', 'B_SEQ', 'F_SEQ', 'B_ENT', 'KEY', 'VAL')
 
 
-class Parent(object):
+class Parent:
     def __init__(self, type, indent, line_indent=None):
         self.type = type
         self.indent = indent

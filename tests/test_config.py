@@ -121,7 +121,7 @@ class SimpleConfigTestCase(unittest.TestCase):
         self.assertEqual(c.rules['hyphens'], False)
 
     def test_validate_rule_conf(self):
-        class Rule(object):
+        class Rule:
             ID = 'fake'
 
         self.assertFalse(config.validate_rule_conf(Rule, False))

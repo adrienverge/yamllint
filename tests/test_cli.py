@@ -29,7 +29,7 @@ from yamllint import cli
 from yamllint import config
 
 
-class RunContext(object):
+class RunContext:
     """Context manager for ``cli.run()`` to capture exit code and streams."""
 
     def __init__(self, case):

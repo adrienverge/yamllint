@@ -16,7 +16,7 @@
 import yaml
 
 
-class Line(object):
+class Line:
     def __init__(self, line_no, buffer, start, end):
         self.line_no = line_no
         self.start = start
@@ -28,7 +28,7 @@ class Line(object):
         return self.buffer[self.start:self.end]
 
 
-class Token(object):
+class Token:
     def __init__(self, line_no, curr, prev, next, nextnext):
         self.line_no = line_no
         self.curr = curr
@@ -37,7 +37,7 @@ class Token(object):
         self.nextnext = nextnext
 
 
-class Comment(object):
+class Comment:
     def __init__(self, line_no, column_no, buffer, pointer,
                  token_before=None, token_after=None, comment_before=None):
         self.line_no = line_no
