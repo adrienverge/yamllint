@@ -25,7 +25,7 @@ class YamlLintConfigError(Exception):
     pass
 
 
-class YamlLintConfig(object):
+class YamlLintConfig:
     def __init__(self, content=None, file=None):
         assert (content is None) ^ (file is None)
 
