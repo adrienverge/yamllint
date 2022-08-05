@@ -29,6 +29,9 @@ PROBLEM_LEVELS = {
     'error': 2,
 }
 
+DISABLE_RULE_PATTERN = re.compile(r'^# yamllint disable( rule:\S+)*\s*$')
+ENABLE_RULE_PATTERN = re.compile(r'^# yamllint enable( rule:\S+)*\s*$')
+
 
 class LintProblem(object):
     """Represents a linting problem found by yamllint."""
@@ -82,7 +85,7 @@ def get_cosmetic_problems(buffer, conf, filepath):
         def process_comment(self, comment):
             comment = str(comment)
 
-            if re.match(r'^# yamllint disable( rule:\S+)*\s*$', comment):
+            if DISABLE_RULE_PATTERN.match(comment):
                 items = comment[18:].rstrip().split(' ')
                 rules = [item[5:] for item in items][1:]
                 if len(rules) == 0:
@@ -92,7 +95,7 @@ def get_cosmetic_problems(buffer, conf, filepath):
                         if id in self.all_rules:
                             self.rules.add(id)
 
-            elif re.match(r'^# yamllint enable( rule:\S+)*\s*$', comment):
+            elif ENABLE_RULE_PATTERN.match(comment):
                 items = comment[17:].rstrip().split(' ')
                 rules = [item[5:] for item in items][1:]
                 if len(rules) == 0:
