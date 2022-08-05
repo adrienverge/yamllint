@@ -14,7 +14,7 @@ Changelog
 - Refactor ``--format=auto`` logic
 - Update GitHub format output to use groups
 - Rule ``comments``: allow whitespace after the shebang marker
-- Multiple minor fixes in documetation
+- Multiple minor fixes in documentation
 - Configure Sphinx to make man page show up in apropos
 - Attempt to clarify configuration file location in documentation
 - Rule ``key-duplicates``: don't crash on redundant closing brackets or braces
