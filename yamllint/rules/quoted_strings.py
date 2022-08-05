@@ -30,6 +30,8 @@ used.
   ``required: false`` and  ``required: only-when-needed``.
 * ``extra-allowed`` is a list of PCRE regexes to allow quoted string values,
   even if ``required: only-when-needed`` is set.
+* ``skip-quoted-quote`` allows (``true``) using disallowed quotes for strings
+  with allowed quotes inside. Default ``false``.
 
 **Note**: Multi-line strings (with ``|`` or ``>``) will not be checked.
 
@@ -43,6 +45,7 @@ used.
      required: true
      extra-required: []
      extra-allowed: []
+     skip-quoted-quote: false
 
 .. rubric:: Examples
 
@@ -112,6 +115,28 @@ used.
 
     - "localhost"
     - this is a string that needs to be QUOTED
+
+#. With ``quoted-strings: {quote-type: double, required: true,
+   skip-quoted-quote: false}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    foo: "bar\"baz"
+
+   the following code snippet would **FAIL**:
+   ::
+
+    foo: 'bar"baz'
+
+#. With ``quoted-strings: {quote-type: double, required: true,
+   skip-quoted-quote: true}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    foo: 'bar"baz'
+
 """
 
 import re
@@ -125,11 +150,13 @@ TYPE = 'token'
 CONF = {'quote-type': ('any', 'single', 'double'),
         'required': (True, False, 'only-when-needed'),
         'extra-required': [str],
-        'extra-allowed': [str]}
+        'extra-allowed': [str],
+        'skip-quoted-quote': (True, False)}
 DEFAULT = {'quote-type': 'any',
            'required': True,
            'extra-required': [],
-           'extra-allowed': []}
+           'extra-allowed': [],
+           'skip-quoted-quote': False}
 
 
 def VALIDATE(conf):
@@ -139,6 +166,8 @@ def VALIDATE(conf):
         return 'cannot use both "required: true" and "extra-required"'
     if conf['required'] is False and len(conf['extra-allowed']) > 0:
         return 'cannot use both "required: false" and "extra-allowed"'
+    if conf['skip-quoted-quote'] is True and conf['quote-type'] == 'any':
+        return '"skip-quoted-quote" has no effect with "quote-type: any"'
 
 
 DEFAULT_SCALAR_TAG = u'tag:yaml.org,2002:str'
@@ -200,19 +229,29 @@ def check(conf, token, prev, next, nextnext, context):
     if (not token.plain) and (token.style == "|" or token.style == ">"):
         return
 
+    # Check value is quoted qoute
+    if (conf['skip-quoted-quote'] is True and (not token.plain)
+            and ((token.style == "'" and '"' in token.value) or
+                 (token.style == '"' and "'" in token.value))):
+        is_quoted_quote = True
+    else:
+        is_quoted_quote = False
+
     quote_type = conf['quote-type']
 
     msg = None
     if conf['required'] is True:
 
         # Quotes are mandatory and need to match config
-        if token.style is None or not _quote_match(quote_type, token.style):
+        if token.style is None or not (is_quoted_quote or _quote_match(
+                quote_type, token.style)):
             msg = "string value is not quoted with %s quotes" % quote_type
 
     elif conf['required'] is False:
 
         # Quotes are not mandatory but when used need to match config
-        if token.style and not _quote_match(quote_type, token.style):
+        if token.style and not is_quoted_quote and not _quote_match(
+                quote_type, token.style):
             msg = "string value is not quoted with %s quotes" % quote_type
 
         elif not token.style:
@@ -235,7 +274,8 @@ def check(conf, token, prev, next, nextnext, context):
                     quote_type)
 
         # But when used need to match config
-        elif token.style and not _quote_match(quote_type, token.style):
+        elif token.style and not is_quoted_quote and not _quote_match(
+                quote_type, token.style):
             msg = "string value is not quoted with %s quotes" % quote_type
 
         elif not token.style:
