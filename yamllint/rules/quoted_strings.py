@@ -166,8 +166,6 @@ def VALIDATE(conf):
         return 'cannot use both "required: true" and "extra-required"'
     if conf['required'] is False and len(conf['extra-allowed']) > 0:
         return 'cannot use both "required: false" and "extra-allowed"'
-    if conf['allow-quoted-quotes'] is True and conf['quote-type'] == 'any':
-        return '"allow-quoted-quotes" has no effect with "quote-type: any"'
 
 
 DEFAULT_SCALAR_TAG = u'tag:yaml.org,2002:str'
