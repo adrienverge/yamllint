@@ -30,7 +30,7 @@ used.
   ``required: false`` and  ``required: only-when-needed``.
 * ``extra-allowed`` is a list of PCRE regexes to allow quoted string values,
   even if ``required: only-when-needed`` is set.
-* ``skip-quoted-quote`` allows (``true``) using disallowed quotes for strings
+* ``allow-quoted-quotes`` allows (``true``) using disallowed quotes for strings
   with allowed quotes inside. Default ``false``.
 
 **Note**: Multi-line strings (with ``|`` or ``>``) will not be checked.
@@ -45,7 +45,7 @@ used.
      required: true
      extra-required: []
      extra-allowed: []
-     skip-quoted-quote: false
+     allow-quoted-quotes: false
 
 .. rubric:: Examples
 
@@ -117,7 +117,7 @@ used.
     - this is a string that needs to be QUOTED
 
 #. With ``quoted-strings: {quote-type: double, required: true,
-   skip-quoted-quote: false}``
+   allow-quoted-quotes: false}``
 
    the following code snippet would **PASS**:
    ::
@@ -130,7 +130,7 @@ used.
     foo: 'bar"baz'
 
 #. With ``quoted-strings: {quote-type: double, required: true,
-   skip-quoted-quote: true}``
+   allow-quoted-quotes: true}``
 
    the following code snippet would **PASS**:
    ::
@@ -151,12 +151,12 @@ CONF = {'quote-type': ('any', 'single', 'double'),
         'required': (True, False, 'only-when-needed'),
         'extra-required': [str],
         'extra-allowed': [str],
-        'skip-quoted-quote': (True, False)}
+        'allow-quoted-quotes': (True, False)}
 DEFAULT = {'quote-type': 'any',
            'required': True,
            'extra-required': [],
            'extra-allowed': [],
-           'skip-quoted-quote': False}
+           'allow-quoted-quotes': False}
 
 
 def VALIDATE(conf):
@@ -166,8 +166,8 @@ def VALIDATE(conf):
         return 'cannot use both "required: true" and "extra-required"'
     if conf['required'] is False and len(conf['extra-allowed']) > 0:
         return 'cannot use both "required: false" and "extra-allowed"'
-    if conf['skip-quoted-quote'] is True and conf['quote-type'] == 'any':
-        return '"skip-quoted-quote" has no effect with "quote-type: any"'
+    if conf['allow-quoted-quotes'] is True and conf['quote-type'] == 'any':
+        return '"allow-quoted-quotes" has no effect with "quote-type: any"'
 
 
 DEFAULT_SCALAR_TAG = u'tag:yaml.org,2002:str'
@@ -230,7 +230,7 @@ def check(conf, token, prev, next, nextnext, context):
         return
 
     # Check value is quoted qoute
-    if (conf['skip-quoted-quote'] is True and (not token.plain)
+    if (conf['allow-quoted-quotes'] is True and (not token.plain)
             and ((token.style == "'" and '"' in token.value) or
                  (token.style == '"' and "'" in token.value))):
         is_quoted_quote = True
