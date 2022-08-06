@@ -149,7 +149,7 @@ CONF = {'quote-type': ('any', 'single', 'double'),
         'required': (True, False, 'only-when-needed'),
         'extra-required': [str],
         'extra-allowed': [str],
-        'allow-quoted-quotes': (True, False)}
+        'allow-quoted-quotes': bool}
 DEFAULT = {'quote-type': 'any',
            'required': True,
            'extra-required': [],
@@ -225,7 +225,6 @@ def check(conf, token, prev, next, nextnext, context):
     if (not token.plain) and (token.style == "|" or token.style == ">"):
         return
 
-    # Check value is quoted qoute
     if (conf['allow-quoted-quotes'] is True and (not token.plain)
             and ((token.style == "'" and '"' in token.value) or
                  (token.style == '"' and "'" in token.value))):
