@@ -96,7 +96,7 @@ def check(conf, token, prev, next, nextnext, context):
             if not token.style:
                 val = token.value
                 if (val.isdigit() and len(val) > 1 and val[0] == '0' and
-                        IS_OCTAL_NUMBER_PATTERN.match(val[1:]) is not None):
+                        IS_OCTAL_NUMBER_PATTERN.match(val[1:])):
                     yield LintProblem(
                         token.start_mark.line + 1, token.end_mark.column + 1,
                         'forbidden implicit octal value "%s"' %
@@ -107,7 +107,7 @@ def check(conf, token, prev, next, nextnext, context):
             if not token.style:
                 val = token.value
                 if (len(val) > 2 and val[:2] == '0o' and
-                        IS_OCTAL_NUMBER_PATTERN.match(val[2:]) is not None):
+                        IS_OCTAL_NUMBER_PATTERN.match(val[2:])):
                     yield LintProblem(
                         token.start_mark.line + 1, token.end_mark.column + 1,
                         'forbidden explicit octal value "%s"' %
