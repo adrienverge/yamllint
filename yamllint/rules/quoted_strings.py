@@ -202,6 +202,12 @@ def _quotes_are_needed(string):
         return True
 
 
+def _has_quoted_quotes(token):
+    return ((not token.plain) and
+            ((token.style == "'" and '"' in token.value) or
+             (token.style == '"' and "'" in token.value)))
+
+
 def check(conf, token, prev, next, nextnext, context):
     if not (isinstance(token, yaml.tokens.ScalarToken) and
             isinstance(prev, (yaml.BlockEntryToken, yaml.FlowEntryToken,
@@ -225,28 +231,24 @@ def check(conf, token, prev, next, nextnext, context):
     if (not token.plain) and (token.style == "|" or token.style == ">"):
         return
 
-    if (conf['allow-quoted-quotes'] is True and (not token.plain)
-            and ((token.style == "'" and '"' in token.value) or
-                 (token.style == '"' and "'" in token.value))):
-        is_quoted_quote = True
-    else:
-        is_quoted_quote = False
-
     quote_type = conf['quote-type']
 
     msg = None
     if conf['required'] is True:
 
         # Quotes are mandatory and need to match config
-        if token.style is None or not (is_quoted_quote or _quote_match(
-                quote_type, token.style)):
+        if (token.style is None or
+            not (_quote_match(quote_type, token.style) or
+                 (conf['allow-quoted-quotes'] and _has_quoted_quotes(token)))):
             msg = "string value is not quoted with %s quotes" % quote_type
 
     elif conf['required'] is False:
 
         # Quotes are not mandatory but when used need to match config
-        if token.style and not is_quoted_quote and not _quote_match(
-                quote_type, token.style):
+        if (token.style and
+                not _quote_match(quote_type, token.style) and
+                not (conf['allow-quoted-quotes'] and
+                     _has_quoted_quotes(token))):
             msg = "string value is not quoted with %s quotes" % quote_type
 
         elif not token.style:
@@ -269,8 +271,9 @@ def check(conf, token, prev, next, nextnext, context):
                     quote_type)
 
         # But when used need to match config
-        elif token.style and not is_quoted_quote and not _quote_match(
-                quote_type, token.style):
+        elif (token.style and
+              not _quote_match(quote_type, token.style) and
+              not (conf['allow-quoted-quotes'] and _has_quoted_quotes(token))):
             msg = "string value is not quoted with %s quotes" % quote_type
 
         elif not token.style:
