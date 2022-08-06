@@ -116,8 +116,7 @@ used.
     - "localhost"
     - this is a string that needs to be QUOTED
 
-#. With ``quoted-strings: {quote-type: double, required: true,
-   allow-quoted-quotes: false}``
+#. With ``quoted-strings: {quote-type: double, allow-quoted-quotes: false}``
 
    the following code snippet would **PASS**:
    ::
@@ -129,8 +128,7 @@ used.
 
     foo: 'bar"baz'
 
-#. With ``quoted-strings: {quote-type: double, required: true,
-   allow-quoted-quotes: true}``
+#. With ``quoted-strings: {quote-type: double, allow-quoted-quotes: true}``
 
    the following code snippet would **PASS**:
    ::
