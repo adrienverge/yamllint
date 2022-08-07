@@ -121,7 +121,7 @@ used.
    the following code snippet would **PASS**:
    ::
 
-    foo: "bar\"baz"
+    foo: "bar\\"baz"
 
    the following code snippet would **FAIL**:
    ::
