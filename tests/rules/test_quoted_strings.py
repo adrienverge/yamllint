@@ -455,33 +455,104 @@ class QuotedTestCase(RuleTestCase):
                    problem1=(9, 3), problem2=(10, 3))
 
     def test_allow_quoted_quotes(self):
-        for quote_type in ['single', 'double']:
-            for required in ['true', 'false', 'only-when-needed']:
-                for allow_quoted_quotes in ['true', 'false']:
-                    conf = ('quoted-strings: {quote-type: %s,\n'
-                            '                 required: %s,\n'
-                            '                 allow-quoted-quotes: %s}\n') % (
-                                quote_type, required, allow_quoted_quotes)
+        conf = ('quoted-strings: {quote-type: single,\n'
+                '                 required: false,\n'
+                '                 allow-quoted-quotes: false}\n')
+        self.check('---\n'
+                   'foo1: "[barbaz]"\n'          # fails
+                   'foo2: "[bar\'baz]"\n',       # fails
+                   conf, problem1=(2, 7), problem2=(3, 7))
 
-                    wrong_token_style = "'" if quote_type == 'double' else '"'
-                    right_token_style = '"' if quote_type == 'double' else "'"
+        conf = ('quoted-strings: {quote-type: single,\n'
+                '                 required: false,\n'
+                '                 allow-quoted-quotes: true}\n')
+        self.check('---\n'
+                   'foo1: "[barbaz]"\n'          # fails
+                   'foo2: "[bar\'baz]"\n',
+                   conf, problem1=(2, 7))
 
-                    # 'fooX' value is in square brackets to avoid
-                    # 'redundantly quoted' error
-                    # in 'required: only-when-needed' mode
-                    yaml_to_check = ('---\n'
-                                     # `foo1: "[barbaz]"` `foo1: '[barbaz]'`
-                                     'foo1: %(w)c[barbaz]%(w)c\n'
-                                     # `foo1: "[bar'baz]"` `foo1: '[bar"baz]'`
-                                     'foo2: %(w)c[bar%(r)cbaz]%(w)c\n'
-                                     ) % {'w': wrong_token_style,
-                                          'r': right_token_style}
+        conf = ('quoted-strings: {quote-type: single,\n'
+                '                 required: true,\n'
+                '                 allow-quoted-quotes: false}\n')
+        self.check('---\n'
+                   'foo1: "[barbaz]"\n'          # fails
+                   'foo2: "[bar\'baz]"\n',       # fails
+                   conf, problem1=(2, 7), problem2=(3, 7))
 
-                    if allow_quoted_quotes == 'false':
-                        self.check(yaml_to_check,
-                                   conf,
-                                   problem1=(2, 7),
-                                   problem2=(3, 7))
-                    else:
-                        self.check(yaml_to_check,
-                                   conf, problem1=(2, 7))
+        conf = ('quoted-strings: {quote-type: single,\n'
+                '                 required: true,\n'
+                '                 allow-quoted-quotes: true}\n')
+        self.check('---\n'
+                   'foo1: "[barbaz]"\n'          # fails
+                   'foo2: "[bar\'baz]"\n',
+                   conf, problem1=(2, 7))
+
+        conf = ('quoted-strings: {quote-type: single,\n'
+                '                 required: only-when-needed,\n'
+                '                 allow-quoted-quotes: false}\n')
+        self.check('---\n'
+                   'foo1: "[barbaz]"\n'          # fails
+                   'foo2: "[bar\'baz]"\n',       # fails
+                   conf, problem1=(2, 7), problem2=(3, 7))
+
+        conf = ('quoted-strings: {quote-type: single,\n'
+                '                 required: only-when-needed,\n'
+                '                 allow-quoted-quotes: true}\n')
+        self.check('---\n'
+                   'foo1: "[barbaz]"\n'          # fails
+                   'foo2: "[bar\'baz]"\n',
+                   conf, problem1=(2, 7))
+
+        conf = ('quoted-strings: {quote-type: double,\n'
+                '                 required: false,\n'
+                '                 allow-quoted-quotes: false}\n')
+        self.check("---\n"
+                   "foo1: '[barbaz]'\n"          # fails
+                   "foo2: '[bar\"baz]'\n",       # fails
+                   conf, problem1=(2, 7), problem2=(3, 7))
+
+        conf = ('quoted-strings: {quote-type: double,\n'
+                '                 required: false,\n'
+                '                 allow-quoted-quotes: true}\n')
+        self.check("---\n"
+                   "foo1: '[barbaz]'\n"          # fails
+                   "foo2: '[bar\"baz]'\n",
+                   conf, problem1=(2, 7))
+
+        conf = ('quoted-strings: {quote-type: double,\n'
+                '                 required: true,\n'
+                '                 allow-quoted-quotes: false}\n')
+        self.check("---\n"
+                   "foo1: '[barbaz]'\n"          # fails
+                   "foo2: '[bar\"baz]'\n",       # fails
+                   conf, problem1=(2, 7), problem2=(3, 7))
+
+        conf = ('quoted-strings: {quote-type: double,\n'
+                '                 required: true,\n'
+                '                 allow-quoted-quotes: true}\n')
+        self.check("---\n"
+                   "foo1: '[barbaz]'\n"          # fails
+                   "foo2: '[bar\"baz]'\n",
+                   conf, problem1=(2, 7))
+
+        conf = ('quoted-strings: {quote-type: double,\n'
+                '                 required: only-when-needed,\n'
+                '                 allow-quoted-quotes: false}\n')
+        self.check("---\n"
+                   "foo1: '[barbaz]'\n"          # fails
+                   "foo2: '[bar\"baz]'\n",       # fails
+                   conf, problem1=(2, 7), problem2=(3, 7))
+
+        conf = ('quoted-strings: {quote-type: double,\n'
+                '                 required: only-when-needed,\n'
+                '                 allow-quoted-quotes: true}\n')
+        self.check("---\n"
+                   "foo1: '[barbaz]'\n"          # fails
+                   "foo2: '[bar\"baz]'\n",
+                   conf, problem1=(2, 7))
+
+        conf = ('quoted-strings: {quote-type: any}\n')
+        self.check("---\n"
+                   "foo1: '[barbaz]'\n"
+                   "foo2: '[bar\"baz]'\n",
+                   conf)
