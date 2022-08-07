@@ -30,6 +30,8 @@ used.
   ``required: false`` and  ``required: only-when-needed``.
 * ``extra-allowed`` is a list of PCRE regexes to allow quoted string values,
   even if ``required: only-when-needed`` is set.
+* ``allow-quoted-quotes`` allows (``true``) using disallowed quotes for strings
+  with allowed quotes inside. Default ``false``.
 
 **Note**: Multi-line strings (with ``|`` or ``>``) will not be checked.
 
@@ -43,6 +45,7 @@ used.
      required: true
      extra-required: []
      extra-allowed: []
+     allow-quoted-quotes: false
 
 .. rubric:: Examples
 
@@ -112,6 +115,26 @@ used.
 
     - "localhost"
     - this is a string that needs to be QUOTED
+
+#. With ``quoted-strings: {quote-type: double, allow-quoted-quotes: false}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    foo: "bar\"baz"
+
+   the following code snippet would **FAIL**:
+   ::
+
+    foo: 'bar"baz'
+
+#. With ``quoted-strings: {quote-type: double, allow-quoted-quotes: true}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    foo: 'bar"baz'
+
 """
 
 import re
@@ -125,11 +148,13 @@ TYPE = 'token'
 CONF = {'quote-type': ('any', 'single', 'double'),
         'required': (True, False, 'only-when-needed'),
         'extra-required': [str],
-        'extra-allowed': [str]}
+        'extra-allowed': [str],
+        'allow-quoted-quotes': bool}
 DEFAULT = {'quote-type': 'any',
            'required': True,
            'extra-required': [],
-           'extra-allowed': []}
+           'extra-allowed': [],
+           'allow-quoted-quotes': False}
 
 
 def VALIDATE(conf):
@@ -177,6 +202,12 @@ def _quotes_are_needed(string):
         return True
 
 
+def _has_quoted_quotes(token):
+    return ((not token.plain) and
+            ((token.style == "'" and '"' in token.value) or
+             (token.style == '"' and "'" in token.value)))
+
+
 def check(conf, token, prev, next, nextnext, context):
     if not (isinstance(token, yaml.tokens.ScalarToken) and
             isinstance(prev, (yaml.BlockEntryToken, yaml.FlowEntryToken,
@@ -206,13 +237,18 @@ def check(conf, token, prev, next, nextnext, context):
     if conf['required'] is True:
 
         # Quotes are mandatory and need to match config
-        if token.style is None or not _quote_match(quote_type, token.style):
+        if (token.style is None or
+            not (_quote_match(quote_type, token.style) or
+                 (conf['allow-quoted-quotes'] and _has_quoted_quotes(token)))):
             msg = "string value is not quoted with %s quotes" % quote_type
 
     elif conf['required'] is False:
 
         # Quotes are not mandatory but when used need to match config
-        if token.style and not _quote_match(quote_type, token.style):
+        if (token.style and
+                not _quote_match(quote_type, token.style) and
+                not (conf['allow-quoted-quotes'] and
+                     _has_quoted_quotes(token))):
             msg = "string value is not quoted with %s quotes" % quote_type
 
         elif not token.style:
@@ -235,7 +271,9 @@ def check(conf, token, prev, next, nextnext, context):
                     quote_type)
 
         # But when used need to match config
-        elif token.style and not _quote_match(quote_type, token.style):
+        elif (token.style and
+              not _quote_match(quote_type, token.style) and
+              not (conf['allow-quoted-quotes'] and _has_quoted_quotes(token))):
             msg = "string value is not quoted with %s quotes" % quote_type
 
         elif not token.style:
