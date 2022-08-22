@@ -1370,6 +1370,45 @@ class IndentationTestCase(RuleTestCase):
                    '               key: value\n'
                    '...\n', conf, problem=(2, 2))
 
+    def test_nested_collections_with_spaces_consistent(self):
+        """Tests behavior of {spaces: consistent} in nested collections to
+        ensure wrong-indentation is properly caught--especially when the
+        expected indent value is initially unkown. For details, see
+        https://github.com/adrienverge/yamllint/issues/485.
+        """
+        conf = ('indentation: {spaces: consistent,\n'
+                '              indent-sequences: true}')
+        self.check('---\n'
+                   '- item:\n'
+                   '  - elem\n'
+                   '- item:\n'
+                   '    - elem\n'
+                   '...\n', conf, problem=(3, 3))
+        conf = ('indentation: {spaces: consistent,\n'
+                '              indent-sequences: false}')
+        self.check('---\n'
+                   '- item:\n'
+                   '  - elem\n'
+                   '- item:\n'
+                   '    - elem\n'
+                   '...\n', conf, problem=(5,5))
+        conf = ('indentation: {spaces: consistent,\n'
+                '              indent-sequences: consistent}')
+        self.check('---\n'
+                   '- item:\n'
+                   '  - elem\n'
+                   '- item:\n'
+                   '    - elem\n'
+                   '...\n', conf, problem=(5,5))
+        conf = ('indentation: {spaces: consistent,\n'
+                '              indent-sequences: whatever}')
+        self.check('---\n'
+                   '- item:\n'
+                   '  - elem\n'
+                   '- item:\n'
+                   '    - elem\n'
+                   '...\n', conf)
+
     def test_return(self):
         conf = 'indentation: {spaces: consistent}'
         self.check('---\n'
