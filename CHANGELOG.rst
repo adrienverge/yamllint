@@ -1,6 +1,19 @@
 Changelog
 =========
 
+1.28.0 (2022-09-12)
+-------------------
+
+- Better compress PNG image in documentation
+- Remove ``__future__`` imports specific to Python 2
+- Remove inheritance from ``object`` specific to Python 2
+- Simplify GitHub Actions example in documentation
+- Update ALE vim plugin link in documentation
+- Update license to latest version of GPLv3
+- Pre-compile disable/enable rules regexes
+- Rule ``quoted-strings``: add ``allow-quoted-quotes`` option
+- Add option ``ignore-from-file`` in config
+
 1.27.1 (2022-07-08)
 -------------------
 
