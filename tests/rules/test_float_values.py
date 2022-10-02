@@ -40,6 +40,8 @@ class FloatValuesTestCase(RuleTestCase):
                    '- 0.0\n'
                    '- .1\n'
                    '- \'.1\'\n'
+                   '- string.1\n'
+                   '- .1string\n'
                    '- !custom_tag .2\n'
                    '- &angle1 0.0\n'
                    '- *angle1\n'
@@ -47,7 +49,7 @@ class FloatValuesTestCase(RuleTestCase):
                    '- *angle2\n',
                    conf,
                    problem1=(3, 3),
-                   problem2=(8, 11))
+                   problem2=(10, 11))
 
     def test_scientific_notation(self):
         conf = (
@@ -61,6 +63,8 @@ class FloatValuesTestCase(RuleTestCase):
                    '- 10e-6\n'
                    '- 0.00001\n'
                    '- \'10e-6\'\n'
+                   '- string10e-6\n'
+                   '- 10e-6string\n'
                    '- !custom_tag 10e-6\n'
                    '- &angle1 0.000001\n'
                    '- *angle1\n'
@@ -71,8 +75,8 @@ class FloatValuesTestCase(RuleTestCase):
                    conf,
                    problem1=(2, 3),
                    problem2=(3, 3),
-                   problem3=(9, 11),
-                   problem4=(11, 11))
+                   problem3=(11, 11),
+                   problem4=(13, 11))
 
     def test_nan(self):
         conf = (
@@ -85,13 +89,15 @@ class FloatValuesTestCase(RuleTestCase):
                    '- .NaN\n'
                    '- .NAN\n'
                    '- \'.NaN\'\n'
+                   '- a.NaN\n'
+                   '- .NaNa\n'
                    '- !custom_tag .NaN\n'
                    '- &angle .nan\n'
                    '- *angle\n',
                    conf,
                    problem1=(2, 3),
                    problem2=(3, 3),
-                   problem3=(6, 10))
+                   problem3=(8, 10))
 
     def test_inf(self):
         conf = (
@@ -106,6 +112,8 @@ class FloatValuesTestCase(RuleTestCase):
                    '- -.inf\n'
                    '- -.INF\n'
                    '- \'.inf\'\n'
+                   '- ∞.infinity\n'
+                   '- .infinity∞\n'
                    '- !custom_tag .inf\n'
                    '- &angle .inf\n'
                    '- *angle\n'
@@ -116,5 +124,5 @@ class FloatValuesTestCase(RuleTestCase):
                    problem2=(3, 3),
                    problem3=(4, 3),
                    problem4=(5, 3),
-                   problem5=(8, 10),
-                   problem6=(10, 10))
+                   problem5=(10, 10),
+                   problem6=(12, 10))
