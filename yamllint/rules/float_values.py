@@ -107,13 +107,13 @@ DEFAULT = {
 }
 
 IS_NUMERAL_BEFORE_DECIMAL_PATTERN = (
-    re.compile('[-+]?(\\.[0-9]+)([eE][-+]?[0-9]+)?')
+    re.compile('[-+]?(\\.[0-9]+)([eE][-+]?[0-9]+)?$')
 )
 IS_SCIENTIFIC_NOTATION_PATTERN = re.compile(
-    '[-+]?(\\.[0-9]+|[0-9]+(\\.[0-9]*)?)([eE][-+]?[0-9]+)'
+    '[-+]?(\\.[0-9]+|[0-9]+(\\.[0-9]*)?)([eE][-+]?[0-9]+)$'
 )
-IS_INF_PATTERN = re.compile('[-+]?(\\.inf|\\.Inf|\\.INF)')
-IS_NAN_PATTERN = re.compile('\\.nan|\\.NaN|\\.NAN')
+IS_INF_PATTERN = re.compile('[-+]?(\\.inf|\\.Inf|\\.INF)$')
+IS_NAN_PATTERN = re.compile('(\\.nan|\\.NaN|\\.NAN)$')
 
 
 def check(conf, token, prev, next, nextnext, context):
