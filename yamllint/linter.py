@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+import io
 
 import yaml
 
@@ -227,7 +228,7 @@ def run(input, conf, filepath=None):
 
     if isinstance(input, (bytes, str)):
         return _run(input, conf, filepath)
-    elif hasattr(input, 'read'):  # Python 2's file or Python 3's io.IOBase
+    elif isinstance(input, io.IOBase):
         # We need to have everything in memory to parse correctly
         content = input.read()
         return _run(content, conf, filepath)
