@@ -35,7 +35,14 @@ ENABLE_RULE_PATTERN = re.compile(r'^# yamllint enable( rule:\S+)*\s*$')
 
 class LintProblem(object):
     """Represents a linting problem found by yamllint."""
-    def __init__(self, line, column, desc='<no description>', rule=None):
+    def __init__(
+        self,
+        line,
+        column,
+        desc='<no description>',
+        rule=None,
+        level=None
+    ):
         #: Line on which the problem was found (starting at 1)
         self.line = line
         #: Column on which the problem was found (starting at 1)
@@ -44,7 +51,7 @@ class LintProblem(object):
         self.desc = desc
         #: Identifier of the rule that detected the problem
         self.rule = rule
-        self.level = None
+        self.level = level
 
     @property
     def message(self):
@@ -63,6 +70,18 @@ class LintProblem(object):
 
     def __repr__(self):
         return '%d:%d: %s' % (self.line, self.column, self.message)
+
+    @property
+    def dict(self):
+        """Return self as a dictionary."""
+        return {
+            "line": self.line,
+            "column": self.column,
+            "desc": self.desc,
+            "rule": self.rule,
+            "level": self.level,
+            "message": f"[{self.level}] {self.message}"
+        }
 
 
 def get_cosmetic_problems(buffer, conf, filepath):

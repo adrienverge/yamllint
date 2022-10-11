@@ -47,7 +47,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Append GitHub Actions system path
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-      - run: pip install coveralls
+      - run: pip install coveralls ddt
       - run: pip install .
       - run: coverage run --source=yamllint -m unittest discover
       - name: Coveralls

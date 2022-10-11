@@ -5,3 +5,7 @@ __pycache__
 /yamllint.egg-info
 /build
 /.eggs
+.venv
+venv
+.coverage
+coverage.xml

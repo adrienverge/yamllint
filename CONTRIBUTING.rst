@@ -14,8 +14,12 @@ Pull Request Process
    .. code:: bash
 
     pip install --user .
-    python -m unittest discover  # all tests...
-    python -m unittest tests/rules/test_commas.py  # or just some tests (faster)
+    pip install coveralls ddt
+    # all tests...
+    python -m coverage run --source=yamllint -m unittest discover
+    coverage report
+    # or just some tests (faster)
+    python -m unittest tests/rules/test_commas.py
 
 3. If you add code that should be tested, add tests.
 
