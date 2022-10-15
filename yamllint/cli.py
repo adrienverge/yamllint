@@ -47,7 +47,7 @@ def supports_color():
             hasattr(sys.stdout, 'isatty') and sys.stdout.isatty())
 
 
-class Format(object):
+class Format:
     @staticmethod
     def parsable(problem, filename):
         return ('%(file)s:%(line)s:%(column)s: [%(level)s] %(message)s' %

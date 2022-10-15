@@ -93,7 +93,7 @@ TYPE = 'token'
 MAP, SEQ = range(2)
 
 
-class Parent(object):
+class Parent:
     def __init__(self, type):
         self.type = type
         self.keys = []
