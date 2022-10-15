@@ -34,7 +34,7 @@ DISABLE_RULE_PATTERN = re.compile(r'^# yamllint disable( rule:\S+)*\s*$')
 ENABLE_RULE_PATTERN = re.compile(r'^# yamllint enable( rule:\S+)*\s*$')
 
 
-class LintProblem(object):
+class LintProblem:
     """Represents a linting problem found by yamllint."""
     def __init__(self, line, column, desc='<no description>', rule=None):
         #: Line on which the problem was found (starting at 1)
