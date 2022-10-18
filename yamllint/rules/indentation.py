@@ -341,9 +341,14 @@ def _check(conf, token, prev, next, nextnext, context):
             expected = detect_indent(expected, token)
 
         if found_indentation != expected:
-            yield LintProblem(token.start_mark.line + 1, found_indentation + 1,
-                              'wrong indentation: expected %d but found %d' %
-                              (expected, found_indentation))
+            if expected < 0:
+                message = 'wrong indentation: expected at least %d' % \
+                          (found_indentation + 1)
+            else:
+                message = 'wrong indentation: expected %d but found %d' % \
+                          (expected, found_indentation)
+            yield LintProblem(token.start_mark.line + 1,
+                              found_indentation + 1, message)
 
     if (isinstance(token, yaml.ScalarToken) and
             conf['check-multi-line-strings']):
@@ -493,8 +498,8 @@ def _check(conf, token, prev, next, nextnext, context):
                         # indentation it should have (because `spaces` is
                         # `consistent` and its value has not been computed yet
                         # -- this is probably the beginning of the document).
-                        # So we choose an arbitrary value (2).
-                        indent = 2
+                        # So we choose an unknown value (-1).
+                        indent = -1
                     else:
                         indent = detect_indent(context['stack'][-1].indent,
                                                next)
