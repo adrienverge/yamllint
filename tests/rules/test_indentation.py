@@ -1391,7 +1391,7 @@ class IndentationTestCase(RuleTestCase):
                    '  - elem\n'
                    '- item:\n'
                    '    - elem\n'
-                   '...\n', conf, problem=(5,5))
+                   '...\n', conf, problem=(5, 5))
         conf = ('indentation: {spaces: consistent,\n'
                 '              indent-sequences: consistent}')
         self.check('---\n'
@@ -1399,7 +1399,7 @@ class IndentationTestCase(RuleTestCase):
                    '  - elem\n'
                    '- item:\n'
                    '    - elem\n'
-                   '...\n', conf, problem=(5,5))
+                   '...\n', conf, problem=(5, 5))
         conf = ('indentation: {spaces: consistent,\n'
                 '              indent-sequences: whatever}')
         self.check('---\n'
