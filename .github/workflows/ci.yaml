@@ -20,9 +20,11 @@ jobs:
         uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
       - run:
-          python -m pip install flake8 flake8-import-order doc8 sphinx
-            rstcheck[sphinx]
+          python -m pip install --upgrade flake8 flake8-import-order
+            doc8 sphinx rstcheck[sphinx]
       - run: python -m pip install .
       - run: flake8 .
       - run: doc8 $(git ls-files '*.rst')

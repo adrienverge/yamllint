@@ -117,7 +117,7 @@ post-template processing).
 Example of a Jinja2 code that cannot be parsed as YAML because it contains
 invalid tokens ``{%`` and ``%}``:
 
-.. code-block:: yaml
+.. code-block:: text
 
  # This file IS NOT valid YAML and will procuce syntax errors
  {% if extra_info %}
