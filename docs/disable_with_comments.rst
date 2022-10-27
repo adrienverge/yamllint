@@ -119,7 +119,7 @@ invalid tokens ``{%`` and ``%}``:
 
 .. code-block::
 
- # This file IS NOT valid YAML and will procuce syntax errors
+ # This file IS NOT valid YAML and will produce syntax errors
  {% if extra_info %}
  key1: value1
  {% endif %}
