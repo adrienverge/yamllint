@@ -352,8 +352,7 @@ def _check(conf, token, prev, next, nextnext, context):
 
     if (isinstance(token, yaml.ScalarToken) and
             conf['check-multi-line-strings']):
-        for problem in check_scalar_indentation(conf, token, context):
-            yield problem
+        yield from check_scalar_indentation(conf, token, context)
 
     # Step 2.a:
 
@@ -581,8 +580,7 @@ def _check(conf, token, prev, next, nextnext, context):
 
 def check(conf, token, prev, next, nextnext, context):
     try:
-        for problem in _check(conf, token, prev, next, nextnext, context):
-            yield problem
+        yield from _check(conf, token, prev, next, nextnext, context)
     except AssertionError:
         yield LintProblem(token.start_mark.line + 1,
                           token.start_mark.column + 1,

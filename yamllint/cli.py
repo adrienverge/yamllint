@@ -14,7 +14,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import io
 import locale
 import os
 import platform
@@ -213,9 +212,9 @@ def run(argv=None):
     for file in find_files_recursively(args.files, conf):
         filepath = file[2:] if file.startswith('./') else file
         try:
-            with io.open(file, newline='') as f:
+            with open(file, newline='') as f:
                 problems = linter.run(f, conf, filepath)
-        except EnvironmentError as e:
+        except OSError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
         prob_level = show_problems(problems, file, args_format=args.format,
@@ -226,7 +225,7 @@ def run(argv=None):
     if args.stdin:
         try:
             problems = linter.run(sys.stdin, conf, '')
-        except EnvironmentError as e:
+        except OSError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
         prob_level = show_problems(problems, 'stdin', args_format=args.format,
