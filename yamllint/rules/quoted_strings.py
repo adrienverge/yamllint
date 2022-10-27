@@ -166,7 +166,7 @@ def VALIDATE(conf):
         return 'cannot use both "required: false" and "extra-allowed"'
 
 
-DEFAULT_SCALAR_TAG = u'tag:yaml.org,2002:str'
+DEFAULT_SCALAR_TAG = 'tag:yaml.org,2002:str'
 
 # https://stackoverflow.com/a/36514274
 yaml.resolver.Resolver.add_implicit_resolver(
