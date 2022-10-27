@@ -31,10 +31,10 @@ class LinterTestCase(unittest.TestCase):
         linter.run(b'test: document', self.fake_config())
 
     def test_run_on_unicode(self):
-        linter.run(u'test: document', self.fake_config())
+        linter.run('test: document', self.fake_config())
 
     def test_run_on_stream(self):
-        linter.run(io.StringIO(u'hello'), self.fake_config())
+        linter.run(io.StringIO('hello'), self.fake_config())
 
     def test_run_on_int(self):
         self.assertRaises(TypeError, linter.run, 42, self.fake_config())
@@ -44,14 +44,14 @@ class LinterTestCase(unittest.TestCase):
                           ['h', 'e', 'l', 'l', 'o'], self.fake_config())
 
     def test_run_on_non_ascii_chars(self):
-        s = (u'- hétérogénéité\n'
-             u'# 19.99 €\n')
+        s = ('- hétérogénéité\n'
+             '# 19.99 €\n')
         linter.run(s, self.fake_config())
         linter.run(s.encode('utf-8'), self.fake_config())
         linter.run(s.encode('iso-8859-15'), self.fake_config())
 
-        s = (u'- お早う御座います。\n'
-             u'# الأَبْجَدِيَّة العَرَبِيَّة\n')
+        s = ('- お早う御座います。\n'
+             '# الأَبْجَدِيَّة العَرَبِيَّة\n')
         linter.run(s, self.fake_config())
         linter.run(s.encode('utf-8'), self.fake_config())
 

@@ -24,7 +24,7 @@ APP_NAME = 'yamllint'
 APP_VERSION = '1.28.0'
 APP_DESCRIPTION = __doc__
 
-__author__ = u'Adrien Vergé'
-__copyright__ = u'Copyright 2022, Adrien Vergé'
+__author__ = 'Adrien Vergé'
+__copyright__ = 'Copyright 2022, Adrien Vergé'
 __license__ = 'GPLv3'
 __version__ = APP_VERSION
