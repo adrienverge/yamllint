@@ -1373,7 +1373,7 @@ class IndentationTestCase(RuleTestCase):
     def test_nested_collections_with_spaces_consistent(self):
         """Tests behavior of {spaces: consistent} in nested collections to
         ensure wrong-indentation is properly caught--especially when the
-        expected indent value is initially unkown. For details, see
+        expected indent value is initially unknown. For details, see
         https://github.com/adrienverge/yamllint/issues/485.
         """
         conf = ('indentation: {spaces: consistent,\n'
