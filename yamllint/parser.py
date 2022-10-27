@@ -132,8 +132,7 @@ def token_or_comment_generator(buffer):
 
             yield Token(curr.start_mark.line + 1, curr, prev, next, nextnext)
 
-            for comment in comments_between_tokens(curr, next):
-                yield comment
+            yield from comments_between_tokens(curr, next)
 
             prev = curr
             curr = next
