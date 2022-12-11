@@ -122,7 +122,7 @@ def get_cosmetic_problems(buffer, conf, filepath):
                         if id in self.all_rules:
                             self.rules.add(id)
 
-    # Use a cache to store problems and flush it only when a end of line is
+    # Use a cache to store problems and flush it only when an end of line is
     # found. This allows the use of yamllint directive to disable some rules on
     # some lines.
     cache = []
