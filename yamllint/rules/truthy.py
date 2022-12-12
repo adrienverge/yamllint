@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Use this rule to forbid non-explictly typed truthy values other than allowed
+Use this rule to forbid non-explicitly typed truthy values other than allowed
 ones (by default: ``true`` and ``false``), for example ``YES`` or ``off``.
 
 This can be useful to prevent surprises from YAML parsers transforming

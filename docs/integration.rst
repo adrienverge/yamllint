@@ -26,7 +26,7 @@ Actions <https://github.com/features/actions>`_ and automatically uses the
 suited output format to decorate code with linting errors. You can also force
 the GitHub Actions output with ``yamllint --format github``.
 
-An minimal example workflow using GitHub Actions:
+A minimal example workflow using GitHub Actions:
 
 .. code:: yaml
 
