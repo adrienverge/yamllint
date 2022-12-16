@@ -157,6 +157,8 @@ def run(argv=None):
     config_group.add_argument('-d', '--config-data', dest='config_data',
                               action='store',
                               help='custom configuration (as YAML source)')
+    parser.add_argument('--list-files', action='store_true', dest='list_files',
+                        help='list files to lint and exit')
     parser.add_argument('-f', '--format',
                         choices=('parsable', 'standard', 'colored', 'github',
                                  'auto'),
@@ -206,6 +208,12 @@ def run(argv=None):
 
     if conf.locale is not None:
         locale.setlocale(locale.LC_ALL, conf.locale)
+
+    if args.list_files:
+        for file in find_files_recursively(args.files, conf):
+            if not conf.is_file_ignored(file):
+                print(file)
+        sys.exit(0)
 
     max_level = 0
 
