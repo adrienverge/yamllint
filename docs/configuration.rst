@@ -140,7 +140,8 @@ Ignoring paths
 --------------
 
 It is possible to exclude specific files or directories, so that the linter
-doesn't process them.
+doesn't process them. They can be provided either as a list of paths, or as a
+bulk string.
 
 You can either totally ignore files (they won't be looked at):
 
@@ -153,6 +154,13 @@ You can either totally ignore files (they won't be looked at):
    all/this/directory/
    *.template.yaml
 
+ # or:
+
+ ignore:
+   - /this/specific/file.yaml
+   - all/this/directory/
+   - '*.template.yaml'
+
 or ignore paths only for specific rules:
 
 .. code-block:: yaml
@@ -164,6 +172,14 @@ or ignore paths only for specific rules:
      ignore: |
        /this-file-has-trailing-spaces-but-it-is-OK.yaml
        /generated/*.yaml
+
+ # or:
+
+ rules:
+   trailing-spaces:
+     ignore:
+       - /this-file-has-trailing-spaces-but-it-is-OK.yaml
+       - /generated/*.yaml
 
 Note that this ``.gitignore``-style path pattern allows complex path
 exclusion/inclusion, see the `pathspec README file

@@ -112,11 +112,16 @@ class YamlLintConfig:
             with fileinput.input(conf['ignore-from-file']) as f:
                 self.ignore = pathspec.PathSpec.from_lines('gitwildmatch', f)
         elif 'ignore' in conf:
-            if not isinstance(conf['ignore'], str):
+            if isinstance(conf['ignore'], str):
+                self.ignore = pathspec.PathSpec.from_lines(
+                    'gitwildmatch', conf['ignore'].splitlines())
+            elif (isinstance(conf['ignore'], list) and
+                    all(isinstance(line, str) for line in conf['ignore'])):
+                self.ignore = pathspec.PathSpec.from_lines(
+                    'gitwildmatch', conf['ignore'])
+            else:
                 raise YamlLintConfigError(
                     'invalid config: ignore should contain file patterns')
-            self.ignore = pathspec.PathSpec.from_lines(
-                'gitwildmatch', conf['ignore'].splitlines())
 
         if 'yaml-files' in conf:
             if not (isinstance(conf['yaml-files'], list)
@@ -150,11 +155,16 @@ def validate_rule_conf(rule, conf):
     if isinstance(conf, dict):
         if ('ignore' in conf and
                 not isinstance(conf['ignore'], pathspec.pathspec.PathSpec)):
-            if not isinstance(conf['ignore'], str):
+            if isinstance(conf['ignore'], str):
+                conf['ignore'] = pathspec.PathSpec.from_lines(
+                    'gitwildmatch', conf['ignore'].splitlines())
+            elif (isinstance(conf['ignore'], list) and
+                    all(isinstance(line, str) for line in conf['ignore'])):
+                conf['ignore'] = pathspec.PathSpec.from_lines(
+                    'gitwildmatch', conf['ignore'])
+            else:
                 raise YamlLintConfigError(
                     'invalid config: ignore should contain file patterns')
-            conf['ignore'] = pathspec.PathSpec.from_lines(
-                'gitwildmatch', conf['ignore'].splitlines())
 
         if 'level' not in conf:
             conf['level'] = 'error'
