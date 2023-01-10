@@ -1,6 +1,19 @@
 Changelog
 =========
 
+1.29.0 (2023-01-10)
+-------------------
+
+- Add support for Python 3.11, drop support for Python 3.6
+- Rule ``float-values``: fix bug on strings containing fordidden values
+- Stop releasing universal wheels
+- Use proper Python 3 I/O type for file reading
+- Rule ``indentation``: fix ``indent-sequences`` in nested collections
+- Docs: clarify ``disable-line`` and parser errors, give a workaround
+- Refactors to apply some pyupgrade suggestions
+- Allow using a list of strings in ``ignore`` configuration
+- Add ``--list-files`` command line option
+
 1.28.0 (2022-09-12)
 -------------------
 
