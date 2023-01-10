@@ -136,6 +136,13 @@ directories, set ``yaml-files`` configuration option. The default is:
 The same rules as for ignoring paths apply (``.gitignore``-style path pattern,
 see below).
 
+If you need to know the exact list of files that yamllint would process,
+without really linting them, you can use ``--list-files``:
+
+.. code:: bash
+
+ yamllint --list-files .
+
 Ignoring paths
 --------------
 
@@ -219,6 +226,13 @@ or:
  ignore-from-file: [.gitignore, .yamlignore]
 
 .. note:: However, this is mutually exclusive with the ``ignore`` key.
+
+If you need to know the exact list of files that yamllint would process,
+without really linting them, you can use ``--list-files``:
+
+.. code:: bash
+
+ yamllint --list-files .
 
 Setting the locale
 ------------------

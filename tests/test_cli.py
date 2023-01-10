@@ -678,6 +678,39 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
+    def test_run_list_files(self):
+        with RunContext(self) as ctx:
+            cli.run(('--list-files', self.wd))
+        self.assertEqual(ctx.returncode, 0)
+        self.assertEqual(
+            sorted(ctx.stdout.splitlines()),
+            [os.path.join(self.wd, 'a.yaml'),
+             os.path.join(self.wd, 'c.yaml'),
+             os.path.join(self.wd, 'dos.yml'),
+             os.path.join(self.wd, 'empty.yml'),
+             os.path.join(self.wd, 'en.yaml'),
+             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
+             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
+             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd, 'warn.yaml')]
+        )
+
+        config = '{ignore: "*.yml", yaml-files: ["*.*"]}'
+        with RunContext(self) as ctx:
+            cli.run(('--list-files', '-d', config, self.wd))
+        self.assertEqual(ctx.returncode, 0)
+        self.assertEqual(
+            sorted(ctx.stdout.splitlines()),
+            [os.path.join(self.wd, 'a.yaml'),
+             os.path.join(self.wd, 'c.yaml'),
+             os.path.join(self.wd, 'en.yaml'),
+             os.path.join(self.wd, 'no-yaml.json'),
+             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
+             os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
+             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd, 'warn.yaml')]
+        )
+
 
 class CommandLineConfigTestCase(unittest.TestCase):
     def test_config_file(self):
