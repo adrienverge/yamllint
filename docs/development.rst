@@ -11,7 +11,7 @@ Basic example of running the linter from Python:
    import yamllint
 
    yaml_config = yamllint.config.YamlLintConfig("extends: default")
-   for p in yamllint.linter.run("example.yaml", yaml_config):
+   for p in yamllint.linter.run(open("example.yaml", "r"), yaml_config):
        print(p.desc, p.line, p.rule)
 
 .. automodule:: yamllint.linter
