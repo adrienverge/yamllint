@@ -95,6 +95,11 @@ line-length
 
 .. automodule:: yamllint.rules.line_length
 
+list-ordering
+--------------
+
+.. automodule:: yamllint.rules.list_ordering
+
 new-line-at-end-of-file
 -----------------------
 
