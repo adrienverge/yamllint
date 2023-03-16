@@ -44,6 +44,11 @@ class SimpleConfigTestCase(unittest.TestCase):
         with self.assertRaises(config.YamlLintConfigError):
             config.YamlLintConfig('not: valid: yaml')
 
+    def test_is_file_ignored_allows_none(self):
+        c = config.YamlLintConfig('ignore: foobar\n')
+        self.assertTrue(c.is_file_ignored('foobar'))
+        self.assertFalse(c.is_file_ignored(None))
+
     def test_unknown_rule(self):
         with self.assertRaisesRegex(
                 config.YamlLintConfigError,
