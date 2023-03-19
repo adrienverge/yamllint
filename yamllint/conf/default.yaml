@@ -6,6 +6,7 @@ yaml-files:
   - '.yamllint'
 
 rules:
+  anchors: enable
   braces: enable
   brackets: enable
   colons: enable
