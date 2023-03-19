@@ -14,6 +14,11 @@ This page describes the rules and their options.
    :local:
    :depth: 1
 
+anchors
+-------
+
+.. automodule:: yamllint.rules.anchors
+
 braces
 ------
 
