@@ -13,7 +13,7 @@ Assuming that the `ALE <https://github.com/dense-analysis/ale>`_ plugin is
 installed, yamllint is supported by default. It is automatically enabled when
 editing YAML files.
 
-If you instead use the `syntastic <https://github.com/scrooloose/syntastic>`_
+If you instead use the `syntastic <https://github.com/vim-syntastic/syntastic>`_
 plugin, add this to your ``.vimrc``:
 
 ::
@@ -23,7 +23,7 @@ plugin, add this to your ``.vimrc``:
 Neovim
 ------
 
-Assuming that the `neomake <https://github.com/benekastah/neomake>`_ plugin is
+Assuming that the `neomake <https://github.com/neomake/neomake>`_ plugin is
 installed, yamllint is supported by default. It is automatically enabled when
 editing YAML files.
 

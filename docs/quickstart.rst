@@ -4,7 +4,7 @@ Quickstart
 Installing yamllint
 -------------------
 
-On Fedora / CentOS (note: `EPEL <https://fedoraproject.org/wiki/EPEL>`_ is
+On Fedora / CentOS (note: `EPEL <https://docs.fedoraproject.org/en-US/epel/>`_ is
 required on CentOS):
 
 .. code:: bash

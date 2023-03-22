@@ -190,8 +190,8 @@ or ignore paths only for specific rules:
 
 Note that this ``.gitignore``-style path pattern allows complex path
 exclusion/inclusion, see the `pathspec README file
-<https://pypi.python.org/pypi/pathspec>`_ for more details.
-Here is a more complex example:
+<https://pypi.org/project/pathspec/>`_ for more details. Here is a more complex
+example:
 
 .. code-block:: yaml
 
