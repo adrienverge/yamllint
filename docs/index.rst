@@ -11,7 +11,7 @@ Screenshot
 
 .. note::
 
-   The default output format is inspired by `eslint <http://eslint.org/>`_, a
+   The default output format is inspired by `eslint <https://eslint.org/>`_, a
    great linting tool for Javascript.
 
 Table of contents
