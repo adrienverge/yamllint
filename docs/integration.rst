@@ -14,7 +14,7 @@ Here is an example, to add in your .pre-commit-config.yaml
   # You can pass your custom .yamllint with args attribute.
   repos:
     - repo: https://github.com/adrienverge/yamllint.git
-      rev: v1.29.0
+      rev: v1.30.0
       hooks:
         - id: yamllint
           args: [--strict, -c=/path/to/.yamllint]
