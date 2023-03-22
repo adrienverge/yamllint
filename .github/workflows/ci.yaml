@@ -29,6 +29,8 @@ jobs:
       - run: rstcheck --ignore-directives automodule $(git ls-files '*.rst')
       - run: yamllint --strict $(git ls-files '*.yaml' '*.yml')
       - run: python setup.py build_sphinx
+      - name: Check for broken links in documentation
+        run: make -C docs linkcheck
 
   test:
     name: Tests
