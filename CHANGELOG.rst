@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.30.0 (2023-03-22)
+-------------------
+
+- Rule ``anchors``: add new rule to detect undeclared or duplicated anchors
+- Python API: prevent using ``is_file_ignored()`` with null ``filepath``
+- Docs: fix misleading Python API example
+- Docs: fix plain text code snippet example
+- Docs: update pre-commit hook example
+
 1.29.0 (2023-01-10)
 -------------------
 
