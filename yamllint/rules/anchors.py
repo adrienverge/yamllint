@@ -24,6 +24,8 @@ anchors.
   later in the document).
 * Set ``forbid-duplicated-anchors`` to ``true`` to avoid duplications of a same
   anchor.
+* Set ``forbid-unused-anchors`` to ``true`` to avoid anchors being declared but
+  not used anywhere in the YAML document via alias.
 
 .. rubric:: Default values (when enabled)
 
@@ -33,6 +35,7 @@ anchors.
    anchors:
      forbid-undeclared-aliases: true
      forbid-duplicated-anchors: false
+     forbid-unused-anchors: false
 
 .. rubric:: Examples
 
@@ -78,6 +81,26 @@ anchors.
     ---
     - &anchor Foo Bar
     - &anchor [item 1, item 2]
+
+#. With ``anchors: {forbid-unused-anchors: true}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    ---
+    - &anchor
+      foo: bar
+    - *anchor
+
+   the following code snippet would **FAIL**:
+   ::
+
+    ---
+    - &anchor
+      foo: bar
+    - items:
+      - item1
+      - item2
 """
 
 
@@ -89,15 +112,22 @@ from yamllint.linter import LintProblem
 ID = 'anchors'
 TYPE = 'token'
 CONF = {'forbid-undeclared-aliases': bool,
-        'forbid-duplicated-anchors': bool}
+        'forbid-duplicated-anchors': bool,
+        'forbid-unused-anchors': bool}
 DEFAULT = {'forbid-undeclared-aliases': True,
-           'forbid-duplicated-anchors': False}
+           'forbid-duplicated-anchors': False,
+           'forbid-unused-anchors': False}
 
 
 def check(conf, token, prev, next, nextnext, context):
-    if conf['forbid-undeclared-aliases'] or conf['forbid-duplicated-anchors']:
-        if isinstance(token, (yaml.StreamStartToken, yaml.DocumentStartToken)):
-            context['anchors'] = set()
+    if (conf['forbid-undeclared-aliases'] or
+            conf['forbid-duplicated-anchors'] or
+            conf['forbid-unused-anchors']):
+        if isinstance(token, (
+                yaml.StreamStartToken,
+                yaml.DocumentStartToken,
+                yaml.DocumentEndToken)):
+            context['anchors'] = {}
 
     if (conf['forbid-undeclared-aliases'] and
             isinstance(token, yaml.AliasToken) and
@@ -113,6 +143,32 @@ def check(conf, token, prev, next, nextnext, context):
             token.start_mark.line + 1, token.start_mark.column + 1,
             f'found duplicated anchor "{token.value}"')
 
-    if conf['forbid-undeclared-aliases'] or conf['forbid-duplicated-anchors']:
+    if conf['forbid-unused-anchors']:
+        # Unused anchors can only be detected at the end of Document.
+        # End of document can be either
+        #   - end of stream
+        #   - end of document sign '...'
+        #   - start of a new document sign '---'
+        # If next token indicates end of document,
+        # check if the anchors have been used or not.
+        # If they haven't been used, report problem on those anchors.
+        if isinstance(next, (yaml.StreamEndToken,
+                             yaml.DocumentStartToken,
+                             yaml.DocumentEndToken)):
+            for anchor, info in context['anchors'].items():
+                if not info['used']:
+                    yield LintProblem(info['line'] + 1,
+                                      info['column'] + 1,
+                                      f"found unused anchor {anchor}")
+        elif isinstance(token, yaml.AliasToken):
+            context['anchors'].get(token.value, {})['used'] = True
+
+    if (conf['forbid-undeclared-aliases'] or
+            conf['forbid-duplicated-anchors'] or
+            conf['forbid-unused-anchors']):
         if isinstance(token, yaml.AnchorToken):
-            context['anchors'].add(token.value)
+            context['anchors'][token.value] = {
+                "line": token.start_mark.line,
+                "column": token.start_mark.column,
+                "used": False
+            }

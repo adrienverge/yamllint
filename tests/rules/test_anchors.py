@@ -80,7 +80,8 @@ class AnchorsTestCase(RuleTestCase):
     def test_forbid_undeclared_aliases(self):
         conf = ('anchors:\n'
                 '  forbid-undeclared-aliases: true\n'
-                '  forbid-duplicated-anchors: false\n')
+                '  forbid-duplicated-anchors: false\n'
+                '  forbid-unused-anchors: false\n')
         self.check('---\n'
                    '- &b true\n'
                    '- &i 42\n'
@@ -122,6 +123,7 @@ class AnchorsTestCase(RuleTestCase):
                    '- *f_m\n'
                    '- *f_s\n'  # declared after
                    '- &f_s [1, 2]\n'
+                   '...\n'
                    '---\n'
                    'block mapping: &b_m\n'
                    '  key: value\n'
@@ -141,13 +143,14 @@ class AnchorsTestCase(RuleTestCase):
                    problem3=(11, 3),
                    problem4=(12, 3),
                    problem5=(13, 3),
-                   problem6=(24, 7),
-                   problem7=(27, 37))
+                   problem6=(25, 7),
+                   problem7=(28, 37))
 
     def test_forbid_duplicated_anchors(self):
         conf = ('anchors:\n'
                 '  forbid-undeclared-aliases: false\n'
-                '  forbid-duplicated-anchors: true\n')
+                '  forbid-duplicated-anchors: true\n'
+                '  forbid-unused-anchors: false\n')
         self.check('---\n'
                    '- &b true\n'
                    '- &i 42\n'
@@ -189,6 +192,7 @@ class AnchorsTestCase(RuleTestCase):
                    '- *f_m\n'
                    '- *f_s\n'  # declared after
                    '- &f_s [1, 2]\n'
+                   '...\n'
                    '---\n'
                    'block mapping: &b_m\n'
                    '  key: value\n'
@@ -205,5 +209,73 @@ class AnchorsTestCase(RuleTestCase):
                    '...\n', conf,
                    problem1=(5, 3),
                    problem2=(6, 3),
-                   problem3=(21, 18),
-                   problem4=(27, 20))
+                   problem3=(22, 18),
+                   problem4=(28, 20))
+
+    def test_forbid_unused_anchors(self):
+        conf = ('anchors:\n'
+                '  forbid-undeclared-aliases: false\n'
+                '  forbid-duplicated-anchors: false\n'
+                '  forbid-unused-anchors: true\n')
+
+        self.check('---\n'
+                   '- &b true\n'
+                   '- &i 42\n'
+                   '- &s hello\n'
+                   '- &f_m {k: v}\n'
+                   '- &f_s [1, 2]\n'
+                   '- *b\n'
+                   '- *i\n'
+                   '- *s\n'
+                   '- *f_m\n'
+                   '- *f_s\n'
+                   '---\n'  # redeclare anchors in a new document
+                   '- &b true\n'
+                   '- &i 42\n'
+                   '- &s hello\n'
+                   '- *b\n'
+                   '- *i\n'
+                   '- *s\n'
+                   '---\n'
+                   'block mapping: &b_m\n'
+                   '  key: value\n'
+                   'extended:\n'
+                   '  <<: *b_m\n'
+                   '  foo: bar\n'
+                   '---\n'
+                   '{a: 1, &x b: 2, c: &y 3, *x : 4, e: *y}\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   '- &i 42\n'
+                   '---\n'
+                   '- &b true\n'
+                   '- &b true\n'
+                   '- &b true\n'
+                   '- &s hello\n'
+                   '- *b\n'
+                   '- *i\n'    # declared in a previous document
+                   '- *f_m\n'  # never declared
+                   '- *f_m\n'
+                   '- *f_m\n'
+                   '- *f_s\n'  # declared after
+                   '- &f_s [1, 2]\n'
+                   '...\n'
+                   '---\n'
+                   'block mapping: &b_m\n'
+                   '  key: value\n'
+                   '---\n'
+                   'block mapping 1: &b_m_bis\n'
+                   '  key: value\n'
+                   'block mapping 2: &b_m_bis\n'
+                   '  key: value\n'
+                   'extended:\n'
+                   '  <<: *b_m\n'
+                   '  foo: bar\n'
+                   '---\n'
+                   '{a: 1, &x b: 2, c: &x 3, *x : 4, e: *y}\n'
+                   '...\n', conf,
+                   problem1=(2, 3),
+                   problem2=(7, 3),
+                   problem3=(14, 3),
+                   problem4=(17, 16),
+                   problem5=(22, 18))
