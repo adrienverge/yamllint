@@ -1,0 +1,49 @@
+[tool.poetry]
+name = "yamllint"
+version = "1.30.0"
+description = ""
+authors = ["Adrien Vergé"]
+license = "GPLv3"
+readme = "README.rst"
+homepage = "https://github.com/adrienverge/yamllint"
+repository = "https://github.com/adrienverge/yamllint"
+documentation = "https://yamllint.readthedocs.io"
+keywords = ["yaml", "lint", "linter", "syntax", "checker"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Debuggers",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+]
+include = ["docs/*", "tests/*.py", "tests/rules/*.py", "tests/yaml-1.2-spec-examples/*"]
+
+[tool.poetry.urls]
+Download = "https://pypi.org/project/yamllint/#files"
+
+[tool.poetry.dependencies]
+python = ">=3.7"
+pathspec = ">=0.5.3"
+pyyaml = ">=6.0"
+
+[tool.poetry.group.dev.dependencies]
+flake8 = {version = ">=6.0.0", python = ">=3.8.1"}
+
+[tool.poetry.scripts]
+yamllint = "yamllint.cli:run"
+
+[tool.coverage.run]
+relative_files = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
