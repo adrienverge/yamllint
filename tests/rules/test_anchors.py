@@ -46,7 +46,7 @@ class AnchorsTestCase(RuleTestCase):
                    '  <<: *b_m\n'
                    '  foo: bar\n'
                    '---\n'
-                   '{a: 1, &x b: 2, c: &y 3, *x: 4, e: *y}\n'
+                   '{a: 1, &x b: 2, c: &y 3, *x : 4, e: *y}\n'
                    '...\n', conf)
         self.check('---\n'
                    '- &i 42\n'
@@ -74,7 +74,7 @@ class AnchorsTestCase(RuleTestCase):
                    '  <<: *b_m\n'
                    '  foo: bar\n'
                    '---\n'
-                   '{a: 1, &x b: 2, c: &x 3, *x: 4, e: *y}\n'
+                   '{a: 1, &x b: 2, c: &x 3, *x : 4, e: *y}\n'
                    '...\n', conf)
 
     def test_forbid_undeclared_aliases(self):
@@ -106,7 +106,7 @@ class AnchorsTestCase(RuleTestCase):
                    '  <<: *b_m\n'
                    '  foo: bar\n'
                    '---\n'
-                   '{a: 1, &x b: 2, c: &y 3, *x: 4, e: *y}\n'
+                   '{a: 1, &x b: 2, c: &y 3, *x : 4, e: *y}\n'
                    '...\n', conf)
         self.check('---\n'
                    '- &i 42\n'
@@ -134,7 +134,7 @@ class AnchorsTestCase(RuleTestCase):
                    '  <<: *b_m\n'
                    '  foo: bar\n'
                    '---\n'
-                   '{a: 1, &x b: 2, c: &x 3, *x: 4, e: *y}\n'
+                   '{a: 1, &x b: 2, c: &x 3, *x : 4, e: *y}\n'
                    '...\n', conf,
                    problem1=(9, 3),
                    problem2=(10, 3),
@@ -142,7 +142,7 @@ class AnchorsTestCase(RuleTestCase):
                    problem4=(12, 3),
                    problem5=(13, 3),
                    problem6=(24, 7),
-                   problem7=(27, 36))
+                   problem7=(27, 37))
 
     def test_forbid_duplicated_anchors(self):
         conf = ('anchors:\n'
@@ -173,7 +173,7 @@ class AnchorsTestCase(RuleTestCase):
                    '  <<: *b_m\n'
                    '  foo: bar\n'
                    '---\n'
-                   '{a: 1, &x b: 2, c: &y 3, *x: 4, e: *y}\n'
+                   '{a: 1, &x b: 2, c: &y 3, *x : 4, e: *y}\n'
                    '...\n', conf)
         self.check('---\n'
                    '- &i 42\n'
@@ -201,7 +201,7 @@ class AnchorsTestCase(RuleTestCase):
                    '  <<: *b_m\n'
                    '  foo: bar\n'
                    '---\n'
-                   '{a: 1, &x b: 2, c: &x 3, *x: 4, e: *y}\n'
+                   '{a: 1, &x b: 2, c: &x 3, *x : 4, e: *y}\n'
                    '...\n', conf,
                    problem1=(5, 3),
                    problem2=(6, 3),
