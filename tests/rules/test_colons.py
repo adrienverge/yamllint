@@ -256,3 +256,19 @@ class ColonTestCase(RuleTestCase):
                    '  property: {a: 1, b:  2, c : 3}\n', conf,
                    problem1=(3, 11), problem2=(4, 4),
                    problem3=(8, 23), problem4=(8, 28))
+
+    # Although accepted by PyYAML, `{*x: 4}` is not valid YAML: it should be
+    # noted `{*x : 4}`. The reason is that a colon can be part of an anchor
+    # name. See commit message for more details.
+    def test_with_alias_as_key(self):
+        conf = 'colons: {max-spaces-before: 0, max-spaces-after: 1}'
+        self.check('---\n'
+                   '- anchor: &a key\n'
+                   '- *a: 42\n'
+                   '- {*a: 42}\n'
+                   '- *a : 42\n'
+                   '- {*a : 42}\n'
+                   '- *a  : 42\n'
+                   '- {*a  : 42}\n',
+                   conf,
+                   problem1=(7, 6), problem2=(8, 7))
