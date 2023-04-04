@@ -92,7 +92,9 @@ DEFAULT = {'max-spaces-before': 0,
 
 
 def check(conf, token, prev, next, nextnext, context):
-    if isinstance(token, yaml.ValueToken):
+    if isinstance(token, yaml.ValueToken) and not (
+            isinstance(prev, yaml.AliasToken) and
+            token.start_mark.pointer - prev.end_mark.pointer == 1):
         problem = spaces_before(token, prev, next,
                                 max=conf['max-spaces-before'],
                                 max_desc='too many spaces before colon')
