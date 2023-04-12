@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 sys.path.insert(0, os.path.abspath('..'))
 
-from yamllint import __copyright__, APP_NAME, APP_VERSION  # noqa
+from yamllint import __copyright__, APP_NAME, __version__  # noqa
 
 # -- General configuration ------------------------------------------------
 
@@ -22,8 +22,8 @@ master_doc = 'index'
 project = APP_NAME
 copyright = __copyright__.lstrip('Copyright ')
 
-version = APP_VERSION
-release = APP_VERSION
+version = __version__
+release = __version__
 
 pygments_style = 'sphinx'
 
