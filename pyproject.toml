@@ -34,6 +34,7 @@ Download = "https://pypi.org/project/yamllint/#files"
 python = ">=3.7"
 pathspec = ">=0.5.3"
 pyyaml = ">=6.0"
+importlib-metadata = { version = ">=4.10.0", python = "<3.8" }
 
 [tool.poetry.group.dev.dependencies]
 flake8 = {version = ">=6.0.0", python = ">=3.8.1"}

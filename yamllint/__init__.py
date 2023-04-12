@@ -19,12 +19,12 @@ yamllint does not only check for syntax validity, but for weirdnesses like key
 repetition and cosmetic problems such as lines length, trailing spaces,
 indentation, etc."""
 
+from importlib import metadata
 
 APP_NAME = 'yamllint'
-APP_VERSION = '1.30.0'
 APP_DESCRIPTION = __doc__
 
 __author__ = 'Adrien Vergé'
 __copyright__ = 'Copyright 2022, Adrien Vergé'
 __license__ = 'GPLv3'
-__version__ = APP_VERSION
+__version__ = metadata.version('yamllint')
