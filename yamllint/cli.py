@@ -19,7 +19,7 @@ import os
 import platform
 import sys
 
-from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
+from yamllint import APP_DESCRIPTION, APP_NAME, __version__
 from yamllint import linter
 from yamllint.config import YamlLintConfig, YamlLintConfigError
 from yamllint.linter import PROBLEM_LEVELS
@@ -171,7 +171,7 @@ def run(argv=None):
                         action='store_true',
                         help='output only error level problems')
     parser.add_argument('-v', '--version', action='version',
-                        version='{} {}'.format(APP_NAME, APP_VERSION))
+                        version='{} {}'.format(APP_NAME, __version__))
 
     args = parser.parse_args(argv)
 

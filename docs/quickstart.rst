@@ -45,7 +45,7 @@ If you prefer installing from source, you can run, from the source directory:
 
 .. code:: bash
 
- python setup.py sdist
+ poetry build
  pip install --user dist/yamllint-*.tar.gz
 
 Running yamllint

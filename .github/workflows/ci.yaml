@@ -53,8 +53,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Append GitHub Actions system path
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-      - run: pip install coveralls
+      - run: pip install coverage[toml]
       - run: pip install .
       - run: coverage run --source=yamllint -m unittest discover
+      # https://github.com/AndreMiras/coveralls-python-action/issues/18
+      - run: echo -e "[run]\nrelative_files = True" > .coveragerc
       - name: Coveralls
         uses: AndreMiras/coveralls-python-action@develop
