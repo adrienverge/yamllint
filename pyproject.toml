@@ -1,0 +1,54 @@
+[project]
+name = "yamllint"
+description = "A linter for YAML files."
+readme = {file = "README.rst", content-type = "text/x-rst"}
+requires-python = ">=3.7"
+license = {text = "GPL-3.0-only"}
+authors = [{name = "Adrien Vergé"}]
+keywords = ["yaml", "lint", "linter", "syntax", "checker"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Debuggers",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+]
+dependencies = [
+    "pathspec >= 0.5.3",
+    "pyyaml",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+    "doc8",
+    "flake8",
+    "flake8-import-order",
+    "rstcheck[sphinx]",
+    "sphinx",
+]
+
+[project.scripts]
+yamllint = "yamllint.cli:run"
+
+[project.urls]
+homepage = "https://github.com/adrienverge/yamllint"
+repository = "https://github.com/adrienverge/yamllint"
+documentation = "https://yamllint.readthedocs.io"
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools >= 61"]
+
+[tool.setuptools]
+packages = ["yamllint", "yamllint.conf", "yamllint.rules"]
+
+[tool.setuptools.package-data]
+yamllint = ["conf/*.yaml"]
+
+[tool.setuptools.dynamic]
+version = {attr = "yamllint.__version__"}
