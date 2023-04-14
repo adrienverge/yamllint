@@ -20,6 +20,10 @@ Use this rule to require or forbid the use of document end marker (``...``).
 
 * Set ``present`` to ``true`` when the document end marker is required, or to
   ``false`` when it is forbidden.
+* ``min-empty-lines-before`` defines the minimal number of empty lines before
+  the document end marker.
+* ``max-empty-lines-before`` defines the maximal number of empty lines before
+  the document end marker.
 
 .. rubric:: Default values (when enabled)
 
@@ -88,8 +92,12 @@ from yamllint.linter import LintProblem
 
 ID = 'document-end'
 TYPE = 'token'
-CONF = {'present': bool}
-DEFAULT = {'present': True}
+CONF = {'present': bool,
+        'max-empty-lines-before': int,
+        'min-empty-lines-before': int}
+DEFAULT = {'present': True,
+           'max-empty-lines-before': -1,
+           'min-empty-lines-before': 0}
 
 
 def check(conf, token, prev, next, nextnext, context):
@@ -106,6 +114,21 @@ def check(conf, token, prev, next, nextnext, context):
         elif is_start and not prev_is_end_or_stream_start:
             yield LintProblem(token.start_mark.line + 1, 1,
                               'missing document end "..."')
+
+        if isinstance(next, yaml.DocumentEndToken):
+            empty_lines = next.start_mark.line - prev.start_mark.line - 1
+
+            if (conf['max-empty-lines-before'] >= 0 and
+                    empty_lines > conf['max-empty-lines-before']):
+                yield LintProblem(token.start_mark.line,
+                                  token.start_mark.column,
+                                  'too many empty lines before document end')
+
+            if (conf['min-empty-lines-before'] > 0 and
+                    empty_lines < conf['min-empty-lines-before']):
+                yield LintProblem(token.start_mark.line,
+                                  token.start_mark.column,
+                                  'too few empty lines before document end')
 
     else:
         if isinstance(token, yaml.DocumentEndToken):

@@ -71,3 +71,15 @@ class DocumentEndTestCase(RuleTestCase):
                    '---\n'
                    'third: document\n'
                    '...\n', conf, problem=(6, 1))
+
+    def test_empty_lines(self):
+        conf = ('document-end:\n'
+                '  present: true\n'
+                '  max-empty-lines-before: 0\n')
+        self.check('---\n'
+                   'doc: ument\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   'doc: ument\n'
+                   '\n'
+                   '...\n', conf, problem=(3, 0))

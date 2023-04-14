@@ -101,3 +101,49 @@ class DocumentStartTestCase(RuleTestCase):
                    '---\n'
                    'doc: 2\n'
                    '...\n', conf)
+
+    def test_empty_lines(self):
+        conf = ('document-start:\n'
+                '  present: true\n'
+                '  max-empty-lines-after: 0\n')
+        self.check('---\n'
+                   'doc: ument\n', conf)
+        self.check('---\n'
+                   '\n'
+                   'doc: ument\n', conf, problem=(3, 1))
+
+        conf = ('document-start:\n'
+                '  present: true\n'
+                '  max-empty-lines-after: 1\n')
+        self.check('---\n'
+                   'doc: ument\n', conf)
+        self.check('---\n'
+                   '\n'
+                   'doc: ument\n', conf)
+        self.check('---\n'
+                   '\n'
+                   '\n'
+                   'doc: ument\n', conf, problem=(4, 1))
+
+        conf = ('document-start:\n'
+                '  present: true\n'
+                '  min-empty-lines-after: 1\n')
+        self.check('---\n'
+                   '\n'
+                   'doc: ument\n', conf)
+        self.check('---\n'
+                   'doc: ument\n', conf, problem=(2, 1))
+
+        conf = ('document-start:\n'
+                '  present: true\n'
+                '  max-empty-lines-after: 1\n'
+                '  min-empty-lines-after: 1\n')
+        self.check('---\n'
+                   'doc: ument\n', conf, problem=(2, 1))
+        self.check('---\n'
+                   '\n'
+                   'doc: ument\n', conf)
+        self.check('---\n'
+                   '\n'
+                   '\n'
+                   'doc: ument\n', conf, problem=(4, 1))
