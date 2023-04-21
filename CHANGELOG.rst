@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.31.0 (2023-04-21)
+-------------------
+
+- Build: migrate from ``setup.py`` to ``pyproject.toml``
+- Docs: update some outdated URLs
+- Rule ``colons``: prevent error when space before is mandatory
+
 1.30.0 (2023-03-22)
 -------------------
 
