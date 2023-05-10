@@ -168,7 +168,7 @@ def check(conf, token, prev, next, nextnext, context):
             conf['forbid-unused-anchors']):
         if isinstance(token, yaml.AnchorToken):
             context['anchors'][token.value] = {
-                "line": token.start_mark.line,
-                "column": token.start_mark.column,
-                "used": False
+                'line': token.start_mark.line,
+                'column': token.start_mark.column,
+                'used': False
             }
