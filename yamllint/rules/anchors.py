@@ -159,7 +159,7 @@ def check(conf, token, prev, next, nextnext, context):
                 if not info['used']:
                     yield LintProblem(info['line'] + 1,
                                       info['column'] + 1,
-                                      f"found unused anchor {anchor}")
+                                      f'found unused anchor "{anchor}"')
         elif isinstance(token, yaml.AliasToken):
             context['anchors'].get(token.value, {})['used'] = True
 
