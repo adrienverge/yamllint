@@ -734,3 +734,64 @@ class CommandLineConfigTestCase(unittest.TestCase):
 
                 self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
                                  (0, '', ''))
+
+    def test_parent_config_file(self):
+        workspace = {'a/b/c/d/e/f/g/a.yml': 'hello: world\n'}
+        conf = ('---\n'
+                'extends: relaxed\n')
+
+        for conf_file in ('.yamllint', '.yamllint.yml', '.yamllint.yaml'):
+            with self.subTest(conf_file):
+                with temp_workspace(workspace):
+                    with RunContext(self) as ctx:
+                        os.chdir('a/b/c/d/e/f')
+                        cli.run(('-f', 'parsable', '.'))
+
+                self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
+                                 (0, './g/a.yml:1:1: [warning] missing '
+                                     'document start "---" (document-start)\n',
+                                     ''))
+
+                with temp_workspace({**workspace, **{conf_file: conf}}):
+                    with RunContext(self) as ctx:
+                        os.chdir('a/b/c/d/e/f')
+                        cli.run(('-f', 'parsable', '.'))
+
+                self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
+                                 (0, '', ''))
+
+    def test_multiple_parent_config_file(self):
+        workspace = {'a/b/c/3spaces.yml': 'array:\n'
+                                          '   - item\n',
+                     'a/b/c/4spaces.yml': 'array:\n'
+                                          '    - item\n',
+                     'a/.yamllint': '---\n'
+                                    'extends: relaxed\n'
+                                    'rules:\n'
+                                    '  indentation:\n'
+                                    '    spaces: 4\n',
+                     }
+
+        conf3 = ('---\n'
+                 'extends: relaxed\n'
+                 'rules:\n'
+                 '  indentation:\n'
+                 '    spaces: 3\n')
+
+        with temp_workspace(workspace):
+            with RunContext(self) as ctx:
+                os.chdir('a/b/c')
+                cli.run(('-f', 'parsable', '.'))
+
+        self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
+                         (0, './3spaces.yml:2:4: [warning] wrong indentation: '
+                         'expected 4 but found 3 (indentation)\n', ''))
+
+        with temp_workspace({**workspace, **{'a/b/.yamllint.yml': conf3}}):
+            with RunContext(self) as ctx:
+                os.chdir('a/b/c')
+                cli.run(('-f', 'parsable', '.'))
+
+        self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
+                         (0, './4spaces.yml:2:5: [warning] wrong indentation: '
+                         'expected 3 but found 4 (indentation)\n', ''))
