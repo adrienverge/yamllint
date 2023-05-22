@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.32.0 (2023-05-22)
+-------------------
+
+- Look for configuration file in parent directories
+- Rule ``anchors``: add new option ``forbid-unused-anchors``
+
 1.31.0 (2023-04-21)
 -------------------
 
