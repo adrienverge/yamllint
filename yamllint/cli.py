@@ -141,6 +141,19 @@ def show_problems(problems, file, args_format, no_warn):
     return max_level
 
 
+def find_project_config_filepath(path='.'):
+    for filename in ('.yamllint', '.yamllint.yaml', '.yamllint.yml'):
+        filepath = os.path.join(path, filename)
+        if os.path.isfile(filepath):
+            return filepath
+
+    if os.path.abspath(path) == os.path.abspath(os.path.expanduser('~')):
+        return None
+    if os.path.abspath(path) == os.path.abspath(os.path.join(path, '..')):
+        return None
+    return find_project_config_filepath(path=os.path.join(path, '..'))
+
+
 def run(argv=None):
     parser = argparse.ArgumentParser(prog=APP_NAME,
                                      description=APP_DESCRIPTION)
@@ -185,6 +198,7 @@ def run(argv=None):
     else:
         user_global_config = os.path.expanduser('~/.config/yamllint/config')
 
+    project_config_filepath = find_project_config_filepath()
     try:
         if args.config_data is not None:
             if args.config_data != '' and ':' not in args.config_data:
@@ -192,12 +206,8 @@ def run(argv=None):
             conf = YamlLintConfig(content=args.config_data)
         elif args.config_file is not None:
             conf = YamlLintConfig(file=args.config_file)
-        elif os.path.isfile('.yamllint'):
-            conf = YamlLintConfig(file='.yamllint')
-        elif os.path.isfile('.yamllint.yaml'):
-            conf = YamlLintConfig(file='.yamllint.yaml')
-        elif os.path.isfile('.yamllint.yml'):
-            conf = YamlLintConfig(file='.yamllint.yml')
+        elif project_config_filepath:
+            conf = YamlLintConfig(file=project_config_filepath)
         elif os.path.isfile(user_global_config):
             conf = YamlLintConfig(file=user_global_config)
         else:

@@ -15,7 +15,8 @@ If ``-c`` is not provided, yamllint will look for a configuration file in the
 following locations (by order of preference):
 
 - a file named ``.yamllint``, ``.yamllint.yaml``, or ``.yamllint.yml`` in the
-  current working directory
+  current working directory, or a parent directory (the search for this file is
+  terminated at the user's home or filesystem root)
 - a filename referenced by ``$YAMLLINT_CONFIG_FILE``, if set
 - a file named ``$XDG_CONFIG_HOME/yamllint/config`` or
   ``~/.config/yamllint/config``, if present
