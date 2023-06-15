@@ -99,9 +99,8 @@ class Format:
         return line
 
 
-def show_problems(problems, file, args_format, no_warn):
+def show_problems(results, args_format, no_warn):
     max_level = 0
-    first = True
 
     if args_format == 'auto':
         if ('GITHUB_ACTIONS' in os.environ and
@@ -110,33 +109,37 @@ def show_problems(problems, file, args_format, no_warn):
         elif supports_color():
             args_format = 'colored'
 
-    for problem in problems:
-        max_level = max(max_level, PROBLEM_LEVELS[problem.level])
-        if no_warn and (problem.level != 'error'):
-            continue
-        if args_format == 'parsable':
-            print(Format.parsable(problem, file))
-        elif args_format == 'github':
-            if first:
-                print('::group::%s' % file)
-                first = False
-            print(Format.github(problem, file))
-        elif args_format == 'colored':
-            if first:
-                print('\033[4m%s\033[0m' % file)
-                first = False
-            print(Format.standard_color(problem, file))
-        else:
-            if first:
-                print(file)
-                first = False
-            print(Format.standard(problem, file))
+    for file in results:
+        first = True
 
-    if not first and args_format == 'github':
-        print('::endgroup::')
+        problems = results[file]
+        for problem in problems:
+            max_level = max(max_level, PROBLEM_LEVELS[problem.level])
+            if no_warn and (problem.level != 'error'):
+                continue
+            if args_format == 'parsable':
+                print(Format.parsable(problem, file))
+            elif args_format == 'github':
+                if first:
+                    print('::group::%s' % file)
+                    first = False
+                print(Format.github(problem, file))
+            elif args_format == 'colored':
+                if first:
+                    print('\033[4m%s\033[0m' % file)
+                    first = False
+                print(Format.standard_color(problem, file))
+            else:
+                if first:
+                    print(file)
+                    first = False
+                print(Format.standard(problem, file))
 
-    if not first and args_format != 'parsable':
-        print('')
+        if not first and args_format == 'github':
+            print('::endgroup::')
+
+        if not first and args_format != 'parsable':
+            print('')
 
     return max_level
 
@@ -225,8 +228,7 @@ def run(argv=None):
                 print(file)
         sys.exit(0)
 
-    max_level = 0
-
+    results = {}
     for file in find_files_recursively(args.files, conf):
         filepath = file[2:] if file.startswith('./') else file
         try:
@@ -235,9 +237,7 @@ def run(argv=None):
         except OSError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
-        prob_level = show_problems(problems, file, args_format=args.format,
-                                   no_warn=args.no_warnings)
-        max_level = max(max_level, prob_level)
+        results[filepath] = problems
 
     # read yaml from stdin
     if args.stdin:
@@ -246,9 +246,9 @@ def run(argv=None):
         except OSError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
-        prob_level = show_problems(problems, 'stdin', args_format=args.format,
-                                   no_warn=args.no_warnings)
-        max_level = max(max_level, prob_level)
+        results['stdin'] = problems
+
+    max_level = show_problems(results, args_format=args.format, no_warn=args.no_warnings)
 
     if max_level == PROBLEM_LEVELS['error']:
         return_code = 1
