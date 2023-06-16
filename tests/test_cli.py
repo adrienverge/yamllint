@@ -582,6 +582,94 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (0, expected_out, ''))
 
+    def test_run_format_sarif(self):
+        path = os.path.join(self.wd, 'a.yaml')
+
+        with RunContext(self) as ctx:
+            cli.run((path, '--format', 'sarif'))
+        expected_out = (
+            '{"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif'
+            '-spec/master/Schemata/sarif-schema-2.1.0.json", "version": '
+            '"2.1.0", "runs": [{"tool": {"driver": {"name": "yamllint", '
+            '"version": "1.32.0", "informationUri": '
+            '"https://yamllint.readthedocs.io", "rules": [{"id": '
+            '"trailing-spaces", "name": "TrailingSpaces", '
+            '"defaultConfiguration": {"level": "error"}, "properties": {'
+            '"description": "trailing spaces", "tags": [], "queryUri": '
+            '"https://yamllint.readthedocs.io/en/v1.32.0/rules.html#module'
+            '-yamllint.rules.trailing-spaces"}, "shortDescription": {"text": '
+            '"trailing spaces"}, "fullDescription": {"text": "trailing '
+            'spaces"}, "helpUri": '
+            '"https://yamllint.readthedocs.io/en/v1.32.0/rules.html#module'
+            '-yamllint.rules.trailing-spaces", "help": {"text": "More info: '
+            'https://yamllint.readthedocs.io/en/v1.32.0/rules.html#module'
+            '-yamllint.rules.trailing-spaces", "markdown": "[More info]('
+            'https://yamllint.readthedocs.io/en/v1.32.0/rules.html#module'
+            '-yamllint.rules.trailing-spaces)"}}, {"id": '
+            '"new-line-at-end-of-file", "name": "NewLineAtEndOfFile", '
+            '"defaultConfiguration": {"level": "error"}, "properties": {'
+            '"description": "no new line character at the end of file", '
+            '"tags": [], "queryUri": '
+            '"https://yamllint.readthedocs.io/en/v1.32.0/rules.html#module'
+            '-yamllint.rules.new-line-at-end-of-file"}, "shortDescription": '
+            '{"text": "no new line character at the end of file"}, '
+            '"fullDescription": {"text": "no new line character at the end '
+            'of file"}, "helpUri": '
+            '"https://yamllint.readthedocs.io/en/v1.32.0/rules.html#module'
+            '-yamllint.rules.new-line-at-end-of-file", "help": {"text": '
+            '"More info: https://yamllint.readthedocs.io/en/v1.32.0/rules'
+            '.html#module-yamllint.rules.new-line-at-end-of-file", '
+            '"markdown": "[More info]('
+            'https://yamllint.readthedocs.io/en/v1.32.0/rules.html#module'
+            '-yamllint.rules.new-line-at-end-of-file)"}}]}}, "results": [{'
+            '"ruleId": "trailing-spaces", "ruleIndex": 0, "message": {'
+            '"text": "trailing spaces (trailing-spaces)"}, "locations": [{'
+            '"physicalLocation": {"artifactLocation": {"uri": "%s", '
+            '"uriBaseId": "%%SRCROOT%%"}, "region": {"startLine": 2, '
+            '"startColumn": 4}}}]}, {"ruleId": "new-line-at-end-of-file", '
+            '"ruleIndex": 1, "message": {"text": "no new line character at '
+            'the end of file (new-line-at-end-of-file)"}, "locations": [{'
+            '"physicalLocation": {"artifactLocation": {"uri": "%s", '
+            '"uriBaseId": "%%SRCROOT%%"}, "region": {"startLine": 3, '
+            '"startColumn": 4}}}]}]}]}\n'
+            % (path, path))
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+
+    def test_run_format_sarif_warning(self):
+        path = os.path.join(self.wd, 'warn.yaml')
+
+        with RunContext(self) as ctx:
+            cli.run((path, '--format', 'sarif'))
+        expected_out = (
+            '{"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif'
+            '-spec/master/Schemata/sarif-schema-2.1.0.json", "version": '
+            '"2.1.0", "runs": [{"tool": {"driver": {"name": "yamllint", '
+            '"version": "1.32.0", "informationUri": '
+            '"https://yamllint.readthedocs.io", "rules": [{"id": '
+            '"document-start", "name": "DocumentStart", '
+            '"defaultConfiguration": {"level": "warning"}, "properties": {'
+            '"description": "missing document start \\"---\\"", "tags": [], '
+            '"queryUri": "https://yamllint.readthedocs.io/en/v1.32.0/rules'
+            '.html#module-yamllint.rules.document-start"}, '
+            '"shortDescription": {"text": "missing document start '
+            '\\"---\\""}, "fullDescription": {"text": "missing document '
+            'start \\"---\\""}, "helpUri": '
+            '"https://yamllint.readthedocs.io/en/v1.32.0/rules.html#module'
+            '-yamllint.rules.document-start", "help": {"text": "More info: '
+            'https://yamllint.readthedocs.io/en/v1.32.0/rules.html#module'
+            '-yamllint.rules.document-start", "markdown": "[More info]('
+            'https://yamllint.readthedocs.io/en/v1.32.0/rules.html#module'
+            '-yamllint.rules.document-start)"}}]}}, "results": [{"ruleId": '
+            '"document-start", "ruleIndex": 0, "message": {"text": "missing '
+            'document start \\"---\\" (document-start)"}, "locations": [{'
+            '"physicalLocation": {"artifactLocation": {"uri": "%s", '
+            '"uriBaseId": "%%SRCROOT%%"}, "region": {"startLine": 1, '
+            '"startColumn": 1}}}]}]}]}\n'
+            % path)
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr), (0, expected_out, ''))
+
     def test_run_format_github(self):
         path = os.path.join(self.wd, 'a.yaml')
 
