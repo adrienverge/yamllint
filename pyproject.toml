@@ -45,7 +45,7 @@ build-backend = "setuptools.build_meta"
 requires = ["setuptools >= 61"]
 
 [tool.setuptools]
-packages = ["yamllint", "yamllint.conf", "yamllint.rules"]
+packages = ["yamllint", "yamllint.conf", "yamllint.formatters", "yamllint.rules"]
 
 [tool.setuptools.package-data]
 yamllint = ["conf/*.yaml"]

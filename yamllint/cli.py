@@ -22,6 +22,7 @@ import sys
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
 from yamllint import linter
 from yamllint.config import YamlLintConfig, YamlLintConfigError
+from yamllint.formatters import colored, github, parsable, standard
 from yamllint.linter import PROBLEM_LEVELS
 
 
@@ -46,62 +47,7 @@ def supports_color():
             hasattr(sys.stdout, 'isatty') and sys.stdout.isatty())
 
 
-class Format:
-    @staticmethod
-    def parsable(problem, filename):
-        return ('%(file)s:%(line)s:%(column)s: [%(level)s] %(message)s' %
-                {'file': filename,
-                 'line': problem.line,
-                 'column': problem.column,
-                 'level': problem.level,
-                 'message': problem.message})
-
-    @staticmethod
-    def standard(problem, filename):
-        line = '  %d:%d' % (problem.line, problem.column)
-        line += max(12 - len(line), 0) * ' '
-        line += problem.level
-        line += max(21 - len(line), 0) * ' '
-        line += problem.desc
-        if problem.rule:
-            line += '  (%s)' % problem.rule
-        return line
-
-    @staticmethod
-    def standard_color(problem, filename):
-        line = '  \033[2m%d:%d\033[0m' % (problem.line, problem.column)
-        line += max(20 - len(line), 0) * ' '
-        if problem.level == 'warning':
-            line += '\033[33m%s\033[0m' % problem.level
-        else:
-            line += '\033[31m%s\033[0m' % problem.level
-        line += max(38 - len(line), 0) * ' '
-        line += problem.desc
-        if problem.rule:
-            line += '  \033[2m(%s)\033[0m' % problem.rule
-        return line
-
-    @staticmethod
-    def github(problem, filename):
-        line = '::'
-        line += problem.level
-        line += ' file=' + filename + ','
-        line += 'line=' + format(problem.line) + ','
-        line += 'col=' + format(problem.column)
-        line += '::'
-        line += format(problem.line)
-        line += ':'
-        line += format(problem.column)
-        line += ' '
-        if problem.rule:
-            line += '[' + problem.rule + '] '
-        line += problem.desc
-        return line
-
-
-def show_problems(results, args_format, no_warn):
-    max_level = 0
-
+def show_results(results, args_format, no_warn):
     if args_format == 'auto':
         if ('GITHUB_ACTIONS' in os.environ and
                 'GITHUB_WORKFLOW' in os.environ):
@@ -109,39 +55,14 @@ def show_problems(results, args_format, no_warn):
         elif supports_color():
             args_format = 'colored'
 
-    for file in results:
-        first = True
-
-        problems = results[file]
-        for problem in problems:
-            max_level = max(max_level, PROBLEM_LEVELS[problem.level])
-            if no_warn and (problem.level != 'error'):
-                continue
-            if args_format == 'parsable':
-                print(Format.parsable(problem, file))
-            elif args_format == 'github':
-                if first:
-                    print('::group::%s' % file)
-                    first = False
-                print(Format.github(problem, file))
-            elif args_format == 'colored':
-                if first:
-                    print('\033[4m%s\033[0m' % file)
-                    first = False
-                print(Format.standard_color(problem, file))
-            else:
-                if first:
-                    print(file)
-                    first = False
-                print(Format.standard(problem, file))
-
-        if not first and args_format == 'github':
-            print('::endgroup::')
-
-        if not first and args_format != 'parsable':
-            print('')
-
-    return max_level
+    if args_format == 'parsable':
+        return parsable.format_results(results, no_warn)
+    elif args_format == 'github':
+        return github.format_results(results, no_warn)
+    elif args_format == 'colored':
+        return colored.format_results(results, no_warn)
+    else:
+        return standard.format_results(results, no_warn)
 
 
 def find_project_config_filepath(path='.'):
@@ -248,7 +169,7 @@ def run(argv=None):
             sys.exit(-1)
         results['stdin'] = problems
 
-    max_level = show_problems(results, args_format=args.format, no_warn=args.no_warnings)
+    max_level = show_results(results, args_format=args.format, no_warn=args.no_warnings)
 
     if max_level == PROBLEM_LEVELS['error']:
         return_code = 1
