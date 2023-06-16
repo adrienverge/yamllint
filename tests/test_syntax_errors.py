@@ -17,7 +17,7 @@ from tests.common import RuleTestCase
 
 
 class YamlLintTestCase(RuleTestCase):
-    rule_id = None  # syntax error
+    rule_id = 'syntax'  # syntax error
 
     def test_syntax_errors(self):
         self.check('---\n'

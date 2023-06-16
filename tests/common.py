@@ -40,10 +40,7 @@ class RuleTestCase(unittest.TestCase):
         for key in kwargs:
             assert key.startswith('problem')
             if len(kwargs[key]) > 2:
-                if kwargs[key][2] == 'syntax':
-                    rule_id = None
-                else:
-                    rule_id = kwargs[key][2]
+                rule_id = kwargs[key][2]
             else:
                 rule_id = self.rule_id
             expected_problems.append(linter.LintProblem(
