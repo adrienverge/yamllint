@@ -22,7 +22,7 @@ import sys
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
 from yamllint import linter
 from yamllint.config import YamlLintConfig, YamlLintConfigError
-from yamllint.formatters import colored, github, parsable, standard
+from yamllint.formatters import colored, github, parsable, sarif, standard
 from yamllint.linter import PROBLEM_LEVELS
 
 
@@ -59,6 +59,8 @@ def show_results(results, args_format, no_warn):
         return parsable.format_results(results, no_warn)
     elif args_format == 'github':
         return github.format_results(results, no_warn)
+    elif args_format == 'sarif':
+        return sarif.format_results(results, no_warn)
     elif args_format == 'colored':
         return colored.format_results(results, no_warn)
     else:
@@ -98,7 +100,7 @@ def run(argv=None):
                         help='list files to lint and exit')
     parser.add_argument('-f', '--format',
                         choices=('parsable', 'standard', 'colored', 'github',
-                                 'auto'),
+                                 'sarif', 'auto'),
                         default='auto', help='format for parsing output')
     parser.add_argument('-s', '--strict',
                         action='store_true',
