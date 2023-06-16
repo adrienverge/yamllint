@@ -23,7 +23,8 @@ def format_results(results, no_warn):
     max_level = 0
 
     sarif = {
-        '$schema': 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
+        '$schema': 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec'
+                   '/master/Schemata/sarif-schema-2.1.0.json',
         'version': '2.1.0',
         'runs': [
             {
@@ -52,10 +53,12 @@ def format_results(results, no_warn):
             else:
                 rule_index = max_rule_index
                 rules[problem.rule] = max_rule_index
-                sarif['runs'][0]['tool']['driver']['rules'].append(format_rule(problem))
+                sarif['runs'][0]['tool']['driver']['rules'].append(format_rule(
+                    problem))
                 max_rule_index += 1
 
-            sarif['runs'][0]['results'].append(format_result(rule_index, problem, file))
+            sarif['runs'][0]['results'].append(format_result(rule_index,
+                                                             problem, file))
 
     print(json.dumps(sarif))
 
@@ -63,10 +66,14 @@ def format_results(results, no_warn):
 
 
 def format_rule(problem):
-    uri = 'https://yamllint.readthedocs.io/en/v{}/rules.html#module-yamllint.rules.{}'.format(APP_VERSION, problem.rule)
+    uri = 'https://yamllint.readthedocs.io/en/v%s/rules.html#module-yamllint' \
+          '.rules.%s' % (APP_VERSION, problem.rule)
+
+    name = ''.join([word.capitalize() for word in problem.rule.split('-')])
+
     return {
         'id': problem.rule,
-        'name': ''.join([word.capitalize() for word in problem.rule.split('-')]),
+        'name': name,
         'defaultConfiguration': {
             'level': problem.level
         },

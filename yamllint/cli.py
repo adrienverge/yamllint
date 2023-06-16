@@ -171,7 +171,8 @@ def run(argv=None):
             sys.exit(-1)
         results['stdin'] = problems
 
-    max_level = show_results(results, args_format=args.format, no_warn=args.no_warnings)
+    max_level = show_results(results, args_format=args.format,
+                             no_warn=args.no_warnings)
 
     if max_level == PROBLEM_LEVELS['error']:
         return_code = 1
