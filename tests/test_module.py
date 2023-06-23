@@ -20,6 +20,8 @@ import tempfile
 import sys
 import unittest
 
+from tests.common import rsep
+
 
 PYTHON = sys.executable or 'python'
 
@@ -29,12 +31,13 @@ class ModuleTestCase(unittest.TestCase):
         self.wd = tempfile.mkdtemp(prefix='yamllint-tests-')
 
         # file with only one warning
-        with open(os.path.join(self.wd, 'warn.yaml'), 'w') as f:
+        with open(os.path.join(self.wd, 'warn.yaml'), 'w', newline='') as f:
             f.write('key: value\n')
 
         # file in dir
         os.mkdir(os.path.join(self.wd, 'sub'))
-        with open(os.path.join(self.wd, 'sub', 'nok.yaml'), 'w') as f:
+        with open(os.path.join(self.wd, 'sub', 'nok.yaml'),
+                  'w', newline='') as f:
             f.write('---\n'
                     'list: [  1, 1, 2, 3, 5, 8]  \n')
 
@@ -44,41 +47,43 @@ class ModuleTestCase(unittest.TestCase):
     def test_run_module_no_args(self):
         with self.assertRaises(subprocess.CalledProcessError) as ctx:
             subprocess.check_output([PYTHON, '-m', 'yamllint'],
-                                    stderr=subprocess.STDOUT)
+                                    stderr=subprocess.STDOUT, text=True)
         self.assertEqual(ctx.exception.returncode, 2)
-        self.assertRegex(ctx.exception.output.decode(), r'^usage: yamllint')
+        self.assertRegex(ctx.exception.output, r'^usage: yamllint')
 
     def test_run_module_on_bad_dir(self):
         with self.assertRaises(subprocess.CalledProcessError) as ctx:
             subprocess.check_output([PYTHON, '-m', 'yamllint',
                                      '/does/not/exist'],
-                                    stderr=subprocess.STDOUT)
-        self.assertRegex(ctx.exception.output.decode(),
+                                    stderr=subprocess.STDOUT, text=True)
+        self.assertRegex(ctx.exception.output,
                          r'No such file or directory')
 
     def test_run_module_on_file(self):
         out = subprocess.check_output(
-            [PYTHON, '-m', 'yamllint', os.path.join(self.wd, 'warn.yaml')])
-        lines = out.decode().splitlines()
-        self.assertIn('/warn.yaml', lines[0])
+            [PYTHON, '-m', 'yamllint', os.path.join(self.wd, 'warn.yaml')],
+            text=True)
+        lines = out.splitlines()
+        self.assertIn(rsep('/warn.yaml'), lines[0])
         self.assertEqual('\n'.join(lines[1:]),
                          '  1:1       warning  missing document start "---"'
                          '  (document-start)\n')
 
     def test_run_module_on_dir(self):
         with self.assertRaises(subprocess.CalledProcessError) as ctx:
-            subprocess.check_output([PYTHON, '-m', 'yamllint', self.wd])
+            subprocess.check_output([PYTHON, '-m', 'yamllint', self.wd],
+                                    text=True)
         self.assertEqual(ctx.exception.returncode, 1)
 
-        files = ctx.exception.output.decode().split('\n\n')
+        files = ctx.exception.output.split('\n\n')
         self.assertIn(
-            '/warn.yaml\n'
-            '  1:1       warning  missing document start "---"'
-            '  (document-start)',
+            rsep('/warn.yaml\n'
+                 '  1:1       warning  missing document start "---"'
+                 '  (document-start)'),
             files[0])
         self.assertIn(
-            '/sub/nok.yaml\n'
-            '  2:9       error    too many spaces inside brackets'
-            '  (brackets)\n'
-            '  2:27      error    trailing spaces  (trailing-spaces)',
+            rsep('/sub/nok.yaml\n'
+                 '  2:9       error    too many spaces inside brackets'
+                 '  (brackets)\n'
+                 '  2:27      error    trailing spaces  (trailing-spaces)'),
             files[1])

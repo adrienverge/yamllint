@@ -33,16 +33,21 @@ jobs:
 
   test:
     name: Tests
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        os: ['macos', 'ubuntu', 'windows']
         python-version:
           - '3.7'
           - '3.8'
           - '3.9'
           - '3.10'
           - '3.11'
+    runs-on: ${{ matrix.os }}-latest
+    defaults:
+      run:
+        shell: bash -e {0}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -50,12 +55,20 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+      - run: pip install .
       - name: Append GitHub Actions system path
+        if: ${{ matrix.os == 'ubuntu' }}
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - run: pip install coverage
-      - run: pip install .
+        if: ${{ matrix.os == 'ubuntu' }}
       # https://github.com/AndreMiras/coveralls-python-action/issues/18
       - run: echo -e "[run]\nrelative_files = True" > .coveragerc
+        if: ${{ matrix.os == 'ubuntu' }}
       - run: coverage run -m unittest discover
+        if: ${{ matrix.os == 'ubuntu' }}
       - name: Coveralls
+        if: ${{ matrix.os == 'ubuntu' }}
         uses: AndreMiras/coveralls-python-action@develop
+      - name: Unittests only
+        if: ${{ matrix.os != 'ubuntu' }}
+        run: python -m unittest

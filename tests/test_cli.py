@@ -14,19 +14,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from io import StringIO
-import fcntl
 import locale
 import os
-import pty
 import shutil
 import sys
 import tempfile
 import unittest
 
-from tests.common import build_temp_workspace, temp_workspace
+from tests.common import (build_temp_workspace, temp_workspace,
+                          CompatNamedTemporaryFile, rsep)
 
 from yamllint import cli
 from yamllint import config
+
+
+if not sys.platform.startswith('win'):
+    import pty
+    import fcntl
 
 
 class RunContext:
@@ -127,9 +131,10 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'en.yaml'),
-             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
-             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
-             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd,
+                          rsep('s/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml')),
+             os.path.join(self.wd, rsep('sub/directory.yaml/empty.yml')),
+             os.path.join(self.wd, rsep('sub/ok.yaml')),
              os.path.join(self.wd, 'warn.yaml')],
         )
 
@@ -145,7 +150,8 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(cli.find_files_recursively(items, conf)),
             [os.path.join(self.wd, 'empty.yml'),
-             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml')],
+             os.path.join(self.wd,
+                          rsep('s/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'))],
         )
 
         items = [os.path.join(self.wd, 'sub'),
@@ -153,8 +159,8 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(cli.find_files_recursively(items, conf)),
             [os.path.join(self.wd, '/etc/another/file'),
-             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
-             os.path.join(self.wd, 'sub/ok.yaml')],
+             os.path.join(self.wd, rsep('sub/directory.yaml/empty.yml')),
+             os.path.join(self.wd, rsep('sub/ok.yaml'))],
         )
 
         conf = config.YamlLintConfig('extends: default\n'
@@ -165,8 +171,9 @@ class CommandLineTestCase(unittest.TestCase):
             [os.path.join(self.wd, 'a.yaml'),
              os.path.join(self.wd, 'c.yaml'),
              os.path.join(self.wd, 'en.yaml'),
-             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
-             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd,
+                          rsep('s/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml')),
+             os.path.join(self.wd, rsep('sub/ok.yaml')),
              os.path.join(self.wd, 'warn.yaml')]
         )
 
@@ -177,7 +184,7 @@ class CommandLineTestCase(unittest.TestCase):
             sorted(cli.find_files_recursively([self.wd], conf)),
             [os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
-             os.path.join(self.wd, 'sub/directory.yaml/empty.yml')]
+             os.path.join(self.wd, rsep('sub/directory.yaml/empty.yml'))]
         )
 
         conf = config.YamlLintConfig('extends: default\n'
@@ -199,11 +206,12 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'en.yaml'),
              os.path.join(self.wd, 'no-yaml.json'),
-             os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
-             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
-             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
-             os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
-             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd, rsep('non-ascii/éçäγλνπ¥/utf-8')),
+             os.path.join(self.wd,
+                          rsep('s/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml')),
+             os.path.join(self.wd, rsep('sub/directory.yaml/empty.yml')),
+             os.path.join(self.wd, rsep('sub/directory.yaml/not-yaml.txt')),
+             os.path.join(self.wd, rsep('sub/ok.yaml')),
              os.path.join(self.wd, 'warn.yaml')]
         )
 
@@ -220,11 +228,12 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'en.yaml'),
              os.path.join(self.wd, 'no-yaml.json'),
-             os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8'),
-             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
-             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
-             os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
-             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd, rsep('non-ascii/éçäγλνπ¥/utf-8')),
+             os.path.join(self.wd,
+                          rsep('s/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml')),
+             os.path.join(self.wd, rsep('sub/directory.yaml/empty.yml')),
+             os.path.join(self.wd, rsep('sub/directory.yaml/not-yaml.txt')),
+             os.path.join(self.wd, rsep('sub/ok.yaml')),
              os.path.join(self.wd, 'warn.yaml')]
         )
 
@@ -234,7 +243,7 @@ class CommandLineTestCase(unittest.TestCase):
                                      '  - \'**/utf-8\'\n')
         self.assertEqual(
             sorted(cli.find_files_recursively([self.wd], conf)),
-            [os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8')]
+            [os.path.join(self.wd, rsep('non-ascii/éçäγλνπ¥/utf-8'))]
         )
 
     def test_run_with_bad_arguments(self):
@@ -306,6 +315,8 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-c', f.name, os.path.join(self.wd, 'a.yaml')))
         self.assertEqual(ctx.returncode, 1)
 
+    @unittest.skipIf(sys.platform.startswith('win'),
+                     'TODO Windows override HOME unimplemented')
     @unittest.skipIf(os.environ.get('GITHUB_RUN_ID'), '$HOME not overridable')
     def test_run_with_user_global_config_file(self):
         home = os.path.join(self.wd, 'fake-home')
@@ -346,7 +357,7 @@ class CommandLineTestCase(unittest.TestCase):
     def test_run_with_user_yamllint_config_file_in_env(self):
         self.addCleanup(os.environ.__delitem__, 'YAMLLINT_CONFIG_FILE')
 
-        with tempfile.NamedTemporaryFile('w') as f:
+        with CompatNamedTemporaryFile('w') as f:
             os.environ['YAMLLINT_CONFIG_FILE'] = f.name
             f.write('rules: {trailing-spaces: disable}')
             f.flush()
@@ -354,7 +365,7 @@ class CommandLineTestCase(unittest.TestCase):
                 cli.run((os.path.join(self.wd, 'a.yaml'), ))
             self.assertEqual(ctx.returncode, 0)
 
-        with tempfile.NamedTemporaryFile('w') as f:
+        with CompatNamedTemporaryFile('w') as f:
             os.environ['YAMLLINT_CONFIG_FILE'] = f.name
             f.write('rules: {trailing-spaces: enable}')
             f.flush()
@@ -368,6 +379,8 @@ class CommandLineTestCase(unittest.TestCase):
         # as the first two runs don't use setlocale()
         try:
             locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+            if not locale.strcoll('a', 'A') < 0:  # pragma: no cover
+                self.skipTest("Not 'a' < 'A' for locale en_US.UTF-8")
         except locale.Error:  # pragma: no cover
             self.skipTest('locale en_US.UTF-8 not available')
         locale.setlocale(locale.LC_ALL, (None, None))
@@ -477,7 +490,7 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual((ctx.returncode, ctx.stderr), (1, ''))
         self.assertEqual(ctx.stdout, (
             '%s:3:1: [error] duplication of key "key" in mapping '
-            '(key-duplicates)\n') % path)
+            '(key-duplicates)\n') % rsep(path))
 
     def test_run_piped_output_nocolor(self):
         path = os.path.join(self.wd, 'a.yaml')
@@ -492,6 +505,8 @@ class CommandLineTestCase(unittest.TestCase):
             '(new-line-at-end-of-file)\n'
             '\n' % path))
 
+    @unittest.skipIf(sys.platform.startswith('win'),
+                     'Windows pseudo-TTY unimplemented')
     def test_run_default_format_output_in_tty(self):
         path = os.path.join(self.wd, 'a.yaml')
 
@@ -689,9 +704,10 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'dos.yml'),
              os.path.join(self.wd, 'empty.yml'),
              os.path.join(self.wd, 'en.yaml'),
-             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
-             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
-             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd,
+                          rsep('s/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml')),
+             os.path.join(self.wd, rsep('sub/directory.yaml/empty.yml')),
+             os.path.join(self.wd, rsep('sub/ok.yaml')),
              os.path.join(self.wd, 'warn.yaml')]
         )
 
@@ -705,9 +721,10 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'c.yaml'),
              os.path.join(self.wd, 'en.yaml'),
              os.path.join(self.wd, 'no-yaml.json'),
-             os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
-             os.path.join(self.wd, 'sub/directory.yaml/not-yaml.txt'),
-             os.path.join(self.wd, 'sub/ok.yaml'),
+             os.path.join(self.wd,
+                          rsep('s/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml')),
+             os.path.join(self.wd, rsep('sub/directory.yaml/not-yaml.txt')),
+             os.path.join(self.wd, rsep('sub/ok.yaml')),
              os.path.join(self.wd, 'warn.yaml')]
         )
 
@@ -724,9 +741,10 @@ class CommandLineConfigTestCase(unittest.TestCase):
                     with RunContext(self) as ctx:
                         cli.run(('-f', 'parsable', '.'))
 
-                self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
-                                 (0, './a.yml:1:1: [warning] missing document '
-                                     'start "---" (document-start)\n', ''))
+                self.assertEqual(
+                    (ctx.returncode, ctx.stdout, ctx.stderr),
+                    (0, rsep('./a.yml:1:1: [warning] missing document '
+                             'start "---" (document-start)\n'), ''))
 
                 with temp_workspace({**workspace, **{conf_file: conf}}):
                     with RunContext(self) as ctx:
@@ -747,10 +765,11 @@ class CommandLineConfigTestCase(unittest.TestCase):
                         os.chdir('a/b/c/d/e/f')
                         cli.run(('-f', 'parsable', '.'))
 
-                self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
-                                 (0, './g/a.yml:1:1: [warning] missing '
-                                     'document start "---" (document-start)\n',
-                                     ''))
+                self.assertEqual(
+                    (ctx.returncode, ctx.stdout, ctx.stderr),
+                    (0, rsep('./g/a.yml:1:1: [warning] missing '
+                             'document start "---" (document-start)\n'),
+                     ''))
 
                 with temp_workspace({**workspace, **{conf_file: conf}}):
                     with RunContext(self) as ctx:
@@ -783,15 +802,17 @@ class CommandLineConfigTestCase(unittest.TestCase):
                 os.chdir('a/b/c')
                 cli.run(('-f', 'parsable', '.'))
 
-        self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
-                         (0, './3spaces.yml:2:4: [warning] wrong indentation: '
-                         'expected 4 but found 3 (indentation)\n', ''))
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr),
+            (0, rsep('./3spaces.yml:2:4: [warning] wrong indentation: '
+                     'expected 4 but found 3 (indentation)\n'), ''))
 
         with temp_workspace({**workspace, **{'a/b/.yamllint.yml': conf3}}):
             with RunContext(self) as ctx:
                 os.chdir('a/b/c')
                 cli.run(('-f', 'parsable', '.'))
 
-        self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
-                         (0, './4spaces.yml:2:5: [warning] wrong indentation: '
-                         'expected 3 but found 4 (indentation)\n', ''))
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr),
+            (0, rsep('./4spaces.yml:2:5: [warning] wrong indentation: '
+                     'expected 3 but found 4 (indentation)\n'), ''))

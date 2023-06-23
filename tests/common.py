@@ -65,9 +65,12 @@ def build_temp_workspace(files):
         if type(content) is list:
             os.mkdir(path)
         else:
-            mode = 'wb' if isinstance(content, bytes) else 'w'
-            with open(path, mode) as f:
-                f.write(content)
+            if isinstance(content, bytes):
+                with open(path, 'wb') as f:
+                    f.write(content)
+            else:
+                with open(path, 'w', newline='') as f:
+                    f.write(content)
 
     return tempdir
 
@@ -84,3 +87,18 @@ def temp_workspace(files):
     finally:
         os.chdir(backup_wd)
         shutil.rmtree(wd)
+
+
+@contextlib.contextmanager
+def CompatNamedTemporaryFile(*args, **kwargs):
+    try:
+        assert 'delete' not in kwargs, "not applicable"
+        f = tempfile.NamedTemporaryFile(*args, **kwargs, delete=False)
+        yield f
+    finally:
+        f.close()
+        os.unlink(f.name)
+
+
+def rsep(s: str) -> str:
+    return s.replace('/', os.sep)
