@@ -230,21 +230,16 @@ def _read_yaml_unicode(f: io.IOBase) -> str:
     elif bs.startswith(b'+/v8'):
         f.reconfigure(encoding='utf-7', errors='strict')
     else:
-        if len(bs) >= 4:
-            if bs[:3] == b'\x00\x00\x00' and bs[3]:
-                f.reconfigure(encoding='utf-32be', errors='strict')
-                return (f.read(), False)
-            if bs[0] and bs[1:4] == b'\x00\x00\x00':
-                f.reconfigure(encoding='utf-32le', errors='strict')
-                return (f.read(), False)
-        if len(bs) >= 2:
-            if bs[0] == 0 and bs[1]:
-                f.reconfigure(encoding='utf-16be', errors='strict')
-                return (f.read(), False)
-            if bs[0] and bs[1] == 0:
-                f.reconfigure(encoding='utf-16le', errors='strict')
-                return (f.read(), False)
-        f.reconfigure(encoding='utf-8', errors='strict')
+        if len(bs) >= 4 and bs[:3] == b'\x00\x00\x00' and bs[3]:
+            f.reconfigure(encoding='utf-32be', errors='strict')
+        elif len(bs) >= 4 and bs[0] and bs[1:4] == b'\x00\x00\x00':
+            f.reconfigure(encoding='utf-32le', errors='strict')
+        elif len(bs) >= 2 and bs[0] == 0 and bs[1]:
+            f.reconfigure(encoding='utf-16be', errors='strict')
+        elif len(bs) >= 2 and bs[0] and bs[1] == 0:
+            f.reconfigure(encoding='utf-16le', errors='strict')
+        else:
+            f.reconfigure(encoding='utf-8', errors='strict')
         return (f.read(), False)
     initial_bom = f.read(1)
     assert initial_bom == '\uFEFF'
