@@ -13,13 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
+import codecs
 import io
+import re
 
 import yaml
 
 from yamllint import parser
-
 
 PROBLEM_LEVELS = {
     0: None,
@@ -185,13 +185,95 @@ def get_syntax_error(buffer):
         return problem
 
 
-def _run(buffer, conf, filepath):
-    assert hasattr(buffer, '__getitem__'), \
-        '_run() argument must be a buffer, not a stream'
+def _read_yaml_unicode(f: io.IOBase) -> str:
+    """Reads and decodes file as p.5.2. Character Encodings
+
+       Parameters
+       ----------
+       f:
+           For CLI - file open for reading in text mode
+           (TextIOWrapper(BufferedReader(FileIO)))
+
+           For API & tests - may be text or binary file object
+           (StringIO, TextIOWrapper(BytesIO) or
+           TextIOWrapper(BufferedReader(BytesIO)))
+    """
+    if not isinstance(f, io.TextIOWrapper):
+        # StringIO already have unicode, don't need decode
+        return (f.read(), False)
+
+    b = f.buffer
+    need = 4
+    if not isinstance(b, io.BufferedReader):
+        bs = bytes(b.getbuffer()[:need])  # BytesIO don't need peek()
+    else:
+        # Maximum of 4 raw.read()'s non-blocking file (or pipe)
+        # are required for peek 4 bytes or achieve EOF
+        lpbs = 0
+        bs = b.peek(need)
+        while len(bs) < need and len(bs) > lpbs:
+            # len(bs) > lpbs <=> b.raw.read() returned some bytes, not EOF
+            lpbs = len(bs)
+            bs = b.peek(need)
+        assert len(bs) >= need or not b.raw.read(1)
+
+    if bs.startswith(codecs.BOM_UTF32_BE):
+        f.reconfigure(encoding='utf-32be', errors='strict')
+    elif bs.startswith(codecs.BOM_UTF32_LE):
+        f.reconfigure(encoding='utf-32le', errors='strict')
+    elif bs.startswith(codecs.BOM_UTF16_BE):
+        f.reconfigure(encoding='utf-16be', errors='strict')
+    elif bs.startswith(codecs.BOM_UTF16_LE):
+        f.reconfigure(encoding='utf-16le', errors='strict')
+    elif bs.startswith(codecs.BOM_UTF8):
+        f.reconfigure(encoding='utf-8', errors='strict')
+    elif bs.startswith(b'+/v8'):
+        f.reconfigure(encoding='utf-7', errors='strict')
+    else:
+        if len(bs) >= 4:
+            if bs[:3] == b'\x00\x00\x00' and bs[3]:
+                f.reconfigure(encoding='utf-32be', errors='strict')
+                return (f.read(), False)
+            if bs[0] and bs[1:4] == b'\x00\x00\x00':
+                f.reconfigure(encoding='utf-32le', errors='strict')
+                return (f.read(), False)
+        if len(bs) >= 2:
+            if bs[0] == 0 and bs[1]:
+                f.reconfigure(encoding='utf-16be', errors='strict')
+                return (f.read(), False)
+            if bs[0] and bs[1] == 0:
+                f.reconfigure(encoding='utf-16le', errors='strict')
+                return (f.read(), False)
+        f.reconfigure(encoding='utf-8', errors='strict')
+        return (f.read(), False)
+    initial_bom = f.read(1)
+    assert initial_bom == '\uFEFF'
+    return (f.read(), True)
+
+
+def _run(input, conf, filepath):
+    if isinstance(input, str):
+        buffer, initial_bom = input, False
+    else:
+        try:
+            buffer, initial_bom = _read_yaml_unicode(input)
+        except UnicodeDecodeError as e:
+            problem = LintProblem(0, 0, str(e), 'unicode-decode')
+            problem.level = 'error'
+            yield problem
+            return
 
     first_line = next(parser.line_generator(buffer)).content
     if re.match(r'^#\s*yamllint disable-file\s*$', first_line):
         return
+
+    if not initial_bom and first_line and not (first_line[0].isascii() and
+       (first_line[0].isprintable() or first_line[0].isspace())):
+        problem = LintProblem(1, 1,
+                              "First Unicode character not ASCII without BOM",
+                              'unicode-first-not-ascii')
+        problem.level = 'warning'
+        yield problem
 
     # If the document contains a syntax error, save it and yield it at the
     # right line
@@ -226,11 +308,10 @@ def run(input, conf, filepath=None):
     if filepath is not None and conf.is_file_ignored(filepath):
         return ()
 
-    if isinstance(input, (bytes, str)):
+    if isinstance(input, str):
         return _run(input, conf, filepath)
-    elif isinstance(input, io.IOBase):
-        # We need to have everything in memory to parse correctly
-        content = input.read()
-        return _run(content, conf, filepath)
-    else:
-        raise TypeError('input should be a string or a stream')
+    if isinstance(input, bytes):
+        input = io.TextIOWrapper(io.BytesIO(input))
+    if isinstance(input, io.IOBase):
+        return _run(input, conf, filepath)
+    raise TypeError('input should be a string or a stream')

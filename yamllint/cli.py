@@ -232,11 +232,13 @@ def run(argv=None):
         try:
             with open(file, newline='') as f:
                 problems = linter.run(f, conf, filepath)
+                prob_level = show_problems(problems,
+                                           file,
+                                           args_format=args.format,
+                                           no_warn=args.no_warnings)
         except OSError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
-        prob_level = show_problems(problems, file, args_format=args.format,
-                                   no_warn=args.no_warnings)
         max_level = max(max_level, prob_level)
 
     # read yaml from stdin
