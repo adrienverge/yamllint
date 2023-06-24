@@ -99,11 +99,13 @@ def check(conf, token, prev, next, nextnext, context):
         prev_is_end_or_stream_start = isinstance(
             prev, (yaml.DocumentEndToken, yaml.StreamStartToken)
         )
+        prev_is_directive = isinstance(prev, yaml.DirectiveToken)
 
         if is_stream_end and not prev_is_end_or_stream_start:
             yield LintProblem(token.start_mark.line, 1,
                               'missing document end "..."')
-        elif is_start and not prev_is_end_or_stream_start:
+        elif is_start and not (prev_is_end_or_stream_start
+                               or prev_is_directive):
             yield LintProblem(token.start_mark.line + 1, 1,
                               'missing document end "..."')
 
