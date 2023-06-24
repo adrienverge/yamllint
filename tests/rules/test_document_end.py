@@ -71,3 +71,22 @@ class DocumentEndTestCase(RuleTestCase):
                    '---\n'
                    'third: document\n'
                    '...\n', conf, problem=(6, 1))
+
+    def test_directives(self):
+        conf = 'document-end: {present: true}'
+        self.check('%YAML 1.2\n'
+                   '---\n'
+                   'document: end\n'
+                   '...\n', conf)
+        self.check('%YAML 1.2\n'
+                   '%TAG ! tag:clarkevans.com,2002:\n'
+                   '---\n'
+                   'document: end\n'
+                   '...\n', conf)
+        self.check('---\n'
+                   'first: document\n'
+                   '...\n'
+                   '%YAML 1.2\n'
+                   '---\n'
+                   'second: document\n'
+                   '...\n', conf)
