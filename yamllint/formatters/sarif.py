@@ -67,7 +67,7 @@ def format_results(results, no_warn):
 
 def format_rule(problem):
     uri = 'https://yamllint.readthedocs.io/en/v%s/rules.html#module-yamllint' \
-          '.rules.%s' % (APP_VERSION, problem.rule)
+          '.rules.%s' % (APP_VERSION, problem.rule.replace('-', '_'))
 
     name = ''.join([word.capitalize() for word in problem.rule.split('-')])
 
