@@ -4,6 +4,9 @@ Quickstart
 Installing yamllint
 -------------------
 
+``yamllint`` is pre-installed on some systems (see the `GitHub Actions example <https://github.com/adrienverge/yamllint/pull/588#issuecomment-1679943422>`_).
+Otherwise, here is how to install it on some popular OSes.
+
 On Fedora / CentOS (note: `EPEL <https://docs.fedoraproject.org/en-US/epel/>`_ is
 required on CentOS):
 
