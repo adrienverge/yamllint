@@ -153,8 +153,21 @@ def validate_rule_conf(rule, conf):
         return False
 
     if isinstance(conf, dict):
-        if ('ignore' in conf and
-                not isinstance(conf['ignore'], pathspec.pathspec.PathSpec)):
+        if ('ignore-from-file' in conf and not isinstance(
+                conf['ignore-from-file'], pathspec.pathspec.PathSpec)):
+            if isinstance(conf['ignore-from-file'], str):
+                conf['ignore-from-file'] = [conf['ignore-from-file']]
+            if not (isinstance(conf['ignore-from-file'], list)
+                    and all(isinstance(line, str)
+                            for line in conf['ignore-from-file'])):
+                raise YamlLintConfigError(
+                    'invalid config: ignore-from-file should contain '
+                    'valid filename(s), either as a list or string')
+            with fileinput.input(conf['ignore-from-file']) as f:
+                conf['ignore'] = pathspec.PathSpec.from_lines(
+                    'gitwildmatch', f)
+        elif ('ignore' in conf and not isinstance(
+                conf['ignore'], pathspec.pathspec.PathSpec)):
             if isinstance(conf['ignore'], str):
                 conf['ignore'] = pathspec.PathSpec.from_lines(
                     'gitwildmatch', conf['ignore'].splitlines())
