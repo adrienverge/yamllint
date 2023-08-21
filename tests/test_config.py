@@ -212,6 +212,14 @@ class SimpleConfigTestCase(unittest.TestCase):
                                   '  colons:\n'
                                   '    ignore: yes\n')
 
+    def test_invalid_rule_ignore_from_file(self):
+        self.assertRaises(
+            config.YamlLintConfigError,
+            config.YamlLintConfig,
+            'rules:\n'
+            '  colons:\n'
+            '    ignore-from-file: 1337\n')
+
     def test_invalid_locale(self):
         with self.assertRaisesRegex(
                 config.YamlLintConfigError,
@@ -660,11 +668,18 @@ class IgnoreConfigTestCase(unittest.TestCase):
     def test_run_with_ignore_from_file(self):
         with open(os.path.join(self.wd, '.yamllint'), 'w') as f:
             f.write('extends: default\n'
-                    'ignore-from-file: .gitignore\n')
+                    'ignore-from-file: .gitignore\n'
+                    'rules:\n'
+                    '  key-duplicates:\n'
+                    '    ignore-from-file: .ignore-key-duplicates\n')
+
         with open(os.path.join(self.wd, '.gitignore'), 'w') as f:
             f.write('*.dont-lint-me.yaml\n'
                     '/bin/\n'
                     '!/bin/*.lint-me-anyway.yaml\n')
+
+        with open(os.path.join(self.wd, '.ignore-key-duplicates'), 'w') as f:
+            f.write('/ign-dup\n')
 
         sys.stdout = StringIO()
         with self.assertRaises(SystemExit):
@@ -686,10 +701,8 @@ class IgnoreConfigTestCase(unittest.TestCase):
             './file-at-root.yaml:3:3: ' + keydup,
             './file-at-root.yaml:4:17: ' + trailing,
             './file-at-root.yaml:5:5: ' + hyphen,
-            './ign-dup/file.yaml:3:3: ' + keydup,
             './ign-dup/file.yaml:4:17: ' + trailing,
             './ign-dup/file.yaml:5:5: ' + hyphen,
-            './ign-dup/sub/dir/file.yaml:3:3: ' + keydup,
             './ign-dup/sub/dir/file.yaml:4:17: ' + trailing,
             './ign-dup/sub/dir/file.yaml:5:5: ' + hyphen,
             './ign-trail/file.yaml:3:3: ' + keydup,
