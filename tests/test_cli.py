@@ -65,7 +65,7 @@ def utf8_available():
 class CommandLineTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        super(CommandLineTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.wd = build_temp_workspace({
             # .yaml file at root
@@ -97,7 +97,7 @@ class CommandLineTestCase(unittest.TestCase):
                 '- hétérogénéité\n'
                 '# 19.99 €\n'
                 '- お早う御座います。\n'
-                '# الأَبْجَدِيَّة العَرَبِيَّة\n').encode('utf-8'),
+                '# الأَبْجَدِيَّة العَرَبِيَّة\n').encode(),
             # dos line endings yaml
             'dos.yml': '---\r\n'
                        'dos: true',
@@ -112,7 +112,7 @@ class CommandLineTestCase(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(CommandLineTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
         shutil.rmtree(cls.wd)
 
