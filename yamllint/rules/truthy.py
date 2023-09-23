@@ -136,7 +136,7 @@ TRUTHY = ['YES', 'Yes', 'yes',
 
 ID = 'truthy'
 TYPE = 'token'
-CONF = {'allowed-values': list(TRUTHY), 'check-keys': bool}
+CONF = {'allowed-values': TRUTHY.copy(), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
