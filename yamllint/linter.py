@@ -50,7 +50,7 @@ class LintProblem:
     @property
     def message(self):
         if self.rule is not None:
-            return '{} ({})'.format(self.desc, self.rule)
+            return f'{self.desc} ({self.rule})'
         return self.desc
 
     def __eq__(self, other):
@@ -63,7 +63,7 @@ class LintProblem:
                 (self.line == other.line and self.column < other.column))
 
     def __repr__(self):
-        return '%d:%d: %s' % (self.line, self.column, self.message)
+        return f'{self.line}:{self.column}: {self.message}'
 
 
 def get_cosmetic_problems(buffer, conf, filepath):

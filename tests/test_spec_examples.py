@@ -39,7 +39,7 @@ from tests.common import RuleTestCase
 #             text = text.replace('\u21d4', '')    # byte order mark
 #             text = text.replace('\u2192', '\t')  # right arrow
 #             text = text.replace('\u00b0', '')    # empty scalar
-#             with open('tests/yaml-1.2-spec-examples/%s' % id, 'w',
+#             with open(f'tests/yaml-1.2-spec-examples/{id}', 'w',
 #                       encoding='utf-8') as g:
 #                 g.write(text)
 

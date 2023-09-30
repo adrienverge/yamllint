@@ -113,5 +113,5 @@ def check(conf, line):
             max = conf['max-end']
 
         if blank_lines > max:
-            yield LintProblem(line.line_no, 1, 'too many blank lines (%d > %d)'
-                                               % (blank_lines, max))
+            yield LintProblem(line.line_no, 1,
+                              f'too many blank lines ({blank_lines} > {max})')

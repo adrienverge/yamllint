@@ -122,6 +122,6 @@ def check(conf, token, prev, next, nextnext, context):
                    for key in context['stack'][-1].keys):
                 yield LintProblem(
                     next.start_mark.line + 1, next.start_mark.column + 1,
-                    'wrong ordering of key "%s" in mapping' % next.value)
+                    f'wrong ordering of key "{next.value}" in mapping')
             else:
                 context['stack'][-1].keys.append(next.value)

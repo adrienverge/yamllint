@@ -227,7 +227,7 @@ class Parent:
         self.implicit_block_seq = False
 
     def __repr__(self):
-        return '%s:%d' % (labels[self.type], self.indent)
+        return f'{labels[self.type]}:{self.indent}'
 
 
 def check_scalar_indentation(conf, token, context):
@@ -303,8 +303,8 @@ def check_scalar_indentation(conf, token, context):
 
         if indent != expected_indent:
             yield LintProblem(line_no, indent + 1,
-                              'wrong indentation: expected %d but found %d' %
-                              (expected_indent, indent))
+                              f'wrong indentation: expected {expected_indent}'
+                              f'but found {indent}')
 
 
 def _check(conf, token, prev, next, nextnext, context):
@@ -342,11 +342,11 @@ def _check(conf, token, prev, next, nextnext, context):
 
         if found_indentation != expected:
             if expected < 0:
-                message = 'wrong indentation: expected at least %d' % \
-                          (found_indentation + 1)
+                message = f'wrong indentation: expected at least ' \
+                          f'{found_indentation + 1}'
             else:
-                message = 'wrong indentation: expected %d but found %d' % \
-                          (expected, found_indentation)
+                message = f'wrong indentation: expected {expected} but ' \
+                          f'found {found_indentation}'
             yield LintProblem(token.start_mark.line + 1,
                               found_indentation + 1, message)
 

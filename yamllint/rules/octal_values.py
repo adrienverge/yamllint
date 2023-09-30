@@ -99,8 +99,7 @@ def check(conf, token, prev, next, nextnext, context):
                         IS_OCTAL_NUMBER_PATTERN.match(val[1:])):
                     yield LintProblem(
                         token.start_mark.line + 1, token.end_mark.column + 1,
-                        'forbidden implicit octal value "%s"' %
-                        token.value)
+                        f'forbidden implicit octal value "{token.value}"')
 
     if conf['forbid-explicit-octal']:
         if isinstance(token, yaml.tokens.ScalarToken):
@@ -110,5 +109,4 @@ def check(conf, token, prev, next, nextnext, context):
                         IS_OCTAL_NUMBER_PATTERN.match(val[2:])):
                     yield LintProblem(
                         token.start_mark.line + 1, token.end_mark.column + 1,
-                        'forbidden explicit octal value "%s"' %
-                        token.value)
+                        f'forbidden explicit octal value "{token.value}"')
