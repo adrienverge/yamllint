@@ -95,6 +95,6 @@ def check(conf, token, prev, next, nextnext, context):
                     next.value != '<<'):
                 yield LintProblem(
                     next.start_mark.line + 1, next.start_mark.column + 1,
-                    'duplication of key "%s" in mapping' % next.value)
+                    f'duplication of key "{next.value}" in mapping')
             else:
                 context['stack'][-1].keys.append(next.value)

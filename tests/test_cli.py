@@ -286,8 +286,8 @@ class CommandLineTestCase(unittest.TestCase):
 
         with RunContext(self) as ctx:
             cli.run(('-d', 'default', '-f', 'parsable', path))
-        expected_out = ('%s:1:1: [warning] missing document start "---" '
-                        '(document-start)\n' % path)
+        expected_out = (f'{path}:1:1: [warning] missing document start "---" '
+                        f'(document-start)\n')
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (0, expected_out, ''))
 
@@ -424,9 +424,9 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-f', 'parsable', path))
         self.assertEqual(ctx.returncode, 1)
         self.assertEqual(ctx.stdout, (
-            '%s:2:4: [error] trailing spaces (trailing-spaces)\n'
-            '%s:3:4: [error] no new line character at the end of file '
-            '(new-line-at-end-of-file)\n' % (path, path)))
+            f'{path}:2:4: [error] trailing spaces (trailing-spaces)\n'
+            f'{path}:3:4: [error] no new line character at the end of file '
+            f'(new-line-at-end-of-file)\n'))
         self.assertEqual(ctx.stderr, '')
 
     def test_run_one_warning(self):
@@ -476,8 +476,8 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(['-f', 'parsable'] + items)
         self.assertEqual((ctx.returncode, ctx.stderr), (1, ''))
         self.assertEqual(ctx.stdout, (
-            '%s:3:1: [error] duplication of key "key" in mapping '
-            '(key-duplicates)\n') % path)
+            f'{path}:3:1: [error] duplication of key "key" in mapping '
+            f'(key-duplicates)\n'))
 
     def test_run_piped_output_nocolor(self):
         path = os.path.join(self.wd, 'a.yaml')
@@ -486,11 +486,11 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run((path, ))
         self.assertEqual((ctx.returncode, ctx.stderr), (1, ''))
         self.assertEqual(ctx.stdout, (
-            '%s\n'
-            '  2:4       error    trailing spaces  (trailing-spaces)\n'
-            '  3:4       error    no new line character at the end of file  '
-            '(new-line-at-end-of-file)\n'
-            '\n' % path))
+            f'{path}\n'
+            f'  2:4       error    trailing spaces  (trailing-spaces)\n'
+            f'  3:4       error    no new line character at the end of file  '
+            f'(new-line-at-end-of-file)\n'
+            f'\n'))
 
     def test_run_default_format_output_in_tty(self):
         path = os.path.join(self.wd, 'a.yaml')
@@ -517,13 +517,13 @@ class CommandLineTestCase(unittest.TestCase):
         output.close()
 
         self.assertEqual(out, (
-            '\033[4m%s\033[0m\n'
-            '  \033[2m2:4\033[0m       \033[31merror\033[0m    '
-            'trailing spaces  \033[2m(trailing-spaces)\033[0m\n'
-            '  \033[2m3:4\033[0m       \033[31merror\033[0m    '
-            'no new line character at the end of file  '
-            '\033[2m(new-line-at-end-of-file)\033[0m\n'
-            '\n' % path))
+            f'\033[4m{path}\033[0m\n'
+            f'  \033[2m2:4\033[0m       \033[31merror\033[0m    '
+            f'trailing spaces  \033[2m(trailing-spaces)\033[0m\n'
+            f'  \033[2m3:4\033[0m       \033[31merror\033[0m    '
+            f'no new line character at the end of file  '
+            f'\033[2m(new-line-at-end-of-file)\033[0m\n'
+            f'\n'))
 
     def test_run_default_format_output_without_tty(self):
         path = os.path.join(self.wd, 'a.yaml')
@@ -531,11 +531,11 @@ class CommandLineTestCase(unittest.TestCase):
         with RunContext(self) as ctx:
             cli.run((path, ))
         expected_out = (
-            '%s\n'
-            '  2:4       error    trailing spaces  (trailing-spaces)\n'
-            '  3:4       error    no new line character at the end of file  '
-            '(new-line-at-end-of-file)\n'
-            '\n' % path)
+            f'{path}\n'
+            f'  2:4       error    trailing spaces  (trailing-spaces)\n'
+            f'  3:4       error    no new line character at the end of file  '
+            f'(new-line-at-end-of-file)\n'
+            f'\n')
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
@@ -545,11 +545,11 @@ class CommandLineTestCase(unittest.TestCase):
         with RunContext(self) as ctx:
             cli.run((path, '--format', 'auto'))
         expected_out = (
-            '%s\n'
-            '  2:4       error    trailing spaces  (trailing-spaces)\n'
-            '  3:4       error    no new line character at the end of file  '
-            '(new-line-at-end-of-file)\n'
-            '\n' % path)
+            f'{path}\n'
+            f'  2:4       error    trailing spaces  (trailing-spaces)\n'
+            f'  3:4       error    no new line character at the end of file  '
+            f'(new-line-at-end-of-file)\n'
+            f'\n')
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
@@ -559,13 +559,13 @@ class CommandLineTestCase(unittest.TestCase):
         with RunContext(self) as ctx:
             cli.run((path, '--format', 'colored'))
         expected_out = (
-            '\033[4m%s\033[0m\n'
-            '  \033[2m2:4\033[0m       \033[31merror\033[0m    '
-            'trailing spaces  \033[2m(trailing-spaces)\033[0m\n'
-            '  \033[2m3:4\033[0m       \033[31merror\033[0m    '
-            'no new line character at the end of file  '
-            '\033[2m(new-line-at-end-of-file)\033[0m\n'
-            '\n' % path)
+            f'\033[4m{path}\033[0m\n'
+            f'  \033[2m2:4\033[0m       \033[31merror\033[0m    '
+            f'trailing spaces  \033[2m(trailing-spaces)\033[0m\n'
+            f'  \033[2m3:4\033[0m       \033[31merror\033[0m    '
+            f'no new line character at the end of file  '
+            f'\033[2m(new-line-at-end-of-file)\033[0m\n'
+            f'\n')
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
@@ -575,10 +575,10 @@ class CommandLineTestCase(unittest.TestCase):
         with RunContext(self) as ctx:
             cli.run((path, '--format', 'colored'))
         expected_out = (
-            '\033[4m%s\033[0m\n'
-            '  \033[2m1:1\033[0m       \033[33mwarning\033[0m  '
-            'missing document start "---"  \033[2m(document-start)\033[0m\n'
-            '\n' % path)
+            f'\033[4m{path}\033[0m\n'
+            f'  \033[2m1:1\033[0m       \033[33mwarning\033[0m  '
+            f'missing document start "---"  \033[2m(document-start)\033[0m\n'
+            f'\n')
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (0, expected_out, ''))
 
@@ -588,13 +588,12 @@ class CommandLineTestCase(unittest.TestCase):
         with RunContext(self) as ctx:
             cli.run((path, '--format', 'github'))
         expected_out = (
-            '::group::%s\n'
-            '::error file=%s,line=2,col=4::2:4 [trailing-spaces] trailing'
-            ' spaces\n'
-            '::error file=%s,line=3,col=4::3:4 [new-line-at-end-of-file] no'
-            ' new line character at the end of file\n'
-            '::endgroup::\n\n'
-            % (path, path, path))
+            f'::group::{path}\n'
+            f'::error file={path},line=2,col=4::2:4 [trailing-spaces] trailing'
+            f' spaces\n'
+            f'::error file={path},line=3,col=4::3:4 [new-line-at-end-of-file]'
+            f' no new line character at the end of file\n'
+            f'::endgroup::\n\n')
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
@@ -608,13 +607,12 @@ class CommandLineTestCase(unittest.TestCase):
             os.environ['GITHUB_WORKFLOW'] = 'something'
             cli.run((path, ))
         expected_out = (
-            '::group::%s\n'
-            '::error file=%s,line=2,col=4::2:4 [trailing-spaces] trailing'
-            ' spaces\n'
-            '::error file=%s,line=3,col=4::3:4 [new-line-at-end-of-file] no'
-            ' new line character at the end of file\n'
-            '::endgroup::\n\n'
-            % (path, path, path))
+            f'::group::{path}\n'
+            f'::error file={path},line=2,col=4::2:4 [trailing-spaces] trailing'
+            f' spaces\n'
+            f'::error file={path},line=3,col=4::3:4 [new-line-at-end-of-file]'
+            f' no new line character at the end of file\n'
+            f'::endgroup::\n\n')
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
@@ -640,11 +638,11 @@ class CommandLineTestCase(unittest.TestCase):
         with RunContext(self) as ctx:
             cli.run((path, '--no-warnings', '-f', 'auto'))
         expected_out = (
-            '%s\n'
-            '  2:4       error    trailing spaces  (trailing-spaces)\n'
-            '  3:4       error    no new line character at the end of file  '
-            '(new-line-at-end-of-file)\n'
-            '\n' % path)
+            f'{path}\n'
+            f'  2:4       error    trailing spaces  (trailing-spaces)\n'
+            f'  3:4       error    no new line character at the end of file  '
+            f'(new-line-at-end-of-file)\n'
+            f'\n')
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
@@ -671,10 +669,10 @@ class CommandLineTestCase(unittest.TestCase):
         with RunContext(self) as ctx:
             cli.run(('-d', 'rules:\n  new-lines:\n    type: unix', path))
         expected_out = (
-            '%s\n'
-            '  1:4       error    wrong new line character: expected \\n'
-            '  (new-lines)\n'
-            '\n' % path)
+            f'{path}\n'
+            f'  1:4       error    wrong new line character: expected \\n'
+            f'  (new-lines)\n'
+            f'\n')
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 

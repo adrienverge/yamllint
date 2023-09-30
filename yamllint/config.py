@@ -76,7 +76,7 @@ class YamlLintConfig:
         try:
             conf = yaml.safe_load(raw_content)
         except Exception as e:
-            raise YamlLintConfigError('invalid config: %s' % e)
+            raise YamlLintConfigError(f'invalid config: {e}')
 
         if not isinstance(conf, dict):
             raise YamlLintConfigError('invalid config: not a dict')
@@ -95,7 +95,7 @@ class YamlLintConfig:
             try:
                 self.extend(base)
             except Exception as e:
-                raise YamlLintConfigError('invalid config: %s' % e)
+                raise YamlLintConfigError(f'invalid config: {e}')
 
         if 'ignore' in conf and 'ignore-from-file' in conf:
             raise YamlLintConfigError(
@@ -143,7 +143,7 @@ class YamlLintConfig:
             try:
                 rule = yamllint.rules.get(id)
             except Exception as e:
-                raise YamlLintConfigError('invalid config: %s' % e)
+                raise YamlLintConfigError(f'invalid config: {e}')
 
             self.rules[id] = validate_rule_conf(rule, self.rules[id])
 
@@ -179,16 +179,16 @@ def validate_rule_conf(rule, conf):
                 continue
             if optkey not in options:
                 raise YamlLintConfigError(
-                    'invalid config: unknown option "%s" for rule "%s"' %
-                    (optkey, rule.ID))
+                    f'invalid config: unknown option "{optkey}" for rule '
+                    f'"{rule.ID}"')
             # Example: CONF = {option: (bool, 'mixed')}
             #          → {option: true}         → {option: mixed}
             if isinstance(options[optkey], tuple):
                 if (conf[optkey] not in options[optkey] and
                         type(conf[optkey]) not in options[optkey]):
                     raise YamlLintConfigError(
-                        'invalid config: option "%s" of "%s" should be in %s'
-                        % (optkey, rule.ID, options[optkey]))
+                        f'invalid config: option "{optkey}" of "{rule.ID}" '
+                        f'should be in {options[optkey]}')
             # Example: CONF = {option: ['flag1', 'flag2', int]}
             #          → {option: [flag1]}      → {option: [42, flag1, flag2]}
             elif isinstance(options[optkey], list):
@@ -197,16 +197,15 @@ def validate_rule_conf(rule, conf):
                             type(flag) not in options[optkey]
                             for flag in conf[optkey])):
                     raise YamlLintConfigError(
-                        ('invalid config: option "%s" of "%s" should only '
-                         'contain values in %s')
-                        % (optkey, rule.ID, str(options[optkey])))
+                        f'invalid config: option "{optkey}" of "{rule.ID}" '
+                        f'should only contain values in {options[optkey]}')
             # Example: CONF = {option: int}
             #          → {option: 42}
             else:
                 if not isinstance(conf[optkey], options[optkey]):
                     raise YamlLintConfigError(
-                        'invalid config: option "%s" of "%s" should be %s'
-                        % (optkey, rule.ID, options[optkey].__name__))
+                        f'invalid config: option "{optkey}" of "{rule.ID}" '
+                        f'should be {options[optkey].__name__}')
         for optkey in options:
             if optkey not in conf:
                 conf[optkey] = options_default[optkey]
@@ -214,12 +213,11 @@ def validate_rule_conf(rule, conf):
         if hasattr(rule, 'VALIDATE'):
             res = rule.VALIDATE(conf)
             if res:
-                raise YamlLintConfigError('invalid config: %s: %s' %
-                                          (rule.ID, res))
+                raise YamlLintConfigError(f'invalid config: {rule.ID}: {res}')
     else:
-        raise YamlLintConfigError(('invalid config: rule "%s": should be '
-                                   'either "enable", "disable" or a dict')
-                                  % rule.ID)
+        raise YamlLintConfigError(
+            f'invalid config: rule "{rule.ID}": should be either "enable", '
+            f'"disable" or a dict')
 
     return conf
 
@@ -228,7 +226,7 @@ def get_extended_config_file(name):
     # Is it a standard conf shipped with yamllint...
     if '/' not in name:
         std_conf = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                'conf', name + '.yaml')
+                                'conf', f'{name}.yaml')
 
         if os.path.isfile(std_conf):
             return std_conf

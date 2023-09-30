@@ -68,6 +68,6 @@ _RULES = {
 
 def get(id):
     if id not in _RULES:
-        raise ValueError('no such rule: "%s"' % id)
+        raise ValueError(f'no such rule: "{id}"')
 
     return _RULES[id]

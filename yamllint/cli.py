@@ -49,52 +49,41 @@ def supports_color():
 class Format:
     @staticmethod
     def parsable(problem, filename):
-        return ('%(file)s:%(line)s:%(column)s: [%(level)s] %(message)s' %
-                {'file': filename,
-                 'line': problem.line,
-                 'column': problem.column,
-                 'level': problem.level,
-                 'message': problem.message})
+        return (f'{filename}:{problem.line}:{problem.column}: '
+                f'[{problem.level}] {problem.message}')
 
     @staticmethod
     def standard(problem, filename):
-        line = '  %d:%d' % (problem.line, problem.column)
+        line = f'  {problem.line}:{problem.column}'
         line += max(12 - len(line), 0) * ' '
         line += problem.level
         line += max(21 - len(line), 0) * ' '
         line += problem.desc
         if problem.rule:
-            line += '  (%s)' % problem.rule
+            line += f'  ({problem.rule})'
         return line
 
     @staticmethod
     def standard_color(problem, filename):
-        line = '  \033[2m%d:%d\033[0m' % (problem.line, problem.column)
+        line = f'  \033[2m{problem.line}:{problem.column}\033[0m'
         line += max(20 - len(line), 0) * ' '
         if problem.level == 'warning':
-            line += '\033[33m%s\033[0m' % problem.level
+            line += f'\033[33m{problem.level}\033[0m'
         else:
-            line += '\033[31m%s\033[0m' % problem.level
+            line += f'\033[31m{problem.level}\033[0m'
         line += max(38 - len(line), 0) * ' '
         line += problem.desc
         if problem.rule:
-            line += '  \033[2m(%s)\033[0m' % problem.rule
+            line += f'  \033[2m({problem.rule})\033[0m'
         return line
 
     @staticmethod
     def github(problem, filename):
-        line = '::'
-        line += problem.level
-        line += ' file=' + filename + ','
-        line += 'line=' + format(problem.line) + ','
-        line += 'col=' + format(problem.column)
-        line += '::'
-        line += format(problem.line)
-        line += ':'
-        line += format(problem.column)
-        line += ' '
+        line = f'::{problem.level} file={format(filename)},' \
+               f'line={format(problem.line)},col={format(problem.column)}' \
+               f'::{format(problem.line)}:{format(problem.column)} '
         if problem.rule:
-            line += '[' + problem.rule + '] '
+            line += f'[{problem.rule}] '
         line += problem.desc
         return line
 
@@ -118,12 +107,12 @@ def show_problems(problems, file, args_format, no_warn):
             print(Format.parsable(problem, file))
         elif args_format == 'github':
             if first:
-                print('::group::%s' % file)
+                print(f'::group::{file}')
                 first = False
             print(Format.github(problem, file))
         elif args_format == 'colored':
             if first:
-                print('\033[4m%s\033[0m' % file)
+                print(f'\033[4m{file}\033[0m')
                 first = False
             print(Format.standard_color(problem, file))
         else:
@@ -184,7 +173,7 @@ def run(argv=None):
                         action='store_true',
                         help='output only error level problems')
     parser.add_argument('-v', '--version', action='version',
-                        version='{} {}'.format(APP_NAME, APP_VERSION))
+                        version=f'{APP_NAME} {APP_VERSION}')
 
     args = parser.parse_args(argv)
 
@@ -202,7 +191,7 @@ def run(argv=None):
     try:
         if args.config_data is not None:
             if args.config_data != '' and ':' not in args.config_data:
-                args.config_data = 'extends: ' + args.config_data
+                args.config_data = f'extends: {args.config_data}'
             conf = YamlLintConfig(content=args.config_data)
         elif args.config_file is not None:
             conf = YamlLintConfig(file=args.config_file)

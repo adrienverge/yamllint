@@ -240,7 +240,7 @@ def check(conf, token, prev, next, nextnext, context):
         if (token.style is None or
             not (_quote_match(quote_type, token.style) or
                  (conf['allow-quoted-quotes'] and _has_quoted_quotes(token)))):
-            msg = "string value is not quoted with %s quotes" % quote_type
+            msg = f"string value is not quoted with {quote_type} quotes"
 
     elif conf['required'] is False:
 
@@ -249,7 +249,7 @@ def check(conf, token, prev, next, nextnext, context):
                 not _quote_match(quote_type, token.style) and
                 not (conf['allow-quoted-quotes'] and
                      _has_quoted_quotes(token))):
-            msg = "string value is not quoted with %s quotes" % quote_type
+            msg = f"string value is not quoted with {quote_type} quotes"
 
         elif not token.style:
             is_extra_required = any(re.search(r, token.value)
@@ -267,14 +267,14 @@ def check(conf, token, prev, next, nextnext, context):
             is_extra_allowed = any(re.search(r, token.value)
                                    for r in conf['extra-allowed'])
             if not (is_extra_required or is_extra_allowed):
-                msg = "string value is redundantly quoted with %s quotes" % (
-                    quote_type)
+                msg = f"string value is redundantly quoted with " \
+                      f"{quote_type} quotes"
 
         # But when used need to match config
         elif (token.style and
               not _quote_match(quote_type, token.style) and
               not (conf['allow-quoted-quotes'] and _has_quoted_quotes(token))):
-            msg = "string value is not quoted with %s quotes" % quote_type
+            msg = f"string value is not quoted with {quote_type} quotes"
 
         elif not token.style:
             is_extra_required = len(conf['extra-required']) and any(
