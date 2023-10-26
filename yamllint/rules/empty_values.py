@@ -82,9 +82,11 @@ from yamllint.linter import LintProblem
 ID = 'empty-values'
 TYPE = 'token'
 CONF = {'forbid-in-block-mappings': bool,
-        'forbid-in-flow-mappings': bool}
+        'forbid-in-flow-mappings': bool,
+        'forbid-in-list-items': bool}
 DEFAULT = {'forbid-in-block-mappings': True,
-           'forbid-in-flow-mappings': True}
+           'forbid-in-flow-mappings': True,
+           'forbid-in-list-items': False}
 
 
 def check(conf, token, prev, next, nextnext, context):
@@ -102,3 +104,10 @@ def check(conf, token, prev, next, nextnext, context):
             yield LintProblem(token.start_mark.line + 1,
                               token.end_mark.column + 1,
                               'empty value in flow mapping')
+
+    if conf['forbid-in-list-items']:
+        if isinstance(token, yaml.BlockEntryToken) and isinstance(next, (
+                yaml.KeyToken, yaml.BlockEndToken, yaml.BlockEntryToken)):
+            yield LintProblem(token.start_mark.line + 1,
+                              token.end_mark.column + 1,
+                              'empty value in list items')
