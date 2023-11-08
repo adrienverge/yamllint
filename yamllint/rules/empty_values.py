@@ -21,6 +21,7 @@ Use this rule to prevent nodes with empty content, that implicitly result in
 
 * Use ``forbid-in-block-mappings`` to prevent empty values in block mappings.
 * Use ``forbid-in-flow-mappings`` to prevent empty values in flow mappings.
+* Use ``forbid-in-list-items`` to prevent empty values in lists.
 
 .. rubric:: Default values (when enabled)
 
@@ -30,6 +31,7 @@ Use this rule to prevent nodes with empty content, that implicitly result in
    empty-values:
      forbid-in-block-mappings: true
      forbid-in-flow-mappings: true
+     forbid-in-list-items: false
 
 .. rubric:: Examples
 
@@ -71,6 +73,26 @@ Use this rule to prevent nodes with empty content, that implicitly result in
    ::
 
     {a: 1, b:, c: 3}
+
+#. With ``empty-values: {forbid-in-list-items: true}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    some-list:
+      - string item
+
+   the following code snippets would **FAIL**:
+   ::
+
+    some-list:
+      -
+
+   ::
+
+    some-list:
+      - string item
+      -
 
 """
 

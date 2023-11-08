@@ -258,3 +258,60 @@ class EmptyValuesTestCase(RuleTestCase):
                    problem1=(4, 7),
                    problem2=(7, 9),
                    problem3=(10, 5))
+
+    def test_in_list_items_disabled(self):
+        conf = ('empty-values: {forbid-in-block-mappings: false,\n'
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-list-items: false}\n'
+                'braces: disable\n'
+                'commas: disable\n')
+        self.check('---\n'
+                   'foo:\n'
+                   '  - bar\n'
+                   '  -\n', conf)
+        self.check('---\n'
+                   'foo:\n'
+                   '  -\n', conf)
+
+    def test_in_list_items_primative_item(self):
+        conf = ('empty-values: {forbid-in-block-mappings: false,\n'
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-list-items: true}\n'
+                'braces: disable\n'
+                'commas: disable\n')
+        self.check('---\n'
+                   'foo:\n'
+                   '  -\n', conf,
+                   problem=(3, 4))
+        self.check('---\n'
+                   'foo:\n'
+                   '  - bar\n'
+                   '  -\n', conf,
+                   problem=(4, 4))
+        self.check('---\n'
+                   'foo:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  -\n', conf,
+                   problem=(5, 4))
+        self.check('---\n'
+                   'foo:\n'
+                   '  - null\n', conf)
+
+    def test_in_list_items_various_explicit_null(self):
+        conf = ('empty-values: {forbid-in-block-mappings: false,\n'
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-list-items: true}\n'
+                'braces: disable\n'
+                'commas: disable\n')
+        self.check('---\n'
+                   'foo:\n'
+                   '  - null\n', conf)
+        self.check('---\n'
+                   '- null\n', conf)
+        self.check('---\n'
+                   'foo:\n'
+                   '  - bar: null\n', conf)
+        self.check('---\n'
+                   '- null\n'
+                   '- null\n', conf)
