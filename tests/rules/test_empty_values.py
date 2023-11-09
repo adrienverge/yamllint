@@ -42,7 +42,8 @@ class EmptyValuesTestCase(RuleTestCase):
 
     def test_in_block_mappings_disabled(self):
         conf = ('empty-values: {forbid-in-block-mappings: false,\n'
-                '               forbid-in-flow-mappings: false}\n')
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: false}\n')
         self.check('---\n'
                    'foo:\n', conf)
         self.check('---\n'
@@ -51,7 +52,8 @@ class EmptyValuesTestCase(RuleTestCase):
 
     def test_in_block_mappings_single_line(self):
         conf = ('empty-values: {forbid-in-block-mappings: true,\n'
-                '               forbid-in-flow-mappings: false}\n')
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: false}\n')
         self.check('---\n'
                    'implicitly-null:\n', conf, problem1=(2, 17))
         self.check('---\n'
@@ -63,7 +65,8 @@ class EmptyValuesTestCase(RuleTestCase):
 
     def test_in_block_mappings_all_lines(self):
         conf = ('empty-values: {forbid-in-block-mappings: true,\n'
-                '               forbid-in-flow-mappings: false}\n')
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: false}\n')
         self.check('---\n'
                    'foo:\n'
                    'bar:\n'
@@ -72,14 +75,16 @@ class EmptyValuesTestCase(RuleTestCase):
 
     def test_in_block_mappings_explicit_end_of_document(self):
         conf = ('empty-values: {forbid-in-block-mappings: true,\n'
-                '               forbid-in-flow-mappings: false}\n')
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: false}\n')
         self.check('---\n'
                    'foo:\n'
                    '...\n', conf, problem1=(2, 5))
 
     def test_in_block_mappings_not_end_of_document(self):
         conf = ('empty-values: {forbid-in-block-mappings: true,\n'
-                '               forbid-in-flow-mappings: false}\n')
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: false}\n')
         self.check('---\n'
                    'foo:\n'
                    'bar:\n'
@@ -87,7 +92,8 @@ class EmptyValuesTestCase(RuleTestCase):
 
     def test_in_block_mappings_different_level(self):
         conf = ('empty-values: {forbid-in-block-mappings: true,\n'
-                '               forbid-in-flow-mappings: false}\n')
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: false}\n')
         self.check('---\n'
                    'foo:\n'
                    ' bar:\n'
@@ -95,7 +101,8 @@ class EmptyValuesTestCase(RuleTestCase):
 
     def test_in_block_mappings_empty_flow_mapping(self):
         conf = ('empty-values: {forbid-in-block-mappings: true,\n'
-                '               forbid-in-flow-mappings: false}\n'
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: false}\n'
                 'braces: disable\n'
                 'commas: disable\n')
         self.check('---\n'
@@ -107,14 +114,16 @@ class EmptyValuesTestCase(RuleTestCase):
 
     def test_in_block_mappings_empty_block_sequence(self):
         conf = ('empty-values: {forbid-in-block-mappings: true,\n'
-                '               forbid-in-flow-mappings: false}\n')
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: false}\n')
         self.check('---\n'
                    'foo:\n'
                    '  -\n', conf)
 
     def test_in_block_mappings_not_empty_or_explicit_null(self):
         conf = ('empty-values: {forbid-in-block-mappings: true,\n'
-                '               forbid-in-flow-mappings: false}\n')
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: false}\n')
         self.check('---\n'
                    'foo:\n'
                    ' bar:\n'
@@ -137,7 +146,8 @@ class EmptyValuesTestCase(RuleTestCase):
 
     def test_in_block_mappings_various_explicit_null(self):
         conf = ('empty-values: {forbid-in-block-mappings: true,\n'
-                '               forbid-in-flow-mappings: false}\n')
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: false}\n')
         self.check('---\n'
                    'null-alias: ~\n', conf)
         self.check('---\n'
@@ -147,7 +157,8 @@ class EmptyValuesTestCase(RuleTestCase):
 
     def test_in_block_mappings_comments(self):
         conf = ('empty-values: {forbid-in-block-mappings: true,\n'
-                '               forbid-in-flow-mappings: false}\n'
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: false}\n'
                 'comments: disable\n')
         self.check('---\n'
                    'empty:  # comment\n'
@@ -158,7 +169,8 @@ class EmptyValuesTestCase(RuleTestCase):
 
     def test_in_flow_mappings_disabled(self):
         conf = ('empty-values: {forbid-in-block-mappings: false,\n'
-                '               forbid-in-flow-mappings: false}\n'
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: false}\n'
                 'braces: disable\n'
                 'commas: disable\n')
         self.check('---\n'
@@ -175,7 +187,8 @@ class EmptyValuesTestCase(RuleTestCase):
 
     def test_in_flow_mappings_single_line(self):
         conf = ('empty-values: {forbid-in-block-mappings: false,\n'
-                '               forbid-in-flow-mappings: true}\n'
+                '               forbid-in-flow-mappings: true,\n'
+                '               forbid-in-block-sequences: false}\n'
                 'braces: disable\n'
                 'commas: disable\n')
         self.check('---\n'
@@ -201,7 +214,8 @@ class EmptyValuesTestCase(RuleTestCase):
 
     def test_in_flow_mappings_multi_line(self):
         conf = ('empty-values: {forbid-in-block-mappings: false,\n'
-                '               forbid-in-flow-mappings: true}\n'
+                '               forbid-in-flow-mappings: true,\n'
+                '               forbid-in-block-sequences: false}\n'
                 'braces: disable\n'
                 'commas: disable\n')
         self.check('---\n'
@@ -226,7 +240,8 @@ class EmptyValuesTestCase(RuleTestCase):
 
     def test_in_flow_mappings_various_explicit_null(self):
         conf = ('empty-values: {forbid-in-block-mappings: false,\n'
-                '               forbid-in-flow-mappings: true}\n'
+                '               forbid-in-flow-mappings: true,\n'
+                '               forbid-in-block-sequences: false}\n'
                 'braces: disable\n'
                 'commas: disable\n')
         self.check('---\n'
@@ -240,7 +255,8 @@ class EmptyValuesTestCase(RuleTestCase):
 
     def test_in_flow_mappings_comments(self):
         conf = ('empty-values: {forbid-in-block-mappings: false,\n'
-                '               forbid-in-flow-mappings: true}\n'
+                '               forbid-in-flow-mappings: true,\n'
+                '               forbid-in-block-sequences: false}\n'
                 'braces: disable\n'
                 'commas: disable\n'
                 'comments: disable\n')
@@ -258,3 +274,95 @@ class EmptyValuesTestCase(RuleTestCase):
                    problem1=(4, 7),
                    problem2=(7, 9),
                    problem3=(10, 5))
+
+    def test_in_block_sequences_disabled(self):
+        conf = ('empty-values: {forbid-in-block-mappings: false,\n'
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: false}\n')
+        self.check('---\n'
+                   'foo:\n'
+                   '  - bar\n'
+                   '  -\n', conf)
+        self.check('---\n'
+                   'foo:\n'
+                   '  -\n', conf)
+
+    def test_in_block_sequences_primative_item(self):
+        conf = ('empty-values: {forbid-in-block-mappings: false,\n'
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: true}\n')
+        self.check('---\n'
+                   'foo:\n'
+                   '  -\n', conf,
+                   problem=(3, 4))
+        self.check('---\n'
+                   'foo:\n'
+                   '  - bar\n'
+                   '  -\n', conf,
+                   problem=(4, 4))
+        self.check('---\n'
+                   'foo:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  -\n', conf,
+                   problem=(5, 4))
+        self.check('---\n'
+                   'foo:\n'
+                   '  - true\n', conf)
+
+    def test_in_block_sequences_complex_objects(self):
+        conf = ('empty-values: {forbid-in-block-mappings: false,\n'
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: true}\n')
+        self.check('---\n'
+                   'foo:\n'
+                   '  - a: 1\n', conf)
+        self.check('---\n'
+                   'foo:\n'
+                   '  - a: 1\n'
+                   '  -\n', conf,
+                   problem=(4, 4))
+        self.check('---\n'
+                   'foo:\n'
+                   '  - a: 1\n'
+                   '    b: 2\n'
+                   '  -\n', conf,
+                   problem=(5, 4))
+        self.check('---\n'
+                   'foo:\n'
+                   '  - a: 1\n'
+                   '  - b: 2\n'
+                   '  -\n', conf,
+                   problem=(5, 4))
+        self.check('---\n'
+                   'foo:\n'
+                   '  - - a\n'
+                   '    - b: 2\n'
+                   '    -\n', conf,
+                   problem=(5, 6))
+        self.check('---\n'
+                   'foo:\n'
+                   '  - - a\n'
+                   '    - b: 2\n'
+                   '  -\n', conf,
+                   problem=(5, 4))
+
+    def test_in_block_sequences_various_explicit_null(self):
+        conf = ('empty-values: {forbid-in-block-mappings: false,\n'
+                '               forbid-in-flow-mappings: false,\n'
+                '               forbid-in-block-sequences: true}\n')
+        self.check('---\n'
+                   'foo:\n'
+                   '  - null\n', conf)
+        self.check('---\n'
+                   '- null\n', conf)
+        self.check('---\n'
+                   'foo:\n'
+                   '  - bar: null\n'
+                   '  - null\n', conf)
+        self.check('---\n'
+                   '- null\n'
+                   '- null\n', conf)
+        self.check('---\n'
+                   '- - null\n'
+                   '  - null\n', conf)

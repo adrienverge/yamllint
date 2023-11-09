@@ -21,6 +21,7 @@ Use this rule to prevent nodes with empty content, that implicitly result in
 
 * Use ``forbid-in-block-mappings`` to prevent empty values in block mappings.
 * Use ``forbid-in-flow-mappings`` to prevent empty values in flow mappings.
+* Use ``forbid-in-block-sequences`` to prevent empty values in block sequences.
 
 .. rubric:: Default values (when enabled)
 
@@ -30,6 +31,7 @@ Use this rule to prevent nodes with empty content, that implicitly result in
    empty-values:
      forbid-in-block-mappings: true
      forbid-in-flow-mappings: true
+     forbid-in-block-sequences: true
 
 .. rubric:: Examples
 
@@ -72,6 +74,31 @@ Use this rule to prevent nodes with empty content, that implicitly result in
 
     {a: 1, b:, c: 3}
 
+#. With ``empty-values: {forbid-in-block-sequences: true}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    some-sequence:
+      - string item
+
+   ::
+
+    some-sequence:
+      - null
+
+   the following code snippets would **FAIL**:
+   ::
+
+    some-sequence:
+      -
+
+   ::
+
+    some-sequence:
+      - string item
+      -
+
 """
 
 import yaml
@@ -82,9 +109,11 @@ from yamllint.linter import LintProblem
 ID = 'empty-values'
 TYPE = 'token'
 CONF = {'forbid-in-block-mappings': bool,
-        'forbid-in-flow-mappings': bool}
+        'forbid-in-flow-mappings': bool,
+        'forbid-in-block-sequences': bool}
 DEFAULT = {'forbid-in-block-mappings': True,
-           'forbid-in-flow-mappings': True}
+           'forbid-in-flow-mappings': True,
+           'forbid-in-block-sequences': True}
 
 
 def check(conf, token, prev, next, nextnext, context):
@@ -102,3 +131,10 @@ def check(conf, token, prev, next, nextnext, context):
             yield LintProblem(token.start_mark.line + 1,
                               token.end_mark.column + 1,
                               'empty value in flow mapping')
+
+    if conf['forbid-in-block-sequences']:
+        if isinstance(token, yaml.BlockEntryToken) and isinstance(next, (
+                yaml.KeyToken, yaml.BlockEndToken, yaml.BlockEntryToken)):
+            yield LintProblem(token.start_mark.line + 1,
+                              token.end_mark.column + 1,
+                              'empty value in block sequence')
