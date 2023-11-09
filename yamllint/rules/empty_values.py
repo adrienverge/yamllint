@@ -81,6 +81,7 @@ Use this rule to prevent nodes with empty content, that implicitly result in
 
     some-sequence:
       - string item
+
    ::
 
     some-sequence:
@@ -91,6 +92,7 @@ Use this rule to prevent nodes with empty content, that implicitly result in
 
     some-sequence:
       -
+
    ::
 
     some-sequence:
