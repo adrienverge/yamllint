@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.33.0 (2023-11-09)
+-------------------
+
+- Add support for Python 3.12, drop support for Python 3.7
+- Rule ``document-end``: fix spurious "missing document end"
+- Rule ``empty-values``: add ``forbid-in-block-sequences`` option
+
 1.32.0 (2023-05-22)
 -------------------
 
