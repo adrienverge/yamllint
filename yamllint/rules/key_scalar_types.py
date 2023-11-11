@@ -105,7 +105,10 @@ SCALAR_TYPES = ['str',
 
 ID = 'key-scalar-types'
 TYPE = 'token'
-CONF = {'allowed': SCALAR_TYPES.copy()}
+# If the user specifies "null" without quotes, it is evaluated to None in
+# Python. We allow None in the config so that we can deliver a bespoke error
+# message via the VALIDATE function.
+CONF = {'allowed': SCALAR_TYPES.copy() + [None]}
 DEFAULT = {'allowed': SCALAR_TYPES}
 
 
