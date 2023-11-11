@@ -14,7 +14,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Use this rule to control the scalar types that are allowed for keys in mappings.
+Use this rule to control the scalar types that are allowed for keys in
+mappings.
 
 .. rubric:: Options
 
@@ -114,7 +115,7 @@ def VALIDATE(conf):
     seen_types = []
     for allowed_type in key_scalar_types:
         if allowed_type is None:
-            return f'scalar type "null" must be quoted in "allowed" list'
+            return 'scalar type "null" must be quoted in "allowed" list'
         if allowed_type in seen_types:
             return f'duplicate scalar type "{allowed_type}" in "allowed" list'
         seen_types.append(allowed_type)

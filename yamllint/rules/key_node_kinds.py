@@ -14,8 +14,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Use this rule to control the kinds of nodes (https://yaml.org/spec/1.2.2/#nodes)
-that can be used for keys in mappings.
+Use this rule to control the kinds of nodes
+(https://yaml.org/spec/1.2.2/#nodes) that can be used for keys in mappings.
 
 .. rubric:: Options
 

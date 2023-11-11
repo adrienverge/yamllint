@@ -22,8 +22,8 @@ class KeyScalarTypesTestCase(RuleTestCase):
 
     def _check_all(self, target, conf, passes):
         """
-        Expect all the lines in the target to pass, or all to fail, depending on
-        the value of `passes`.
+        Expect all the lines in the target to pass, or all to fail, depending
+        on the value of `passes`.
         """
         lines = target.splitlines()[1:]
         if passes:
