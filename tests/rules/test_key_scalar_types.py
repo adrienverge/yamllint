@@ -15,6 +15,7 @@
 
 from tests.common import RuleTestCase
 from tests.rules.test_truthy import TruthyTestCase
+from yamllint import config
 
 
 class KeyScalarTypesTestCase(RuleTestCase):
@@ -212,3 +213,13 @@ class KeyScalarTypesTestCase(RuleTestCase):
         self._check_scalar_bool_types(conf, passes=False)
         self._check_scalar_null_types(conf, passes=False)
         self._check_scalar_timestamp_types(conf, passes=True)
+
+    def test_config(self):
+
+        # Scalar type "null" must be quoted in "allowed" list
+        conf = 'key-scalar-types: {allowed: [null]}\n'
+        self.assertRaises(config.YamlLintConfigError, self.check, '', conf)
+
+        # Require unique types in "allowed" list
+        conf = 'key-scalar-types: {allowed: [int, str, int]}\n'
+        self.assertRaises(config.YamlLintConfigError, self.check, '', conf)
