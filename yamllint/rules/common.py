@@ -86,3 +86,7 @@ def is_explicit_key(token):
     #   : v
     return (token.start_mark.pointer < token.end_mark.pointer and
             token.start_mark.buffer[token.start_mark.pointer] == '?')
+
+
+def is_key(token):
+    return token and isinstance(token, yaml.KeyToken)

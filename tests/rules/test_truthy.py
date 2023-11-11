@@ -114,12 +114,12 @@ class TruthyTestCase(RuleTestCase):
                    'boolean6: !!bool NO\n',
                    conf)
 
-    def test_check_keys_disabled(self):
-        conf = ('truthy:\n'
-                '  allowed-values: []\n'
-                '  check-keys: false\n'
-                'key-duplicates: disable\n')
-        self.check('---\n'
+    TRUTHY_CONF_DISABLED = ('truthy:\n'
+                            '  allowed-values: []\n'
+                            '  check-keys: false\n'
+                            'key-duplicates: disable\n')
+
+    TRUTHY_KEYS = ('---\n'
                    'YES: 0\n'
                    'Yes: 0\n'
                    'yes: 0\n'
@@ -141,5 +141,8 @@ class TruthyTestCase(RuleTestCase):
                    'YES:\n'
                    '  Yes:\n'
                    '    yes:\n'
-                   '      on: 0\n',
-                   conf)
+                   '      on: 0\n')
+
+    def test_check_keys_disabled(self):
+        conf = self.TRUTHY_CONF_DISABLED
+        self.check(self.TRUTHY_KEYS, conf)

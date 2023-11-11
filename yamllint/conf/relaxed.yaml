@@ -23,6 +23,7 @@ rules:
   indentation:
     level: warning
     indent-sequences: consistent
+  key-scalar-types: disable
   line-length:
     level: warning
     allow-non-breakable-inline-mappings: true
