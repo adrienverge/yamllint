@@ -15,6 +15,7 @@
 
 from tests.common import RuleTestCase
 from tests.rules.test_truthy import TruthyTestCase
+
 from yamllint import config
 
 
