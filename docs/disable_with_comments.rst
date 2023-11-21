@@ -12,11 +12,11 @@ line above. For instance:
 
  # The following mapping contains the same key twice,
  # but I know what I'm doing:
- key: value 1
- key: value 2  # yamllint disable-line rule:key-duplicates
+ - key: value 1
+   key: value 2  # yamllint disable-line rule:key-duplicates
 
  - This line is waaaaaaaaaay too long but yamllint will not report anything about it.  # yamllint disable-line rule:line-length
-   This line will be checked by yamllint.
+ - This line will be checked by yamllint.
 
 or:
 
@@ -24,13 +24,13 @@ or:
 
  # The following mapping contains the same key twice,
  # but I know what I'm doing:
- key: value 1
- # yamllint disable-line rule:key-duplicates
- key: value 2
+ - key: value 1
+   # yamllint disable-line rule:key-duplicates
+   key: value 2
 
  # yamllint disable-line rule:line-length
  - This line is waaaaaaaaaay too long but yamllint will not report anything about it.
-   This line will be checked by yamllint.
+ - This line will be checked by yamllint.
 
 It is possible, although not recommend, to disabled **all** rules for a
 specific line:
@@ -90,8 +90,8 @@ For instance:
 
  # yamllint disable-file
  # The following mapping contains the same key twice, but I know what I'm doing:
- key: value 1
- key: value 2
+ - key: value 1
+   key: value 2
 
  - This line is waaaaaaaaaay too long but yamllint will not report anything about it.
 
