@@ -57,9 +57,14 @@ class QuotedTestCase(RuleTestCase):
                    '  - foo\n'                               # fails
                    '  - "foo"\n'
                    'flow-seq: [foo, "foo"]\n'                # fails
-                   'flow-map: {a: foo, b: "foo"}\n',         # fails
-                   conf, problem1=(4, 10), problem2=(17, 5),
-                   problem3=(19, 12), problem4=(20, 15))
+                   'flow-map: {a: foo, b: "foo"}\n'          # fails
+                   'flow-seq2: [foo, "foo,bar", "foo[bar]", "foo{bar}"]\n'
+                   'flow-map2: {a: foo, b: "foo,bar"}\n'
+                   'nested-flow1: {a: foo, b: [foo, "foo,bar"]}\n'
+                   'nested-flow2: [{a: foo}, {b: "foo,bar", c: ["d[e]"]}]\n',
+                   conf, problem1=(4, 10), problem2=(17, 5), problem3=(19, 12),
+                   problem4=(20, 15), problem5=(21, 13), problem6=(22, 16),
+                   problem7=(23, 19), problem8=(23, 28), problem9=(24, 20))
         self.check('---\n'
                    'multiline string 1: |\n'
                    '  line 1\n'
@@ -97,11 +102,19 @@ class QuotedTestCase(RuleTestCase):
                    '  - foo\n'                               # fails
                    '  - "foo"\n'                             # fails
                    'flow-seq: [foo, "foo"]\n'                # fails
-                   'flow-map: {a: foo, b: "foo"}\n',         # fails
+                   'flow-map: {a: foo, b: "foo"}\n'          # fails
+                   'flow-seq2: [foo, "foo,bar", "foo[bar]", "foo{bar}"]\n'
+                   'flow-map2: {a: foo, b: "foo,bar"}\n'
+                   'nested-flow1: {a: foo, b: [foo, "foo,bar"]}\n'
+                   'nested-flow2: [{a: foo}, {b: "foo,bar", c: ["d[e]"]}]\n',
                    conf, problem1=(4, 10), problem2=(5, 10), problem3=(6, 10),
                    problem4=(7, 10), problem5=(17, 5), problem6=(18, 5),
                    problem7=(19, 12), problem8=(19, 17), problem9=(20, 15),
-                   problem10=(20, 23))
+                   problem10=(20, 23), problem11=(21, 13), problem12=(21, 18),
+                   problem13=(21, 29), problem14=(21, 41), problem15=(22, 16),
+                   problem16=(22, 24), problem17=(23, 19), problem18=(23, 28),
+                   problem19=(23, 33), problem20=(24, 20), problem21=(24, 30),
+                   problem22=(24, 45))
         self.check('---\n'
                    'multiline string 1: |\n'
                    '  line 1\n'
@@ -139,9 +152,15 @@ class QuotedTestCase(RuleTestCase):
                    '  - foo\n'                               # fails
                    '  - "foo"\n'
                    'flow-seq: [foo, "foo"]\n'                # fails
-                   'flow-map: {a: foo, b: "foo"}\n',         # fails
+                   'flow-map: {a: foo, b: "foo"}\n'          # fails
+                   'flow-seq2: [foo, "foo,bar", "foo[bar]", "foo{bar}"]\n'
+                   'flow-map2: {a: foo, b: "foo,bar"}\n'
+                   'nested-flow1: {a: foo, b: [foo, "foo,bar"]}\n'
+                   'nested-flow2: [{a: foo}, {b: "foo,bar", c: ["d[e]"]}]\n',
                    conf, problem1=(4, 10), problem2=(8, 10), problem3=(17, 5),
-                   problem4=(19, 12), problem5=(20, 15))
+                   problem4=(19, 12), problem5=(20, 15), problem6=(21, 13),
+                   problem7=(22, 16), problem8=(23, 19), problem9=(23, 28),
+                   problem10=(24, 20))
         self.check('---\n'
                    'multiline string 1: |\n'
                    '  line 1\n'
@@ -179,7 +198,11 @@ class QuotedTestCase(RuleTestCase):
                    '  - foo\n'                               # fails
                    '  - "foo"\n'
                    'flow-seq: [foo, "foo"]\n'                # fails
-                   'flow-map: {a: foo, b: "foo"}\n',         # fails
+                   'flow-map: {a: foo, b: "foo"}\n'          # fails
+                   'flow-seq2: [foo, "foo,bar", "foo[bar]", "foo{bar}"]\n'
+                   'flow-map2: {a: foo, b: "foo,bar"}\n'
+                   'nested-flow1: {a: foo, b: [foo, "foo,bar"]}\n'
+                   'nested-flow2: [{a: foo}, {b: "foo,bar", c: ["d[e]"]}]\n',
                    conf)
         self.check('---\n'
                    'multiline string 1: |\n'
@@ -218,9 +241,16 @@ class QuotedTestCase(RuleTestCase):
                    '  - foo\n'                               # fails
                    '  - "foo"\n'
                    'flow-seq: [foo, "foo"]\n'                # fails
-                   'flow-map: {a: foo, b: "foo"}\n',         # fails
+                   'flow-map: {a: foo, b: "foo"}\n'          # fails
+                   'flow-seq2: [foo, "foo,bar", "foo[bar]", "foo{bar}"]\n'
+                   'flow-map2: {a: foo, b: "foo,bar"}\n'
+                   'nested-flow1: {a: foo, b: [foo, "foo,bar"]}\n'
+                   'nested-flow2: [{a: foo}, {b: "foo,bar", c: ["d[e]"]}]\n',
                    conf, problem1=(5, 10), problem2=(6, 10), problem3=(7, 10),
-                   problem4=(18, 5), problem5=(19, 17), problem6=(20, 23))
+                   problem4=(18, 5), problem5=(19, 17), problem6=(20, 23),
+                   problem7=(21, 18), problem8=(21, 29), problem9=(21, 41),
+                   problem10=(22, 24), problem11=(23, 33), problem12=(24, 30),
+                   problem13=(24, 45))
         self.check('---\n'
                    'multiline string 1: |\n'
                    '  line 1\n'
@@ -258,7 +288,11 @@ class QuotedTestCase(RuleTestCase):
                    '  - foo\n'
                    '  - "foo"\n'                             # fails
                    'flow-seq: [foo, "foo"]\n'                # fails
-                   'flow-map: {a: foo, b: "foo"}\n',         # fails
+                   'flow-map: {a: foo, b: "foo"}\n'          # fails
+                   'flow-seq2: [foo, "foo,bar", "foo[bar]", "foo{bar}"]\n'
+                   'flow-map2: {a: foo, b: "foo,bar"}\n'
+                   'nested-flow1: {a: foo, b: [foo, "foo,bar"]}\n'
+                   'nested-flow2: [{a: foo}, {b: "foo,bar", c: ["d[e]"]}]\n',
                    conf, problem1=(5, 10), problem2=(8, 10), problem3=(18, 5),
                    problem4=(19, 17), problem5=(20, 23))
         self.check('---\n'
@@ -299,10 +333,15 @@ class QuotedTestCase(RuleTestCase):
                    '  - foo\n'
                    '  - "foo"\n'                             # fails
                    'flow-seq: [foo, "foo"]\n'                # fails
-                   'flow-map: {a: foo, b: "foo"}\n',         # fails
+                   'flow-map: {a: foo, b: "foo"}\n'          # fails
+                   'flow-seq2: [foo, "foo,bar"]\n'           # fails
+                   'flow-map2: {a: foo, b: "foo,bar"}\n'     # fails
+                   'nested-flow1: {a: foo, b: [foo, "foo,bar"]}\n'
+                   'nested-flow2: [{a: foo}, {b: "foo,bar", c: ["d[e]"]}]\n',
                    conf, problem1=(5, 10), problem2=(6, 10), problem3=(7, 10),
                    problem4=(8, 10), problem5=(18, 5), problem6=(19, 17),
-                   problem7=(20, 23))
+                   problem7=(20, 23), problem8=(21, 18), problem9=(22, 24),
+                   problem10=(23, 33), problem11=(24, 30), problem12=(24, 45))
         self.check('---\n'
                    'multiline string 1: |\n'
                    '  line 1\n'
