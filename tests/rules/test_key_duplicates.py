@@ -179,3 +179,44 @@ class KeyDuplicatesTestCase(RuleTestCase):
                    '[\n'
                    '  flow: sequence, with, key: value, mappings\n'
                    ']\n', conf)
+
+    def test_forbid_duplicated_merge_keys(self):
+        conf = 'key-duplicates: {forbid-duplicated-merge-keys: true}'
+        self.check('---\n'
+                   'Multiple Merge Keys are NOT OK:\n'
+                   'anchor_one: &anchor_one\n'
+                   '  one: one\n'
+                   'anchor_two: &anchor_two\n'
+                   '  two: two\n'
+                   'anchor_reference:\n'
+                   '  <<: *anchor_one\n'
+                   '  <<: *anchor_two\n', conf, problem=(9, 3))
+        self.check('---\n'
+                   'Multiple Merge Keys are NOT OK:\n'
+                   'anchor_one: &anchor_one\n'
+                   '  one: one\n'
+                   'anchor_two: &anchor_two\n'
+                   '  two: two\n'
+                   'anchor_reference:\n'
+                   '  a: 1\n'
+                   '  <<: *anchor_one\n'
+                   '  b: 2\n'
+                   '  <<: *anchor_two\n', conf, problem=(11, 3))
+        self.check('---\n'
+                   'Single Merge Key is OK:\n'
+                   'anchor_one: &anchor_one\n'
+                   '  one: one\n'
+                   'anchor_two: &anchor_two\n'
+                   '  two: two\n'
+                   'anchor_reference:\n'
+                   '  <<: [*anchor_one, *anchor_two]\n', conf)
+        self.check('---\n'
+                   'Duplicate keys without Merge Keys:\n'
+                   '  key: a\n'
+                   '  otherkey: b\n'
+                   '  key: c\n', conf,
+                   problem=(5, 3))
+        self.check('---\n'
+                   'No Merge Keys:\n'
+                   '  key: a\n'
+                   '  otherkey: b\n', conf)
