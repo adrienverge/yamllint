@@ -186,7 +186,11 @@ def _quote_match(quote_type, token_style):
             (quote_type == 'double' and token_style == '"'))
 
 
-def _quotes_are_needed(string):
+def _quotes_are_needed(string, is_inside_a_flow):
+    # Quotes needed on strings containing flow tokens
+    if is_inside_a_flow and set(string) & {',', '[', ']', '{', '}'}:
+        return True
+
     loader = yaml.BaseLoader('key: ' + string)
     # Remove the 5 first tokens corresponding to 'key: ' (StreamStartToken,
     # BlockMappingStartToken, KeyToken, ScalarToken(value=key), ValueToken)
@@ -209,6 +213,16 @@ def _has_quoted_quotes(token):
 
 
 def check(conf, token, prev, next, nextnext, context):
+    if 'flow_nest_count' not in context:
+        context['flow_nest_count'] = 0
+
+    if isinstance(token, (yaml.FlowMappingStartToken,
+                          yaml.FlowSequenceStartToken)):
+        context['flow_nest_count'] += 1
+    elif isinstance(token, (yaml.FlowMappingEndToken,
+                            yaml.FlowSequenceEndToken)):
+        context['flow_nest_count'] -= 1
+
     if not (isinstance(token, yaml.tokens.ScalarToken) and
             isinstance(prev, (yaml.BlockEntryToken, yaml.FlowEntryToken,
                               yaml.FlowSequenceStartToken, yaml.TagToken,
@@ -261,7 +275,8 @@ def check(conf, token, prev, next, nextnext, context):
 
         # Quotes are not strictly needed here
         if (token.style and tag == DEFAULT_SCALAR_TAG and token.value and
-                not _quotes_are_needed(token.value)):
+                not _quotes_are_needed(token.value,
+                                       context['flow_nest_count'] > 0)):
             is_extra_required = any(re.search(r, token.value)
                                     for r in conf['extra-required'])
             is_extra_allowed = any(re.search(r, token.value)
