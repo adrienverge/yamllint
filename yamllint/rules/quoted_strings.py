@@ -32,6 +32,9 @@ used.
   even if ``required: only-when-needed`` is set.
 * ``allow-quoted-quotes`` allows (``true``) using disallowed quotes for strings
   with allowed quotes inside. Default ``false``.
+* ``check-keys`` defines whether to apply the rules to keys in mappings. By
+  default, ``quoted-strings`` rules apply only to values. Set this option to
+  ``true`` to apply the rules to keys as well.
 
 **Note**: Multi-line strings (with ``|`` or ``>``) will not be checked.
 
@@ -46,6 +49,7 @@ used.
      extra-required: []
      extra-allowed: []
      allow-quoted-quotes: false
+     check-keys: false
 
 .. rubric:: Examples
 
@@ -135,6 +139,18 @@ used.
 
     foo: 'bar"baz'
 
+#. With ``quoted-strings: {required: only-when-needed, check-keys: true,
+   extra-required: ["[:]"]}``
+
+   the following code snippet would **FAIL**:
+   ::
+
+    foo:bar: baz
+
+   the following code snippet would **PASS**:
+   ::
+
+    "foo:bar": baz
 """
 
 import re
@@ -149,12 +165,14 @@ CONF = {'quote-type': ('any', 'single', 'double'),
         'required': (True, False, 'only-when-needed'),
         'extra-required': [str],
         'extra-allowed': [str],
-        'allow-quoted-quotes': bool}
+        'allow-quoted-quotes': bool,
+        'check-keys': bool}
 DEFAULT = {'quote-type': 'any',
            'required': True,
            'extra-required': [],
            'extra-allowed': [],
-           'allow-quoted-quotes': False}
+           'allow-quoted-quotes': False,
+           'check-keys': False}
 
 
 def VALIDATE(conf):
@@ -226,8 +244,12 @@ def check(conf, token, prev, next, nextnext, context):
     if not (isinstance(token, yaml.tokens.ScalarToken) and
             isinstance(prev, (yaml.BlockEntryToken, yaml.FlowEntryToken,
                               yaml.FlowSequenceStartToken, yaml.TagToken,
-                              yaml.ValueToken))):
+                              yaml.ValueToken, yaml.KeyToken))):
 
+        return
+
+    node = 'key' if isinstance(prev, yaml.KeyToken) else 'value'
+    if node == 'key' and not conf['check-keys']:
         return
 
     # Ignore explicit types, e.g. !!str testtest or !!int 42
@@ -254,7 +276,7 @@ def check(conf, token, prev, next, nextnext, context):
         if (token.style is None or
             not (_quote_match(quote_type, token.style) or
                  (conf['allow-quoted-quotes'] and _has_quoted_quotes(token)))):
-            msg = f"string value is not quoted with {quote_type} quotes"
+            msg = f"string {node} is not quoted with {quote_type} quotes"
 
     elif conf['required'] is False:
 
@@ -263,13 +285,13 @@ def check(conf, token, prev, next, nextnext, context):
                 not _quote_match(quote_type, token.style) and
                 not (conf['allow-quoted-quotes'] and
                      _has_quoted_quotes(token))):
-            msg = f"string value is not quoted with {quote_type} quotes"
+            msg = f"string {node} is not quoted with {quote_type} quotes"
 
         elif not token.style:
             is_extra_required = any(re.search(r, token.value)
                                     for r in conf['extra-required'])
             if is_extra_required:
-                msg = "string value is not quoted"
+                msg = f"string {node} is not quoted"
 
     elif conf['required'] == 'only-when-needed':
 
@@ -282,20 +304,20 @@ def check(conf, token, prev, next, nextnext, context):
             is_extra_allowed = any(re.search(r, token.value)
                                    for r in conf['extra-allowed'])
             if not (is_extra_required or is_extra_allowed):
-                msg = f"string value is redundantly quoted with " \
+                msg = f"string {node} is redundantly quoted with " \
                       f"{quote_type} quotes"
 
         # But when used need to match config
         elif (token.style and
               not _quote_match(quote_type, token.style) and
               not (conf['allow-quoted-quotes'] and _has_quoted_quotes(token))):
-            msg = f"string value is not quoted with {quote_type} quotes"
+            msg = f"string {node} is not quoted with {quote_type} quotes"
 
         elif not token.style:
             is_extra_required = len(conf['extra-required']) and any(
                 re.search(r, token.value) for r in conf['extra-required'])
             if is_extra_required:
-                msg = "string value is not quoted"
+                msg = f"string {node} is not quoted"
 
     if msg is not None:
         yield LintProblem(

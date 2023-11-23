@@ -18,7 +18,7 @@ from tests.common import RuleTestCase
 from yamllint import config
 
 
-class QuotedTestCase(RuleTestCase):
+class QuotedValuesTestCase(RuleTestCase):
     rule_id = 'quoted-strings'
 
     def test_disabled(self):
@@ -594,4 +594,723 @@ class QuotedTestCase(RuleTestCase):
         self.check("---\n"
                    "foo1: '[barbaz]'\n"
                    "foo2: '[bar\"baz]'\n",
+                   conf)
+
+
+class QuotedKeysTestCase(RuleTestCase):
+    rule_id = 'quoted-strings'
+
+    def test_disabled(self):
+        conf_disabled = "quoted-strings: {}"
+        key_strings = ('---\n'
+                       'true: 2\n'
+                       '123: 3\n'
+                       'foo1: 4\n'
+                       '"foo2": 5\n'
+                       '"false": 6\n'
+                       '"234": 7\n'
+                       '\'bar\': 8\n'
+                       '!!str generic_string: 9\n'
+                       '!!str 456: 10\n'
+                       '!!str "quoted_generic_string": 11\n'
+                       '!!binary binstring: 12\n'
+                       '!!int int_string: 13\n'
+                       '!!bool bool_string: 14\n'
+                       '!!bool "quoted_bool_string": 15\n'
+                       # Sequences and mappings
+                       '? - 16\n'
+                       '  - 17\n'
+                       ': 18\n'
+                       '[119, 219]: 19\n'
+                       '? a: 20\n'
+                       '  "b": 21\n'
+                       ': 22\n'
+                       '{a: 123, "b": 223}: 23\n'
+                       # Multiline strings
+                       '? |\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 27\n'
+                       '? >\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 31\n'
+                       '?\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 35\n'
+                       '?\n'
+                       '  "line 1\\\n'
+                       '   line 2"\n'
+                       ': 39\n')
+        self.check(key_strings, conf_disabled)
+
+    def test_default(self):
+        # Default configuration, but with check-keys
+        conf_default = ("quoted-strings:\n"
+                        "  check-keys: true\n")
+        key_strings = ('---\n'
+                       'true: 2\n'
+                       '123: 3\n'
+                       'foo1: 4\n'
+                       '"foo2": 5\n'
+                       '"false": 6\n'
+                       '"234": 7\n'
+                       '\'bar\': 8\n'
+                       '!!str generic_string: 9\n'
+                       '!!str 456: 10\n'
+                       '!!str "quoted_generic_string": 11\n'
+                       '!!binary binstring: 12\n'
+                       '!!int int_string: 13\n'
+                       '!!bool bool_string: 14\n'
+                       '!!bool "quoted_bool_string": 15\n'
+                       # Sequences and mappings
+                       '? - 16\n'
+                       '  - 17\n'
+                       ': 18\n'
+                       '[119, 219]: 19\n'
+                       '? a: 20\n'
+                       '  "b": 21\n'
+                       ': 22\n'
+                       '{a: 123, "b": 223}: 23\n'
+                       # Multiline strings
+                       '? |\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 27\n'
+                       '? >\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 31\n'
+                       '?\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 35\n'
+                       '?\n'
+                       '  "line 1\\\n'
+                       '   line 2"\n'
+                       ': 39\n')
+        self.check(key_strings, conf_default, problem1=(4, 1),
+                   problem3=(20, 3), problem4=(23, 2), problem5=(33, 3))
+
+    def test_quote_type_any(self):
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: any\n')
+
+        key_strings = ('---\n'
+                       'true: 2\n'
+                       '123: 3\n'
+                       'foo1: 4\n'
+                       '"foo2": 5\n'
+                       '"false": 6\n'
+                       '"234": 7\n'
+                       '\'bar\': 8\n'
+                       '!!str generic_string: 9\n'
+                       '!!str 456: 10\n'
+                       '!!str "quoted_generic_string": 11\n'
+                       '!!binary binstring: 12\n'
+                       '!!int int_string: 13\n'
+                       '!!bool bool_string: 14\n'
+                       '!!bool "quoted_bool_string": 15\n'
+                       # Sequences and mappings
+                       '? - 16\n'
+                       '  - 17\n'
+                       ': 18\n'
+                       '[119, 219]: 19\n'
+                       '? a: 20\n'
+                       '  "b": 21\n'
+                       ': 22\n'
+                       '{a: 123, "b": 223}: 23\n'
+                       # Multiline strings
+                       '? |\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 27\n'
+                       '? >\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 31\n'
+                       '?\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 35\n'
+                       '?\n'
+                       '  "line 1\\\n'
+                       '   line 2"\n'
+                       ': 39\n')
+        self.check(key_strings, conf,
+                   problem1=(4, 1), problem2=(20, 3), problem3=(23, 2),
+                   problem4=(33, 3))
+
+    def test_quote_type_single(self):
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: single\n')
+
+        key_strings = ('---\n'
+                       'true: 2\n'
+                       '123: 3\n'
+                       'foo1: 4\n'
+                       '"foo2": 5\n'
+                       '"false": 6\n'
+                       '"234": 7\n'
+                       '\'bar\': 8\n'
+                       '!!str generic_string: 9\n'
+                       '!!str 456: 10\n'
+                       '!!str "quoted_generic_string": 11\n'
+                       '!!binary binstring: 12\n'
+                       '!!int int_string: 13\n'
+                       '!!bool bool_string: 14\n'
+                       '!!bool "quoted_bool_string": 15\n'
+                       # Sequences and mappings
+                       '? - 16\n'
+                       '  - 17\n'
+                       ': 18\n'
+                       '[119, 219]: 19\n'
+                       '? a: 20\n'
+                       '  "b": 21\n'
+                       ': 22\n'
+                       '{a: 123, "b": 223}: 23\n'
+                       # Multiline strings
+                       '? |\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 27\n'
+                       '? >\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 31\n'
+                       '?\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 35\n'
+                       '?\n'
+                       '  "line 1\\\n'
+                       '   line 2"\n'
+                       ': 39\n')
+        self.check(key_strings, conf,
+                   problem1=(4, 1), problem2=(5, 1), problem3=(6, 1),
+                   problem4=(7, 1), problem5=(20, 3), problem6=(21, 3),
+                   problem7=(23, 2), problem8=(23, 10), problem9=(33, 3),
+                   problem10=(37, 3))
+
+    def test_quote_type_double(self):
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: double\n')
+
+        key_strings = ('---\n'
+                       'true: 2\n'
+                       '123: 3\n'
+                       'foo1: 4\n'
+                       '"foo2": 5\n'
+                       '"false": 6\n'
+                       '"234": 7\n'
+                       '\'bar\': 8\n'
+                       '!!str generic_string: 9\n'
+                       '!!str 456: 10\n'
+                       '!!str "quoted_generic_string": 11\n'
+                       '!!binary binstring: 12\n'
+                       '!!int int_string: 13\n'
+                       '!!bool bool_string: 14\n'
+                       '!!bool "quoted_bool_string": 15\n'
+                       # Sequences and mappings
+                       '? - 16\n'
+                       '  - 17\n'
+                       ': 18\n'
+                       '[119, 219]: 19\n'
+                       '? a: 20\n'
+                       '  "b": 21\n'
+                       ': 22\n'
+                       '{a: 123, "b": 223}: 23\n'
+                       # Multiline strings
+                       '? |\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 27\n'
+                       '? >\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 31\n'
+                       '?\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 35\n'
+                       '?\n'
+                       '  "line 1\\\n'
+                       '   line 2"\n'
+                       ': 39\n')
+        self.check(key_strings, conf,
+                   problem1=(4, 1), problem2=(8, 1), problem3=(20, 3),
+                   problem4=(23, 2), problem5=(33, 3))
+
+    def test_any_quotes_not_required(self):
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: any\n'
+                '  required: false\n')
+
+        key_strings = ('---\n'
+                       'true: 2\n'
+                       '123: 3\n'
+                       'foo1: 4\n'
+                       '"foo2": 5\n'
+                       '"false": 6\n'
+                       '"234": 7\n'
+                       '\'bar\': 8\n'
+                       '!!str generic_string: 9\n'
+                       '!!str 456: 10\n'
+                       '!!str "quoted_generic_string": 11\n'
+                       '!!binary binstring: 12\n'
+                       '!!int int_string: 13\n'
+                       '!!bool bool_string: 14\n'
+                       '!!bool "quoted_bool_string": 15\n'
+                       # Sequences and mappings
+                       '? - 16\n'
+                       '  - 17\n'
+                       ': 18\n'
+                       '[119, 219]: 19\n'
+                       '? a: 20\n'
+                       '  "b": 21\n'
+                       ': 22\n'
+                       '{a: 123, "b": 223}: 23\n'
+                       # Multiline strings
+                       '? |\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 27\n'
+                       '? >\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 31\n'
+                       '?\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 35\n'
+                       '?\n'
+                       '  "line 1\\\n'
+                       '   line 2"\n'
+                       ': 39\n')
+        self.check(key_strings, conf)
+
+    def test_single_quotes_not_required(self):
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: single\n'
+                '  required: false\n')
+
+        key_strings = ('---\n'
+                       'true: 2\n'
+                       '123: 3\n'
+                       'foo1: 4\n'
+                       '"foo2": 5\n'
+                       '"false": 6\n'
+                       '"234": 7\n'
+                       '\'bar\': 8\n'
+                       '!!str generic_string: 9\n'
+                       '!!str 456: 10\n'
+                       '!!str "quoted_generic_string": 11\n'
+                       '!!binary binstring: 12\n'
+                       '!!int int_string: 13\n'
+                       '!!bool bool_string: 14\n'
+                       '!!bool "quoted_bool_string": 15\n'
+                       # Sequences and mappings
+                       '? - 16\n'
+                       '  - 17\n'
+                       ': 18\n'
+                       '[119, 219]: 19\n'
+                       '? a: 20\n'
+                       '  "b": 21\n'
+                       ': 22\n'
+                       '{a: 123, "b": 223}: 23\n'
+                       # Multiline strings
+                       '? |\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 27\n'
+                       '? >\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 31\n'
+                       '?\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 35\n'
+                       '?\n'
+                       '  "line 1\\\n'
+                       '   line 2"\n'
+                       ': 39\n')
+        self.check(key_strings, conf,
+                   problem1=(5, 1), problem2=(6, 1), problem3=(7, 1),
+                   problem4=(21, 3), problem5=(23, 10), problem6=(37, 3))
+
+    def test_only_when_needed(self):
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  required: only-when-needed\n')
+
+        key_strings = ('---\n'
+                       'true: 2\n'
+                       '123: 3\n'
+                       'foo1: 4\n'
+                       '"foo2": 5\n'
+                       '"false": 6\n'
+                       '"234": 7\n'
+                       '\'bar\': 8\n'
+                       '!!str generic_string: 9\n'
+                       '!!str 456: 10\n'
+                       '!!str "quoted_generic_string": 11\n'
+                       '!!binary binstring: 12\n'
+                       '!!int int_string: 13\n'
+                       '!!bool bool_string: 14\n'
+                       '!!bool "quoted_bool_string": 15\n'
+                       # Sequences and mappings
+                       '? - 16\n'
+                       '  - 17\n'
+                       ': 18\n'
+                       '[119, 219]: 19\n'
+                       '? a: 20\n'
+                       '  "b": 21\n'
+                       ': 22\n'
+                       '{a: 123, "b": 223}: 23\n'
+                       # Multiline strings
+                       '? |\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 27\n'
+                       '? >\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 31\n'
+                       '?\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 35\n'
+                       '?\n'
+                       '  "line 1\\\n'
+                       '   line 2"\n'
+                       ': 39\n')
+        self.check(key_strings, conf,
+                   problem1=(5, 1), problem2=(8, 1), problem3=(21, 3),
+                   problem4=(23, 10), problem5=(37, 3))
+
+    def test_only_when_needed_single_quotes(self):
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: single\n'
+                '  required: only-when-needed\n')
+
+        key_strings = ('---\n'
+                       'true: 2\n'
+                       '123: 3\n'
+                       'foo1: 4\n'
+                       '"foo2": 5\n'
+                       '"false": 6\n'
+                       '"234": 7\n'
+                       '\'bar\': 8\n'
+                       '!!str generic_string: 9\n'
+                       '!!str 456: 10\n'
+                       '!!str "quoted_generic_string": 11\n'
+                       '!!binary binstring: 12\n'
+                       '!!int int_string: 13\n'
+                       '!!bool bool_string: 14\n'
+                       '!!bool "quoted_bool_string": 15\n'
+                       # Sequences and mappings
+                       '? - 16\n'
+                       '  - 17\n'
+                       ': 18\n'
+                       '[119, 219]: 19\n'
+                       '? a: 20\n'
+                       '  "b": 21\n'
+                       ': 22\n'
+                       '{a: 123, "b": 223}: 23\n'
+                       # Multiline strings
+                       '? |\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 27\n'
+                       '? >\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 31\n'
+                       '?\n'
+                       '  line 1\n'
+                       '  line 2\n'
+                       ': 35\n'
+                       '?\n'
+                       '  "line 1\\\n'
+                       '   line 2"\n'
+                       ': 39\n')
+        self.check(key_strings, conf,
+                   problem1=(5, 1), problem2=(6, 1), problem3=(7, 1),
+                   problem4=(8, 1), problem5=(21, 3), problem6=(23, 10),
+                   problem7=(37, 3))
+
+    def test_only_when_needed_corner_cases(self):
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  required: only-when-needed\n')
+
+        self.check('---\n'
+                   '"": 2\n'
+                   '"- item": 3\n'
+                   '"key: value": 4\n'
+                   '"%H:%M:%S": 5\n'
+                   '"%wheel ALL=(ALL) NOPASSWD: ALL": 6\n'
+                   '\'"quoted"\': 7\n'
+                   '"\'foo\' == \'bar\'": 8\n'
+                   '"\'Mac\' in ansible_facts.product_name": 9\n'
+                   '\'foo # bar\': 10\n',
+                   conf)
+        self.check('---\n'
+                   '"": 2\n'
+                   '"- item": 3\n'
+                   '"key: value": 4\n'
+                   '"%H:%M:%S": 5\n'
+                   '"%wheel ALL=(ALL) NOPASSWD: ALL": 6\n'
+                   '\'"quoted"\': 7\n'
+                   '"\'foo\' == \'bar\'": 8\n'
+                   '"\'Mac\' in ansible_facts.product_name": 9\n',
+                   conf)
+
+        self.check('---\n'
+                   '---: 2\n'
+                   '"----": 3\n'                 # fails
+                   '---------: 4\n'
+                   '"----------": 5\n'           # fails
+                   ':wq: 6\n'
+                   '":cw": 7\n',                 # fails
+                   conf, problem1=(3, 1), problem2=(5, 1), problem3=(7, 1))
+
+    def test_only_when_needed_extras(self):
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  required: true\n'
+                '  extra-allowed: [^http://]\n')
+        self.assertRaises(config.YamlLintConfigError, self.check, '', conf)
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  required: true\n'
+                '  extra-required: [^http://]\n')
+        self.assertRaises(config.YamlLintConfigError, self.check, '', conf)
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  required: false\n'
+                '  extra-allowed: [^http://]\n')
+        self.assertRaises(config.YamlLintConfigError, self.check, '', conf)
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  required: true\n')
+        self.check('---\n'
+                   '123: 2\n'
+                   '"234": 3\n'
+                   'localhost: 4\n'              # fails
+                   '"host.local": 5\n'
+                   'http://localhost: 6\n'       # fails
+                   '"http://host.local": 7\n'
+                   'ftp://localhost: 8\n'        # fails
+                   '"ftp://host.local": 9\n',
+                   conf, problem1=(4, 1), problem2=(6, 1), problem3=(8, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  required: only-when-needed\n'
+                '  extra-allowed: [^ftp://]\n'
+                '  extra-required: [^http://]\n')
+        self.check('---\n'
+                   '123: 2\n'
+                   '"234": 3\n'
+                   'localhost: 4\n'
+                   '"host.local": 5\n'           # fails
+                   'http://localhost: 6\n'       # fails
+                   '"http://host.local": 7\n'
+                   'ftp://localhost: 8\n'
+                   '"ftp://host.local": 9\n',
+                   conf, problem1=(5, 1), problem2=(6, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  required: false\n'
+                '  extra-required: [^http://, ^ftp://]\n')
+        self.check('---\n'
+                   '123: 2\n'
+                   '"234": 3\n'
+                   'localhost: 4\n'
+                   '"host.local": 5\n'
+                   'http://localhost: 6\n'       # fails
+                   '"http://host.local": 7\n'
+                   'ftp://localhost: 8\n'        # fails
+                   '"ftp://host.local": 9\n',
+                   conf, problem1=(6, 1), problem2=(8, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  required: only-when-needed\n'
+                '  extra-allowed: [^ftp://, ";$", " "]\n')
+        self.check('---\n'
+                   'localhost: 2\n'
+                   '"host.local": 3\n'           # fails
+                   'ftp://localhost: 4\n'
+                   '"ftp://host.local": 5\n'
+                   'i=i+1: 6\n'
+                   '"i=i+2": 7\n'                # fails
+                   'i=i+3;: 8\n'
+                   '"i=i+4;": 9\n'
+                   'foo1: 10\n'
+                   '"foo2": 11\n'                # fails
+                   'foo bar1: 12\n'
+                   '"foo bar2": 13\n',
+                   conf, problem1=(3, 1), problem2=(7, 1), problem3=(11, 1))
+
+    def test_octal_values(self):
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  required: true\n')
+
+        self.check('---\n'
+                   '100: 2\n'
+                   '0100: 3\n'
+                   '0o100: 4\n'
+                   '777: 5\n'
+                   '0777: 6\n'
+                   '0o777: 7\n'
+                   '800: 8\n'
+                   '0800: 9\n'                  # fails
+                   '0o800: 10\n'                # fails
+                   '"0900": 11\n'
+                   '"0o900": 12\n',
+                   conf,
+                   problem1=(9, 1), problem2=(10, 1))
+
+    def test_allow_quoted_quotes(self):
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: single\n'
+                '  required: false\n'
+                '  allow-quoted-quotes: false\n')
+        self.check('---\n'
+                   '"[barbaz]": 2\n'            # fails
+                   '"[bar\'baz]": 3\n',         # fails
+                   conf, problem1=(2, 1), problem2=(3, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: single\n'
+                '  required: false\n'
+                '  allow-quoted-quotes: true\n')
+        self.check('---\n'
+                   '"[barbaz]": 2\n'            # fails
+                   '"[bar\'baz]": 3\n',
+                   conf, problem1=(2, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: single\n'
+                '  required: true\n'
+                '  allow-quoted-quotes: false\n')
+        self.check('---\n'
+                   '"[barbaz]": 2\n'            # fails
+                   '"[bar\'baz]": 3\n',         # fails
+                   conf, problem1=(2, 1), problem2=(3, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: single\n'
+                '  required: true\n'
+                '  allow-quoted-quotes: true\n')
+        self.check('---\n'
+                   '"[barbaz]": 2\n'            # fails
+                   '"[bar\'baz]": 3\n',
+                   conf, problem1=(2, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: single\n'
+                '  required: only-when-needed\n'
+                '  allow-quoted-quotes: false\n')
+        self.check('---\n'
+                   '"[barbaz]": 2\n'            # fails
+                   '"[bar\'baz]": 3\n',         # fails
+                   conf, problem1=(2, 1), problem2=(3, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: single\n'
+                '  required: only-when-needed\n'
+                '  allow-quoted-quotes: true\n')
+        self.check('---\n'
+                   '"[barbaz]": 2\n'            # fails
+                   '"[bar\'baz]": 3\n',
+                   conf, problem1=(2, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: double\n'
+                '  required: false\n'
+                '  allow-quoted-quotes: false\n')
+        self.check("---\n"
+                   "'[barbaz]': 2\n"            # fails
+                   "'[bar\"baz]': 3\n",         # fails
+                   conf, problem1=(2, 1), problem2=(3, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: double\n'
+                '  required: false\n'
+                '  allow-quoted-quotes: true\n')
+        self.check("---\n"
+                   "'[barbaz]': 2\n"            # fails
+                   "'[bar\"baz]': 3\n",
+                   conf, problem1=(2, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: double\n'
+                '  required: true\n'
+                '  allow-quoted-quotes: false\n')
+        self.check("---\n"
+                   "'[barbaz]': 2\n"            # fails
+                   "'[bar\"baz]': 3\n",         # fails
+                   conf, problem1=(2, 1), problem2=(3, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: double\n'
+                '  required: true\n'
+                '  allow-quoted-quotes: true\n')
+        self.check("---\n"
+                   "'[barbaz]': 2\n"            # fails
+                   "'[bar\"baz]': 3\n",
+                   conf, problem1=(2, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: double\n'
+                '  required: only-when-needed\n'
+                '  allow-quoted-quotes: false\n')
+        self.check("---\n"
+                   "'[barbaz]': 2\n"            # fails
+                   "'[bar\"baz]': 3\n",         # fails
+                   conf, problem1=(2, 1), problem2=(3, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: double\n'
+                '  required: only-when-needed\n'
+                '  allow-quoted-quotes: true\n')
+        self.check("---\n"
+                   "'[barbaz]': 2\n"            # fails
+                   "'[bar\"baz]': 3\n",
+                   conf, problem1=(2, 1))
+
+        conf = ('quoted-strings:\n'
+                '  check-keys: true\n'
+                '  quote-type: any\n')
+        self.check("---\n"
+                   "'[barbaz]': 2\n"
+                   "'[bar\"baz]': 3\n",
                    conf)
