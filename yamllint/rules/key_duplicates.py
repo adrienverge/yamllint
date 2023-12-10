@@ -18,7 +18,8 @@ Use this rule to prevent multiple entries with the same key in mappings.
 
 .. rubric:: Options
 
-* ``forbid-duplicated-merge-keys`` to forbid the usage of multiple merge keys.
+* Use ``forbid-duplicated-merge-keys`` to forbid the usage of
+  multiple merge keys ``<<``.
 
 .. rubric:: Default values (when enabled)
 
@@ -85,7 +86,7 @@ Use this rule to prevent multiple entries with the same key in mappings.
       two: two
     anchor_reference:
       <<: *anchor_one
-      <<: *anchor_two]
+      <<: *anchor_two
 """
 
 import yaml
