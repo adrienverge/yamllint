@@ -38,13 +38,17 @@ class RunContext:
 
     def __enter__(self):
         self._raises_ctx.__enter__()
+        self.old_sys_stdout = sys.stdout
+        self.old_sys_stderr = sys.stderr
         sys.stdout = self.outstream = StringIO()
         sys.stderr = self.errstream = StringIO()
         return self
 
     def __exit__(self, *exc_info):
-        self.stdout, sys.stdout = self.outstream.getvalue(), sys.__stdout__
-        self.stderr, sys.stderr = self.errstream.getvalue(), sys.__stderr__
+        self.stdout = self.outstream.getvalue()
+        self.stderr = self.errstream.getvalue()
+        sys.stdout = self.old_sys_stdout
+        sys.stderr = self.old_sys_stderr
         return self._raises_ctx.__exit__(*exc_info)
 
     @property
