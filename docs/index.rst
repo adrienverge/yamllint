@@ -27,3 +27,4 @@ Table of contents
    development
    text_editors
    integration
+   character_encoding

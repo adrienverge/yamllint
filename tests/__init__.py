@@ -18,8 +18,9 @@ import locale
 import os
 
 locale.setlocale(locale.LC_ALL, 'C')
-# yamllint uses these environment variables to find a config file.
 env_vars_that_could_interfere_with_tests = (
+    'YAMLLINT_FILE_ENCODING',
+    # yamllint uses these environment variables to find a config file.
     'YAMLLINT_CONFIG_FILE',
     'XDG_CONFIG_HOME',
     # These variables are used to determine where the user’s home

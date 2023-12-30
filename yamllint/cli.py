@@ -219,7 +219,7 @@ def run(argv=None):
     for file in find_files_recursively(args.files, conf):
         filepath = file.removeprefix('./')
         try:
-            with open(file, newline='') as f:
+            with open(file, mode='rb') as f:
                 problems = linter.run(f, conf, filepath)
         except OSError as e:
             print(e, file=sys.stderr)

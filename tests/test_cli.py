@@ -1,4 +1,5 @@
 # Copyright (C) 2016 Adrien Vergé
+# Copyright (C) 2023–2025 Jason Yundt
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +23,14 @@ import tempfile
 import unittest
 from io import StringIO
 
-from tests.common import build_temp_workspace, RunContext, temp_workspace
+from tests.common import (
+    RunContext,
+    build_temp_workspace,
+    register_test_codecs,
+    temp_workspace,
+    temp_workspace_with_files_in_many_codecs,
+    unregister_test_codecs
+)
 
 from yamllint import cli, config
 
@@ -796,3 +804,52 @@ class CommandLineConfigTestCase(unittest.TestCase):
         self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
                          (0, './4spaces.yml:2:5: [warning] wrong indentation: '
                          'expected 3 but found 4 (indentation)\n', ''))
+
+
+class CommandLineEncodingTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        register_test_codecs()
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        unregister_test_codecs()
+
+    def test_valid_encodings(self):
+        conf = ('---\n'
+                'rules:\n'
+                '  key-ordering: enable\n')
+        config_files = temp_workspace_with_files_in_many_codecs(
+            'config_{}.yaml',
+            conf
+        )
+        sorted_correctly = ('---\n'
+                            'Ａ: YAML\n'
+                            'Ｚ: YAML\n')
+        sorted_correctly_files = temp_workspace_with_files_in_many_codecs(
+            'sorted_correctly/{}.yaml',
+            sorted_correctly
+        )
+        sorted_incorrectly = ('---\n'
+                              'Ｚ: YAML\n'
+                              'Ａ: YAML\n')
+        sorted_incorrectly_files = temp_workspace_with_files_in_many_codecs(
+            'sorted_incorrectly/{}.yaml',
+            sorted_incorrectly
+        )
+        workspace = {
+            **config_files,
+            **sorted_correctly_files,
+            **sorted_incorrectly_files
+        }
+
+        with temp_workspace(workspace):
+            for config_path in config_files.keys():
+                with RunContext(self) as ctx:
+                    cli.run(('-c', config_path, 'sorted_correctly'))
+                self.assertEqual(ctx.returncode, 0)
+                with RunContext(self) as ctx:
+                    cli.run(('-c', config_path, 'sorted_incorrectly'))
+                self.assertNotEqual(ctx.returncode, 0)
