@@ -20,6 +20,7 @@ import pathspec
 import yaml
 
 import yamllint.rules
+from yamllint import decoder
 
 
 class YamlLintConfigError(Exception):
@@ -38,8 +39,8 @@ class YamlLintConfig:
         self.locale = None
 
         if file is not None:
-            with open(file) as f:
-                content = f.read()
+            with open(file, mode='rb') as f:
+                content = decoder.auto_decode(f.read())
 
         self.parse(content)
         self.validate()

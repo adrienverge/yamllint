@@ -1,4 +1,5 @@
 # Copyright (C) 2016 Adrien Vergé
+# Copyright (C) 2023–2025 Jason Yundt
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import codecs
 import contextlib
 from io import StringIO
 import os
@@ -20,6 +22,8 @@ import shutil
 import sys
 import tempfile
 import unittest
+import warnings
+from codecs import CodecInfo
 
 import yaml
 
@@ -27,6 +31,155 @@ from yamllint import linter
 from yamllint.config import YamlLintConfig
 
 
+# Encoding related stuff:
+UTF_CODECS = (
+    'utf_32_be',
+    'utf_32_be_sig',
+    'utf_32_le',
+    'utf_32_le_sig',
+    'utf_16_be',
+    'utf_16_be_sig',
+    'utf_16_le',
+    'utf_16_le_sig',
+    'utf_8',
+    'utf_8_sig'
+)
+
+
+def encode_utf_32_be_sig(obj):
+    return (
+        codecs.BOM_UTF32_BE + codecs.encode(obj, 'utf_32_be', 'strict'),
+        len(obj)
+    )
+
+
+def encode_utf_32_le_sig(obj):
+    return (
+        codecs.BOM_UTF32_LE + codecs.encode(obj, 'utf_32_le', 'strict'),
+        len(obj)
+    )
+
+
+def encode_utf_16_be_sig(obj):
+    return (
+        codecs.BOM_UTF16_BE + codecs.encode(obj, 'utf_16_be', 'strict'),
+        len(obj)
+    )
+
+
+def encode_utf_16_le_sig(obj):
+    return (
+        codecs.BOM_UTF16_LE + codecs.encode(obj, 'utf_16_le', 'strict'),
+        len(obj)
+    )
+
+
+test_codec_infos = {
+    'utf_32_be_sig':
+    CodecInfo(encode_utf_32_be_sig, codecs.getdecoder('utf_32')),
+    'utf_32_le_sig':
+    CodecInfo(encode_utf_32_le_sig, codecs.getdecoder('utf_32')),
+    'utf_16_be_sig':
+    CodecInfo(encode_utf_16_be_sig, codecs.getdecoder('utf_16')),
+    'utf_16_le_sig':
+    CodecInfo(encode_utf_16_le_sig, codecs.getdecoder('utf_16')),
+}
+
+
+def register_test_codecs():
+    codecs.register(test_codec_infos.get)
+
+
+def unregister_test_codecs():
+    if sys.version_info >= (3, 10, 0):
+        codecs.unregister(test_codec_infos.get)
+    else:
+        warnings.warn(
+            "This version of Python doesn’t allow us to unregister codecs.",
+            stacklevel=1
+        )
+
+
+def is_test_codec(codec):
+    return codec in test_codec_infos.keys()
+
+
+def test_codec_built_in_equivalent(test_codec):
+    return_value = test_codec
+    for suffix in ('_sig', '_be', '_le'):
+        return_value = return_value.replace(suffix, '')
+    return return_value
+
+
+def uses_bom(codec):
+    for suffix in ('_32', '_16', '_sig'):
+        if codec.endswith(suffix):
+            return True
+    return False
+
+
+def encoding_detectable(string, codec):
+    """
+    Returns True if encoding can be detected after string is encoded
+
+    Encoding detection only works if you’re using a BOM or the first character
+    is ASCII. See yamllint.decoder.auto_decode()’s docstring.
+    """
+    return uses_bom(codec) or (len(string) > 0 and string[0].isascii())
+
+
+# Workspace related stuff:
+class Blob:
+    def __init__(self, text, encoding):
+        self.text = text
+        self.encoding = encoding
+
+
+def build_temp_workspace(files):
+    tempdir = tempfile.mkdtemp(prefix='yamllint-tests-')
+
+    for path, content in files.items():
+        path = os.fsencode(os.path.join(tempdir, path))
+        if not os.path.exists(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
+
+        if isinstance(content, list):
+            os.mkdir(path)
+        elif isinstance(content, str) and content.startswith('symlink://'):
+            os.symlink(content[10:], path)
+        else:
+            if isinstance(content, Blob):
+                content = content.text.encode(content.encoding)
+            mode = 'wb' if isinstance(content, bytes) else 'w'
+            with open(path, mode) as f:
+                f.write(content)
+
+    return tempdir
+
+
+@contextlib.contextmanager
+def temp_workspace(files):
+    """Provide a temporary workspace that is automatically cleaned up."""
+    backup_wd = os.getcwd()
+    wd = build_temp_workspace(files)
+
+    try:
+        os.chdir(wd)
+        yield
+    finally:
+        os.chdir(backup_wd)
+        shutil.rmtree(wd)
+
+
+def temp_workspace_with_files_in_many_codecs(path_template, text):
+    workspace = {}
+    for codec in UTF_CODECS:
+        if encoding_detectable(text, codec):
+            workspace[path_template.format(codec)] = Blob(text, codec)
+    return workspace
+
+
+# Miscellaneous stuff:
 class RuleTestCase(unittest.TestCase):
     def build_fake_config(self, conf):
         if conf is None:
@@ -81,37 +234,3 @@ class RunContext:
     @property
     def returncode(self):
         return self._raises_ctx.exception.code
-
-
-def build_temp_workspace(files):
-    tempdir = tempfile.mkdtemp(prefix='yamllint-tests-')
-
-    for path, content in files.items():
-        path = os.fsencode(os.path.join(tempdir, path))
-        if not os.path.exists(os.path.dirname(path)):
-            os.makedirs(os.path.dirname(path))
-
-        if isinstance(content, list):
-            os.mkdir(path)
-        elif isinstance(content, str) and content.startswith('symlink://'):
-            os.symlink(content[10:], path)
-        else:
-            mode = 'wb' if isinstance(content, bytes) else 'w'
-            with open(path, mode) as f:
-                f.write(content)
-
-    return tempdir
-
-
-@contextlib.contextmanager
-def temp_workspace(files):
-    """Provide a temporary workspace that is automatically cleaned up."""
-    backup_wd = os.getcwd()
-    wd = build_temp_workspace(files)
-
-    try:
-        os.chdir(wd)
-        yield
-    finally:
-        os.chdir(backup_wd)
-        shutil.rmtree(wd)
