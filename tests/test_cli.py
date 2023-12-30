@@ -315,7 +315,7 @@ class CommandLineTestCase(unittest.TestCase):
         os.makedirs(dir)
         config = os.path.join(dir, 'config')
 
-        self.addCleanup(os.environ.update, HOME=os.environ['HOME'])
+        self.addCleanup(os.environ.__delitem__, 'HOME')
         os.environ['HOME'] = home
 
         with open(config, 'w') as f:
