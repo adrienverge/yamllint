@@ -54,6 +54,6 @@ def check(conf, line):
 
     if line.start == 0 and len(line.buffer) > line.end:
         if line.buffer[line.end:line.end + len(newline_char)] != newline_char:
+            c = repr(newline_char).strip('\'')
             yield LintProblem(1, line.end - line.start + 1,
-                              'wrong new line character: expected {}'
-                              .format(repr(newline_char).strip('\'')))
+                              f'wrong new line character: expected {c}')
