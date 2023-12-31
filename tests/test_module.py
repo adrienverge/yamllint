@@ -28,12 +28,14 @@ class ModuleTestCase(unittest.TestCase):
         self.wd = tempfile.mkdtemp(prefix='yamllint-tests-')
 
         # file with only one warning
-        with open(os.path.join(self.wd, 'warn.yaml'), 'w') as f:
+        path = os.path.join(self.wd, 'warn.yaml')
+        with open(path, 'w', encoding='utf_8') as f:
             f.write('key: value\n')
 
         # file in dir
         os.mkdir(os.path.join(self.wd, 'sub'))
-        with open(os.path.join(self.wd, 'sub', 'nok.yaml'), 'w') as f:
+        path = os.path.join(self.wd, 'sub', 'nok.yaml')
+        with open(path, 'w', encoding='utf_8') as f:
             f.write('---\n'
                     'list: [  1, 1, 2, 3, 5, 8]  \n')
 
