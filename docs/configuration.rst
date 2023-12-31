@@ -228,6 +228,10 @@ or:
 
 .. note:: However, this is mutually exclusive with the ``ignore`` key.
 
+.. note:: Files on the ``ignore-from-file`` list should use either UTF-8,
+   UTF-16 or UTF-32. See :doc:`Character Encoding <character_encoding>` for
+   details and workarounds.
+
 If you need to know the exact list of files that yamllint would process,
 without really linting them, you can use ``--list-files``:
 
