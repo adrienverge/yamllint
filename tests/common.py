@@ -62,7 +62,7 @@ def build_temp_workspace(files):
         if not os.path.exists(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))
 
-        if type(content) is list:
+        if isinstance(content, list):
             os.mkdir(path)
         else:
             mode = 'wb' if isinstance(content, bytes) else 'w'

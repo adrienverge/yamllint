@@ -205,7 +205,7 @@ def validate_rule_conf(rule, conf):
             # Example: CONF = {option: ['flag1', 'flag2', int]}
             #          → {option: [flag1]}      → {option: [42, flag1, flag2]}
             elif isinstance(options[optkey], list):
-                if (type(conf[optkey]) is not list or
+                if (not isinstance(conf[optkey], list) or
                         any(flag not in options[optkey] and
                             type(flag) not in options[optkey]
                             for flag in conf[optkey])):
