@@ -150,8 +150,9 @@ def build_temp_workspace(files):
         else:
             if isinstance(content, Blob):
                 content = content.text.encode(content.encoding)
-            mode = 'wb' if isinstance(content, bytes) else 'w'
-            with open(path, mode) as f:
+            elif isinstance(content, str):
+                content = content.encode('utf_8')
+            with open(path, 'wb') as f:
                 f.write(content)
 
     return tempdir
