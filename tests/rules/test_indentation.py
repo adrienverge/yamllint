@@ -50,8 +50,8 @@ class IndentationStackTestCase(RuleTestCase):
                           .replace('Mapping', 'Map'))
             if token_type in ('StreamStart', 'StreamEnd'):
                 continue
-            output += '{:>9} {}\n'.format(token_type,
-                                          self.format_stack(context['stack']))
+            stack = self.format_stack(context['stack'])
+            output += f'{token_type:>9} {stack}\n'
         return output
 
     def test_simple_mapping(self):
