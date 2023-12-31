@@ -79,9 +79,9 @@ class Format:
 
     @staticmethod
     def github(problem, filename):
-        line = f'::{problem.level} file={format(filename)},' \
-               f'line={format(problem.line)},col={format(problem.column)}' \
-               f'::{format(problem.line)}:{format(problem.column)} '
+        line = f'::{problem.level} file={filename},' \
+               f'line={problem.line},col={problem.column}' \
+               f'::{problem.line}:{problem.column} '
         if problem.rule:
             line += f'[{problem.rule}] '
         line += problem.desc
