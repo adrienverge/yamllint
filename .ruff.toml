@@ -1,0 +1,5 @@
+[lint]
+extend-select = ["I"]
+
+[lint.isort]
+known-third-party = ["tests"]

@@ -23,7 +23,7 @@ Pull Request Process
 
    .. code:: bash
 
-    flake8 .
+    ruff .
 
    If you added/modified documentation:
 
