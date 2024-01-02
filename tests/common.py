@@ -87,7 +87,7 @@ def build_temp_workspace(files):
     tempdir = tempfile.mkdtemp(prefix='yamllint-tests-')
 
     for path, content in files.items():
-        path = os.path.join(tempdir, path).encode('utf-8')
+        path = os.fsencode(os.path.join(tempdir, path))
         if not os.path.exists(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))
 
