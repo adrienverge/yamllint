@@ -498,6 +498,7 @@ class CommandLineTestCase(unittest.TestCase):
         path = os.path.join(self.wd, 'a.yaml')
 
         # Create a pseudo-TTY and redirect stdout to it
+        old_stdout = sys.stdout
         master, slave = pty.openpty()
         sys.stdout = os.fdopen(slave, 'w')
 
@@ -515,6 +516,7 @@ class CommandLineTestCase(unittest.TestCase):
 
         sys.stdout.close()
         output.close()
+        sys.stdout = old_stdout
 
         self.assertEqual(out, (
             f'\033[4m{path}\033[0m\n'
