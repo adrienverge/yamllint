@@ -57,6 +57,13 @@ jobs:
       - run: pip install .
       # https://github.com/AndreMiras/coveralls-python-action/issues/18
       - run: echo -e "[run]\nrelative_files = True" > .coveragerc
-      - run: coverage run -m unittest discover
+      - run: >-
+          python
+          -X warn_default_encoding
+          -W error::EncodingWarning
+          -m coverage
+          run
+          -m unittest
+          discover
       - name: Coveralls
         uses: AndreMiras/coveralls-python-action@develop
