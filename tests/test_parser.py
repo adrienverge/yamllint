@@ -17,9 +17,14 @@ import unittest
 
 import yaml
 
-from yamllint.parser import (line_generator, token_or_comment_generator,
-                             token_or_comment_or_line_generator,
-                             Line, Token, Comment)
+from yamllint.parser import (
+    Comment,
+    Line,
+    Token,
+    line_generator,
+    token_or_comment_generator,
+    token_or_comment_or_line_generator,
+)
 
 
 class ParserTestCase(unittest.TestCase):

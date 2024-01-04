@@ -40,7 +40,6 @@ import string
 
 from yamllint.linter import LintProblem
 
-
 ID = 'trailing-spaces'
 TYPE = 'line'
 

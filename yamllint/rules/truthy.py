@@ -125,7 +125,6 @@ import yaml
 
 from yamllint.linter import LintProblem
 
-
 TRUTHY = ['YES', 'Yes', 'yes',
           'NO', 'No', 'no',
           'TRUE', 'True', 'true',

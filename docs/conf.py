@@ -1,8 +1,8 @@
 # yamllint documentation build configuration file, created by
 # sphinx-quickstart on Thu Jan 21 21:18:52 2016.
 
-import sys
 import os
+import sys
 from unittest.mock import MagicMock
 
 sys.path.insert(0, os.path.abspath('..'))

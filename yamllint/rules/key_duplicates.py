@@ -93,7 +93,6 @@ import yaml
 
 from yamllint.linter import LintProblem
 
-
 ID = 'key-duplicates'
 TYPE = 'token'
 CONF = {'forbid-duplicated-merge-keys': bool}

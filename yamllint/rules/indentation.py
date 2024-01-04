@@ -204,7 +204,6 @@ import yaml
 from yamllint.linter import LintProblem
 from yamllint.rules.common import get_real_end_line, is_explicit_key
 
-
 ID = 'indentation'
 TYPE = 'token'
 CONF = {'spaces': (int, 'consistent'),

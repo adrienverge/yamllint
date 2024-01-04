@@ -19,8 +19,7 @@ import os
 import platform
 import sys
 
-from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION
-from yamllint import linter
+from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION, linter
 from yamllint.config import YamlLintConfig, YamlLintConfigError
 from yamllint.linter import PROBLEM_LEVELS
 

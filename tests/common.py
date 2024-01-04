@@ -21,8 +21,8 @@ import unittest
 
 import yaml
 
-from yamllint.config import YamlLintConfig
 from yamllint import linter
+from yamllint.config import YamlLintConfig
 
 
 class RuleTestCase(unittest.TestCase):

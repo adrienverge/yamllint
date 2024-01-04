@@ -76,7 +76,6 @@ import yaml
 
 from yamllint.linter import LintProblem
 
-
 ID = 'octal-values'
 TYPE = 'token'
 CONF = {'forbid-implicit-octal': bool,

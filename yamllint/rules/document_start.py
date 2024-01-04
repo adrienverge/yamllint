@@ -75,7 +75,6 @@ import yaml
 
 from yamllint.linter import LintProblem
 
-
 ID = 'document-start'
 TYPE = 'token'
 CONF = {'present': bool}

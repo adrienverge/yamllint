@@ -25,7 +25,6 @@ this convention too.
 
 from yamllint.linter import LintProblem
 
-
 ID = 'new-line-at-end-of-file'
 TYPE = 'line'
 

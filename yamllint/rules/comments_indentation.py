@@ -79,7 +79,6 @@ import yaml
 from yamllint.linter import LintProblem
 from yamllint.rules.common import get_line_indent
 
-
 ID = 'comments-indentation'
 TYPE = 'comment'
 

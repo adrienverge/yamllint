@@ -61,7 +61,6 @@ Use this rule to set a maximal number of allowed consecutive blank lines.
 
 from yamllint.linter import LintProblem
 
-
 ID = 'empty-lines'
 TYPE = 'line'
 CONF = {'max': int,

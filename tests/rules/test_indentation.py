@@ -15,7 +15,7 @@
 
 from tests.common import RuleTestCase
 
-from yamllint.parser import token_or_comment_generator, Comment
+from yamllint.parser import Comment, token_or_comment_generator
 from yamllint.rules.indentation import check
 
 
