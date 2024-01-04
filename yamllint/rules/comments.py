@@ -75,7 +75,6 @@ Use this rule to control the position and formatting of comments.
 
 from yamllint.linter import LintProblem
 
-
 ID = 'comments'
 TYPE = 'comment'
 CONF = {'require-starting-space': bool,

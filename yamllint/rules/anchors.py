@@ -108,7 +108,6 @@ import yaml
 
 from yamllint.linter import LintProblem
 
-
 ID = 'anchors'
 TYPE = 'token'
 CONF = {'forbid-undeclared-aliases': bool,

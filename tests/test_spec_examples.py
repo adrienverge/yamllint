@@ -17,7 +17,6 @@ import os
 
 from tests.common import RuleTestCase
 
-
 # This file checks examples from YAML 1.2 specification [1] against yamllint.
 #
 # [1]: http://www.yaml.org/spec/1.2/spec.html

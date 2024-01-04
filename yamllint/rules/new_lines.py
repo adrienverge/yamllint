@@ -37,7 +37,6 @@ from os import linesep
 
 from yamllint.linter import LintProblem
 
-
 ID = 'new-lines'
 TYPE = 'line'
 CONF = {'type': ('unix', 'dos', 'platform')}

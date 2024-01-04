@@ -13,18 +13,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from io import StringIO
 import os
 import shutil
 import sys
 import tempfile
 import unittest
+from io import StringIO
 
 from tests.common import build_temp_workspace
 
+from yamllint import cli, config
 from yamllint.config import YamlLintConfigError
-from yamllint import cli
-from yamllint import config
 
 
 class SimpleConfigTestCase(unittest.TestCase):

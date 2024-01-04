@@ -138,7 +138,6 @@ import yaml
 from yamllint.linter import LintProblem
 from yamllint.rules.common import spaces_after, spaces_before
 
-
 ID = 'brackets'
 TYPE = 'token'
 CONF = {'forbid': (bool, 'non-empty'),

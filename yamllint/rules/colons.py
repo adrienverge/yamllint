@@ -82,7 +82,6 @@ import yaml
 
 from yamllint.rules.common import is_explicit_key, spaces_after, spaces_before
 
-
 ID = 'colons'
 TYPE = 'token'
 CONF = {'max-spaces-before': int,

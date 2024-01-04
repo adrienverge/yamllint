@@ -16,8 +16,8 @@
 import io
 import unittest
 
-from yamllint.config import YamlLintConfig
 from yamllint import linter
+from yamllint.config import YamlLintConfig
 
 
 class LinterTestCase(unittest.TestCase):

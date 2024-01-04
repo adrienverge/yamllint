@@ -90,7 +90,6 @@ import yaml
 
 from yamllint.linter import LintProblem
 
-
 ID = 'float-values'
 TYPE = 'token'
 CONF = {

@@ -101,7 +101,6 @@ import yaml
 
 from yamllint.linter import LintProblem
 
-
 ID = 'line-length'
 TYPE = 'line'
 CONF = {'max': int,

@@ -16,10 +16,9 @@
 import os
 import shutil
 import subprocess
-import tempfile
 import sys
+import tempfile
 import unittest
-
 
 PYTHON = sys.executable or 'python'
 

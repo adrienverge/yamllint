@@ -86,7 +86,6 @@ import yaml
 
 from yamllint.linter import LintProblem
 
-
 ID = 'key-ordering'
 TYPE = 'token'
 

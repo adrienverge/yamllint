@@ -79,7 +79,6 @@ import yaml
 
 from yamllint.rules.common import spaces_after
 
-
 ID = 'hyphens'
 TYPE = 'token'
 CONF = {'max-spaces-after': int}
