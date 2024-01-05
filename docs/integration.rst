@@ -69,8 +69,10 @@ You can configure yamllint to run on ``arc lint``. Here is an example
 Intergration with GitLab
 ------------------------
 
-You can use the following gitlab-ci stage to do run yamllint and get the results as a
-`Code quality (Code Climate) <https://docs.gitlab.com/ee/ci/testing/code_quality.html>` report.
+You can use the following gitlab-ci stage to do run yamllint and get the
+results as a
+`Code quality (Code Climate) <https://docs.gitlab.com/ee/ci/testing/code_quality.html>`
+report.
 
 .. code:: yaml
 
