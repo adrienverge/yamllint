@@ -99,8 +99,7 @@ def check(conf, comment):
             text_start += 1
         if text_start < len(comment.buffer):
             if (conf['ignore-shebangs'] and
-                    comment.line_no == 1 and
-                    comment.column_no == 1 and
+                    comment.line_no == comment.column_no == 1 and
                     comment.buffer[text_start] == '!'):
                 return
             # We can test for both \r and \r\n just by checking first char
