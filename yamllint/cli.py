@@ -27,7 +27,7 @@ from yamllint.linter import PROBLEM_LEVELS
 def find_files_recursively(items, conf):
     for item in items:
         if os.path.isdir(item):
-            for root, dirnames, filenames in os.walk(item):
+            for root, _dirnames, filenames in os.walk(item):
                 for f in filenames:
                     filepath = os.path.join(root, f)
                     if conf.is_yaml_file(filepath):
