@@ -124,7 +124,7 @@ def show_problems(problems, file, args_format, no_warn):
         print('::endgroup::')
 
     if not first and args_format != 'parsable':
-        print('')
+        print()
 
     return max_level
 
