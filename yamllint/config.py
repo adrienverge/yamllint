@@ -76,7 +76,7 @@ class YamlLintConfig:
         try:
             conf = yaml.safe_load(raw_content)
         except Exception as e:
-            raise YamlLintConfigError(f'invalid config: {e}')
+            raise YamlLintConfigError(f'invalid config: {e}') from e
 
         if not isinstance(conf, dict):
             raise YamlLintConfigError('invalid config: not a dict')
@@ -95,7 +95,7 @@ class YamlLintConfig:
             try:
                 self.extend(base)
             except Exception as e:
-                raise YamlLintConfigError(f'invalid config: {e}')
+                raise YamlLintConfigError(f'invalid config: {e}') from e
 
         if 'ignore' in conf and 'ignore-from-file' in conf:
             raise YamlLintConfigError(
@@ -143,7 +143,7 @@ class YamlLintConfig:
             try:
                 rule = yamllint.rules.get(id)
             except Exception as e:
-                raise YamlLintConfigError(f'invalid config: {e}')
+                raise YamlLintConfigError(f'invalid config: {e}') from e
 
             self.rules[id] = validate_rule_conf(rule, self.rules[id])
 
