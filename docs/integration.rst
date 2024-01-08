@@ -9,15 +9,15 @@ Here is an example, to add in your .pre-commit-config.yaml
 
 .. code:: yaml
 
-  ---
-  # Update the rev variable with the release version that you want, from the yamllint repo
-  # You can pass your custom .yamllint with args attribute.
-  repos:
-    - repo: https://github.com/adrienverge/yamllint.git
-      rev: v1.29.0
-      hooks:
-        - id: yamllint
-          args: [--strict, -c=/path/to/.yamllint]
+ ---
+ # Update the rev variable with the release version that you want, from the yamllint repo
+ # You can pass your custom .yamllint with args attribute.
+ repos:
+   - repo: https://github.com/adrienverge/yamllint.git
+     rev: v1.29.0
+     hooks:
+       - id: yamllint
+         args: [--strict, -c=/path/to/.yamllint]
 
 
 Integration with GitHub Actions
@@ -32,20 +32,20 @@ A minimal example workflow using GitHub Actions:
 
 .. code:: yaml
 
-   ---
-   on: push  # yamllint disable-line rule:truthy
+ ---
+ on: push  # yamllint disable-line rule:truthy
 
-   jobs:
-     lint:
-       runs-on: ubuntu-latest
-       steps:
-         - uses: actions/checkout@v3
+ jobs:
+   lint:
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/checkout@v3
 
-         - name: Install yamllint
-           run: pip install yamllint
+       - name: Install yamllint
+         run: pip install yamllint
 
-         - name: Lint YAML files
-           run: yamllint .
+       - name: Lint YAML files
+         run: yamllint .
 
 Integration with GitLab
 ------------------------
@@ -57,38 +57,38 @@ report.
 
 .. code:: yaml
 
-   ---
-   lint:
-     stage: lint
-     script:
-       - pip install yamllint
-       - mkdir reports
-       - >
-         yamllint -f parsable . | tee >(awk '
-         BEGIN {FS = ":"; ORS="\n"; first=1}
-         {
-             gsub(/^[ \t]+|[ \t]+$|"/, "", $4);
-             match($4, /^\[(warning|error)\](.*)\((.*)\)$/, a);
-             sev = (a[1] == "error" ? "major" : "minor");
-             if (first) {
-                 first=0;
-                 printf("[");
-             } else {
-                 printf(",");
-             }
-             printf("{\"location\":{\"path\":\"%s\",\"lines\":{\"begin\":%s",\
-                    "\"end\":%s}},\"severity\":\"%s\",\"check_name\":\"%s\","\
-                    "\"categories\":[\"Style\"],\"type\":\"issue\","\
-                    "\"description\":\"%s\"}", $1, $2, $3, sev, a[3], a[2]);
-         }
-         END { if (!first) printf("]\n"); }' > reports/codequality.json)
-     artifacts:
-       when: always
-       paths:
-         - reports
-       expire_in: 1 week
-       reports:
-         codequality: reports/codequality.json
+ ---
+ lint:
+   stage: lint
+   script:
+     - pip install yamllint
+     - mkdir reports
+     - >
+       yamllint -f parsable . | tee >(awk '
+       BEGIN {FS = ":"; ORS="\n"; first=1}
+       {
+           gsub(/^[ \t]+|[ \t]+$|"/, "", $4);
+           match($4, /^\[(warning|error)\](.*)\((.*)\)$/, a);
+           sev = (a[1] == "error" ? "major" : "minor");
+           if (first) {
+               first=0;
+               printf("[");
+           } else {
+               printf(",");
+           }
+           printf("{\"location\":{\"path\":\"%s\",\"lines\":{\"begin\":%s",\
+                  "\"end\":%s}},\"severity\":\"%s\",\"check_name\":\"%s\","\
+                  "\"categories\":[\"Style\"],\"type\":\"issue\","\
+                  "\"description\":\"%s\"}", $1, $2, $3, sev, a[3], a[2]);
+       }
+       END { if (!first) printf("]\n"); }' > reports/codequality.json)
+   artifacts:
+     when: always
+     paths:
+       - reports
+     expire_in: 1 week
+     reports:
+       codequality: reports/codequality.json
 
 Integration with Arcanist
 -------------------------
@@ -98,13 +98,13 @@ You can configure yamllint to run on ``arc lint``. Here is an example
 
 .. code:: json
 
-  {
-    "linters": {
-      "yamllint": {
-        "type": "script-and-regex",
-        "script-and-regex.script": "yamllint",
-        "script-and-regex.regex": "/^(?P<line>\\d+):(?P<offset>\\d+) +(?P<severity>warning|error) +(?P<message>.*) +\\((?P<name>.*)\\)$/m",
-        "include": "(\\.(yml|yaml)$)"
-      }
-    }
-  }
+ {
+   "linters": {
+     "yamllint": {
+       "type": "script-and-regex",
+       "script-and-regex.script": "yamllint",
+       "script-and-regex.regex": "/^(?P<line>\\d+):(?P<offset>\\d+) +(?P<severity>warning|error) +(?P<message>.*) +\\((?P<name>.*)\\)$/m",
+       "include": "(\\.(yml|yaml)$)"
+     }
+   }
+ }
