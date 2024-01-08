@@ -1,5 +1,7 @@
 [lint]
-extend-select = ["B", "I"]
+preview = true
+extend-select = ["B", "I", "FURB"]
+extend-ignore = ["FURB101"]
 
 [lint.isort]
 known-third-party = ["tests"]
