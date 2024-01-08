@@ -47,26 +47,7 @@ A minimal example workflow using GitHub Actions:
          - name: Lint YAML files
            run: yamllint .
 
-Integration with Arcanist
--------------------------
-
-You can configure yamllint to run on ``arc lint``. Here is an example
-``.arclint`` file that makes use of this configuration.
-
-.. code:: json
-
-  {
-    "linters": {
-      "yamllint": {
-        "type": "script-and-regex",
-        "script-and-regex.script": "yamllint",
-        "script-and-regex.regex": "/^(?P<line>\\d+):(?P<offset>\\d+) +(?P<severity>warning|error) +(?P<message>.*) +\\((?P<name>.*)\\)$/m",
-        "include": "(\\.(yml|yaml)$)"
-      }
-    }
-  }
-
-Intergration with GitLab
+Integration with GitLab
 ------------------------
 
 You can use the following gitlab-ci stage to do run yamllint and get the
@@ -108,3 +89,22 @@ report.
        expire_in: 1 week
        reports:
          codequality: reports/codequality.json
+
+Integration with Arcanist
+-------------------------
+
+You can configure yamllint to run on ``arc lint``. Here is an example
+``.arclint`` file that makes use of this configuration.
+
+.. code:: json
+
+  {
+    "linters": {
+      "yamllint": {
+        "type": "script-and-regex",
+        "script-and-regex.script": "yamllint",
+        "script-and-regex.regex": "/^(?P<line>\\d+):(?P<offset>\\d+) +(?P<severity>warning|error) +(?P<message>.*) +\\((?P<name>.*)\\)$/m",
+        "include": "(\\.(yml|yaml)$)"
+      }
+    }
+  }
