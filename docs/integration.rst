@@ -51,9 +51,8 @@ Integration with GitLab
 ------------------------
 
 You can use the following GitLab CI/CD stage to run yamllint and get the
-results as a
-`Code quality (Code Climate) <https://docs.gitlab.com/ee/ci/testing/code_quality.html>`
-report.
+results as a `Code quality (Code Climate)
+<https://docs.gitlab.com/ee/ci/testing/code_quality.html>` report.
 
 .. code:: yaml
 
