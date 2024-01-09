@@ -107,33 +107,45 @@ from yamllint.linter import LintProblem
 
 ID = 'empty-values'
 TYPE = 'token'
-CONF = {'forbid-in-block-mappings': bool,
-        'forbid-in-flow-mappings': bool,
-        'forbid-in-block-sequences': bool}
-DEFAULT = {'forbid-in-block-mappings': True,
-           'forbid-in-flow-mappings': True,
-           'forbid-in-block-sequences': True}
+CONF = {
+    'forbid-in-block-mappings': bool,
+    'forbid-in-flow-mappings': bool,
+    'forbid-in-block-sequences': bool,
+}
+DEFAULT = {
+    'forbid-in-block-mappings': True,
+    'forbid-in-flow-mappings': True,
+    'forbid-in-block-sequences': True,
+}
 
 
 def check(conf, token, prev, next, nextnext, context):
-
     if conf['forbid-in-block-mappings']:
-        if isinstance(token, yaml.ValueToken) and isinstance(next, (
-                yaml.KeyToken, yaml.BlockEndToken)):
-            yield LintProblem(token.start_mark.line + 1,
-                              token.end_mark.column + 1,
-                              'empty value in block mapping')
+        if isinstance(token, yaml.ValueToken) and isinstance(
+            next, (yaml.KeyToken, yaml.BlockEndToken)
+        ):
+            yield LintProblem(
+                token.start_mark.line + 1,
+                token.end_mark.column + 1,
+                'empty value in block mapping',
+            )
 
     if conf['forbid-in-flow-mappings']:
-        if isinstance(token, yaml.ValueToken) and isinstance(next, (
-                yaml.FlowEntryToken, yaml.FlowMappingEndToken)):
-            yield LintProblem(token.start_mark.line + 1,
-                              token.end_mark.column + 1,
-                              'empty value in flow mapping')
+        if isinstance(token, yaml.ValueToken) and isinstance(
+            next, (yaml.FlowEntryToken, yaml.FlowMappingEndToken)
+        ):
+            yield LintProblem(
+                token.start_mark.line + 1,
+                token.end_mark.column + 1,
+                'empty value in flow mapping',
+            )
 
     if conf['forbid-in-block-sequences']:
-        if isinstance(token, yaml.BlockEntryToken) and isinstance(next, (
-                yaml.KeyToken, yaml.BlockEndToken, yaml.BlockEntryToken)):
-            yield LintProblem(token.start_mark.line + 1,
-                              token.end_mark.column + 1,
-                              'empty value in block sequence')
+        if isinstance(token, yaml.BlockEntryToken) and isinstance(
+            next, (yaml.KeyToken, yaml.BlockEndToken, yaml.BlockEntryToken)
+        ):
+            yield LintProblem(
+                token.start_mark.line + 1,
+                token.end_mark.column + 1,
+                'empty value in block sequence',
+            )

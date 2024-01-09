@@ -56,5 +56,4 @@ def check(conf, line):
         pos -= 1
 
     if pos != line.end and line.buffer[pos] in ' \t':
-        yield LintProblem(line.line_no, pos - line.start + 1,
-                          'trailing spaces')
+        yield LintProblem(line.line_no, pos - line.start + 1, 'trailing spaces')

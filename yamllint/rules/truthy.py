@@ -125,12 +125,26 @@ import yaml
 
 from yamllint.linter import LintProblem
 
-TRUTHY = ['YES', 'Yes', 'yes',
-          'NO', 'No', 'no',
-          'TRUE', 'True', 'true',
-          'FALSE', 'False', 'false',
-          'ON', 'On', 'on',
-          'OFF', 'Off', 'off']
+TRUTHY = [
+    'YES',
+    'Yes',
+    'yes',
+    'NO',
+    'No',
+    'no',
+    'TRUE',
+    'True',
+    'true',
+    'FALSE',
+    'False',
+    'false',
+    'ON',
+    'On',
+    'on',
+    'OFF',
+    'Off',
+    'off',
+]
 
 
 ID = 'truthy'
@@ -143,14 +157,22 @@ def check(conf, token, prev, next, nextnext, context):
     if prev and isinstance(prev, yaml.tokens.TagToken):
         return
 
-    if (not conf['check-keys'] and isinstance(prev, yaml.tokens.KeyToken) and
-            isinstance(token, yaml.tokens.ScalarToken)):
+    if (
+        not conf['check-keys']
+        and isinstance(prev, yaml.tokens.KeyToken)
+        and isinstance(token, yaml.tokens.ScalarToken)
+    ):
         return
 
     if isinstance(token, yaml.tokens.ScalarToken):
-        if (token.value in (set(TRUTHY) - set(conf['allowed-values'])) and
-                token.style is None):
-            yield LintProblem(token.start_mark.line + 1,
-                              token.start_mark.column + 1,
-                              "truthy value should be one of [" +
-                              ", ".join(sorted(conf['allowed-values'])) + "]")
+        if (
+            token.value in (set(TRUTHY) - set(conf['allowed-values']))
+            and token.style is None
+        ):
+            yield LintProblem(
+                token.start_mark.line + 1,
+                token.start_mark.column + 1,
+                'truthy value should be one of ['
+                + ', '.join(sorted(conf['allowed-values']))
+                + ']',
+            )

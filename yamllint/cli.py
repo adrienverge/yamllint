@@ -37,19 +37,23 @@ def find_files_recursively(items, conf):
 
 
 def supports_color():
-    supported_platform = not (platform.system() == 'Windows' and not
-                              ('ANSICON' in os.environ or
-                               ('TERM' in os.environ and
-                                os.environ['TERM'] == 'ANSI')))
-    return (supported_platform and
-            hasattr(sys.stdout, 'isatty') and sys.stdout.isatty())
+    supported_platform = not (
+        platform.system() == 'Windows'
+        and not (
+            'ANSICON' in os.environ
+            or ('TERM' in os.environ and os.environ['TERM'] == 'ANSI')
+        )
+    )
+    return supported_platform and hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
 
 
 class Format:
     @staticmethod
     def parsable(problem, filename):
-        return (f'{filename}:{problem.line}:{problem.column}: '
-                f'[{problem.level}] {problem.message}')
+        return (
+            f'{filename}:{problem.line}:{problem.column}: '
+            f'[{problem.level}] {problem.message}'
+        )
 
     @staticmethod
     def standard(problem, filename):
@@ -78,9 +82,11 @@ class Format:
 
     @staticmethod
     def github(problem, filename):
-        line = f'::{problem.level} file={filename},' \
-               f'line={problem.line},col={problem.column}' \
-               f'::{problem.line}:{problem.column} '
+        line = (
+            f'::{problem.level} file={filename},'
+            f'line={problem.line},col={problem.column}'
+            f'::{problem.line}:{problem.column} '
+        )
         if problem.rule:
             line += f'[{problem.rule}] '
         line += problem.desc
@@ -92,8 +98,7 @@ def show_problems(problems, file, args_format, no_warn):
     first = True
 
     if args_format == 'auto':
-        if ('GITHUB_ACTIONS' in os.environ and
-                'GITHUB_WORKFLOW' in os.environ):
+        if 'GITHUB_ACTIONS' in os.environ and 'GITHUB_WORKFLOW' in os.environ:
             args_format = 'github'
         elif supports_color():
             args_format = 'colored'
@@ -143,46 +148,64 @@ def find_project_config_filepath(path='.'):
 
 
 def run(argv=None):
-    parser = argparse.ArgumentParser(prog=APP_NAME,
-                                     description=APP_DESCRIPTION)
+    parser = argparse.ArgumentParser(prog=APP_NAME, description=APP_DESCRIPTION)
     files_group = parser.add_mutually_exclusive_group(required=True)
-    files_group.add_argument('files', metavar='FILE_OR_DIR', nargs='*',
-                             default=(),
-                             help='files to check')
-    files_group.add_argument('-', action='store_true', dest='stdin',
-                             help='read from standard input')
+    files_group.add_argument(
+        'files', metavar='FILE_OR_DIR', nargs='*', default=(), help='files to check'
+    )
+    files_group.add_argument(
+        '-', action='store_true', dest='stdin', help='read from standard input'
+    )
     config_group = parser.add_mutually_exclusive_group()
-    config_group.add_argument('-c', '--config-file', dest='config_file',
-                              action='store',
-                              help='path to a custom configuration')
-    config_group.add_argument('-d', '--config-data', dest='config_data',
-                              action='store',
-                              help='custom configuration (as YAML source)')
-    parser.add_argument('--list-files', action='store_true', dest='list_files',
-                        help='list files to lint and exit')
-    parser.add_argument('-f', '--format',
-                        choices=('parsable', 'standard', 'colored', 'github',
-                                 'auto'),
-                        default='auto', help='format for parsing output')
-    parser.add_argument('-s', '--strict',
-                        action='store_true',
-                        help='return non-zero exit code on warnings '
-                             'as well as errors')
-    parser.add_argument('--no-warnings',
-                        action='store_true',
-                        help='output only error level problems')
-    parser.add_argument('-v', '--version', action='version',
-                        version=f'{APP_NAME} {APP_VERSION}')
+    config_group.add_argument(
+        '-c',
+        '--config-file',
+        dest='config_file',
+        action='store',
+        help='path to a custom configuration',
+    )
+    config_group.add_argument(
+        '-d',
+        '--config-data',
+        dest='config_data',
+        action='store',
+        help='custom configuration (as YAML source)',
+    )
+    parser.add_argument(
+        '--list-files',
+        action='store_true',
+        dest='list_files',
+        help='list files to lint and exit',
+    )
+    parser.add_argument(
+        '-f',
+        '--format',
+        choices=('parsable', 'standard', 'colored', 'github', 'auto'),
+        default='auto',
+        help='format for parsing output',
+    )
+    parser.add_argument(
+        '-s',
+        '--strict',
+        action='store_true',
+        help='return non-zero exit code on warnings ' 'as well as errors',
+    )
+    parser.add_argument(
+        '--no-warnings', action='store_true', help='output only error level problems'
+    )
+    parser.add_argument(
+        '-v', '--version', action='version', version=f'{APP_NAME} {APP_VERSION}'
+    )
 
     args = parser.parse_args(argv)
 
     if 'YAMLLINT_CONFIG_FILE' in os.environ:
-        user_global_config = os.path.expanduser(
-            os.environ['YAMLLINT_CONFIG_FILE'])
+        user_global_config = os.path.expanduser(os.environ['YAMLLINT_CONFIG_FILE'])
     # User-global config is supposed to be in ~/.config/yamllint/config
     elif 'XDG_CONFIG_HOME' in os.environ:
         user_global_config = os.path.join(
-            os.environ['XDG_CONFIG_HOME'], 'yamllint', 'config')
+            os.environ['XDG_CONFIG_HOME'], 'yamllint', 'config'
+        )
     else:
         user_global_config = os.path.expanduser('~/.config/yamllint/config')
 
@@ -223,8 +246,9 @@ def run(argv=None):
         except OSError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
-        prob_level = show_problems(problems, file, args_format=args.format,
-                                   no_warn=args.no_warnings)
+        prob_level = show_problems(
+            problems, file, args_format=args.format, no_warn=args.no_warnings
+        )
         max_level = max(max_level, prob_level)
 
     # read yaml from stdin
@@ -234,8 +258,9 @@ def run(argv=None):
         except OSError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)
-        prob_level = show_problems(problems, 'stdin', args_format=args.format,
-                                   no_warn=args.no_warnings)
+        prob_level = show_problems(
+            problems, 'stdin', args_format=args.format, no_warn=args.no_warnings
+        )
         max_level = max(max_level, prob_level)
 
     if max_level == PROBLEM_LEVELS['error']:

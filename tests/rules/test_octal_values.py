@@ -20,61 +20,59 @@ class OctalValuesTestCase(RuleTestCase):
     rule_id = 'octal-values'
 
     def test_disabled(self):
-        conf = ('octal-values: disable\n'
-                'new-line-at-end-of-file: disable\n'
-                'document-start: disable\n')
+        conf = (
+            'octal-values: disable\n'
+            'new-line-at-end-of-file: disable\n'
+            'document-start: disable\n'
+        )
         self.check('user-city: 010', conf)
         self.check('user-city: 0o10', conf)
 
     def test_implicit_octal_values(self):
-        conf = ('octal-values:\n'
-                '  forbid-implicit-octal: true\n'
-                '  forbid-explicit-octal: false\n'
-                'new-line-at-end-of-file: disable\n'
-                'document-start: disable\n')
+        conf = (
+            'octal-values:\n'
+            '  forbid-implicit-octal: true\n'
+            '  forbid-explicit-octal: false\n'
+            'new-line-at-end-of-file: disable\n'
+            'document-start: disable\n'
+        )
         self.check('after-tag: !custom_tag 010', conf)
         self.check('user-city: 010', conf, problem=(1, 15))
         self.check('user-city: abc', conf)
         self.check('user-city: 010,0571', conf)
         self.check("user-city: '010'", conf)
         self.check('user-city: "010"', conf)
-        self.check('user-city:\n'
-                   '  - 010', conf, problem=(2, 8))
+        self.check('user-city:\n' '  - 010', conf, problem=(2, 8))
         self.check('user-city: [010]', conf, problem=(1, 16))
         self.check('user-city: {beijing: 010}', conf, problem=(1, 25))
         self.check('explicit-octal: 0o10', conf)
         self.check('not-number: 0abc', conf)
         self.check('zero: 0', conf)
         self.check('hex-value: 0x10', conf)
-        self.check('number-values:\n'
-                   '  - 0.10\n'
-                   '  - .01\n'
-                   '  - 0e3\n', conf)
+        self.check('number-values:\n' '  - 0.10\n' '  - .01\n' '  - 0e3\n', conf)
         self.check('with-decimal-digits: 012345678', conf)
         self.check('with-decimal-digits: 012345679', conf)
 
     def test_explicit_octal_values(self):
-        conf = ('octal-values:\n'
-                '  forbid-implicit-octal: false\n'
-                '  forbid-explicit-octal: true\n'
-                'new-line-at-end-of-file: disable\n'
-                'document-start: disable\n')
+        conf = (
+            'octal-values:\n'
+            '  forbid-implicit-octal: false\n'
+            '  forbid-explicit-octal: true\n'
+            'new-line-at-end-of-file: disable\n'
+            'document-start: disable\n'
+        )
         self.check('user-city: 0o10', conf, problem=(1, 16))
         self.check('user-city: abc', conf)
         self.check('user-city: 0o10,0571', conf)
         self.check("user-city: '0o10'", conf)
-        self.check('user-city:\n'
-                   '  - 0o10', conf, problem=(2, 9))
+        self.check('user-city:\n' '  - 0o10', conf, problem=(2, 9))
         self.check('user-city: [0o10]', conf, problem=(1, 17))
         self.check('user-city: {beijing: 0o10}', conf, problem=(1, 26))
         self.check('implicit-octal: 010', conf)
         self.check('not-number: 0oabc', conf)
         self.check('zero: 0', conf)
         self.check('hex-value: 0x10', conf)
-        self.check('number-values:\n'
-                   '  - 0.10\n'
-                   '  - .01\n'
-                   '  - 0e3\n', conf)
+        self.check('number-values:\n' '  - 0.10\n' '  - .01\n' '  - 0e3\n', conf)
         self.check('user-city: "010"', conf)
         self.check('with-decimal-digits: 0o012345678', conf)
         self.check('with-decimal-digits: 0o012345679', conf)

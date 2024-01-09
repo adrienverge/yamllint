@@ -77,36 +77,45 @@ from yamllint.linter import LintProblem
 
 ID = 'comments'
 TYPE = 'comment'
-CONF = {'require-starting-space': bool,
-        'ignore-shebangs': bool,
-        'min-spaces-from-content': int}
-DEFAULT = {'require-starting-space': True,
-           'ignore-shebangs': True,
-           'min-spaces-from-content': 2}
+CONF = {
+    'require-starting-space': bool,
+    'ignore-shebangs': bool,
+    'min-spaces-from-content': int,
+}
+DEFAULT = {
+    'require-starting-space': True,
+    'ignore-shebangs': True,
+    'min-spaces-from-content': 2,
+}
 
 
 def check(conf, comment):
-    if (conf['min-spaces-from-content'] != -1 and comment.is_inline() and
-            comment.pointer - comment.token_before.end_mark.pointer <
-            conf['min-spaces-from-content']):
-        yield LintProblem(comment.line_no, comment.column_no,
-                          'too few spaces before comment')
+    if (
+        conf['min-spaces-from-content'] != -1
+        and comment.is_inline()
+        and comment.pointer - comment.token_before.end_mark.pointer
+        < conf['min-spaces-from-content']
+    ):
+        yield LintProblem(
+            comment.line_no, comment.column_no, 'too few spaces before comment'
+        )
 
     if conf['require-starting-space']:
         text_start = comment.pointer + 1
-        while (comment.buffer[text_start] == '#' and
-               text_start < len(comment.buffer)):
+        while comment.buffer[text_start] == '#' and text_start < len(comment.buffer):
             text_start += 1
         if text_start < len(comment.buffer):
-            if (conf['ignore-shebangs'] and
-                    comment.line_no == 1 and
-                    comment.column_no == 1 and
-                    comment.buffer[text_start] == '!'):
+            if (
+                conf['ignore-shebangs']
+                and comment.line_no == 1
+                and comment.column_no == 1
+                and comment.buffer[text_start] == '!'
+            ):
                 return
             # We can test for both \r and \r\n just by checking first char
             # \r itself is a valid newline on some older OS.
             elif comment.buffer[text_start] not in {' ', '\n', '\r', '\x00'}:
                 column = comment.column_no + text_start - comment.pointer
-                yield LintProblem(comment.line_no,
-                                  column,
-                                  'missing starting space in comment')
+                yield LintProblem(
+                    comment.line_no, column, 'missing starting space in comment'
+                )

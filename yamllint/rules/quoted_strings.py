@@ -161,18 +161,22 @@ from yamllint.linter import LintProblem
 
 ID = 'quoted-strings'
 TYPE = 'token'
-CONF = {'quote-type': ('any', 'single', 'double'),
-        'required': (True, False, 'only-when-needed'),
-        'extra-required': [str],
-        'extra-allowed': [str],
-        'allow-quoted-quotes': bool,
-        'check-keys': bool}
-DEFAULT = {'quote-type': 'any',
-           'required': True,
-           'extra-required': [],
-           'extra-allowed': [],
-           'allow-quoted-quotes': False,
-           'check-keys': False}
+CONF = {
+    'quote-type': ('any', 'single', 'double'),
+    'required': (True, False, 'only-when-needed'),
+    'extra-required': [str],
+    'extra-allowed': [str],
+    'allow-quoted-quotes': bool,
+    'check-keys': bool,
+}
+DEFAULT = {
+    'quote-type': 'any',
+    'required': True,
+    'extra-required': [],
+    'extra-allowed': [],
+    'allow-quoted-quotes': False,
+    'check-keys': False,
+}
 
 
 def VALIDATE(conf):
@@ -189,19 +193,25 @@ DEFAULT_SCALAR_TAG = 'tag:yaml.org,2002:str'
 # https://stackoverflow.com/a/36514274
 yaml.resolver.Resolver.add_implicit_resolver(
     'tag:yaml.org,2002:int',
-    re.compile(r'''^(?:[-+]?0b[0-1_]+
+    re.compile(
+        r"""^(?:[-+]?0b[0-1_]+
                |[-+]?0o?[0-7_]+
                |[-+]?0[0-7_]+
                |[-+]?(?:0|[1-9][0-9_]*)
                |[-+]?0x[0-9a-fA-F_]+
-               |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9])+)$''', re.VERBOSE),
-    list('-+0123456789'))
+               |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9])+)$""",
+        re.VERBOSE,
+    ),
+    list('-+0123456789'),
+)
 
 
 def _quote_match(quote_type, token_style):
-    return ((quote_type == 'any') or
-            (quote_type == 'single' and token_style == "'") or
-            (quote_type == 'double' and token_style == '"'))
+    return (
+        (quote_type == 'any')
+        or (quote_type == 'single' and token_style == "'")
+        or (quote_type == 'double' and token_style == '"')
+    )
 
 
 def _quotes_are_needed(string, is_inside_a_flow):
@@ -216,8 +226,12 @@ def _quotes_are_needed(string, is_inside_a_flow):
         loader.get_token()
     try:
         a, b = loader.get_token(), loader.get_token()
-        if (isinstance(a, yaml.ScalarToken) and a.style is None and
-                isinstance(b, yaml.BlockEndToken) and a.value == string):
+        if (
+            isinstance(a, yaml.ScalarToken)
+            and a.style is None
+            and isinstance(b, yaml.BlockEndToken)
+            and a.value == string
+        ):
             return False
         return True
     except yaml.scanner.ScannerError:
@@ -225,27 +239,35 @@ def _quotes_are_needed(string, is_inside_a_flow):
 
 
 def _has_quoted_quotes(token):
-    return ((not token.plain) and
-            ((token.style == "'" and '"' in token.value) or
-             (token.style == '"' and "'" in token.value)))
+    return (not token.plain) and (
+        (token.style == "'" and '"' in token.value)
+        or (token.style == '"' and "'" in token.value)
+    )
 
 
 def check(conf, token, prev, next, nextnext, context):
     if 'flow_nest_count' not in context:
         context['flow_nest_count'] = 0
 
-    if isinstance(token, (yaml.FlowMappingStartToken,
-                          yaml.FlowSequenceStartToken)):
+    if isinstance(token, (yaml.FlowMappingStartToken, yaml.FlowSequenceStartToken)):
         context['flow_nest_count'] += 1
-    elif isinstance(token, (yaml.FlowMappingEndToken,
-                            yaml.FlowSequenceEndToken)):
+    elif isinstance(token, (yaml.FlowMappingEndToken, yaml.FlowSequenceEndToken)):
         context['flow_nest_count'] -= 1
 
-    if not (isinstance(token, yaml.tokens.ScalarToken) and
-            isinstance(prev, (yaml.BlockEntryToken, yaml.FlowEntryToken,
-                              yaml.FlowSequenceStartToken, yaml.TagToken,
-                              yaml.ValueToken, yaml.KeyToken))):
-
+    if not (
+        isinstance(token, yaml.tokens.ScalarToken)
+        and isinstance(
+            prev,
+            (
+                yaml.BlockEntryToken,
+                yaml.FlowEntryToken,
+                yaml.FlowSequenceStartToken,
+                yaml.TagToken,
+                yaml.ValueToken,
+                yaml.KeyToken,
+            ),
+        )
+    ):
         return
 
     node = 'key' if isinstance(prev, yaml.KeyToken) else 'value'
@@ -253,8 +275,7 @@ def check(conf, token, prev, next, nextnext, context):
         return
 
     # Ignore explicit types, e.g. !!str testtest or !!int 42
-    if (prev and isinstance(prev, yaml.tokens.TagToken) and
-            prev.value[0] == '!!'):
+    if prev and isinstance(prev, yaml.tokens.TagToken) and prev.value[0] == '!!':
         return
 
     # Ignore numbers, booleans, etc.
@@ -264,63 +285,69 @@ def check(conf, token, prev, next, nextnext, context):
         return
 
     # Ignore multi-line strings
-    if not token.plain and token.style in ("|", ">"):
+    if not token.plain and token.style in ('|', '>'):
         return
 
     quote_type = conf['quote-type']
 
     msg = None
     if conf['required'] is True:
-
         # Quotes are mandatory and need to match config
-        if (token.style is None or
-            not (_quote_match(quote_type, token.style) or
-                 (conf['allow-quoted-quotes'] and _has_quoted_quotes(token)))):
-            msg = f"string {node} is not quoted with {quote_type} quotes"
+        if token.style is None or not (
+            _quote_match(quote_type, token.style)
+            or (conf['allow-quoted-quotes'] and _has_quoted_quotes(token))
+        ):
+            msg = f'string {node} is not quoted with {quote_type} quotes'
 
     elif conf['required'] is False:
-
         # Quotes are not mandatory but when used need to match config
-        if (token.style and
-                not _quote_match(quote_type, token.style) and
-                not (conf['allow-quoted-quotes'] and
-                     _has_quoted_quotes(token))):
-            msg = f"string {node} is not quoted with {quote_type} quotes"
+        if (
+            token.style
+            and not _quote_match(quote_type, token.style)
+            and not (conf['allow-quoted-quotes'] and _has_quoted_quotes(token))
+        ):
+            msg = f'string {node} is not quoted with {quote_type} quotes'
 
         elif not token.style:
-            is_extra_required = any(re.search(r, token.value)
-                                    for r in conf['extra-required'])
+            is_extra_required = any(
+                re.search(r, token.value) for r in conf['extra-required']
+            )
             if is_extra_required:
-                msg = f"string {node} is not quoted"
+                msg = f'string {node} is not quoted'
 
     elif conf['required'] == 'only-when-needed':
-
         # Quotes are not strictly needed here
-        if (token.style and tag == DEFAULT_SCALAR_TAG and token.value and
-                not _quotes_are_needed(token.value,
-                                       context['flow_nest_count'] > 0)):
-            is_extra_required = any(re.search(r, token.value)
-                                    for r in conf['extra-required'])
-            is_extra_allowed = any(re.search(r, token.value)
-                                   for r in conf['extra-allowed'])
+        if (
+            token.style
+            and tag == DEFAULT_SCALAR_TAG
+            and token.value
+            and not _quotes_are_needed(token.value, context['flow_nest_count'] > 0)
+        ):
+            is_extra_required = any(
+                re.search(r, token.value) for r in conf['extra-required']
+            )
+            is_extra_allowed = any(
+                re.search(r, token.value) for r in conf['extra-allowed']
+            )
             if not (is_extra_required or is_extra_allowed):
-                msg = f"string {node} is redundantly quoted with " \
-                      f"{quote_type} quotes"
+                msg = (
+                    f'string {node} is redundantly quoted with ' f'{quote_type} quotes'
+                )
 
         # But when used need to match config
-        elif (token.style and
-              not _quote_match(quote_type, token.style) and
-              not (conf['allow-quoted-quotes'] and _has_quoted_quotes(token))):
-            msg = f"string {node} is not quoted with {quote_type} quotes"
+        elif (
+            token.style
+            and not _quote_match(quote_type, token.style)
+            and not (conf['allow-quoted-quotes'] and _has_quoted_quotes(token))
+        ):
+            msg = f'string {node} is not quoted with {quote_type} quotes'
 
         elif not token.style:
             is_extra_required = len(conf['extra-required']) and any(
-                re.search(r, token.value) for r in conf['extra-required'])
+                re.search(r, token.value) for r in conf['extra-required']
+            )
             if is_extra_required:
-                msg = f"string {node} is not quoted"
+                msg = f'string {node} is not quoted'
 
     if msg is not None:
-        yield LintProblem(
-            token.start_mark.line + 1,
-            token.start_mark.column + 1,
-            msg)
+        yield LintProblem(token.start_mark.line + 1, token.start_mark.column + 1, msg)

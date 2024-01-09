@@ -21,215 +21,263 @@ class KeyDuplicatesTestCase(RuleTestCase):
 
     def test_disabled(self):
         conf = 'key-duplicates: disable'
-        self.check('---\n'
-                   'block mapping:\n'
-                   '  key: a\n'
-                   '  otherkey: b\n'
-                   '  key: c\n', conf)
-        self.check('---\n'
-                   'flow mapping:\n'
-                   '  {key: a, otherkey: b, key: c}\n', conf)
-        self.check('---\n'
-                   'duplicated twice:\n'
-                   '  - k: a\n'
-                   '    ok: b\n'
-                   '    k: c\n'
-                   '    k: d\n', conf)
-        self.check('---\n'
-                   'duplicated twice:\n'
-                   '  - {k: a, ok: b, k: c, k: d}\n', conf)
-        self.check('---\n'
-                   'multiple duplicates:\n'
-                   '  a: 1\n'
-                   '  b: 2\n'
-                   '  c: 3\n'
-                   '  d: 4\n'
-                   '  d: 5\n'
-                   '  b: 6\n', conf)
-        self.check('---\n'
-                   'multiple duplicates:\n'
-                   '  {a: 1, b: 2, c: 3, d: 4, d: 5, b: 6}\n', conf)
-        self.check('---\n'
-                   'at: root\n'
-                   'multiple: times\n'
-                   'at: root\n', conf)
-        self.check('---\n'
-                   'nested but OK:\n'
-                   '  a: {a: {a: 1}}\n'
-                   '  b:\n'
-                   '    b: 2\n'
-                   '    c: 3\n', conf)
-        self.check('---\n'
-                   'nested duplicates:\n'
-                   '  a: {a: 1, a: 1}\n'
-                   '  b:\n'
-                   '    c: 3\n'
-                   '    d: 4\n'
-                   '    d: 4\n'
-                   '  b: 2\n', conf)
-        self.check('---\n'
-                   'duplicates with many styles: 1\n'
-                   '"duplicates with many styles": 1\n'
-                   '\'duplicates with many styles\': 1\n'
-                   '? duplicates with many styles\n'
-                   ': 1\n'
-                   '? >-\n'
-                   '    duplicates with\n'
-                   '    many styles\n'
-                   ': 1\n', conf)
-        self.check('---\n'
-                   'Merge Keys are OK:\n'
-                   'anchor_one: &anchor_one\n'
-                   '  one: one\n'
-                   'anchor_two: &anchor_two\n'
-                   '  two: two\n'
-                   'anchor_reference:\n'
-                   '  <<: *anchor_one\n'
-                   '  <<: *anchor_two\n', conf)
-        self.check('---\n'
-                   '{a: 1, b: 2}}\n', conf, problem=(2, 13, 'syntax'))
-        self.check('---\n'
-                   '[a, b, c]]\n', conf, problem=(2, 10, 'syntax'))
+        self.check(
+            '---\n' 'block mapping:\n' '  key: a\n' '  otherkey: b\n' '  key: c\n', conf
+        )
+        self.check('---\n' 'flow mapping:\n' '  {key: a, otherkey: b, key: c}\n', conf)
+        self.check(
+            '---\n'
+            'duplicated twice:\n'
+            '  - k: a\n'
+            '    ok: b\n'
+            '    k: c\n'
+            '    k: d\n',
+            conf,
+        )
+        self.check(
+            '---\n' 'duplicated twice:\n' '  - {k: a, ok: b, k: c, k: d}\n', conf
+        )
+        self.check(
+            '---\n'
+            'multiple duplicates:\n'
+            '  a: 1\n'
+            '  b: 2\n'
+            '  c: 3\n'
+            '  d: 4\n'
+            '  d: 5\n'
+            '  b: 6\n',
+            conf,
+        )
+        self.check(
+            '---\n' 'multiple duplicates:\n' '  {a: 1, b: 2, c: 3, d: 4, d: 5, b: 6}\n',
+            conf,
+        )
+        self.check('---\n' 'at: root\n' 'multiple: times\n' 'at: root\n', conf)
+        self.check(
+            '---\n'
+            'nested but OK:\n'
+            '  a: {a: {a: 1}}\n'
+            '  b:\n'
+            '    b: 2\n'
+            '    c: 3\n',
+            conf,
+        )
+        self.check(
+            '---\n'
+            'nested duplicates:\n'
+            '  a: {a: 1, a: 1}\n'
+            '  b:\n'
+            '    c: 3\n'
+            '    d: 4\n'
+            '    d: 4\n'
+            '  b: 2\n',
+            conf,
+        )
+        self.check(
+            '---\n'
+            'duplicates with many styles: 1\n'
+            '"duplicates with many styles": 1\n'
+            "'duplicates with many styles': 1\n"
+            '? duplicates with many styles\n'
+            ': 1\n'
+            '? >-\n'
+            '    duplicates with\n'
+            '    many styles\n'
+            ': 1\n',
+            conf,
+        )
+        self.check(
+            '---\n'
+            'Merge Keys are OK:\n'
+            'anchor_one: &anchor_one\n'
+            '  one: one\n'
+            'anchor_two: &anchor_two\n'
+            '  two: two\n'
+            'anchor_reference:\n'
+            '  <<: *anchor_one\n'
+            '  <<: *anchor_two\n',
+            conf,
+        )
+        self.check('---\n' '{a: 1, b: 2}}\n', conf, problem=(2, 13, 'syntax'))
+        self.check('---\n' '[a, b, c]]\n', conf, problem=(2, 10, 'syntax'))
 
     def test_enabled(self):
         conf = 'key-duplicates: enable'
-        self.check('---\n'
-                   'block mapping:\n'
-                   '  key: a\n'
-                   '  otherkey: b\n'
-                   '  key: c\n', conf,
-                   problem=(5, 3))
-        self.check('---\n'
-                   'flow mapping:\n'
-                   '  {key: a, otherkey: b, key: c}\n', conf,
-                   problem=(3, 25))
-        self.check('---\n'
-                   'duplicated twice:\n'
-                   '  - k: a\n'
-                   '    ok: b\n'
-                   '    k: c\n'
-                   '    k: d\n', conf,
-                   problem1=(5, 5), problem2=(6, 5))
-        self.check('---\n'
-                   'duplicated twice:\n'
-                   '  - {k: a, ok: b, k: c, k: d}\n', conf,
-                   problem1=(3, 19), problem2=(3, 25))
-        self.check('---\n'
-                   'multiple duplicates:\n'
-                   '  a: 1\n'
-                   '  b: 2\n'
-                   '  c: 3\n'
-                   '  d: 4\n'
-                   '  d: 5\n'
-                   '  b: 6\n', conf,
-                   problem1=(7, 3), problem2=(8, 3))
-        self.check('---\n'
-                   'multiple duplicates:\n'
-                   '  {a: 1, b: 2, c: 3, d: 4, d: 5, b: 6}\n', conf,
-                   problem1=(3, 28), problem2=(3, 34))
-        self.check('---\n'
-                   'at: root\n'
-                   'multiple: times\n'
-                   'at: root\n', conf,
-                   problem=(4, 1))
-        self.check('---\n'
-                   'nested but OK:\n'
-                   '  a: {a: {a: 1}}\n'
-                   '  b:\n'
-                   '    b: 2\n'
-                   '    c: 3\n', conf)
-        self.check('---\n'
-                   'nested duplicates:\n'
-                   '  a: {a: 1, a: 1}\n'
-                   '  b:\n'
-                   '    c: 3\n'
-                   '    d: 4\n'
-                   '    d: 4\n'
-                   '  b: 2\n', conf,
-                   problem1=(3, 13), problem2=(7, 5), problem3=(8, 3))
-        self.check('---\n'
-                   'duplicates with many styles: 1\n'
-                   '"duplicates with many styles": 1\n'
-                   '\'duplicates with many styles\': 1\n'
-                   '? duplicates with many styles\n'
-                   ': 1\n'
-                   '? >-\n'
-                   '    duplicates with\n'
-                   '    many styles\n'
-                   ': 1\n', conf,
-                   problem1=(3, 1), problem2=(4, 1), problem3=(5, 3),
-                   problem4=(7, 3))
-        self.check('---\n'
-                   'Merge Keys are OK:\n'
-                   'anchor_one: &anchor_one\n'
-                   '  one: one\n'
-                   'anchor_two: &anchor_two\n'
-                   '  two: two\n'
-                   'anchor_reference:\n'
-                   '  <<: *anchor_one\n'
-                   '  <<: *anchor_two\n', conf)
-        self.check('---\n'
-                   '{a: 1, b: 2}}\n', conf, problem=(2, 13, 'syntax'))
-        self.check('---\n'
-                   '[a, b, c]]\n', conf, problem=(2, 10, 'syntax'))
+        self.check(
+            '---\n' 'block mapping:\n' '  key: a\n' '  otherkey: b\n' '  key: c\n',
+            conf,
+            problem=(5, 3),
+        )
+        self.check(
+            '---\n' 'flow mapping:\n' '  {key: a, otherkey: b, key: c}\n',
+            conf,
+            problem=(3, 25),
+        )
+        self.check(
+            '---\n'
+            'duplicated twice:\n'
+            '  - k: a\n'
+            '    ok: b\n'
+            '    k: c\n'
+            '    k: d\n',
+            conf,
+            problem1=(5, 5),
+            problem2=(6, 5),
+        )
+        self.check(
+            '---\n' 'duplicated twice:\n' '  - {k: a, ok: b, k: c, k: d}\n',
+            conf,
+            problem1=(3, 19),
+            problem2=(3, 25),
+        )
+        self.check(
+            '---\n'
+            'multiple duplicates:\n'
+            '  a: 1\n'
+            '  b: 2\n'
+            '  c: 3\n'
+            '  d: 4\n'
+            '  d: 5\n'
+            '  b: 6\n',
+            conf,
+            problem1=(7, 3),
+            problem2=(8, 3),
+        )
+        self.check(
+            '---\n' 'multiple duplicates:\n' '  {a: 1, b: 2, c: 3, d: 4, d: 5, b: 6}\n',
+            conf,
+            problem1=(3, 28),
+            problem2=(3, 34),
+        )
+        self.check(
+            '---\n' 'at: root\n' 'multiple: times\n' 'at: root\n', conf, problem=(4, 1)
+        )
+        self.check(
+            '---\n'
+            'nested but OK:\n'
+            '  a: {a: {a: 1}}\n'
+            '  b:\n'
+            '    b: 2\n'
+            '    c: 3\n',
+            conf,
+        )
+        self.check(
+            '---\n'
+            'nested duplicates:\n'
+            '  a: {a: 1, a: 1}\n'
+            '  b:\n'
+            '    c: 3\n'
+            '    d: 4\n'
+            '    d: 4\n'
+            '  b: 2\n',
+            conf,
+            problem1=(3, 13),
+            problem2=(7, 5),
+            problem3=(8, 3),
+        )
+        self.check(
+            '---\n'
+            'duplicates with many styles: 1\n'
+            '"duplicates with many styles": 1\n'
+            "'duplicates with many styles': 1\n"
+            '? duplicates with many styles\n'
+            ': 1\n'
+            '? >-\n'
+            '    duplicates with\n'
+            '    many styles\n'
+            ': 1\n',
+            conf,
+            problem1=(3, 1),
+            problem2=(4, 1),
+            problem3=(5, 3),
+            problem4=(7, 3),
+        )
+        self.check(
+            '---\n'
+            'Merge Keys are OK:\n'
+            'anchor_one: &anchor_one\n'
+            '  one: one\n'
+            'anchor_two: &anchor_two\n'
+            '  two: two\n'
+            'anchor_reference:\n'
+            '  <<: *anchor_one\n'
+            '  <<: *anchor_two\n',
+            conf,
+        )
+        self.check('---\n' '{a: 1, b: 2}}\n', conf, problem=(2, 13, 'syntax'))
+        self.check('---\n' '[a, b, c]]\n', conf, problem=(2, 10, 'syntax'))
 
     def test_key_tokens_in_flow_sequences(self):
         conf = 'key-duplicates: enable'
-        self.check('---\n'
-                   '[\n'
-                   '  flow: sequence, with, key: value, mappings\n'
-                   ']\n', conf)
+        self.check(
+            '---\n' '[\n' '  flow: sequence, with, key: value, mappings\n' ']\n', conf
+        )
 
     def test_forbid_duplicated_merge_keys(self):
         conf = 'key-duplicates: {forbid-duplicated-merge-keys: true}'
-        self.check('---\n'
-                   'Multiple Merge Keys are NOT OK:\n'
-                   'anchor_one: &anchor_one\n'
-                   '  one: one\n'
-                   'anchor_two: &anchor_two\n'
-                   '  two: two\n'
-                   'anchor_reference:\n'
-                   '  <<: *anchor_one\n'
-                   '  <<: *anchor_two\n', conf, problem=(9, 3))
-        self.check('---\n'
-                   'Multiple Merge Keys are NOT OK:\n'
-                   'anchor_one: &anchor_one\n'
-                   '  one: one\n'
-                   'anchor_two: &anchor_two\n'
-                   '  two: two\n'
-                   'anchor_three: &anchor_three\n'
-                   '  two: three\n'
-                   'anchor_reference:\n'
-                   '  <<: *anchor_one\n'
-                   '  <<: *anchor_two\n'
-                   '  <<: *anchor_three\n', conf,
-                   problem1=(11, 3), problem2=(12, 3))
-        self.check('---\n'
-                   'Multiple Merge Keys are NOT OK:\n'
-                   'anchor_one: &anchor_one\n'
-                   '  one: one\n'
-                   'anchor_two: &anchor_two\n'
-                   '  two: two\n'
-                   'anchor_reference:\n'
-                   '  a: 1\n'
-                   '  <<: *anchor_one\n'
-                   '  b: 2\n'
-                   '  <<: *anchor_two\n', conf, problem=(11, 3))
-        self.check('---\n'
-                   'Single Merge Key is OK:\n'
-                   'anchor_one: &anchor_one\n'
-                   '  one: one\n'
-                   'anchor_two: &anchor_two\n'
-                   '  two: two\n'
-                   'anchor_reference:\n'
-                   '  <<: [*anchor_one, *anchor_two]\n', conf)
-        self.check('---\n'
-                   'Duplicate keys without Merge Keys:\n'
-                   '  key: a\n'
-                   '  otherkey: b\n'
-                   '  key: c\n', conf,
-                   problem=(5, 3))
-        self.check('---\n'
-                   'No Merge Keys:\n'
-                   '  key: a\n'
-                   '  otherkey: b\n', conf)
+        self.check(
+            '---\n'
+            'Multiple Merge Keys are NOT OK:\n'
+            'anchor_one: &anchor_one\n'
+            '  one: one\n'
+            'anchor_two: &anchor_two\n'
+            '  two: two\n'
+            'anchor_reference:\n'
+            '  <<: *anchor_one\n'
+            '  <<: *anchor_two\n',
+            conf,
+            problem=(9, 3),
+        )
+        self.check(
+            '---\n'
+            'Multiple Merge Keys are NOT OK:\n'
+            'anchor_one: &anchor_one\n'
+            '  one: one\n'
+            'anchor_two: &anchor_two\n'
+            '  two: two\n'
+            'anchor_three: &anchor_three\n'
+            '  two: three\n'
+            'anchor_reference:\n'
+            '  <<: *anchor_one\n'
+            '  <<: *anchor_two\n'
+            '  <<: *anchor_three\n',
+            conf,
+            problem1=(11, 3),
+            problem2=(12, 3),
+        )
+        self.check(
+            '---\n'
+            'Multiple Merge Keys are NOT OK:\n'
+            'anchor_one: &anchor_one\n'
+            '  one: one\n'
+            'anchor_two: &anchor_two\n'
+            '  two: two\n'
+            'anchor_reference:\n'
+            '  a: 1\n'
+            '  <<: *anchor_one\n'
+            '  b: 2\n'
+            '  <<: *anchor_two\n',
+            conf,
+            problem=(11, 3),
+        )
+        self.check(
+            '---\n'
+            'Single Merge Key is OK:\n'
+            'anchor_one: &anchor_one\n'
+            '  one: one\n'
+            'anchor_two: &anchor_two\n'
+            '  two: two\n'
+            'anchor_reference:\n'
+            '  <<: [*anchor_one, *anchor_two]\n',
+            conf,
+        )
+        self.check(
+            '---\n'
+            'Duplicate keys without Merge Keys:\n'
+            '  key: a\n'
+            '  otherkey: b\n'
+            '  key: c\n',
+            conf,
+            problem=(5, 3),
+        )
+        self.check('---\n' 'No Merge Keys:\n' '  key: a\n' '  otherkey: b\n', conf)

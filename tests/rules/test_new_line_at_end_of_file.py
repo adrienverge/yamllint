@@ -20,22 +20,24 @@ class NewLineAtEndOfFileTestCase(RuleTestCase):
     rule_id = 'new-line-at-end-of-file'
 
     def test_disabled(self):
-        conf = ('new-line-at-end-of-file: disable\n'
-                'empty-lines: disable\n'
-                'document-start: disable\n')
+        conf = (
+            'new-line-at-end-of-file: disable\n'
+            'empty-lines: disable\n'
+            'document-start: disable\n'
+        )
         self.check('', conf)
         self.check('\n', conf)
         self.check('word', conf)
         self.check('Sentence.\n', conf)
 
     def test_enabled(self):
-        conf = ('new-line-at-end-of-file: enable\n'
-                'empty-lines: disable\n'
-                'document-start: disable\n')
+        conf = (
+            'new-line-at-end-of-file: enable\n'
+            'empty-lines: disable\n'
+            'document-start: disable\n'
+        )
         self.check('', conf)
         self.check('\n', conf)
         self.check('word', conf, problem=(1, 5))
         self.check('Sentence.\n', conf)
-        self.check('---\n'
-                   'yaml: document\n'
-                   '...', conf, problem=(3, 4))
+        self.check('---\n' 'yaml: document\n' '...', conf, problem=(3, 4))

@@ -37,9 +37,7 @@ htmlhelp_basename = 'yamllintdoc'
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    ('index', 'yamllint', 'Linter for YAML files', ['Adrien Vergé'], 1)
-]
+man_pages = [('index', 'yamllint', 'Linter for YAML files', ['Adrien Vergé'], 1)]
 
 # -- Build with sphinx automodule without needing to install third-party libs
 

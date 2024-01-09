@@ -31,5 +31,8 @@ TYPE = 'line'
 
 def check(conf, line):
     if line.end == len(line.buffer) and line.end > line.start:
-        yield LintProblem(line.line_no, line.end - line.start + 1,
-                          'no new line character at the end of file')
+        yield LintProblem(
+            line.line_no,
+            line.end - line.start + 1,
+            'no new line character at the end of file',
+        )

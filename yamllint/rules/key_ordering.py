@@ -102,25 +102,23 @@ def check(conf, token, prev, next, nextnext, context):
     if 'stack' not in context:
         context['stack'] = []
 
-    if isinstance(token, (yaml.BlockMappingStartToken,
-                          yaml.FlowMappingStartToken)):
+    if isinstance(token, (yaml.BlockMappingStartToken, yaml.FlowMappingStartToken)):
         context['stack'].append(Parent(MAP))
-    elif isinstance(token, (yaml.BlockSequenceStartToken,
-                            yaml.FlowSequenceStartToken)):
+    elif isinstance(token, (yaml.BlockSequenceStartToken, yaml.FlowSequenceStartToken)):
         context['stack'].append(Parent(SEQ))
-    elif isinstance(token, (yaml.BlockEndToken,
-                            yaml.FlowMappingEndToken,
-                            yaml.FlowSequenceEndToken)):
+    elif isinstance(
+        token, (yaml.BlockEndToken, yaml.FlowMappingEndToken, yaml.FlowSequenceEndToken)
+    ):
         context['stack'].pop()
-    elif (isinstance(token, yaml.KeyToken) and
-          isinstance(next, yaml.ScalarToken)):
+    elif isinstance(token, yaml.KeyToken) and isinstance(next, yaml.ScalarToken):
         # This check is done because KeyTokens can be found inside flow
         # sequences... strange, but allowed.
         if len(context['stack']) > 0 and context['stack'][-1].type == MAP:
-            if any(strcoll(next.value, key) < 0
-                   for key in context['stack'][-1].keys):
+            if any(strcoll(next.value, key) < 0 for key in context['stack'][-1].keys):
                 yield LintProblem(
-                    next.start_mark.line + 1, next.start_mark.column + 1,
-                    f'wrong ordering of key "{next.value}" in mapping')
+                    next.start_mark.line + 1,
+                    next.start_mark.column + 1,
+                    f'wrong ordering of key "{next.value}" in mapping',
+                )
             else:
                 context['stack'][-1].keys.append(next.value)

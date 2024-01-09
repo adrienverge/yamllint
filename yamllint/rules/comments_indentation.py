@@ -96,10 +96,13 @@ TYPE = 'comment'
 #     # commented line 2
 #     current: line
 
+
 def check(conf, comment):
     # Only check block comments
-    if (not isinstance(comment.token_before, yaml.StreamStartToken) and
-            comment.token_before.end_mark.line + 1 == comment.line_no):
+    if (
+        not isinstance(comment.token_before, yaml.StreamStartToken)
+        and comment.token_before.end_mark.line + 1 == comment.line_no
+    ):
         return
 
     next_line_indent = comment.token_after.start_mark.column
@@ -126,11 +129,13 @@ def check(conf, comment):
     #         # comment on valid indent (4)
     #     other-list:
     #         - 2
-    if (comment.comment_before is not None and
-            not comment.comment_before.is_inline()):
+    if comment.comment_before is not None and not comment.comment_before.is_inline():
         prev_line_indent = comment.comment_before.column_no - 1
 
-    if (comment.column_no - 1 != prev_line_indent and
-            comment.column_no - 1 != next_line_indent):
-        yield LintProblem(comment.line_no, comment.column_no,
-                          'comment not indented like content')
+    if (
+        comment.column_no - 1 != prev_line_indent
+        and comment.column_no - 1 != next_line_indent
+    ):
+        yield LintProblem(
+            comment.line_no, comment.column_no, 'comment not indented like content'
+        )

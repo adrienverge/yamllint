@@ -83,17 +83,19 @@ DEFAULT = {'present': True}
 
 def check(conf, token, prev, next, nextnext, context):
     if conf['present']:
-        if (isinstance(prev, (yaml.StreamStartToken,
-                              yaml.DocumentEndToken,
-                              yaml.DirectiveToken)) and
-            not isinstance(token, (yaml.DocumentStartToken,
-                                   yaml.DirectiveToken,
-                                   yaml.StreamEndToken))):
-            yield LintProblem(token.start_mark.line + 1, 1,
-                              'missing document start "---"')
+        if isinstance(
+            prev, (yaml.StreamStartToken, yaml.DocumentEndToken, yaml.DirectiveToken)
+        ) and not isinstance(
+            token, (yaml.DocumentStartToken, yaml.DirectiveToken, yaml.StreamEndToken)
+        ):
+            yield LintProblem(
+                token.start_mark.line + 1, 1, 'missing document start "---"'
+            )
 
     else:
         if isinstance(token, yaml.DocumentStartToken):
-            yield LintProblem(token.start_mark.line + 1,
-                              token.start_mark.column + 1,
-                              'found forbidden document start "---"')
+            yield LintProblem(
+                token.start_mark.line + 1,
+                token.start_mark.column + 1,
+                'found forbidden document start "---"',
+            )

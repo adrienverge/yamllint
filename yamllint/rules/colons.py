@@ -84,31 +84,42 @@ from yamllint.rules.common import is_explicit_key, spaces_after, spaces_before
 
 ID = 'colons'
 TYPE = 'token'
-CONF = {'max-spaces-before': int,
-        'max-spaces-after': int}
-DEFAULT = {'max-spaces-before': 0,
-           'max-spaces-after': 1}
+CONF = {'max-spaces-before': int, 'max-spaces-after': int}
+DEFAULT = {'max-spaces-before': 0, 'max-spaces-after': 1}
 
 
 def check(conf, token, prev, next, nextnext, context):
     if isinstance(token, yaml.ValueToken) and not (
-            isinstance(prev, yaml.AliasToken) and
-            token.start_mark.pointer - prev.end_mark.pointer == 1):
-        problem = spaces_before(token, prev, next,
-                                max=conf['max-spaces-before'],
-                                max_desc='too many spaces before colon')
+        isinstance(prev, yaml.AliasToken)
+        and token.start_mark.pointer - prev.end_mark.pointer == 1
+    ):
+        problem = spaces_before(
+            token,
+            prev,
+            next,
+            max=conf['max-spaces-before'],
+            max_desc='too many spaces before colon',
+        )
         if problem is not None:
             yield problem
 
-        problem = spaces_after(token, prev, next,
-                               max=conf['max-spaces-after'],
-                               max_desc='too many spaces after colon')
+        problem = spaces_after(
+            token,
+            prev,
+            next,
+            max=conf['max-spaces-after'],
+            max_desc='too many spaces after colon',
+        )
         if problem is not None:
             yield problem
 
     if isinstance(token, yaml.KeyToken) and is_explicit_key(token):
-        problem = spaces_after(token, prev, next,
-                               max=conf['max-spaces-after'],
-                               max_desc='too many spaces after question mark')
+        problem = spaces_after(
+            token,
+            prev,
+            next,
+            max=conf['max-spaces-after'],
+            max_desc='too many spaces after question mark',
+        )
         if problem is not None:
             yield problem

@@ -108,32 +108,41 @@ from yamllint.rules.common import spaces_after, spaces_before
 
 ID = 'commas'
 TYPE = 'token'
-CONF = {'max-spaces-before': int,
-        'min-spaces-after': int,
-        'max-spaces-after': int}
-DEFAULT = {'max-spaces-before': 0,
-           'min-spaces-after': 1,
-           'max-spaces-after': 1}
+CONF = {'max-spaces-before': int, 'min-spaces-after': int, 'max-spaces-after': int}
+DEFAULT = {'max-spaces-before': 0, 'min-spaces-after': 1, 'max-spaces-after': 1}
 
 
 def check(conf, token, prev, next, nextnext, context):
     if isinstance(token, yaml.FlowEntryToken):
-        if (prev is not None and conf['max-spaces-before'] != -1 and
-                prev.end_mark.line < token.start_mark.line):
-            yield LintProblem(token.start_mark.line + 1,
-                              max(1, token.start_mark.column),
-                              'too many spaces before comma')
+        if (
+            prev is not None
+            and conf['max-spaces-before'] != -1
+            and prev.end_mark.line < token.start_mark.line
+        ):
+            yield LintProblem(
+                token.start_mark.line + 1,
+                max(1, token.start_mark.column),
+                'too many spaces before comma',
+            )
         else:
-            problem = spaces_before(token, prev, next,
-                                    max=conf['max-spaces-before'],
-                                    max_desc='too many spaces before comma')
+            problem = spaces_before(
+                token,
+                prev,
+                next,
+                max=conf['max-spaces-before'],
+                max_desc='too many spaces before comma',
+            )
             if problem is not None:
                 yield problem
 
-        problem = spaces_after(token, prev, next,
-                               min=conf['min-spaces-after'],
-                               max=conf['max-spaces-after'],
-                               min_desc='too few spaces after comma',
-                               max_desc='too many spaces after comma')
+        problem = spaces_after(
+            token,
+            prev,
+            next,
+            min=conf['min-spaces-after'],
+            max=conf['max-spaces-after'],
+            min_desc='too few spaces after comma',
+            max_desc='too many spaces after comma',
+        )
         if problem is not None:
             yield problem

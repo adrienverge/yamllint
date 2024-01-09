@@ -22,8 +22,7 @@ class NewLinesTestCase(RuleTestCase):
     rule_id = 'new-lines'
 
     def test_disabled(self):
-        conf = ('new-line-at-end-of-file: disable\n'
-                'new-lines: disable\n')
+        conf = 'new-line-at-end-of-file: disable\n' 'new-lines: disable\n'
         self.check('', conf)
         self.check('\n', conf)
         self.check('\r', conf)
@@ -32,8 +31,7 @@ class NewLinesTestCase(RuleTestCase):
         self.check('---\r\ntext\r\n', conf)
 
     def test_unix_type(self):
-        conf = ('new-line-at-end-of-file: disable\n'
-                'new-lines: {type: unix}\n')
+        conf = 'new-line-at-end-of-file: disable\n' 'new-lines: {type: unix}\n'
         self.check('', conf)
         self.check('\r', conf)
         self.check('\n', conf)
@@ -45,15 +43,16 @@ class NewLinesTestCase(RuleTestCase):
         # If we find a CRLF when looking for Unix newlines, yamllint
         # should always raise, regardless of logic with
         # require-starting-space.
-        conf = ('new-line-at-end-of-file: disable\n'
-                'new-lines: {type: unix}\n'
-                'comments:\n'
-                '  require-starting-space: true\n')
+        conf = (
+            'new-line-at-end-of-file: disable\n'
+            'new-lines: {type: unix}\n'
+            'comments:\n'
+            '  require-starting-space: true\n'
+        )
         self.check('---\r\n#\r\n', conf, problem=(1, 4))
 
     def test_dos_type(self):
-        conf = ('new-line-at-end-of-file: disable\n'
-                'new-lines: {type: dos}\n')
+        conf = 'new-line-at-end-of-file: disable\n' 'new-lines: {type: dos}\n'
         self.check('', conf)
         self.check('\r', conf)
         self.check('\n', conf, problem=(1, 1))
@@ -62,8 +61,7 @@ class NewLinesTestCase(RuleTestCase):
         self.check('---\r\ntext\r\n', conf)
 
     def test_platform_type(self):
-        conf = ('new-line-at-end-of-file: disable\n'
-                'new-lines: {type: platform}\n')
+        conf = 'new-line-at-end-of-file: disable\n' 'new-lines: {type: platform}\n'
 
         self.check('', conf)
 

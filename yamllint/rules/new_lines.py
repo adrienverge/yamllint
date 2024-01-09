@@ -52,7 +52,8 @@ def check(conf, line):
         newline_char = '\r\n'
 
     if line.start == 0 and len(line.buffer) > line.end:
-        if line.buffer[line.end:line.end + len(newline_char)] != newline_char:
-            c = repr(newline_char).strip('\'')
-            yield LintProblem(1, line.end - line.start + 1,
-                              f'wrong new line character: expected {c}')
+        if line.buffer[line.end : line.end + len(newline_char)] != newline_char:
+            c = repr(newline_char).strip("'")
+            yield LintProblem(
+                1, line.end - line.start + 1, f'wrong new line character: expected {c}'
+            )

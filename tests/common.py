@@ -31,8 +31,7 @@ class RuleTestCase(unittest.TestCase):
             conf = {}
         else:
             conf = yaml.safe_load(conf)
-        conf = {'extends': 'default',
-                'rules': conf}
+        conf = {'extends': 'default', 'rules': conf}
         return YamlLintConfig(yaml.safe_dump(conf))
 
     def check(self, source, conf, **kwargs):
@@ -46,8 +45,9 @@ class RuleTestCase(unittest.TestCase):
                     rule_id = kwargs[key][2]
             else:
                 rule_id = self.rule_id
-            expected_problems.append(linter.LintProblem(
-                kwargs[key][0], kwargs[key][1], rule=rule_id))
+            expected_problems.append(
+                linter.LintProblem(kwargs[key][0], kwargs[key][1], rule=rule_id)
+            )
         expected_problems.sort()
 
         real_problems = list(linter.run(source, self.build_fake_config(conf)))

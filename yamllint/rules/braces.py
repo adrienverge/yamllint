@@ -139,62 +139,88 @@ from yamllint.rules.common import spaces_after, spaces_before
 
 ID = 'braces'
 TYPE = 'token'
-CONF = {'forbid': (bool, 'non-empty'),
-        'min-spaces-inside': int,
-        'max-spaces-inside': int,
-        'min-spaces-inside-empty': int,
-        'max-spaces-inside-empty': int}
-DEFAULT = {'forbid': False,
-           'min-spaces-inside': 0,
-           'max-spaces-inside': 0,
-           'min-spaces-inside-empty': -1,
-           'max-spaces-inside-empty': -1}
+CONF = {
+    'forbid': (bool, 'non-empty'),
+    'min-spaces-inside': int,
+    'max-spaces-inside': int,
+    'min-spaces-inside-empty': int,
+    'max-spaces-inside-empty': int,
+}
+DEFAULT = {
+    'forbid': False,
+    'min-spaces-inside': 0,
+    'max-spaces-inside': 0,
+    'min-spaces-inside-empty': -1,
+    'max-spaces-inside-empty': -1,
+}
 
 
 def check(conf, token, prev, next, nextnext, context):
-    if (conf['forbid'] is True and
-            isinstance(token, yaml.FlowMappingStartToken)):
-        yield LintProblem(token.start_mark.line + 1,
-                          token.end_mark.column + 1,
-                          'forbidden flow mapping')
+    if conf['forbid'] is True and isinstance(token, yaml.FlowMappingStartToken):
+        yield LintProblem(
+            token.start_mark.line + 1,
+            token.end_mark.column + 1,
+            'forbidden flow mapping',
+        )
 
-    elif (conf['forbid'] == 'non-empty' and
-            isinstance(token, yaml.FlowMappingStartToken) and
-            not isinstance(next, yaml.FlowMappingEndToken)):
-        yield LintProblem(token.start_mark.line + 1,
-                          token.end_mark.column + 1,
-                          'forbidden flow mapping')
+    elif (
+        conf['forbid'] == 'non-empty'
+        and isinstance(token, yaml.FlowMappingStartToken)
+        and not isinstance(next, yaml.FlowMappingEndToken)
+    ):
+        yield LintProblem(
+            token.start_mark.line + 1,
+            token.end_mark.column + 1,
+            'forbidden flow mapping',
+        )
 
-    elif (isinstance(token, yaml.FlowMappingStartToken) and
-            isinstance(next, yaml.FlowMappingEndToken)):
-        problem = spaces_after(token, prev, next,
-                               min=(conf['min-spaces-inside-empty']
-                                    if conf['min-spaces-inside-empty'] != -1
-                                    else conf['min-spaces-inside']),
-                               max=(conf['max-spaces-inside-empty']
-                                    if conf['max-spaces-inside-empty'] != -1
-                                    else conf['max-spaces-inside']),
-                               min_desc='too few spaces inside empty braces',
-                               max_desc='too many spaces inside empty braces')
+    elif isinstance(token, yaml.FlowMappingStartToken) and isinstance(
+        next, yaml.FlowMappingEndToken
+    ):
+        problem = spaces_after(
+            token,
+            prev,
+            next,
+            min=(
+                conf['min-spaces-inside-empty']
+                if conf['min-spaces-inside-empty'] != -1
+                else conf['min-spaces-inside']
+            ),
+            max=(
+                conf['max-spaces-inside-empty']
+                if conf['max-spaces-inside-empty'] != -1
+                else conf['max-spaces-inside']
+            ),
+            min_desc='too few spaces inside empty braces',
+            max_desc='too many spaces inside empty braces',
+        )
         if problem is not None:
             yield problem
 
     elif isinstance(token, yaml.FlowMappingStartToken):
-        problem = spaces_after(token, prev, next,
-                               min=conf['min-spaces-inside'],
-                               max=conf['max-spaces-inside'],
-                               min_desc='too few spaces inside braces',
-                               max_desc='too many spaces inside braces')
+        problem = spaces_after(
+            token,
+            prev,
+            next,
+            min=conf['min-spaces-inside'],
+            max=conf['max-spaces-inside'],
+            min_desc='too few spaces inside braces',
+            max_desc='too many spaces inside braces',
+        )
         if problem is not None:
             yield problem
 
-    elif (isinstance(token, yaml.FlowMappingEndToken) and
-            (prev is None or
-             not isinstance(prev, yaml.FlowMappingStartToken))):
-        problem = spaces_before(token, prev, next,
-                                min=conf['min-spaces-inside'],
-                                max=conf['max-spaces-inside'],
-                                min_desc='too few spaces inside braces',
-                                max_desc='too many spaces inside braces')
+    elif isinstance(token, yaml.FlowMappingEndToken) and (
+        prev is None or not isinstance(prev, yaml.FlowMappingStartToken)
+    ):
+        problem = spaces_before(
+            token,
+            prev,
+            next,
+            min=conf['min-spaces-inside'],
+            max=conf['max-spaces-inside'],
+            min_desc='too few spaces inside braces',
+            max_desc='too many spaces inside braces',
+        )
         if problem is not None:
             yield problem

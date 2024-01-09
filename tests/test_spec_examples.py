@@ -42,69 +42,76 @@ from tests.common import RuleTestCase
 #                       encoding='utf-8') as g:
 #                 g.write(text)
 
+
 class SpecificationTestCase(RuleTestCase):
     rule_id = None
 
 
-conf_general = ('document-start: disable\n'
-                'comments: {min-spaces-from-content: 1}\n'
-                'braces: {min-spaces-inside: 1, max-spaces-inside: 1}\n'
-                'brackets: {min-spaces-inside: 1, max-spaces-inside: 1}\n')
+conf_general = (
+    'document-start: disable\n'
+    'comments: {min-spaces-from-content: 1}\n'
+    'braces: {min-spaces-inside: 1, max-spaces-inside: 1}\n'
+    'brackets: {min-spaces-inside: 1, max-spaces-inside: 1}\n'
+)
 conf_overrides = {
     'example-2.2': 'colons: {max-spaces-after: 2}\n',
     'example-2.4': 'colons: {max-spaces-after: 3}\n',
-    'example-2.5': ('empty-lines: {max-end: 2}\n'
-                    'brackets: {min-spaces-inside: 0, max-spaces-inside: 2}\n'
-                    'commas: {max-spaces-before: -1}\n'),
-    'example-2.6': ('braces: {min-spaces-inside: 0, max-spaces-inside: 0}\n'
-                    'indentation: disable\n'),
-    'example-2.12': ('empty-lines: {max-end: 1}\n'
-                     'colons: {max-spaces-before: -1}\n'),
+    'example-2.5': (
+        'empty-lines: {max-end: 2}\n'
+        'brackets: {min-spaces-inside: 0, max-spaces-inside: 2}\n'
+        'commas: {max-spaces-before: -1}\n'
+    ),
+    'example-2.6': (
+        'braces: {min-spaces-inside: 0, max-spaces-inside: 0}\n'
+        'indentation: disable\n'
+    ),
+    'example-2.12': ('empty-lines: {max-end: 1}\n' 'colons: {max-spaces-before: -1}\n'),
     'example-2.16': 'empty-lines: {max-end: 1}\n',
     'example-2.18': 'empty-lines: {max-end: 1}\n',
     'example-2.19': 'empty-lines: {max-end: 1}\n',
     'example-2.28': 'empty-lines: {max-end: 3}\n',
-    'example-5.3': ('indentation: {indent-sequences: false}\n'
-                    'colons: {max-spaces-before: 1}\n'),
+    'example-5.3': (
+        'indentation: {indent-sequences: false}\n' 'colons: {max-spaces-before: 1}\n'
+    ),
     'example-6.4': 'trailing-spaces: disable\n',
     'example-6.5': 'trailing-spaces: disable\n',
     'example-6.6': 'trailing-spaces: disable\n',
     'example-6.7': 'trailing-spaces: disable\n',
     'example-6.8': 'trailing-spaces: disable\n',
-    'example-6.10': ('empty-lines: {max-end: 2}\n'
-                     'trailing-spaces: disable\n'
-                     'comments-indentation: disable\n'),
-    'example-6.11': ('empty-lines: {max-end: 1}\n'
-                     'comments-indentation: disable\n'),
+    'example-6.10': (
+        'empty-lines: {max-end: 2}\n'
+        'trailing-spaces: disable\n'
+        'comments-indentation: disable\n'
+    ),
+    'example-6.11': ('empty-lines: {max-end: 1}\n' 'comments-indentation: disable\n'),
     'example-6.13': 'comments-indentation: disable\n',
     'example-6.14': 'comments-indentation: disable\n',
     'example-6.23': 'colons: {max-spaces-before: 1}\n',
-    'example-7.4': ('colons: {max-spaces-before: 1}\n'
-                    'indentation: disable\n'),
+    'example-7.4': ('colons: {max-spaces-before: 1}\n' 'indentation: disable\n'),
     'example-7.5': 'trailing-spaces: disable\n',
     'example-7.6': 'trailing-spaces: disable\n',
     'example-7.7': 'indentation: disable\n',
-    'example-7.8': ('colons: {max-spaces-before: 1}\n'
-                    'indentation: disable\n'),
+    'example-7.8': ('colons: {max-spaces-before: 1}\n' 'indentation: disable\n'),
     'example-7.9': 'trailing-spaces: disable\n',
-    'example-7.11': ('colons: {max-spaces-before: 1}\n'
-                     'indentation: disable\n'),
-    'example-7.13': ('brackets: {min-spaces-inside: 0, max-spaces-inside: 1}\n'
-                     'commas: {max-spaces-before: 1, min-spaces-after: 0}\n'),
+    'example-7.11': ('colons: {max-spaces-before: 1}\n' 'indentation: disable\n'),
+    'example-7.13': (
+        'brackets: {min-spaces-inside: 0, max-spaces-inside: 1}\n'
+        'commas: {max-spaces-before: 1, min-spaces-after: 0}\n'
+    ),
     'example-7.14': 'indentation: disable\n',
-    'example-7.15': ('braces: {min-spaces-inside: 0, max-spaces-inside: 1}\n'
-                     'commas: {max-spaces-before: 1, min-spaces-after: 0}\n'
-                     'colons: {max-spaces-before: 1}\n'),
+    'example-7.15': (
+        'braces: {min-spaces-inside: 0, max-spaces-inside: 1}\n'
+        'commas: {max-spaces-before: 1, min-spaces-after: 0}\n'
+        'colons: {max-spaces-before: 1}\n'
+    ),
     'example-7.16': 'indentation: disable\n',
     'example-7.17': 'indentation: disable\n',
     'example-7.18': 'indentation: disable\n',
     'example-7.19': 'indentation: disable\n',
-    'example-7.20': ('colons: {max-spaces-before: 1}\n'
-                     'indentation: disable\n'),
+    'example-7.20': ('colons: {max-spaces-before: 1}\n' 'indentation: disable\n'),
     'example-8.1': 'empty-lines: {max-end: 1}\n',
     'example-8.2': 'trailing-spaces: disable\n',
-    'example-8.5': ('comments-indentation: disable\n'
-                    'trailing-spaces: disable\n'),
+    'example-8.5': ('comments-indentation: disable\n' 'trailing-spaces: disable\n'),
     'example-8.6': 'empty-lines: {max-end: 1}\n',
     'example-8.7': 'empty-lines: {max-end: 1}\n',
     'example-8.8': 'trailing-spaces: disable\n',
@@ -112,8 +119,9 @@ conf_overrides = {
     'example-8.14': 'colons: {max-spaces-before: 1}\n',
     'example-8.16': 'indentation: {spaces: 1}\n',
     'example-8.17': 'indentation: disable\n',
-    'example-8.20': ('indentation: {indent-sequences: false}\n'
-                     'colons: {max-spaces-before: 1}\n'),
+    'example-8.20': (
+        'indentation: {indent-sequences: false}\n' 'colons: {max-spaces-before: 1}\n'
+    ),
     'example-8.22': 'indentation: disable\n',
     'example-10.1': 'colons: {max-spaces-before: 2}\n',
     'example-10.2': 'indentation: {indent-sequences: false}\n',
@@ -121,14 +129,16 @@ conf_overrides = {
     'example-10.9': 'truthy: disable\n',
 }
 
-files = os.listdir(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                'yaml-1.2-spec-examples'))
+files = os.listdir(
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), 'yaml-1.2-spec-examples')
+)
 assert len(files) == 132
 
 
 def _gen_test(buffer, conf):
     def test(self):
         self.check(buffer, conf)
+
     return test
 
 
@@ -183,5 +193,4 @@ for file in files:
 
     with open('tests/yaml-1.2-spec-examples/' + file, encoding='utf-8') as f:
         conf = conf_general + conf_overrides.get(file, '')
-        setattr(SpecificationTestCase, 'test_' + file,
-                _gen_test(f.read(), conf))
+        setattr(SpecificationTestCase, 'test_' + file, _gen_test(f.read(), conf))

@@ -35,6 +35,7 @@ ENABLE_RULE_PATTERN = re.compile(r'^# yamllint enable( rule:\S+)*\s*$')
 
 class LintProblem:
     """Represents a linting problem found by yamllint."""
+
     def __init__(self, line, column, desc='<no description>', rule=None):
         #: Line on which the problem was found (starting at 1)
         self.line = line
@@ -53,13 +54,16 @@ class LintProblem:
         return self.desc
 
     def __eq__(self, other):
-        return (self.line == other.line and
-                self.column == other.column and
-                self.rule == other.rule)
+        return (
+            self.line == other.line
+            and self.column == other.column
+            and self.rule == other.rule
+        )
 
     def __lt__(self, other):
-        return (self.line < other.line or
-                (self.line == other.line and self.column < other.column))
+        return self.line < other.line or (
+            self.line == other.line and self.column < other.column
+        )
 
     def __repr__(self):
         return f'{self.line}:{self.column}: {self.message}'
@@ -133,10 +137,14 @@ def get_cosmetic_problems(buffer, conf, filepath):
         if isinstance(elem, parser.Token):
             for rule in token_rules:
                 rule_conf = conf.rules[rule.ID]
-                for problem in rule.check(rule_conf,
-                                          elem.curr, elem.prev, elem.next,
-                                          elem.nextnext,
-                                          context[rule.ID]):
+                for problem in rule.check(
+                    rule_conf,
+                    elem.curr,
+                    elem.prev,
+                    elem.next,
+                    elem.nextnext,
+                    context[rule.ID],
+                ):
                     problem.rule = rule.ID
                     problem.level = rule_conf['level']
                     cache.append(problem)
@@ -164,8 +172,10 @@ def get_cosmetic_problems(buffer, conf, filepath):
             # This is the last token/comment/line of this line, let's flush the
             # problems found (but filter them according to the directives)
             for problem in cache:
-                if not (disabled_for_line.is_disabled_by_directive(problem) or
-                        disabled.is_disabled_by_directive(problem)):
+                if not (
+                    disabled_for_line.is_disabled_by_directive(problem)
+                    or disabled.is_disabled_by_directive(problem)
+                ):
                     yield problem
 
             disabled_for_line = disabled_for_next_line
@@ -177,16 +187,19 @@ def get_syntax_error(buffer):
     try:
         list(yaml.parse(buffer, Loader=yaml.BaseLoader))
     except yaml.error.MarkedYAMLError as e:
-        problem = LintProblem(e.problem_mark.line + 1,
-                              e.problem_mark.column + 1,
-                              'syntax error: ' + e.problem + ' (syntax)')
+        problem = LintProblem(
+            e.problem_mark.line + 1,
+            e.problem_mark.column + 1,
+            'syntax error: ' + e.problem + ' (syntax)',
+        )
         problem.level = 'error'
         return problem
 
 
 def _run(buffer, conf, filepath):
-    assert hasattr(buffer, '__getitem__'), \
-        '_run() argument must be a buffer, not a stream'
+    assert hasattr(
+        buffer, '__getitem__'
+    ), '_run() argument must be a buffer, not a stream'
 
     first_line = next(parser.line_generator(buffer)).content
     if re.match(r'^#\s*yamllint disable-file\s*$', first_line):
@@ -198,8 +211,11 @@ def _run(buffer, conf, filepath):
 
     for problem in get_cosmetic_problems(buffer, conf, filepath):
         # Insert the syntax error (if any) at the right place...
-        if (syntax_error and syntax_error.line <= problem.line and
-                syntax_error.column <= problem.column):
+        if (
+            syntax_error
+            and syntax_error.line <= problem.line
+            and syntax_error.column <= problem.column
+        ):
             yield syntax_error
 
             # Discard the problem since it is at the same place as the syntax

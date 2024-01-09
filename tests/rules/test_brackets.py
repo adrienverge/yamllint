@@ -21,317 +21,258 @@ class ColonTestCase(RuleTestCase):
 
     def test_disabled(self):
         conf = 'brackets: disable'
-        self.check('---\n'
-                   'array1: []\n'
-                   'array2: [ ]\n'
-                   'array3: [   a, b]\n'
-                   'array4: [a, b, c ]\n'
-                   'array5: [a, b, c ]\n'
-                   'array6: [  a, b, c ]\n'
-                   'array7: [   a, b, c ]\n', conf)
+        self.check(
+            '---\n'
+            'array1: []\n'
+            'array2: [ ]\n'
+            'array3: [   a, b]\n'
+            'array4: [a, b, c ]\n'
+            'array5: [a, b, c ]\n'
+            'array6: [  a, b, c ]\n'
+            'array7: [   a, b, c ]\n',
+            conf,
+        )
 
     def test_forbid(self):
-        conf = ('brackets:\n'
-                '  forbid: false\n')
-        self.check('---\n'
-                   'array: []\n', conf)
-        self.check('---\n'
-                   'array: [a, b]\n', conf)
-        self.check('---\n'
-                   'array: [\n'
-                   '  a,\n'
-                   '  b\n'
-                   ']\n', conf)
+        conf = 'brackets:\n' '  forbid: false\n'
+        self.check('---\n' 'array: []\n', conf)
+        self.check('---\n' 'array: [a, b]\n', conf)
+        self.check('---\n' 'array: [\n' '  a,\n' '  b\n' ']\n', conf)
 
-        conf = ('brackets:\n'
-                '  forbid: true\n')
-        self.check('---\n'
-                   'array:\n'
-                   '  - a\n'
-                   '  - b\n', conf)
-        self.check('---\n'
-                   'array: []\n', conf, problem=(2, 9))
-        self.check('---\n'
-                   'array: [a, b]\n', conf, problem=(2, 9))
-        self.check('---\n'
-                   'array: [\n'
-                   '  a,\n'
-                   '  b\n'
-                   ']\n', conf, problem=(2, 9))
+        conf = 'brackets:\n' '  forbid: true\n'
+        self.check('---\n' 'array:\n' '  - a\n' '  - b\n', conf)
+        self.check('---\n' 'array: []\n', conf, problem=(2, 9))
+        self.check('---\n' 'array: [a, b]\n', conf, problem=(2, 9))
+        self.check('---\n' 'array: [\n' '  a,\n' '  b\n' ']\n', conf, problem=(2, 9))
 
-        conf = ('brackets:\n'
-                '  forbid: non-empty\n')
-        self.check('---\n'
-                   'array:\n'
-                   '  - a\n'
-                   '  - b\n', conf)
-        self.check('---\n'
-                   'array: []\n', conf)
-        self.check('---\n'
-                   'array: [\n\n'
-                   ']\n', conf)
-        self.check('---\n'
-                   'array: [\n'
-                   '# a comment\n'
-                   ']\n', conf)
-        self.check('---\n'
-                   'array: [a, b]\n', conf, problem=(2, 9))
-        self.check('---\n'
-                   'array: [\n'
-                   '  a,\n'
-                   '  b\n'
-                   ']\n', conf, problem=(2, 9))
+        conf = 'brackets:\n' '  forbid: non-empty\n'
+        self.check('---\n' 'array:\n' '  - a\n' '  - b\n', conf)
+        self.check('---\n' 'array: []\n', conf)
+        self.check('---\n' 'array: [\n\n' ']\n', conf)
+        self.check('---\n' 'array: [\n' '# a comment\n' ']\n', conf)
+        self.check('---\n' 'array: [a, b]\n', conf, problem=(2, 9))
+        self.check('---\n' 'array: [\n' '  a,\n' '  b\n' ']\n', conf, problem=(2, 9))
 
     def test_min_spaces(self):
-        conf = ('brackets:\n'
-                '  max-spaces-inside: -1\n'
-                '  min-spaces-inside: 0\n'
-                '  max-spaces-inside-empty: -1\n'
-                '  min-spaces-inside-empty: -1\n')
-        self.check('---\n'
-                   'array: []\n', conf)
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: -1\n'
+            '  min-spaces-inside: 0\n'
+            '  max-spaces-inside-empty: -1\n'
+            '  min-spaces-inside-empty: -1\n'
+        )
+        self.check('---\n' 'array: []\n', conf)
 
-        conf = ('brackets:\n'
-                '  max-spaces-inside: -1\n'
-                '  min-spaces-inside: 1\n'
-                '  max-spaces-inside-empty: -1\n'
-                '  min-spaces-inside-empty: -1\n')
-        self.check('---\n'
-                   'array: []\n', conf, problem=(2, 9))
-        self.check('---\n'
-                   'array: [ ]\n', conf)
-        self.check('---\n'
-                   'array: [a, b]\n', conf, problem1=(2, 9), problem2=(2, 13))
-        self.check('---\n'
-                   'array: [ a, b ]\n', conf)
-        self.check('---\n'
-                   'array: [\n'
-                   '  a,\n'
-                   '  b\n'
-                   ']\n', conf)
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: -1\n'
+            '  min-spaces-inside: 1\n'
+            '  max-spaces-inside-empty: -1\n'
+            '  min-spaces-inside-empty: -1\n'
+        )
+        self.check('---\n' 'array: []\n', conf, problem=(2, 9))
+        self.check('---\n' 'array: [ ]\n', conf)
+        self.check('---\n' 'array: [a, b]\n', conf, problem1=(2, 9), problem2=(2, 13))
+        self.check('---\n' 'array: [ a, b ]\n', conf)
+        self.check('---\n' 'array: [\n' '  a,\n' '  b\n' ']\n', conf)
 
-        conf = ('brackets:\n'
-                '  max-spaces-inside: -1\n'
-                '  min-spaces-inside: 3\n'
-                '  max-spaces-inside-empty: -1\n'
-                '  min-spaces-inside-empty: -1\n')
-        self.check('---\n'
-                   'array: [ a, b ]\n', conf,
-                   problem1=(2, 10), problem2=(2, 15))
-        self.check('---\n'
-                   'array: [   a, b   ]\n', conf)
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: -1\n'
+            '  min-spaces-inside: 3\n'
+            '  max-spaces-inside-empty: -1\n'
+            '  min-spaces-inside-empty: -1\n'
+        )
+        self.check(
+            '---\n' 'array: [ a, b ]\n', conf, problem1=(2, 10), problem2=(2, 15)
+        )
+        self.check('---\n' 'array: [   a, b   ]\n', conf)
 
     def test_max_spaces(self):
-        conf = ('brackets:\n'
-                '  max-spaces-inside: 0\n'
-                '  min-spaces-inside: -1\n'
-                '  max-spaces-inside-empty: -1\n'
-                '  min-spaces-inside-empty: -1\n')
-        self.check('---\n'
-                   'array: []\n', conf)
-        self.check('---\n'
-                   'array: [ ]\n', conf, problem=(2, 9))
-        self.check('---\n'
-                   'array: [a, b]\n', conf)
-        self.check('---\n'
-                   'array: [ a, b ]\n', conf,
-                   problem1=(2, 9), problem2=(2, 14))
-        self.check('---\n'
-                   'array: [   a, b   ]\n', conf,
-                   problem1=(2, 11), problem2=(2, 18))
-        self.check('---\n'
-                   'array: [\n'
-                   '  a,\n'
-                   '  b\n'
-                   ']\n', conf)
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: 0\n'
+            '  min-spaces-inside: -1\n'
+            '  max-spaces-inside-empty: -1\n'
+            '  min-spaces-inside-empty: -1\n'
+        )
+        self.check('---\n' 'array: []\n', conf)
+        self.check('---\n' 'array: [ ]\n', conf, problem=(2, 9))
+        self.check('---\n' 'array: [a, b]\n', conf)
+        self.check('---\n' 'array: [ a, b ]\n', conf, problem1=(2, 9), problem2=(2, 14))
+        self.check(
+            '---\n' 'array: [   a, b   ]\n', conf, problem1=(2, 11), problem2=(2, 18)
+        )
+        self.check('---\n' 'array: [\n' '  a,\n' '  b\n' ']\n', conf)
 
-        conf = ('brackets:\n'
-                '  max-spaces-inside: 3\n'
-                '  min-spaces-inside: -1\n'
-                '  max-spaces-inside-empty: -1\n'
-                '  min-spaces-inside-empty: -1\n')
-        self.check('---\n'
-                   'array: [   a, b   ]\n', conf)
-        self.check('---\n'
-                   'array: [    a, b     ]\n', conf,
-                   problem1=(2, 12), problem2=(2, 21))
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: 3\n'
+            '  min-spaces-inside: -1\n'
+            '  max-spaces-inside-empty: -1\n'
+            '  min-spaces-inside-empty: -1\n'
+        )
+        self.check('---\n' 'array: [   a, b   ]\n', conf)
+        self.check(
+            '---\n' 'array: [    a, b     ]\n', conf, problem1=(2, 12), problem2=(2, 21)
+        )
 
     def test_min_and_max_spaces(self):
-        conf = ('brackets:\n'
-                '  max-spaces-inside: 0\n'
-                '  min-spaces-inside: 0\n'
-                '  max-spaces-inside-empty: -1\n'
-                '  min-spaces-inside-empty: -1\n')
-        self.check('---\n'
-                   'array: []\n', conf)
-        self.check('---\n'
-                   'array: [ ]\n', conf, problem=(2, 9))
-        self.check('---\n'
-                   'array: [   a, b]\n', conf, problem=(2, 11))
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: 0\n'
+            '  min-spaces-inside: 0\n'
+            '  max-spaces-inside-empty: -1\n'
+            '  min-spaces-inside-empty: -1\n'
+        )
+        self.check('---\n' 'array: []\n', conf)
+        self.check('---\n' 'array: [ ]\n', conf, problem=(2, 9))
+        self.check('---\n' 'array: [   a, b]\n', conf, problem=(2, 11))
 
-        conf = ('brackets:\n'
-                '  max-spaces-inside: 1\n'
-                '  min-spaces-inside: 1\n'
-                '  max-spaces-inside-empty: -1\n'
-                '  min-spaces-inside-empty: -1\n')
-        self.check('---\n'
-                   'array: [a, b, c ]\n', conf, problem=(2, 9))
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: 1\n'
+            '  min-spaces-inside: 1\n'
+            '  max-spaces-inside-empty: -1\n'
+            '  min-spaces-inside-empty: -1\n'
+        )
+        self.check('---\n' 'array: [a, b, c ]\n', conf, problem=(2, 9))
 
-        conf = ('brackets:\n'
-                '  max-spaces-inside: 2\n'
-                '  min-spaces-inside: 0\n'
-                '  max-spaces-inside-empty: -1\n'
-                '  min-spaces-inside-empty: -1\n')
-        self.check('---\n'
-                   'array: [a, b, c ]\n', conf)
-        self.check('---\n'
-                   'array: [  a, b, c ]\n', conf)
-        self.check('---\n'
-                   'array: [   a, b, c ]\n', conf, problem=(2, 11))
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: 2\n'
+            '  min-spaces-inside: 0\n'
+            '  max-spaces-inside-empty: -1\n'
+            '  min-spaces-inside-empty: -1\n'
+        )
+        self.check('---\n' 'array: [a, b, c ]\n', conf)
+        self.check('---\n' 'array: [  a, b, c ]\n', conf)
+        self.check('---\n' 'array: [   a, b, c ]\n', conf, problem=(2, 11))
 
     def test_min_spaces_empty(self):
-        conf = ('brackets:\n'
-                '  max-spaces-inside: -1\n'
-                '  min-spaces-inside: -1\n'
-                '  max-spaces-inside-empty: 0\n'
-                '  min-spaces-inside-empty: 0\n')
-        self.check('---\n'
-                   'array: []\n', conf)
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: -1\n'
+            '  min-spaces-inside: -1\n'
+            '  max-spaces-inside-empty: 0\n'
+            '  min-spaces-inside-empty: 0\n'
+        )
+        self.check('---\n' 'array: []\n', conf)
 
-        conf = ('brackets:\n'
-                '  max-spaces-inside: -1\n'
-                '  min-spaces-inside: -1\n'
-                '  max-spaces-inside-empty: -1\n'
-                '  min-spaces-inside-empty: 1\n')
-        self.check('---\n'
-                   'array: []\n', conf, problem=(2, 9))
-        self.check('---\n'
-                   'array: [ ]\n', conf)
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: -1\n'
+            '  min-spaces-inside: -1\n'
+            '  max-spaces-inside-empty: -1\n'
+            '  min-spaces-inside-empty: 1\n'
+        )
+        self.check('---\n' 'array: []\n', conf, problem=(2, 9))
+        self.check('---\n' 'array: [ ]\n', conf)
 
-        conf = ('brackets:\n'
-                '  max-spaces-inside: -1\n'
-                '  min-spaces-inside: -1\n'
-                '  max-spaces-inside-empty: -1\n'
-                '  min-spaces-inside-empty: 3\n')
-        self.check('---\n'
-                   'array: []\n', conf, problem=(2, 9))
-        self.check('---\n'
-                   'array: [   ]\n', conf)
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: -1\n'
+            '  min-spaces-inside: -1\n'
+            '  max-spaces-inside-empty: -1\n'
+            '  min-spaces-inside-empty: 3\n'
+        )
+        self.check('---\n' 'array: []\n', conf, problem=(2, 9))
+        self.check('---\n' 'array: [   ]\n', conf)
 
     def test_max_spaces_empty(self):
-        conf = ('brackets:\n'
-                '  max-spaces-inside: -1\n'
-                '  min-spaces-inside: -1\n'
-                '  max-spaces-inside-empty: 0\n'
-                '  min-spaces-inside-empty: -1\n')
-        self.check('---\n'
-                   'array: []\n', conf)
-        self.check('---\n'
-                   'array: [ ]\n', conf, problem=(2, 9))
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: -1\n'
+            '  min-spaces-inside: -1\n'
+            '  max-spaces-inside-empty: 0\n'
+            '  min-spaces-inside-empty: -1\n'
+        )
+        self.check('---\n' 'array: []\n', conf)
+        self.check('---\n' 'array: [ ]\n', conf, problem=(2, 9))
 
-        conf = ('brackets:\n'
-                '  max-spaces-inside: -1\n'
-                '  min-spaces-inside: -1\n'
-                '  max-spaces-inside-empty: 1\n'
-                '  min-spaces-inside-empty: -1\n')
-        self.check('---\n'
-                   'array: []\n', conf)
-        self.check('---\n'
-                   'array: [ ]\n', conf)
-        self.check('---\n'
-                   'array: [  ]\n', conf, problem=(2, 10))
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: -1\n'
+            '  min-spaces-inside: -1\n'
+            '  max-spaces-inside-empty: 1\n'
+            '  min-spaces-inside-empty: -1\n'
+        )
+        self.check('---\n' 'array: []\n', conf)
+        self.check('---\n' 'array: [ ]\n', conf)
+        self.check('---\n' 'array: [  ]\n', conf, problem=(2, 10))
 
-        conf = ('brackets:\n'
-                '  max-spaces-inside: -1\n'
-                '  min-spaces-inside: -1\n'
-                '  max-spaces-inside-empty: 3\n'
-                '  min-spaces-inside-empty: -1\n')
-        self.check('---\n'
-                   'array: []\n', conf)
-        self.check('---\n'
-                   'array: [   ]\n', conf)
-        self.check('---\n'
-                   'array: [    ]\n', conf, problem=(2, 12))
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: -1\n'
+            '  min-spaces-inside: -1\n'
+            '  max-spaces-inside-empty: 3\n'
+            '  min-spaces-inside-empty: -1\n'
+        )
+        self.check('---\n' 'array: []\n', conf)
+        self.check('---\n' 'array: [   ]\n', conf)
+        self.check('---\n' 'array: [    ]\n', conf, problem=(2, 12))
 
     def test_min_and_max_spaces_empty(self):
-        conf = ('brackets:\n'
-                '  max-spaces-inside: -1\n'
-                '  min-spaces-inside: -1\n'
-                '  max-spaces-inside-empty: 2\n'
-                '  min-spaces-inside-empty: 1\n')
-        self.check('---\n'
-                   'array: []\n', conf, problem=(2, 9))
-        self.check('---\n'
-                   'array: [ ]\n', conf)
-        self.check('---\n'
-                   'array: [  ]\n', conf)
-        self.check('---\n'
-                   'array: [   ]\n', conf, problem=(2, 11))
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: -1\n'
+            '  min-spaces-inside: -1\n'
+            '  max-spaces-inside-empty: 2\n'
+            '  min-spaces-inside-empty: 1\n'
+        )
+        self.check('---\n' 'array: []\n', conf, problem=(2, 9))
+        self.check('---\n' 'array: [ ]\n', conf)
+        self.check('---\n' 'array: [  ]\n', conf)
+        self.check('---\n' 'array: [   ]\n', conf, problem=(2, 11))
 
     def test_mixed_empty_nonempty(self):
-        conf = ('brackets:\n'
-                '  max-spaces-inside: -1\n'
-                '  min-spaces-inside: 1\n'
-                '  max-spaces-inside-empty: 0\n'
-                '  min-spaces-inside-empty: 0\n')
-        self.check('---\n'
-                   'array: [ a, b ]\n', conf)
-        self.check('---\n'
-                   'array: [a, b]\n', conf,
-                   problem1=(2, 9), problem2=(2, 13))
-        self.check('---\n'
-                   'array: []\n', conf)
-        self.check('---\n'
-                   'array: [ ]\n', conf,
-                   problem1=(2, 9))
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: -1\n'
+            '  min-spaces-inside: 1\n'
+            '  max-spaces-inside-empty: 0\n'
+            '  min-spaces-inside-empty: 0\n'
+        )
+        self.check('---\n' 'array: [ a, b ]\n', conf)
+        self.check('---\n' 'array: [a, b]\n', conf, problem1=(2, 9), problem2=(2, 13))
+        self.check('---\n' 'array: []\n', conf)
+        self.check('---\n' 'array: [ ]\n', conf, problem1=(2, 9))
 
-        conf = ('brackets:\n'
-                '  max-spaces-inside: 0\n'
-                '  min-spaces-inside: -1\n'
-                '  max-spaces-inside-empty: 1\n'
-                '  min-spaces-inside-empty: 1\n')
-        self.check('---\n'
-                   'array: [ a, b ]\n', conf,
-                   problem1=(2, 9), problem2=(2, 14))
-        self.check('---\n'
-                   'array: [a, b]\n', conf)
-        self.check('---\n'
-                   'array: []\n', conf,
-                   problem1=(2, 9))
-        self.check('---\n'
-                   'array: [ ]\n', conf)
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: 0\n'
+            '  min-spaces-inside: -1\n'
+            '  max-spaces-inside-empty: 1\n'
+            '  min-spaces-inside-empty: 1\n'
+        )
+        self.check('---\n' 'array: [ a, b ]\n', conf, problem1=(2, 9), problem2=(2, 14))
+        self.check('---\n' 'array: [a, b]\n', conf)
+        self.check('---\n' 'array: []\n', conf, problem1=(2, 9))
+        self.check('---\n' 'array: [ ]\n', conf)
 
-        conf = ('brackets:\n'
-                '  max-spaces-inside: 2\n'
-                '  min-spaces-inside: 1\n'
-                '  max-spaces-inside-empty: 1\n'
-                '  min-spaces-inside-empty: 1\n')
-        self.check('---\n'
-                   'array: [ a, b  ]\n', conf)
-        self.check('---\n'
-                   'array: [a, b   ]\n', conf,
-                   problem1=(2, 9), problem2=(2, 15))
-        self.check('---\n'
-                   'array: []\n', conf,
-                   problem1=(2, 9))
-        self.check('---\n'
-                   'array: [ ]\n', conf)
-        self.check('---\n'
-                   'array: [   ]\n', conf,
-                   problem1=(2, 11))
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: 2\n'
+            '  min-spaces-inside: 1\n'
+            '  max-spaces-inside-empty: 1\n'
+            '  min-spaces-inside-empty: 1\n'
+        )
+        self.check('---\n' 'array: [ a, b  ]\n', conf)
+        self.check(
+            '---\n' 'array: [a, b   ]\n', conf, problem1=(2, 9), problem2=(2, 15)
+        )
+        self.check('---\n' 'array: []\n', conf, problem1=(2, 9))
+        self.check('---\n' 'array: [ ]\n', conf)
+        self.check('---\n' 'array: [   ]\n', conf, problem1=(2, 11))
 
-        conf = ('brackets:\n'
-                '  max-spaces-inside: 1\n'
-                '  min-spaces-inside: 1\n'
-                '  max-spaces-inside-empty: 1\n'
-                '  min-spaces-inside-empty: 1\n')
-        self.check('---\n'
-                   'array: [ a, b ]\n', conf)
-        self.check('---\n'
-                   'array: [a, b]\n', conf,
-                   problem1=(2, 9), problem2=(2, 13))
-        self.check('---\n'
-                   'array: []\n', conf,
-                   problem1=(2, 9))
-        self.check('---\n'
-                   'array: [ ]\n', conf)
+        conf = (
+            'brackets:\n'
+            '  max-spaces-inside: 1\n'
+            '  min-spaces-inside: 1\n'
+            '  max-spaces-inside-empty: 1\n'
+            '  min-spaces-inside-empty: 1\n'
+        )
+        self.check('---\n' 'array: [ a, b ]\n', conf)
+        self.check('---\n' 'array: [a, b]\n', conf, problem1=(2, 9), problem2=(2, 13))
+        self.check('---\n' 'array: []\n', conf, problem1=(2, 9))
+        self.check('---\n' 'array: [ ]\n', conf)

@@ -63,28 +63,28 @@ from yamllint.linter import LintProblem
 
 ID = 'empty-lines'
 TYPE = 'line'
-CONF = {'max': int,
-        'max-start': int,
-        'max-end': int}
-DEFAULT = {'max': 2,
-           'max-start': 0,
-           'max-end': 0}
+CONF = {'max': int, 'max-start': int, 'max-end': int}
+DEFAULT = {'max': 2, 'max-start': 0, 'max-end': 0}
 
 
 def check(conf, line):
     if line.start == line.end and line.end < len(line.buffer):
         # Only alert on the last blank line of a series
-        if (line.end + 2 <= len(line.buffer) and
-                line.buffer[line.end:line.end + 2] == '\n\n'):
+        if (
+            line.end + 2 <= len(line.buffer)
+            and line.buffer[line.end : line.end + 2] == '\n\n'
+        ):
             return
-        elif (line.end + 4 <= len(line.buffer) and
-              line.buffer[line.end:line.end + 4] == '\r\n\r\n'):
+        elif (
+            line.end + 4 <= len(line.buffer)
+            and line.buffer[line.end : line.end + 4] == '\r\n\r\n'
+        ):
             return
 
         blank_lines = 0
 
         start = line.start
-        while start >= 2 and line.buffer[start - 2:start] == '\r\n':
+        while start >= 2 and line.buffer[start - 2 : start] == '\r\n':
             blank_lines += 1
             start -= 2
         while start >= 1 and line.buffer[start - 1] == '\n':
@@ -101,10 +101,10 @@ def check(conf, line):
         # Special case: end of document
         # NOTE: The last line of a file is always supposed to end with a new
         # line. See POSIX definition of a line at:
-        if ((line.end == len(line.buffer) - 1 and
-             line.buffer[line.end] == '\n') or
-            (line.end == len(line.buffer) - 2 and
-             line.buffer[line.end:line.end + 2] == '\r\n')):
+        if (line.end == len(line.buffer) - 1 and line.buffer[line.end] == '\n') or (
+            line.end == len(line.buffer) - 2
+            and line.buffer[line.end : line.end + 2] == '\r\n'
+        ):
             # Allow the exception of the one-byte file containing '\n'
             if line.end == 0:
                 return
@@ -112,5 +112,6 @@ def check(conf, line):
             max = conf['max-end']
 
         if blank_lines > max:
-            yield LintProblem(line.line_no, 1,
-                              f'too many blank lines ({blank_lines} > {max})')
+            yield LintProblem(
+                line.line_no, 1, f'too many blank lines ({blank_lines} > {max})'
+            )

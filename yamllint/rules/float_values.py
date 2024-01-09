@@ -105,9 +105,7 @@ DEFAULT = {
     'forbid-inf': False,
 }
 
-IS_NUMERAL_BEFORE_DECIMAL_PATTERN = (
-    re.compile('[-+]?(\\.[0-9]+)([eE][-+]?[0-9]+)?$')
-)
+IS_NUMERAL_BEFORE_DECIMAL_PATTERN = re.compile('[-+]?(\\.[0-9]+)([eE][-+]?[0-9]+)?$')
 IS_SCIENTIFIC_NOTATION_PATTERN = re.compile(
     '[-+]?(\\.[0-9]+|[0-9]+(\\.[0-9]*)?)([eE][-+]?[0-9]+)$'
 )
@@ -138,9 +136,7 @@ def check(conf, token, prev, next, nextnext, context):
             f'forbidden infinite value "{token.value}"',
         )
 
-    if conf[
-        'forbid-scientific-notation'
-    ] and IS_SCIENTIFIC_NOTATION_PATTERN.match(val):
+    if conf['forbid-scientific-notation'] and IS_SCIENTIFIC_NOTATION_PATTERN.match(val):
         yield LintProblem(
             token.start_mark.line + 1,
             token.start_mark.column + 1,

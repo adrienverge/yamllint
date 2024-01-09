@@ -34,35 +34,36 @@ class ModuleTestCase(unittest.TestCase):
         # file in dir
         os.mkdir(os.path.join(self.wd, 'sub'))
         with open(os.path.join(self.wd, 'sub', 'nok.yaml'), 'w') as f:
-            f.write('---\n'
-                    'list: [  1, 1, 2, 3, 5, 8]  \n')
+            f.write('---\n' 'list: [  1, 1, 2, 3, 5, 8]  \n')
 
     def tearDown(self):
         shutil.rmtree(self.wd)
 
     def test_run_module_no_args(self):
         with self.assertRaises(subprocess.CalledProcessError) as ctx:
-            subprocess.check_output([PYTHON, '-m', 'yamllint'],
-                                    stderr=subprocess.STDOUT)
+            subprocess.check_output(
+                [PYTHON, '-m', 'yamllint'], stderr=subprocess.STDOUT
+            )
         self.assertEqual(ctx.exception.returncode, 2)
         self.assertRegex(ctx.exception.output.decode(), r'^usage: yamllint')
 
     def test_run_module_on_bad_dir(self):
         with self.assertRaises(subprocess.CalledProcessError) as ctx:
-            subprocess.check_output([PYTHON, '-m', 'yamllint',
-                                     '/does/not/exist'],
-                                    stderr=subprocess.STDOUT)
-        self.assertRegex(ctx.exception.output.decode(),
-                         r'No such file or directory')
+            subprocess.check_output(
+                [PYTHON, '-m', 'yamllint', '/does/not/exist'], stderr=subprocess.STDOUT
+            )
+        self.assertRegex(ctx.exception.output.decode(), r'No such file or directory')
 
     def test_run_module_on_file(self):
         out = subprocess.check_output(
-            [PYTHON, '-m', 'yamllint', os.path.join(self.wd, 'warn.yaml')])
+            [PYTHON, '-m', 'yamllint', os.path.join(self.wd, 'warn.yaml')]
+        )
         lines = out.decode().splitlines()
         self.assertIn('/warn.yaml', lines[0])
-        self.assertEqual('\n'.join(lines[1:]),
-                         '  1:1       warning  missing document start "---"'
-                         '  (document-start)\n')
+        self.assertEqual(
+            '\n'.join(lines[1:]),
+            '  1:1       warning  missing document start "---"' '  (document-start)\n',
+        )
 
     def test_run_module_on_dir(self):
         with self.assertRaises(subprocess.CalledProcessError) as ctx:
@@ -74,10 +75,12 @@ class ModuleTestCase(unittest.TestCase):
             '/warn.yaml\n'
             '  1:1       warning  missing document start "---"'
             '  (document-start)',
-            files[0])
+            files[0],
+        )
         self.assertIn(
             '/sub/nok.yaml\n'
             '  2:9       error    too many spaces inside brackets'
             '  (brackets)\n'
             '  2:27      error    trailing spaces  (trailing-spaces)',
-            files[1])
+            files[1],
+        )

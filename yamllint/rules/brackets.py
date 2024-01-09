@@ -140,63 +140,88 @@ from yamllint.rules.common import spaces_after, spaces_before
 
 ID = 'brackets'
 TYPE = 'token'
-CONF = {'forbid': (bool, 'non-empty'),
-        'min-spaces-inside': int,
-        'max-spaces-inside': int,
-        'min-spaces-inside-empty': int,
-        'max-spaces-inside-empty': int}
-DEFAULT = {'forbid': False,
-           'min-spaces-inside': 0,
-           'max-spaces-inside': 0,
-           'min-spaces-inside-empty': -1,
-           'max-spaces-inside-empty': -1}
+CONF = {
+    'forbid': (bool, 'non-empty'),
+    'min-spaces-inside': int,
+    'max-spaces-inside': int,
+    'min-spaces-inside-empty': int,
+    'max-spaces-inside-empty': int,
+}
+DEFAULT = {
+    'forbid': False,
+    'min-spaces-inside': 0,
+    'max-spaces-inside': 0,
+    'min-spaces-inside-empty': -1,
+    'max-spaces-inside-empty': -1,
+}
 
 
 def check(conf, token, prev, next, nextnext, context):
-    if (conf['forbid'] is True and
-            isinstance(token, yaml.FlowSequenceStartToken)):
-        yield LintProblem(token.start_mark.line + 1,
-                          token.end_mark.column + 1,
-                          'forbidden flow sequence')
+    if conf['forbid'] is True and isinstance(token, yaml.FlowSequenceStartToken):
+        yield LintProblem(
+            token.start_mark.line + 1,
+            token.end_mark.column + 1,
+            'forbidden flow sequence',
+        )
 
-    elif (conf['forbid'] == 'non-empty' and
-            isinstance(token, yaml.FlowSequenceStartToken) and
-            not isinstance(next, yaml.FlowSequenceEndToken)):
-        yield LintProblem(token.start_mark.line + 1,
-                          token.end_mark.column + 1,
-                          'forbidden flow sequence')
+    elif (
+        conf['forbid'] == 'non-empty'
+        and isinstance(token, yaml.FlowSequenceStartToken)
+        and not isinstance(next, yaml.FlowSequenceEndToken)
+    ):
+        yield LintProblem(
+            token.start_mark.line + 1,
+            token.end_mark.column + 1,
+            'forbidden flow sequence',
+        )
 
-    elif (isinstance(token, yaml.FlowSequenceStartToken) and
-            isinstance(next, yaml.FlowSequenceEndToken)):
-        problem = spaces_after(token, prev, next,
-                               min=(conf['min-spaces-inside-empty']
-                                    if conf['min-spaces-inside-empty'] != -1
-                                    else conf['min-spaces-inside']),
-                               max=(conf['max-spaces-inside-empty']
-                                    if conf['max-spaces-inside-empty'] != -1
-                                    else conf['max-spaces-inside']),
-                               min_desc='too few spaces inside empty brackets',
-                               max_desc=('too many spaces inside empty '
-                                         'brackets'))
+    elif isinstance(token, yaml.FlowSequenceStartToken) and isinstance(
+        next, yaml.FlowSequenceEndToken
+    ):
+        problem = spaces_after(
+            token,
+            prev,
+            next,
+            min=(
+                conf['min-spaces-inside-empty']
+                if conf['min-spaces-inside-empty'] != -1
+                else conf['min-spaces-inside']
+            ),
+            max=(
+                conf['max-spaces-inside-empty']
+                if conf['max-spaces-inside-empty'] != -1
+                else conf['max-spaces-inside']
+            ),
+            min_desc='too few spaces inside empty brackets',
+            max_desc=('too many spaces inside empty ' 'brackets'),
+        )
         if problem is not None:
             yield problem
 
     elif isinstance(token, yaml.FlowSequenceStartToken):
-        problem = spaces_after(token, prev, next,
-                               min=conf['min-spaces-inside'],
-                               max=conf['max-spaces-inside'],
-                               min_desc='too few spaces inside brackets',
-                               max_desc='too many spaces inside brackets')
+        problem = spaces_after(
+            token,
+            prev,
+            next,
+            min=conf['min-spaces-inside'],
+            max=conf['max-spaces-inside'],
+            min_desc='too few spaces inside brackets',
+            max_desc='too many spaces inside brackets',
+        )
         if problem is not None:
             yield problem
 
-    elif (isinstance(token, yaml.FlowSequenceEndToken) and
-            (prev is None or
-             not isinstance(prev, yaml.FlowSequenceStartToken))):
-        problem = spaces_before(token, prev, next,
-                                min=conf['min-spaces-inside'],
-                                max=conf['max-spaces-inside'],
-                                min_desc='too few spaces inside brackets',
-                                max_desc='too many spaces inside brackets')
+    elif isinstance(token, yaml.FlowSequenceEndToken) and (
+        prev is None or not isinstance(prev, yaml.FlowSequenceStartToken)
+    ):
+        problem = spaces_before(
+            token,
+            prev,
+            next,
+            min=conf['min-spaces-inside'],
+            max=conf['max-spaces-inside'],
+            min_desc='too few spaces inside brackets',
+            max_desc='too many spaces inside brackets',
+        )
         if problem is not None:
             yield problem

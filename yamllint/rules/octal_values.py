@@ -78,10 +78,8 @@ from yamllint.linter import LintProblem
 
 ID = 'octal-values'
 TYPE = 'token'
-CONF = {'forbid-implicit-octal': bool,
-        'forbid-explicit-octal': bool}
-DEFAULT = {'forbid-implicit-octal': True,
-           'forbid-explicit-octal': True}
+CONF = {'forbid-implicit-octal': bool, 'forbid-explicit-octal': bool}
+DEFAULT = {'forbid-implicit-octal': True, 'forbid-explicit-octal': True}
 
 IS_OCTAL_NUMBER_PATTERN = re.compile(r'^[0-7]+$')
 
@@ -94,18 +92,29 @@ def check(conf, token, prev, next, nextnext, context):
         if isinstance(token, yaml.tokens.ScalarToken):
             if not token.style:
                 val = token.value
-                if (val.isdigit() and len(val) > 1 and val[0] == '0' and
-                        IS_OCTAL_NUMBER_PATTERN.match(val[1:])):
+                if (
+                    val.isdigit()
+                    and len(val) > 1
+                    and val[0] == '0'
+                    and IS_OCTAL_NUMBER_PATTERN.match(val[1:])
+                ):
                     yield LintProblem(
-                        token.start_mark.line + 1, token.end_mark.column + 1,
-                        f'forbidden implicit octal value "{token.value}"')
+                        token.start_mark.line + 1,
+                        token.end_mark.column + 1,
+                        f'forbidden implicit octal value "{token.value}"',
+                    )
 
     if conf['forbid-explicit-octal']:
         if isinstance(token, yaml.tokens.ScalarToken):
             if not token.style:
                 val = token.value
-                if (len(val) > 2 and val[:2] == '0o' and
-                        IS_OCTAL_NUMBER_PATTERN.match(val[2:])):
+                if (
+                    len(val) > 2
+                    and val[:2] == '0o'
+                    and IS_OCTAL_NUMBER_PATTERN.match(val[2:])
+                ):
                     yield LintProblem(
-                        token.start_mark.line + 1, token.end_mark.column + 1,
-                        f'forbidden explicit octal value "{token.value}"')
+                        token.start_mark.line + 1,
+                        token.end_mark.column + 1,
+                        f'forbidden explicit octal value "{token.value}"',
+                    )

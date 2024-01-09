@@ -23,81 +23,70 @@ class DocumentStartTestCase(RuleTestCase):
         conf = 'document-start: disable'
         self.check('', conf)
         self.check('key: val\n', conf)
-        self.check('---\n'
-                   'key: val\n', conf)
+        self.check('---\n' 'key: val\n', conf)
 
     def test_required(self):
-        conf = ('document-start: {present: true}\n'
-                'empty-lines: disable\n')
+        conf = 'document-start: {present: true}\n' 'empty-lines: disable\n'
         self.check('', conf)
         self.check('\n', conf)
         self.check('key: val\n', conf, problem=(1, 1))
-        self.check('\n'
-                   '\n'
-                   'key: val\n', conf, problem=(3, 1))
-        self.check('---\n'
-                   'key: val\n', conf)
-        self.check('\n'
-                   '\n'
-                   '---\n'
-                   'key: val\n', conf)
+        self.check('\n' '\n' 'key: val\n', conf, problem=(3, 1))
+        self.check('---\n' 'key: val\n', conf)
+        self.check('\n' '\n' '---\n' 'key: val\n', conf)
 
     def test_forbidden(self):
-        conf = ('document-start: {present: false}\n'
-                'empty-lines: disable\n')
+        conf = 'document-start: {present: false}\n' 'empty-lines: disable\n'
         self.check('', conf)
         self.check('key: val\n', conf)
-        self.check('\n'
-                   '\n'
-                   'key: val\n', conf)
-        self.check('---\n'
-                   'key: val\n', conf, problem=(1, 1))
-        self.check('\n'
-                   '\n'
-                   '---\n'
-                   'key: val\n', conf, problem=(3, 1))
-        self.check('first: document\n'
-                   '---\n'
-                   'key: val\n', conf, problem=(2, 1))
+        self.check('\n' '\n' 'key: val\n', conf)
+        self.check('---\n' 'key: val\n', conf, problem=(1, 1))
+        self.check('\n' '\n' '---\n' 'key: val\n', conf, problem=(3, 1))
+        self.check('first: document\n' '---\n' 'key: val\n', conf, problem=(2, 1))
 
     def test_multiple_documents(self):
         conf = 'document-start: {present: true}'
-        self.check('---\n'
-                   'first: document\n'
-                   '...\n'
-                   '---\n'
-                   'second: document\n'
-                   '...\n'
-                   '---\n'
-                   'third: document\n', conf)
-        self.check('---\n'
-                   'first: document\n'
-                   '---\n'
-                   'second: document\n'
-                   '---\n'
-                   'third: document\n', conf)
-        self.check('---\n'
-                   'first: document\n'
-                   '...\n'
-                   'second: document\n'
-                   '---\n'
-                   'third: document\n', conf, problem=(4, 1, 'syntax'))
+        self.check(
+            '---\n'
+            'first: document\n'
+            '...\n'
+            '---\n'
+            'second: document\n'
+            '...\n'
+            '---\n'
+            'third: document\n',
+            conf,
+        )
+        self.check(
+            '---\n'
+            'first: document\n'
+            '---\n'
+            'second: document\n'
+            '---\n'
+            'third: document\n',
+            conf,
+        )
+        self.check(
+            '---\n'
+            'first: document\n'
+            '...\n'
+            'second: document\n'
+            '---\n'
+            'third: document\n',
+            conf,
+            problem=(4, 1, 'syntax'),
+        )
 
     def test_directives(self):
         conf = 'document-start: {present: true}'
-        self.check('%YAML 1.2\n'
-                   '---\n'
-                   'doc: ument\n'
-                   '...\n', conf)
-        self.check('%YAML 1.2\n'
-                   '%TAG ! tag:clarkevans.com,2002:\n'
-                   '---\n'
-                   'doc: ument\n'
-                   '...\n', conf)
-        self.check('---\n'
-                   'doc: 1\n'
-                   '...\n'
-                   '%YAML 1.2\n'
-                   '---\n'
-                   'doc: 2\n'
-                   '...\n', conf)
+        self.check('%YAML 1.2\n' '---\n' 'doc: ument\n' '...\n', conf)
+        self.check(
+            '%YAML 1.2\n'
+            '%TAG ! tag:clarkevans.com,2002:\n'
+            '---\n'
+            'doc: ument\n'
+            '...\n',
+            conf,
+        )
+        self.check(
+            '---\n' 'doc: 1\n' '...\n' '%YAML 1.2\n' '---\n' 'doc: 2\n' '...\n', conf
+        )
