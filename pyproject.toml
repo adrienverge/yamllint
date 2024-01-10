@@ -41,7 +41,7 @@ documentation = "https://yamllint.readthedocs.io"
 
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = ["setuptools>=61"]
+requires = ["setuptools>=61", "setuptools-scm>=7"]
 
 [tool.setuptools]
 packages = ["yamllint", "yamllint.conf", "yamllint.rules"]
