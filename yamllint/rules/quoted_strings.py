@@ -216,11 +216,12 @@ def _quotes_are_needed(string, is_inside_a_flow):
         loader.get_token()
     try:
         a, b = loader.get_token(), loader.get_token()
+    except yaml.scanner.ScannerError:
+        return True
+    else:
         if (isinstance(a, yaml.ScalarToken) and a.style is None and
                 isinstance(b, yaml.BlockEndToken) and a.value == string):
             return False
-        return True
-    except yaml.scanner.ScannerError:
         return True
 
 

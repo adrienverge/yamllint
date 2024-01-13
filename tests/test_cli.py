@@ -60,9 +60,10 @@ def utf8_available():
     try:
         locale.setlocale(locale.LC_ALL, 'C.UTF-8')
         locale.setlocale(locale.LC_ALL, (None, None))
-        return True
     except locale.Error:  # pragma: no cover
         return False
+    else:
+        return True
 
 
 def setUpModule():
