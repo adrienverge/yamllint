@@ -30,7 +30,7 @@ def find_files_recursively(items, conf):
             for root, _dirnames, filenames in os.walk(item):
                 for f in filenames:
                     filepath = os.path.join(root, f)
-                    if conf.is_yaml_file(filepath):
+                    if conf.is_yaml_file(filepath) and not conf.is_file_ignored(filepath):
                         yield filepath
         else:
             yield item
