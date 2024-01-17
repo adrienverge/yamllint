@@ -30,8 +30,17 @@ def find_files_recursively(items, conf):
             for root, _dirnames, filenames in os.walk(item):
                 for f in filenames:
                     filepath = os.path.join(root, f)
-                    if conf.is_yaml_file(filepath):
-                        yield filepath
+                    if conf.is_yaml_file(filepath)  and not conf.is_file_ignored(filepath):
+                        if os.path.islink(filepath):
+                            target_path = os.readlink(filepath)
+                            relative_path = os.path.join(filepath, target_path)
+                            if os.path.exists(relative_path):
+                                norm_path = os.path.normpath(relative_path)
+                                if conf.is_yaml_file(norm_path) and not conf.is_file_ignored(norm_path):
+                                    yield norm_path
+
+                        elif conf.is_yaml_file(filepath):
+                            yield filepath
         else:
             yield item
 
@@ -208,14 +217,14 @@ def run(argv=None):
         locale.setlocale(locale.LC_ALL, conf.locale)
 
     if args.list_files:
-        for file in find_files_recursively(args.files, conf):
+        for file in set(find_files_recursively(args.files, conf)):
             if not conf.is_file_ignored(file):
                 print(file)
         sys.exit(0)
 
     max_level = 0
 
-    for file in find_files_recursively(args.files, conf):
+    for file in set(find_files_recursively(args.files, conf)):
         filepath = file[2:] if file.startswith('./') else file
         try:
             with open(file, newline='') as f:

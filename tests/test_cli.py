@@ -86,6 +86,8 @@ def setUpModule():
 
 
 class CommandLineTestCase(unittest.TestCase):
+    maxDiff = None
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -130,7 +132,9 @@ class CommandLineTestCase(unittest.TestCase):
                       'a: true',
             'en.yaml': '---\n'
                        'a: true\n'
-                       'A: true'
+                       'A: true',
+            'symlink:some/other/directory/en.yaml': '../../../en.yaml',
+            'symlink:abslink.yml': '/tmp/non-exist.yml',
         })
 
     @classmethod
@@ -142,7 +146,7 @@ class CommandLineTestCase(unittest.TestCase):
     def test_find_files_recursively(self):
         conf = config.YamlLintConfig('extends: default')
         self.assertEqual(
-            sorted(cli.find_files_recursively([self.wd], conf)),
+            sorted(set(cli.find_files_recursively([self.wd], conf))),
             [os.path.join(self.wd, 'a.yaml'),
              os.path.join(self.wd, 'c.yaml'),
              os.path.join(self.wd, 'dos.yml'),
@@ -151,7 +155,7 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 's/s/s/s/s/s/s/s/s/s/s/s/s/s/s/file.yaml'),
              os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
              os.path.join(self.wd, 'sub/ok.yaml'),
-             os.path.join(self.wd, 'warn.yaml')],
+             os.path.join(self.wd, 'warn.yaml')]
         )
 
         items = [os.path.join(self.wd, 'sub/ok.yaml'),
@@ -182,7 +186,7 @@ class CommandLineTestCase(unittest.TestCase):
                                      'yaml-files:\n'
                                      '  - \'*.yaml\' \n')
         self.assertEqual(
-            sorted(cli.find_files_recursively([self.wd], conf)),
+            sorted(set(cli.find_files_recursively([self.wd], conf))),
             [os.path.join(self.wd, 'a.yaml'),
              os.path.join(self.wd, 'c.yaml'),
              os.path.join(self.wd, 'en.yaml'),
@@ -213,7 +217,7 @@ class CommandLineTestCase(unittest.TestCase):
                                      'yaml-files:\n'
                                      '  - \'*\'\n')
         self.assertEqual(
-            sorted(cli.find_files_recursively([self.wd], conf)),
+            sorted(set(cli.find_files_recursively([self.wd], conf))),
             [os.path.join(self.wd, 'a.yaml'),
              os.path.join(self.wd, 'c.yaml'),
              os.path.join(self.wd, 'dos.yml'),
@@ -234,7 +238,7 @@ class CommandLineTestCase(unittest.TestCase):
                                      '  - \'*\'\n'
                                      '  - \'**\'\n')
         self.assertEqual(
-            sorted(cli.find_files_recursively([self.wd], conf)),
+            sorted(set(cli.find_files_recursively([self.wd], conf))),
             [os.path.join(self.wd, 'a.yaml'),
              os.path.join(self.wd, 'c.yaml'),
              os.path.join(self.wd, 'dos.yml'),
