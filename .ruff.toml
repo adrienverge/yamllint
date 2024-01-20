@@ -1,5 +1,5 @@
 [lint]
-extend-select = ["B", "I", "PGH", "TRY", "UP"]
+extend-select = ["B", "I", "PGH", "RUF100", "TRY", "UP"]
 ignore = ["TRY003"]
 
 [lint.isort]
