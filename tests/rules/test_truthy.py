@@ -27,7 +27,8 @@ class TruthyTestCase(RuleTestCase):
                    'True: 1\n', conf)
 
     def test_enabled(self):
-        conf = 'truthy: enable\n'
+        conf = ('truthy: enable\n'
+                'document-start: disable\n')
         self.check('---\n'
                    '1: True\n'
                    'True: 1\n',
@@ -35,7 +36,8 @@ class TruthyTestCase(RuleTestCase):
         self.check('---\n'
                    '1: "True"\n'
                    '"True": 1\n', conf)
-        self.check('---\n'
+        self.check('%YAML 1.1\n'
+                   '---\n'
                    '[\n'
                    '  true, false,\n'
                    '  "false", "FALSE",\n'
@@ -44,9 +46,47 @@ class TruthyTestCase(RuleTestCase):
                    '  on, OFF,\n'
                    '  NO, Yes\n'
                    ']\n', conf,
-                   problem1=(6, 3), problem2=(6, 9),
-                   problem3=(7, 3), problem4=(7, 7),
-                   problem5=(8, 3), problem6=(8, 7))
+                   problem1=(7, 3), problem2=(7, 9),
+                   problem3=(8, 3), problem4=(8, 7),
+                   problem5=(9, 3), problem6=(9, 7))
+        self.check('y: 1\n'
+                   'yes: 2\n'
+                   'on: 3\n'
+                   'true: 4\n'
+                   'True: 5\n'
+                   '...\n'
+                   '%YAML 1.2\n'
+                   '---\n'
+                   'y: 1\n'
+                   'yes: 2\n'
+                   'on: 3\n'
+                   'true: 4\n'
+                   'True: 5\n'
+                   '...\n'
+                   '%YAML 1.1\n'
+                   '---\n'
+                   'y: 1\n'
+                   'yes: 2\n'
+                   'on: 3\n'
+                   'true: 4\n'
+                   'True: 5\n'
+                   '---\n'
+                   'y: 1\n'
+                   'yes: 2\n'
+                   'on: 3\n'
+                   'true: 4\n'
+                   'True: 5\n',
+                   conf,
+                   problem1=(2, 1),
+                   problem2=(3, 1),
+                   problem3=(5, 1),
+                   problem4=(13, 1),
+                   problem5=(18, 1),
+                   problem6=(19, 1),
+                   problem7=(21, 1),
+                   problem8=(24, 1),
+                   problem9=(25, 1),
+                   problem10=(27, 1))
 
     def test_different_allowed_values(self):
         conf = ('truthy:\n'
@@ -56,15 +96,16 @@ class TruthyTestCase(RuleTestCase):
                    'key2: yes\n'
                    'key3: bar\n'
                    'key4: no\n', conf)
-        self.check('---\n'
+        self.check('%YAML 1.1\n'
+                   '---\n'
                    'key1: true\n'
                    'key2: Yes\n'
                    'key3: false\n'
                    'key4: no\n'
                    'key5: yes\n',
                    conf,
-                   problem1=(2, 7), problem2=(3, 7),
-                   problem3=(4, 7))
+                   problem1=(3, 7), problem2=(4, 7),
+                   problem3=(5, 7))
 
     def test_combined_allowed_values(self):
         conf = ('truthy:\n'
@@ -81,6 +122,22 @@ class TruthyTestCase(RuleTestCase):
                    'key4: no\n'
                    'key5: yes\n',
                    conf, problem1=(3, 7))
+        self.check('%YAML 1.1\n'
+                   '---\n'
+                   'key1: true\n'
+                   'key2: Yes\n'
+                   'key3: false\n'
+                   'key4: no\n'
+                   'key5: yes\n',
+                   conf, problem1=(4, 7))
+        self.check('%YAML 1.2\n'
+                   '---\n'
+                   'key1: true\n'
+                   'key2: Yes\n'
+                   'key3: false\n'
+                   'key4: no\n'
+                   'key5: yes\n',
+                   conf)
 
     def test_no_allowed_values(self):
         conf = ('truthy:\n'
@@ -95,6 +152,21 @@ class TruthyTestCase(RuleTestCase):
                    'key4: no\n', conf,
                    problem1=(2, 7), problem2=(3, 7),
                    problem3=(4, 7), problem4=(5, 7))
+        self.check('%YAML 1.1\n'
+                   '---\n'
+                   'key1: true\n'
+                   'key2: yes\n'
+                   'key3: false\n'
+                   'key4: no\n', conf,
+                   problem1=(3, 7), problem2=(4, 7),
+                   problem3=(5, 7), problem4=(6, 7))
+        self.check('%YAML 1.2\n'
+                   '---\n'
+                   'key1: true\n'
+                   'key2: yes\n'
+                   'key3: false\n'
+                   'key4: no\n', conf,
+                   problem1=(3, 7), problem2=(5, 7))
 
     def test_explicit_types(self):
         conf = 'truthy: enable\n'
