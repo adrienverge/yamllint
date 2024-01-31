@@ -21,6 +21,13 @@ This can be useful to prevent surprises from YAML parsers transforming
 ``[yes, FALSE, Off]`` into ``[true, false, false]`` or
 ``{y: 1, yes: 2, on: 3, true: 4, True: 5}`` into ``{y: 1, true: 5}``.
 
+Depending on the YAML specification version used by the YAML document, the list
+of truthy values can differ. In YAML 1.2, only capitalized / uppercased
+combinations of ``true`` and ``false`` are considered truthy, whereas in YAML
+1.1 combinations of ``yes``, ``no``, ``on`` and ``off`` are too. To make the
+YAML specification version explicit in a YAML document, a ``%YAML 1.2``
+directive can be used (see example below).
+
 .. rubric:: Options
 
 * ``allowed-values`` defines the list of truthy values which will be ignored
@@ -80,9 +87,20 @@ This can be useful to prevent surprises from YAML parsers transforming
    the following code snippet would **FAIL**:
    ::
 
+    %YAML 1.1
+    ---
     yes:  1
     on:   2
     True: 3
+
+   the following code snippet would **PASS**:
+   ::
+
+    %YAML 1.2
+    ---
+    yes:  1
+    on:   2
+    true: 3
 
 #. With ``truthy: {allowed-values: ["yes", "no"]}``
 
@@ -125,21 +143,35 @@ import yaml
 
 from yamllint.linter import LintProblem
 
-TRUTHY = ['YES', 'Yes', 'yes',
-          'NO', 'No', 'no',
-          'TRUE', 'True', 'true',
-          'FALSE', 'False', 'false',
-          'ON', 'On', 'on',
-          'OFF', 'Off', 'off']
+TRUTHY_1_1 = ['YES', 'Yes', 'yes',
+              'NO', 'No', 'no',
+              'TRUE', 'True', 'true',
+              'FALSE', 'False', 'false',
+              'ON', 'On', 'on',
+              'OFF', 'Off', 'off']
+TRUTHY_1_2 = ['TRUE', 'True', 'true',
+              'FALSE', 'False', 'false']
 
 
 ID = 'truthy'
 TYPE = 'token'
-CONF = {'allowed-values': TRUTHY.copy(), 'check-keys': bool}
+CONF = {'allowed-values': TRUTHY_1_1.copy(), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
+def yaml_spec_version_for_document(context):
+    if 'yaml_spec_version' in context:
+        return context['yaml_spec_version']
+    return (1, 1)
+
+
 def check(conf, token, prev, next, nextnext, context):
+    if isinstance(token, yaml.tokens.DirectiveToken) and token.name == 'YAML':
+        context['yaml_spec_version'] = token.value
+    elif isinstance(token, yaml.tokens.DocumentEndToken):
+        context.pop('yaml_spec_version', None)
+        context.pop('bad_truthy_values', None)
+
     if prev and isinstance(prev, yaml.tokens.TagToken):
         return
 
@@ -147,9 +179,14 @@ def check(conf, token, prev, next, nextnext, context):
             isinstance(token, yaml.tokens.ScalarToken)):
         return
 
-    if isinstance(token, yaml.tokens.ScalarToken):
-        if (token.value in (set(TRUTHY) - set(conf['allowed-values'])) and
-                token.style is None):
+    if isinstance(token, yaml.tokens.ScalarToken) and token.style is None:
+        if 'bad_truthy_values' not in context:
+            context['bad_truthy_values'] = set(
+                TRUTHY_1_2 if yaml_spec_version_for_document(context) == (1, 2)
+                else TRUTHY_1_1)
+            context['bad_truthy_values'] -= set(conf['allowed-values'])
+
+        if token.value in context['bad_truthy_values']:
             yield LintProblem(token.start_mark.line + 1,
                               token.start_mark.column + 1,
                               "truthy value should be one of [" +
