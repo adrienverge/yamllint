@@ -26,8 +26,9 @@ dynamic = ["version"]
 [project.optional-dependencies]
 dev = [
     "doc8",
+    "flake8",
+    "flake8-import-order",
     "rstcheck[sphinx]",
-    "ruff",
     "sphinx",
 ]
 
