@@ -42,6 +42,7 @@ from tests.common import RuleTestCase
 #                       encoding='utf-8') as g:
 #                 g.write(text)
 
+
 class SpecificationTestCase(RuleTestCase):
     rule_id = None
 
