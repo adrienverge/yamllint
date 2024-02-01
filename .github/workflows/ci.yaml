@@ -21,9 +21,9 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
       - run:
-          pip install ruff sphinx rstcheck[sphinx] doc8
+          pip install flake8 flake8-import-order sphinx rstcheck[sphinx] doc8
       - run: pip install .
-      - run: ruff .
+      - run: flake8 .
       - run: doc8 $(git ls-files '*.rst')
       - run: rstcheck --ignore-directives automodule $(git ls-files '*.rst')
       - run: yamllint --strict $(git ls-files '*.yaml' '*.yml')
