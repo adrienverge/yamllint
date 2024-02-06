@@ -6,12 +6,12 @@ import sys
 from unittest.mock import MagicMock
 
 sys.path.insert(0, os.path.abspath('..'))
-
 from yamllint import __copyright__, APP_NAME, APP_VERSION  # noqa: I001, E402
 
 # -- General configuration ------------------------------------------------
 
 extensions = [
+    'sphinx_rtd_theme',
     'sphinx.ext.autodoc',
 ]
 
@@ -29,7 +29,7 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ----------------------------------------------
 
-html_theme = 'default'
+html_theme = 'sphinx_rtd_theme'
 
 htmlhelp_basename = 'yamllintdoc'
 
