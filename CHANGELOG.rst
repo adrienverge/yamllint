@@ -1,6 +1,16 @@
 Changelog
 =========
 
+1.34.0 (2024-02-06)
+-------------------
+
+- Config: validate ``ignore-from-file`` inside rules
+- Rule ``quoted-strings``: fix ``only-when-needed`` in flow maps and sequences
+- Rule ``key-duplicates``: add ``forbid-duplicated-merge-keys`` option
+- Rule ``quoted-strings``: add ``check-keys`` option
+- Docs: add GitLab CI example
+- Rule ``truthy``: adapt forbidden values based on YAML version
+
 1.33.0 (2023-11-09)
 -------------------
 
