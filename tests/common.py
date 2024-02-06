@@ -14,8 +14,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import contextlib
+from io import StringIO
 import os
 import shutil
+import sys
 import tempfile
 import unittest
 
@@ -54,6 +56,33 @@ class RuleTestCase(unittest.TestCase):
         self.assertEqual(real_problems, expected_problems)
 
 
+class RunContext:
+    """Context manager for ``cli.run()`` to capture exit code and streams."""
+
+    def __init__(self, case):
+        self.stdout = self.stderr = None
+        self._raises_ctx = case.assertRaises(SystemExit)
+
+    def __enter__(self):
+        self._raises_ctx.__enter__()
+        self.old_sys_stdout = sys.stdout
+        self.old_sys_stderr = sys.stderr
+        sys.stdout = self.outstream = StringIO()
+        sys.stderr = self.errstream = StringIO()
+        return self
+
+    def __exit__(self, *exc_info):
+        self.stdout = self.outstream.getvalue()
+        self.stderr = self.errstream.getvalue()
+        sys.stdout = self.old_sys_stdout
+        sys.stderr = self.old_sys_stderr
+        return self._raises_ctx.__exit__(*exc_info)
+
+    @property
+    def returncode(self):
+        return self._raises_ctx.exception.code
+
+
 def build_temp_workspace(files):
     tempdir = tempfile.mkdtemp(prefix='yamllint-tests-')
 
@@ -64,6 +93,8 @@ def build_temp_workspace(files):
 
         if isinstance(content, list):
             os.mkdir(path)
+        elif isinstance(content, str) and content.startswith('symlink://'):
+            os.symlink(content[10:], path)
         else:
             mode = 'wb' if isinstance(content, bytes) else 'w'
             with open(path, mode) as f:

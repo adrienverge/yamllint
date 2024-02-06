@@ -20,7 +20,7 @@ import tempfile
 import unittest
 from io import StringIO
 
-from tests.common import build_temp_workspace
+from tests.common import build_temp_workspace, RunContext
 
 from yamllint import cli, config
 from yamllint.config import YamlLintConfigError
@@ -773,3 +773,33 @@ class IgnoreConfigTestCase(unittest.TestCase):
             './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:4:17: ' + trailing,
             './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:5:5: ' + hyphen,
         )))
+
+    def test_run_with_ignore_with_broken_symlink(self):
+        wd = build_temp_workspace({
+            'file-without-yaml-extension': '42\n',
+            'link.yaml': 'symlink://file-without-yaml-extension',
+            'link-404.yaml': 'symlink://file-that-does-not-exist',
+        })
+        backup_wd = os.getcwd()
+        os.chdir(wd)
+
+        with RunContext(self) as ctx:
+            cli.run(('-f', 'parsable', '.'))
+        self.assertNotEqual(ctx.returncode, 0)
+
+        with open(os.path.join(wd, '.yamllint'), 'w') as f:
+            f.write('extends: default\n'
+                    'ignore: |\n'
+                    '  *404.yaml\n')
+        with RunContext(self) as ctx:
+            cli.run(('-f', 'parsable', '.'))
+        self.assertEqual(ctx.returncode, 0)
+        docstart = '[warning] missing document start "---" (document-start)'
+        out = '\n'.join(sorted(ctx.stdout.splitlines()))
+        self.assertEqual(out, '\n'.join((
+            './.yamllint:1:1: ' + docstart,
+            './link.yaml:1:1: ' + docstart,
+        )))
+
+        os.chdir(backup_wd)
+        shutil.rmtree(wd)

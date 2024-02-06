@@ -222,9 +222,6 @@ def run(input, conf, filepath=None):
     :param input: buffer, string or stream to read from
     :param conf: yamllint configuration object
     """
-    if filepath is not None and conf.is_file_ignored(filepath):
-        return ()
-
     if isinstance(input, (bytes, str)):
         return _run(input, conf, filepath)
     elif isinstance(input, io.IOBase):
