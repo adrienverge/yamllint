@@ -21,7 +21,8 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
       - run:
-          pip install flake8 flake8-import-order sphinx rstcheck[sphinx] doc8
+          pip install flake8 flake8-import-order sphinx sphinx_rtd_theme
+          rstcheck[sphinx] doc8
       - run: pip install .
       - run: flake8 .
       - run: doc8 $(git ls-files '*.rst')
