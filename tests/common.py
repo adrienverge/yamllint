@@ -58,11 +58,19 @@ def build_temp_workspace(files):
     tempdir = tempfile.mkdtemp(prefix='yamllint-tests-')
 
     for path, content in files.items():
+        is_symlink = False
+        if path.startswith("symlink:"):
+            is_symlink = True
+            path = path.replace("symlink:", "")
+
         path = os.path.join(tempdir, path).encode('utf-8')
         if not os.path.exists(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))
+        if is_symlink:
+            target = os.path.join(os.path.dirname(path), content.encode('utf-8'))
+            os.symlink(target, path)
 
-        if isinstance(content, list):
+        elif isinstance(content, list):
             os.mkdir(path)
         else:
             mode = 'wb' if isinstance(content, bytes) else 'w'
