@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.35.0 (2024-02-15)
+-------------------
+
+- Fix failure on broken symlinks that should be ignored
+- API change: ``linter.run(stream, config)`` doesn't filter files anymore
+- Docs: Restore official Read the Docs theme
+
 1.34.0 (2024-02-06)
 -------------------
 
