@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.35.1 (2024-02-16)
+-------------------
+
+- Restore ignoration of files passed as command-line arguments
+- Revert API change from version 1.35.0
+
 1.35.0 (2024-02-15)
 -------------------
 
