@@ -714,6 +714,25 @@ class CommandLineTestCase(unittest.TestCase):
              os.path.join(self.wd, 'warn.yaml')]
         )
 
+        config = 'ignore: ["*.yaml", "*.yml", "!a.yaml"]'
+        with RunContext(self) as ctx:
+            cli.run(('--list-files', '-d', config, self.wd))
+        self.assertEqual(ctx.returncode, 0)
+        self.assertEqual(
+            sorted(ctx.stdout.splitlines()),
+            [os.path.join(self.wd, 'a.yaml')]
+        )
+        with RunContext(self) as ctx:
+            cli.run(('--list-files', '-d', config,
+                     os.path.join(self.wd, 'a.yaml'),
+                     os.path.join(self.wd, 'en.yaml'),
+                     os.path.join(self.wd, 'c.yaml')))
+        self.assertEqual(ctx.returncode, 0)
+        self.assertEqual(
+            sorted(ctx.stdout.splitlines()),
+            [os.path.join(self.wd, 'a.yaml')]
+        )
+
 
 class CommandLineConfigTestCase(unittest.TestCase):
     def test_config_file(self):
