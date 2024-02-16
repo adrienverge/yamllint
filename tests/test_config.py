@@ -803,3 +803,20 @@ class IgnoreConfigTestCase(unittest.TestCase):
 
         os.chdir(backup_wd)
         shutil.rmtree(wd)
+
+    def test_run_with_ignore_on_ignored_file(self):
+        with open(os.path.join(self.wd, '.yamllint'), 'w') as f:
+            f.write('ignore: file.dont-lint-me.yaml\n'
+                    'rules:\n'
+                    '  trailing-spaces: enable\n'
+                    '  key-duplicates:\n'
+                    '    ignore: file-at-root.yaml\n')
+
+        sys.stdout = StringIO()
+        with self.assertRaises(SystemExit):
+            cli.run(('-f', 'parsable', 'file.dont-lint-me.yaml',
+                     'file-at-root.yaml'))
+        self.assertEqual(
+            sys.stdout.getvalue().strip(),
+            'file-at-root.yaml:4:17: [error] trailing spaces (trailing-spaces)'
+        )
