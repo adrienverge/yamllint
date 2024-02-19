@@ -4,6 +4,12 @@ Quickstart
 Installing yamllint
 -------------------
 
+.. note::
+
+   Some CI systems already have ``yamllint`` installed in their base image, so you can call ``yamllint``
+   without having to first install it in those environments. Current CI systems that do this include:
+   `GitHub Actions <https://github.com/adrienverge/yamllint/issues/300>`_.
+
 On Fedora / CentOS (note: `EPEL <https://docs.fedoraproject.org/en-US/epel/>`_ is
 required on CentOS):
 
