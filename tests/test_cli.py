@@ -23,7 +23,14 @@ import tempfile
 import unittest
 from io import StringIO
 
-from tests.common import build_temp_workspace, RunContext, temp_workspace
+from tests.common import (
+    build_temp_workspace,
+    register_test_codecs,
+    RunContext,
+    temp_workspace,
+    unregister_test_codecs,
+    ws_with_files_in_many_codecs,
+)
 
 from yamllint import cli, config
 
@@ -296,14 +303,14 @@ class CommandLineTestCase(unittest.TestCase):
             (ctx.returncode, ctx.stdout, ctx.stderr), (0, expected_out, ''))
 
     def test_run_with_config_file(self):
-        with open(os.path.join(self.wd, 'config'), 'w') as f:
+        with open(os.path.join(self.wd, 'config'), 'w', encoding='utf_8') as f:
             f.write('rules: {trailing-spaces: disable}')
 
         with RunContext(self) as ctx:
             cli.run(('-c', f.name, os.path.join(self.wd, 'a.yaml')))
         self.assertEqual(ctx.returncode, 0)
 
-        with open(os.path.join(self.wd, 'config'), 'w') as f:
+        with open(os.path.join(self.wd, 'config'), 'w', encoding='utf_8') as f:
             f.write('rules: {trailing-spaces: enable}')
 
         with RunContext(self) as ctx:
@@ -319,14 +326,14 @@ class CommandLineTestCase(unittest.TestCase):
         self.addCleanup(os.environ.__delitem__, 'HOME')
         os.environ['HOME'] = home
 
-        with open(config, 'w') as f:
+        with open(config, 'w', encoding='utf_8') as f:
             f.write('rules: {trailing-spaces: disable}')
 
         with RunContext(self) as ctx:
             cli.run((os.path.join(self.wd, 'a.yaml'), ))
         self.assertEqual(ctx.returncode, 0)
 
-        with open(config, 'w') as f:
+        with open(config, 'w', encoding='utf_8') as f:
             f.write('rules: {trailing-spaces: enable}')
 
         with RunContext(self) as ctx:
@@ -339,7 +346,8 @@ class CommandLineTestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory('w') as d:
             os.environ['XDG_CONFIG_HOME'] = d
             os.makedirs(os.path.join(d, 'yamllint'))
-            with open(os.path.join(d, 'yamllint', 'config'), 'w') as f:
+            path = os.path.join(d, 'yamllint', 'config')
+            with open(path, 'w', encoding='utf_8') as f:
                 f.write('extends: relaxed')
             with RunContext(self) as ctx:
                 cli.run(('-f', 'parsable', os.path.join(self.wd, 'warn.yaml')))
@@ -349,7 +357,7 @@ class CommandLineTestCase(unittest.TestCase):
     def test_run_with_user_yamllint_config_file_in_env(self):
         self.addCleanup(os.environ.__delitem__, 'YAMLLINT_CONFIG_FILE')
 
-        with tempfile.NamedTemporaryFile('w') as f:
+        with tempfile.NamedTemporaryFile('w', encoding='utf_8') as f:
             os.environ['YAMLLINT_CONFIG_FILE'] = f.name
             f.write('rules: {trailing-spaces: disable}')
             f.flush()
@@ -357,7 +365,7 @@ class CommandLineTestCase(unittest.TestCase):
                 cli.run((os.path.join(self.wd, 'a.yaml'), ))
             self.assertEqual(ctx.returncode, 0)
 
-        with tempfile.NamedTemporaryFile('w') as f:
+        with tempfile.NamedTemporaryFile('w', encoding='utf_8') as f:
             os.environ['YAMLLINT_CONFIG_FILE'] = f.name
             f.write('rules: {trailing-spaces: enable}')
             f.flush()
@@ -499,8 +507,13 @@ class CommandLineTestCase(unittest.TestCase):
         path = os.path.join(self.wd, 'a.yaml')
 
         # Create a pseudo-TTY and redirect stdout to it
+        old_stdout, old_stderr = sys.stdout, sys.stderr
         master, slave = pty.openpty()
-        sys.stdout = sys.stderr = os.fdopen(slave, 'w')
+        sys.stdout = sys.stderr = os.fdopen(
+            slave,
+            'w',
+            encoding=os.device_encoding(slave)
+        )
 
         with self.assertRaises(SystemExit) as ctx:
             cli.run((path, ))
@@ -509,7 +522,7 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(ctx.exception.code, 1)
 
         # Read output from TTY
-        output = os.fdopen(master, 'r')
+        output = os.fdopen(master, 'r', encoding=os.device_encoding(master))
         flag = fcntl.fcntl(master, fcntl.F_GETFD)
         fcntl.fcntl(master, fcntl.F_SETFL, flag | os.O_NONBLOCK)
 
@@ -518,6 +531,7 @@ class CommandLineTestCase(unittest.TestCase):
         sys.stdout.close()
         sys.stderr.close()
         output.close()
+        sys.stdout, sys.stderr = old_stdout, old_stderr
 
         self.assertEqual(out, (
             f'\033[4m{path}\033[0m\n'
@@ -817,3 +831,52 @@ class CommandLineConfigTestCase(unittest.TestCase):
         self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
                          (0, './4spaces.yml:2:5: [warning] wrong indentation: '
                          'expected 3 but found 4 (indentation)\n', ''))
+
+
+class CommandLineEncodingTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        register_test_codecs()
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        unregister_test_codecs()
+
+    def test_valid_encodings(self):
+        conf = ('---\n'
+                'rules:\n'
+                '  key-ordering: enable\n')
+        config_files = ws_with_files_in_many_codecs(
+            'config_{}.yaml',
+            conf
+        )
+        sorted_correctly = ('---\n'
+                            'Ａ: YAML\n'
+                            'Ｚ: YAML\n')
+        sorted_correctly_files = ws_with_files_in_many_codecs(
+            'sorted_correctly/{}.yaml',
+            sorted_correctly
+        )
+        sorted_incorrectly = ('---\n'
+                              'Ｚ: YAML\n'
+                              'Ａ: YAML\n')
+        sorted_incorrectly_files = ws_with_files_in_many_codecs(
+            'sorted_incorrectly/{}.yaml',
+            sorted_incorrectly
+        )
+        workspace = {
+            **config_files,
+            **sorted_correctly_files,
+            **sorted_incorrectly_files
+        }
+
+        with temp_workspace(workspace):
+            for config_path in config_files.keys():
+                with RunContext(self) as ctx:
+                    cli.run(('-c', config_path, 'sorted_correctly/'))
+                self.assertEqual(ctx.returncode, 0)
+                with RunContext(self) as ctx:
+                    cli.run(('-c', config_path, 'sorted_incorrectly/'))
+                self.assertNotEqual(ctx.returncode, 0)
