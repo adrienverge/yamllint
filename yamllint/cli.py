@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import concurrent.futures
 import locale
 import os
 import platform
@@ -143,6 +144,15 @@ def find_project_config_filepath(path='.'):
     return find_project_config_filepath(path=os.path.join(path, '..'))
 
 
+def do_lint(filename, conf, generator=True):
+    path = filename[2:] if filename.startswith("./") else filename
+    with open(filename, newline="") as f:
+        if generator:
+            return linter.run(f, conf, path)
+        else:
+            return list(linter.run(f, conf, path))
+
+
 def run(argv=None):
     parser = argparse.ArgumentParser(prog=APP_NAME,
                                      description=APP_DESCRIPTION)
@@ -172,6 +182,12 @@ def run(argv=None):
     parser.add_argument('--no-warnings',
                         action='store_true',
                         help='output only error level problems')
+    parser.add_argument('-w', '--workers',
+                        action='store',
+                        type=int,
+                        default=1,
+                        help='maximum number of parallel processes to run '
+                             '(0 for auto, 1 for single-process)')
     parser.add_argument('-v', '--version', action='version',
                         version=f'{APP_NAME} {APP_VERSION}')
 
@@ -216,17 +232,42 @@ def run(argv=None):
 
     max_level = 0
 
-    for file in find_files_recursively(args.files, conf):
-        filepath = file[2:] if file.startswith('./') else file
-        try:
-            with open(file, newline='') as f:
-                problems = linter.run(f, conf, filepath)
-        except OSError as e:
-            print(e, file=sys.stderr)
-            sys.exit(-1)
-        prob_level = show_problems(problems, file, args_format=args.format,
-                                   no_warn=args.no_warnings)
-        max_level = max(max_level, prob_level)
+    if args.workers == 0:
+        args.workers = None
+
+    if args.workers == 1:
+        for file in find_files_recursively(args.files, conf):
+            try:
+                problems = do_lint(file, conf, generator=True)
+            except OSError as e:
+                print(e, file=sys.stderr)
+                sys.exit(-1)
+            prob_level = show_problems(problems, file, args_format=args.format,
+                                       no_warn=args.no_warnings)
+            max_level = max(max_level, prob_level)
+    else:
+        with concurrent.futures.ProcessPoolExecutor(
+                max_workers=args.workers
+        ) as executor:
+            futures = {
+                executor.submit(do_lint, file, conf, generator=False): file
+                for file in find_files_recursively(args.files, conf)
+            }
+
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    problems = future.result()
+                except OSError as e:
+                    print(e, file=sys.stderr)
+                    sys.exit(-1)
+
+                prob_level = show_problems(
+                    problems,
+                    futures[future],
+                    args_format=args.format,
+                    no_warn=args.no_warnings,
+                )
+                max_level = max(max_level, prob_level)
 
     # read yaml from stdin
     if args.stdin:
