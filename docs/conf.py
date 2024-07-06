@@ -6,7 +6,7 @@ import sys
 from unittest.mock import MagicMock
 
 sys.path.insert(0, os.path.abspath('..'))
-from yamllint import __copyright__, APP_NAME, APP_VERSION  # noqa: I001, E402
+from yamllint import __copyright__, APP_NAME, APP_VERSION  # noqa: E402
 
 # -- General configuration ------------------------------------------------
 
