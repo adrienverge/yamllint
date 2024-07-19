@@ -13,13 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import fileinput
 import os.path
 
 import pathspec
 import yaml
 
 import yamllint.rules
+from yamllint import decoder
 
 
 class YamlLintConfigError(Exception):
@@ -38,8 +38,8 @@ class YamlLintConfig:
         self.locale = None
 
         if file is not None:
-            with open(file) as f:
-                content = f.read()
+            with open(file, mode='rb') as f:
+                content = decoder.auto_decode(f.read())
 
         self.parse(content)
         self.validate()
@@ -109,8 +109,10 @@ class YamlLintConfig:
                 raise YamlLintConfigError(
                     'invalid config: ignore-from-file should contain '
                     'filename(s), either as a list or string')
-            with fileinput.input(conf['ignore-from-file']) as f:
-                self.ignore = pathspec.PathSpec.from_lines('gitwildmatch', f)
+            self.ignore = pathspec.PathSpec.from_lines(
+                'gitwildmatch',
+                decoder.lines_in_files(conf['ignore-from-file'])
+            )
         elif 'ignore' in conf:
             if isinstance(conf['ignore'], str):
                 self.ignore = pathspec.PathSpec.from_lines(
@@ -163,9 +165,10 @@ def validate_rule_conf(rule, conf):
                 raise YamlLintConfigError(
                     'invalid config: ignore-from-file should contain '
                     'valid filename(s), either as a list or string')
-            with fileinput.input(conf['ignore-from-file']) as f:
-                conf['ignore'] = pathspec.PathSpec.from_lines(
-                    'gitwildmatch', f)
+            conf['ignore'] = pathspec.PathSpec.from_lines(
+                'gitwildmatch',
+                decoder.lines_in_files(conf['ignore-from-file'])
+            )
         elif ('ignore' in conf and not isinstance(
                 conf['ignore'], pathspec.pathspec.PathSpec)):
             if isinstance(conf['ignore'], str):
