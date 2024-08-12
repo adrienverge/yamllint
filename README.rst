@@ -69,6 +69,10 @@ Usage
  # Use a custom lint configuration
  yamllint -c /path/to/myconfig file-to-lint.yaml
 
+.. note::
+
+ If you have a .yamllint file in your working directory, it will be automatically loaded as configuration by yamllint.
+
 .. code:: bash
 
  # Output a parsable format (for syntax checking in editors like Vim, emacs...)
