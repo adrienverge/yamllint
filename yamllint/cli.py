@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import json
 import locale
 import os
 import platform
@@ -87,6 +88,17 @@ class Format:
         line += problem.desc
         return line
 
+    @staticmethod
+    def json(problem, filename):
+        return json.dumps({
+            'file': filename,
+            'level': problem.level,
+            'line': problem.line,
+            'column': problem.column,
+            'description': problem.desc,
+            'rule': problem.rule,
+        })
+
 
 def show_problems(problems, file, args_format, no_warn):
     max_level = 0
@@ -98,6 +110,9 @@ def show_problems(problems, file, args_format, no_warn):
             args_format = 'github'
         elif supports_color():
             args_format = 'colored'
+
+    if args_format == 'json':
+        print('[', end='')
 
     for problem in problems:
         max_level = max(max_level, PROBLEM_LEVELS[problem.level])
@@ -115,6 +130,12 @@ def show_problems(problems, file, args_format, no_warn):
                 print(f'\033[4m{file}\033[0m')
                 first = False
             print(Format.standard_color(problem, file))
+        elif args_format == 'json':
+            if first:
+                first = False
+            else:
+                print(',', end='')
+            print('\n  ' + Format.json(problem, file), end='')
         else:
             if first:
                 print(file)
@@ -123,6 +144,9 @@ def show_problems(problems, file, args_format, no_warn):
 
     if not first and args_format == 'github':
         print('::endgroup::')
+
+    if args_format == 'json':
+        print('\n]', end='')
 
     if not first and args_format != 'parsable':
         print('')
@@ -163,7 +187,7 @@ def run(argv=None):
                         help='list files to lint and exit')
     parser.add_argument('-f', '--format',
                         choices=('parsable', 'standard', 'colored', 'github',
-                                 'auto'),
+                                 'json', 'auto'),
                         default='auto', help='format for parsing output')
     parser.add_argument('-s', '--strict',
                         action='store_true',

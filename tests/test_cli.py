@@ -619,6 +619,23 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
+    def test_run_format_json(self):
+        path = os.path.join(self.wd, 'a.yaml')
+
+        with RunContext(self) as ctx:
+            cli.run((path, '--format', 'json'))
+        expected_out = (
+            '[\n  '
+            '{"file": "' + str(path) + '", "level": "error", "line": 2, '
+            '"column": 4, "description": "trailing spaces", '
+            '"rule": "trailing-spaces"},\n  '
+            '{"file": "' + str(path) + '", "level": "error", "line": 3, '
+            '"column": 4, "description": "no new line character at the end '
+            'of file", "rule": '
+            '"new-line-at-end-of-file"}\n]\n')
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+
     def test_run_read_from_stdin(self):
         # prepares stdin with an invalid yaml string so that we can check
         # for its specific error, and be assured that stdin was read
