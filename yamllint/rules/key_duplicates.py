@@ -65,7 +65,7 @@ Use this rule to prevent multiple entries with the same key in mappings.
         duplication
     : 2
 
-#. With `key-duplicates`: {forbid-duplicated-merge-keys: true}``
+#. With ``key-duplicates: {forbid-duplicated-merge-keys: true}``
 
    the following code snippet would **PASS**:
    ::
