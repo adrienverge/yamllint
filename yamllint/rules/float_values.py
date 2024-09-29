@@ -75,7 +75,7 @@ positive and negative infinity and "not a number".
     anemometer:
       angle: .NaN
 
- #. With ``float-values: {forbid-inf: true}``
+#. With ``float-values: {forbid-inf: true}``
 
    the following code snippets would **FAIL**:
    ::
