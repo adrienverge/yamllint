@@ -72,10 +72,10 @@ class NewLinesTestCase(RuleTestCase):
             self.check('\n', conf)
             self.check('\r\n', conf, problem=(1, 1))
             self.check('---\ntext\n', conf)
-            self.check('---\r\ntext\r\n', conf, problem1=(1, 4), problem2=(2, 5))
+            self.check('---\r\ntext\r\n', conf, problem1=(1, 4), problem2=(2, 5)) # yamllint disable-line rule:line-length
             self.check('---\r\ntext\n', conf, problem=(1, 4))
-            self.check('---\ntext\r\nfoo\n', conf, problem=(2, 4))
-            self.check('---\ntext\r\n', conf, problem=(2, 4))
+            self.check('---\ntext\r\nfoo\n', conf, problem=(2, 5))
+            self.check('---\ntext\r\n', conf, problem=(2, 5))
 
         # mock the Windows new-line-character
         with mock.patch('yamllint.rules.new_lines.linesep', '\r\n'):
