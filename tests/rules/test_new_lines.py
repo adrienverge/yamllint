@@ -39,7 +39,7 @@ class NewLinesTestCase(RuleTestCase):
         self.check('\n', conf)
         self.check('\r\n', conf, problem=(1, 1))
         self.check('---\ntext\n', conf)
-        self.check('---\r\ntext\r\n', conf, problem=(1, 4))
+        self.check('---\r\ntext\r\n', conf, problem1=(1, 4), problem2=(2, 5))
 
     def test_unix_type_required_st_sp(self):
         # If we find a CRLF when looking for Unix newlines, yamllint
@@ -49,7 +49,7 @@ class NewLinesTestCase(RuleTestCase):
                 'new-lines: {type: unix}\n'
                 'comments:\n'
                 '  require-starting-space: true\n')
-        self.check('---\r\n#\r\n', conf, problem=(1, 4))
+        self.check('---\r\n#\r\n', conf, problem1=(1, 4), problem2=(2, 2))
 
     def test_dos_type(self):
         conf = ('new-line-at-end-of-file: disable\n'
@@ -58,7 +58,7 @@ class NewLinesTestCase(RuleTestCase):
         self.check('\r', conf)
         self.check('\n', conf, problem=(1, 1))
         self.check('\r\n', conf)
-        self.check('---\ntext\n', conf, problem=(1, 4))
+        self.check('---\ntext\n', conf, problem1=(1, 4), problem2=(2, 5))
         self.check('---\r\ntext\r\n', conf)
 
     def test_platform_type(self):
@@ -72,25 +72,17 @@ class NewLinesTestCase(RuleTestCase):
             self.check('\n', conf)
             self.check('\r\n', conf, problem=(1, 1))
             self.check('---\ntext\n', conf)
-            self.check('---\r\ntext\r\n', conf, problem=(1, 4))
+            self.check('---\r\ntext\r\n', conf, problem1=(1, 4), problem2=(2, 5))
             self.check('---\r\ntext\n', conf, problem=(1, 4))
-            # FIXME: the following tests currently don't work
-            # because only the first line is checked for line-endings
-            # see: issue #475
-            # ---
-            # self.check('---\ntext\r\nfoo\n', conf, problem=(2, 4))
-            # self.check('---\ntext\r\n', conf, problem=(2, 4))
+            self.check('---\ntext\r\nfoo\n', conf, problem=(2, 4))
+            self.check('---\ntext\r\n', conf, problem=(2, 4))
 
         # mock the Windows new-line-character
         with mock.patch('yamllint.rules.new_lines.linesep', '\r\n'):
             self.check('\r\n', conf)
             self.check('\n', conf, problem=(1, 1))
             self.check('---\r\ntext\r\n', conf)
-            self.check('---\ntext\n', conf, problem=(1, 4))
+            self.check('---\ntext\n', conf, problem1=(1, 4), problem2=(2, 5))
             self.check('---\ntext\r\n', conf, problem=(1, 4))
-            # FIXME: the following tests currently don't work
-            # because only the first line is checked for line-endings
-            # see: issue #475
-            # ---
-            # self.check('---\r\ntext\nfoo\r\n', conf, problem=(2, 4))
-            # self.check('---\r\ntext\n', conf, problem=(2, 4))
+            self.check('---\r\ntext\nfoo\r\n', conf, problem=(2, 4))
+            self.check('---\r\ntext\n', conf, problem=(2, 4))
