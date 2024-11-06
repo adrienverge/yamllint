@@ -43,7 +43,8 @@ class NewLinesTestCase(RuleTestCase):
 
     def test_unix_type_all_occurences(self):
         conf = ('new-line-at-end-of-file: disable\n'
-                'new-lines: {type: unix, disable_after_first_occurence: False}\n')
+                'new-lines: {type: unix,'
+                ' disable_after_first_occurence: False}\n')
         self.check('', conf)
         self.check('\r', conf)
         self.check('\n', conf)

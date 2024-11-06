@@ -39,7 +39,8 @@ from yamllint.linter import LintProblem
 
 ID = 'new-lines'
 TYPE = 'line'
-CONF = {'type': ('unix', 'dos', 'platform'), 'disable_after_first_occurence': (True, False)}
+CONF = {'type': ('unix', 'dos', 'platform'),
+        'disable_after_first_occurence': (True, False)}
 DEFAULT = {'type': 'unix', 'disable_after_first_occurence': True}
 
 
