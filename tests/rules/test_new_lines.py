@@ -31,9 +31,19 @@ class NewLinesTestCase(RuleTestCase):
         self.check('---\ntext\n', conf)
         self.check('---\r\ntext\r\n', conf)
 
-    def test_unix_type(self):
+    def test_unix_type_first_occurence(self):
         conf = ('new-line-at-end-of-file: disable\n'
                 'new-lines: {type: unix}\n')
+        self.check('', conf)
+        self.check('\r', conf)
+        self.check('\n', conf)
+        self.check('\r\n', conf, problem=(1, 1))
+        self.check('---\ntext\n', conf)
+        self.check('---\r\ntext\r\n', conf, problem=(1, 4))
+
+    def test_unix_type_all_occurences(self):
+        conf = ('new-line-at-end-of-file: disable\n'
+                'new-lines: {type: unix, disable_after_first_occurence: False}\n')
         self.check('', conf)
         self.check('\r', conf)
         self.check('\n', conf)
@@ -49,7 +59,7 @@ class NewLinesTestCase(RuleTestCase):
                 'new-lines: {type: unix}\n'
                 'comments:\n'
                 '  require-starting-space: true\n')
-        self.check('---\r\n#\r\n', conf, problem1=(1, 4), problem2=(2, 2))
+        self.check('---\r\n#\r\n', conf, problem=(1, 4))
 
     def test_dos_type(self):
         conf = ('new-line-at-end-of-file: disable\n'
@@ -58,7 +68,7 @@ class NewLinesTestCase(RuleTestCase):
         self.check('\r', conf)
         self.check('\n', conf, problem=(1, 1))
         self.check('\r\n', conf)
-        self.check('---\ntext\n', conf, problem1=(1, 4), problem2=(2, 5))
+        self.check('---\ntext\n', conf, problem1=(1, 4))
         self.check('---\r\ntext\r\n', conf)
 
     def test_platform_type(self):
@@ -72,7 +82,7 @@ class NewLinesTestCase(RuleTestCase):
             self.check('\n', conf)
             self.check('\r\n', conf, problem=(1, 1))
             self.check('---\ntext\n', conf)
-            self.check('---\r\n#\r\n', conf, problem1=(1, 4), problem2=(2, 2))
+            self.check('---\r\n#\r\n', conf, problem=(1, 4))
             self.check('---\r\ntext\n', conf, problem=(1, 4))
             self.check('---\ntext\r\nfoo\n', conf, problem=(2, 5))
             self.check('---\ntext\r\n', conf, problem=(2, 5))
@@ -82,7 +92,7 @@ class NewLinesTestCase(RuleTestCase):
             self.check('\r\n', conf)
             self.check('\n', conf, problem=(1, 1))
             self.check('---\r\ntext\r\n', conf)
-            self.check('---\ntext\n', conf, problem1=(1, 4), problem2=(2, 5))
+            self.check('---\ntext\n', conf, problem=(1, 4))
             self.check('---\ntext\r\n', conf, problem=(1, 4))
             self.check('---\r\ntext\nfoo\r\n', conf, problem=(2, 5))
             self.check('---\r\ntext\n', conf, problem=(2, 5))

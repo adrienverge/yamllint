@@ -104,6 +104,10 @@ def get_cosmetic_problems(buffer, conf, filepath):
                     for id in rules:
                         self.rules.discard(id)
 
+        def disable_by_force(self, rule):
+            if rule in self.all_rules:
+                self.rules.add(rule)
+
         def is_disabled_by_directive(self, problem):
             return problem.rule in self.rules
 
@@ -166,6 +170,8 @@ def get_cosmetic_problems(buffer, conf, filepath):
             for problem in cache:
                 if not (disabled_for_line.is_disabled_by_directive(problem) or
                         disabled.is_disabled_by_directive(problem)):
+                    if conf.rules[problem.rule].get('disable_after_first_occurence', False):
+                        disabled.disable_by_force(problem.rule)
                     yield problem
 
             disabled_for_line = disabled_for_next_line
