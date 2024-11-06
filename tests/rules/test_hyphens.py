@@ -15,12 +15,25 @@
 
 from tests.common import RuleTestCase
 
+from yamllint import config
+
 
 class HyphenTestCase(RuleTestCase):
     rule_id = 'hyphens'
 
     def test_disabled(self):
-        conf = 'hyphens: disable'
+        self.run_disabled_test('hyphens: disable')
+        self.run_disabled_test('hyphens:\n'
+                               '  max-spaces-after: 5\n'
+                               '  min-spaces-after: -1\n')
+        self.run_disabled_test('hyphens:\n'
+                               '  max-spaces-after: -1\n'
+                               '  min-spaces-after: -1\n')
+        self.run_disabled_test('hyphens:\n'
+                               '  max-spaces-after: -1\n'
+                               '  min-spaces-after: 0\n')
+
+    def run_disabled_test(self, conf):
         self.check('---\n'
                    '- elem1\n'
                    '- elem2\n', conf)
@@ -51,6 +64,9 @@ class HyphenTestCase(RuleTestCase):
                    '  subobject:\n'
                    '    -  elem1\n'
                    '    -  elem2\n', conf)
+        self.check('---\n'
+                   'object:\n'
+                   '  -elem2\n', conf)
 
     def test_enabled(self):
         conf = 'hyphens: {max-spaces-after: 1}'
@@ -103,3 +119,42 @@ class HyphenTestCase(RuleTestCase):
                    '  b:\n'
                    '    -    elem1\n'
                    '    -    elem2\n', conf, problem1=(4, 9), problem2=(5, 9))
+
+    def test_invalid_spaces(self):
+        conf = 'hyphens: {max-spaces-after: 0}'
+        self.assertRaises(config.YamlLintConfigError, self.check, '', conf)
+
+        conf = 'hyphens: {min-spaces-after: 3}'
+        self.assertRaises(config.YamlLintConfigError, self.check, '', conf)
+
+    def test_min_space(self):
+        conf = 'hyphens: {max-spaces-after: 4, min-spaces-after: 3}'
+        self.check('---\n'
+                   'object:\n'
+                   '  -   elem1\n'
+                   '  -   elem2\n', conf)
+        self.check('---\n'
+                   'object:\n'
+                   '  -    elem1\n'
+                   '  -    elem2: -foo\n'
+                   '-bar:\n', conf)
+        self.check('---\n'
+                   'object:\n'
+                   '  -  elem1\n'
+                   '  -  elem2\n', conf, problem1=(3, 6), problem2=(4, 6))
+
+        conf = ('hyphens:\n'
+                '  max-spaces-after: 4\n'
+                '  min-spaces-after: 3\n'
+                '  check-scalars: true\n')
+        self.check('---\n'
+                   'foo\n'
+                   '-bar\n', conf)
+        self.check('---\n'
+                   'object:\n'
+                   '  -    elem1\n'
+                   '  -    elem2\n'
+                   'key: -value\n', conf, problem=(5, 6))
+        self.check('---\n'
+                   'list:\n'
+                   '  -value\n', conf, problem=(3, 3))
