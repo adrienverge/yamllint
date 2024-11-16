@@ -8,7 +8,8 @@ Basic example of running the linter from Python:
 
 .. code-block:: python
 
-   import yamllint
+   import yamllint.config
+   import yamllint.linter
 
    yaml_config = yamllint.config.YamlLintConfig("extends: default")
    for p in yamllint.linter.run(open("example.yaml", "r"), yaml_config):
