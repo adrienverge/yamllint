@@ -149,7 +149,7 @@ class KeyOrderingTestCase(RuleTestCase):
                    problem=(3, 1))
 
     def test_ignored_key(self):
-        conf = 'key-ordering:\n  ignored: ["name"]'
+        conf = 'key-ordering:\n  ignored-keys: ["n(am|omm)e"]'
         self.check('---\n'
                    'versions:\n'
                    '  - name: v1alpha1\n'
@@ -158,13 +158,13 @@ class KeyOrderingTestCase(RuleTestCase):
                    '    baz: qux\n', conf)
         self.check('---\n'
                    'versions:\n'
-                   '  - name: v1alpha1\n'
+                   '  - nomme: v1alpha1\n'
                    '    foo: bar\n'
                    '    baz: qux\n'
-                   '  - name: v2\n'
+                   '  - nomme: v2\n'
                    '    baz: qux\n'
                    '  - baz: qux\n'
-                   '    name: v3\n'
+                   '    nomme: v3\n'
                    '    value: whatever\n', conf,
                    problem=(5, 5))
         self.check('---\n'
