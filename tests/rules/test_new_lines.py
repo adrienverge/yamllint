@@ -31,7 +31,7 @@ class NewLinesTestCase(RuleTestCase):
         self.check('---\ntext\n', conf)
         self.check('---\r\ntext\r\n', conf)
 
-    def test_unix_type_first_occurence(self):
+    def test_unix_type(self):
         conf = ('new-line-at-end-of-file: disable\n'
                 'new-lines: {type: unix}\n')
         self.check('', conf)
@@ -40,17 +40,6 @@ class NewLinesTestCase(RuleTestCase):
         self.check('\r\n', conf, problem=(1, 1))
         self.check('---\ntext\n', conf)
         self.check('---\r\ntext\r\n', conf, problem=(1, 4))
-
-    def test_unix_type_all_occurences(self):
-        conf = ('new-line-at-end-of-file: disable\n'
-                'new-lines: {type: unix,'
-                ' disable_after_first_occurence: False}\n')
-        self.check('', conf)
-        self.check('\r', conf)
-        self.check('\n', conf)
-        self.check('\r\n', conf, problem=(1, 1))
-        self.check('---\ntext\n', conf)
-        self.check('---\r\ntext\r\n', conf, problem1=(1, 4), problem2=(2, 5))
 
     def test_unix_type_required_st_sp(self):
         # If we find a CRLF when looking for Unix newlines, yamllint
@@ -69,7 +58,7 @@ class NewLinesTestCase(RuleTestCase):
         self.check('\r', conf)
         self.check('\n', conf, problem=(1, 1))
         self.check('\r\n', conf)
-        self.check('---\ntext\n', conf, problem1=(1, 4))
+        self.check('---\ntext\n', conf, problem=(1, 4))
         self.check('---\r\ntext\r\n', conf)
 
     def test_platform_type(self):
@@ -83,7 +72,7 @@ class NewLinesTestCase(RuleTestCase):
             self.check('\n', conf)
             self.check('\r\n', conf, problem=(1, 1))
             self.check('---\ntext\n', conf)
-            self.check('---\r\n#\r\n', conf, problem=(1, 4))
+            self.check('---\r\ntext\r\n', conf, problem=(1, 4))
             self.check('---\r\ntext\n', conf, problem=(1, 4))
             self.check('---\ntext\r\nfoo\n', conf, problem=(2, 5))
             self.check('---\ntext\r\n', conf, problem=(2, 5))

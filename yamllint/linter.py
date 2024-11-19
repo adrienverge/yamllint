@@ -170,8 +170,7 @@ def get_cosmetic_problems(buffer, conf, filepath):
             for problem in cache:
                 if not (disabled_for_line.is_disabled_by_directive(problem) or
                         disabled.is_disabled_by_directive(problem)):
-                    rule_conf = conf.rules[problem.rule]
-                    if rule_conf.get('disable_after_first_occurence', False):
+                    if problem.rule == 'new-lines':
                         disabled.disable_by_force(problem.rule)
                     yield problem
 
