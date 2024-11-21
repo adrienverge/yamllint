@@ -22,6 +22,19 @@ to sort case and accents properly.
 It also allows one to ignore certain keys by setting the ``ignored-keys``
 (PCRE regexes list) option.
 
+.. rubric:: Options
+
+* ``ignored-keys`` is a list of PCRE regexes defining a set of keys to be ignored while ordering, if
+  they match any regex. Default is an empty list.
+
+.. rubric:: Default values (when enabled)
+
+.. code-block:: yaml
+
+ rules:
+   key-ordering:
+     ignored-keys: []
+
 .. rubric:: Examples
 
 #. With ``key-ordering: {}``
