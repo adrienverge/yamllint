@@ -121,72 +121,78 @@ class SimpleConfigTestCase(unittest.TestCase):
         self.assertEqual(c.rules['hyphens'], False)
 
     def test_validate_rule_conf(self):
+        c = config.YamlLintConfig('rules:\n'
+                                  '  indentation:\n'
+                                  '    spaces: 2\n'
+                                  '    indent-sequences: yes\n'
+                                  '    check-multi-line-strings: false\n')
+
         class Rule:
             ID = 'fake'
 
-        self.assertFalse(config.validate_rule_conf(Rule, False))
-        self.assertEqual(config.validate_rule_conf(Rule, {}),
+        self.assertFalse(c.validate_rule_conf(Rule, False))
+        self.assertEqual(c.validate_rule_conf(Rule, {}),
                          {'level': 'error'})
 
-        config.validate_rule_conf(Rule, {'level': 'error'})
-        config.validate_rule_conf(Rule, {'level': 'warning'})
+        c.validate_rule_conf(Rule, {'level': 'error'})
+        c.validate_rule_conf(Rule, {'level': 'warning'})
         self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule, {'level': 'warn'})
+                          c.validate_rule_conf, Rule, {'level': 'warn'})
 
         Rule.CONF = {'length': int}
         Rule.DEFAULT = {'length': 80}
-        config.validate_rule_conf(Rule, {'length': 8})
-        config.validate_rule_conf(Rule, {})
+        c.validate_rule_conf(Rule, {'length': 8})
+        c.validate_rule_conf(Rule, {})
         self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule, {'height': 8})
+                          c.validate_rule_conf, Rule, {'height': 8})
 
         Rule.CONF = {'a': bool, 'b': int}
         Rule.DEFAULT = {'a': True, 'b': -42}
-        config.validate_rule_conf(Rule, {'a': True, 'b': 0})
-        config.validate_rule_conf(Rule, {'a': True})
-        config.validate_rule_conf(Rule, {'b': 0})
+        c.validate_rule_conf(Rule, {'a': True, 'b': 0})
+        c.validate_rule_conf(Rule, {'a': True})
+        c.validate_rule_conf(Rule, {'b': 0})
         self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule, {'a': 1, 'b': 0})
+                          c.validate_rule_conf, Rule, {'a': 1, 'b': 0})
 
         Rule.CONF = {'choice': (True, 88, 'str')}
         Rule.DEFAULT = {'choice': 88}
-        config.validate_rule_conf(Rule, {'choice': True})
-        config.validate_rule_conf(Rule, {'choice': 88})
-        config.validate_rule_conf(Rule, {'choice': 'str'})
+        c.validate_rule_conf(Rule, {'choice': True})
+        c.validate_rule_conf(Rule, {'choice': 88})
+        c.validate_rule_conf(Rule, {'choice': 'str'})
         self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule, {'choice': False})
+                          c.validate_rule_conf, Rule, {'choice': False})
         self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule, {'choice': 99})
+                          c.validate_rule_conf, Rule, {'choice': 99})
         self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule, {'choice': 'abc'})
+                          c.validate_rule_conf, Rule, {'choice': 'abc'})
 
         Rule.CONF = {'choice': (int, 'hardcoded')}
         Rule.DEFAULT = {'choice': 1337}
-        config.validate_rule_conf(Rule, {'choice': 42})
-        config.validate_rule_conf(Rule, {'choice': 'hardcoded'})
-        config.validate_rule_conf(Rule, {})
+        c.validate_rule_conf(Rule, {'choice': 42})
+        c.validate_rule_conf(Rule, {'choice': 'hardcoded'})
+        c.validate_rule_conf(Rule, {})
         self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule, {'choice': False})
+                          c.validate_rule_conf, Rule, {'choice': False})
         self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule, {'choice': 'abc'})
+                          c.validate_rule_conf, Rule, {'choice': 'abc'})
 
         Rule.CONF = {'multiple': ['item1', 'item2', 'item3']}
         Rule.DEFAULT = {'multiple': ['item1']}
-        config.validate_rule_conf(Rule, {'multiple': []})
-        config.validate_rule_conf(Rule, {'multiple': ['item2']})
-        config.validate_rule_conf(Rule, {'multiple': ['item2', 'item3']})
-        config.validate_rule_conf(Rule, {})
+        c.validate_rule_conf(Rule, {'multiple': []})
+        c.validate_rule_conf(Rule, {'multiple': ['item2']})
+        c.validate_rule_conf(Rule, {'multiple': ['item2', 'item3']})
+        c.validate_rule_conf(Rule, {})
         self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule,
+                          c.validate_rule_conf, Rule,
                           {'multiple': 'item1'})
         self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule,
+                          c.validate_rule_conf, Rule,
                           {'multiple': ['']})
         self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule,
+                          c.validate_rule_conf, Rule,
                           {'multiple': ['item1', 4]})
         self.assertRaises(config.YamlLintConfigError,
-                          config.validate_rule_conf, Rule,
+                          c.validate_rule_conf, Rule,
                           {'multiple': ['item4']})
 
     def test_invalid_rule(self):
@@ -719,6 +725,44 @@ class IgnoreConfigTestCase(unittest.TestCase):
             './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:3:3: ' + keydup,
             './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:4:17: ' + trailing,
             './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:5:5: ' + hyphen,
+        )))
+
+    def test_run_in_subdir_with_ignore_from_file(self):
+        with open(os.path.join(self.wd, '.yamllint'), 'w') as f:
+            f.write('extends: default\n'
+                    'ignore-from-file: .gitignore\n'
+                    'rules:\n'
+                    '  key-duplicates:\n'
+                    '    ignore-from-file: .ignore-key-duplicates\n')
+
+        with open(os.path.join(self.wd, '.gitignore'), 'w') as f:
+            f.write('*.dont-lint-me.yaml\n'
+                    '/bin/\n'
+                    '!/bin/*.lint-me-anyway.yaml\n')
+
+        with open(os.path.join(self.wd, '.ignore-key-duplicates'), 'w') as f:
+            f.write('/ign-dup\n')
+
+        sys.stdout = StringIO()
+        try:
+            os.chdir(os.path.join(self.wd, 'bin'))
+            with self.assertRaises(SystemExit):
+                cli.run(('-f', 'parsable', '.'))
+        finally:
+            os.chdir(self.wd)
+
+        out = sys.stdout.getvalue()
+        out = '\n'.join(sorted(out.splitlines()))
+
+        keydup = '[error] duplication of key "key" in mapping (key-duplicates)'
+        trailing = '[error] trailing spaces (trailing-spaces)'
+        hyphen = '[error] too many spaces after hyphen (hyphens)'
+
+        self.maxDiff = None
+        self.assertEqual(out, '\n'.join((
+            './file.lint-me-anyway.yaml:3:3: ' + keydup,
+            './file.lint-me-anyway.yaml:4:17: ' + trailing,
+            './file.lint-me-anyway.yaml:5:5: ' + hyphen,
         )))
 
     def test_run_with_ignored_from_file(self):
