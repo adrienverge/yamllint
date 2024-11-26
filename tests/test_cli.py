@@ -26,6 +26,7 @@ from io import StringIO
 from tests.common import build_temp_workspace, RunContext, temp_workspace
 
 from yamllint import cli, config
+from yamllint.linter import LintProblem
 
 
 # Check system's UTF-8 availability
@@ -732,6 +733,79 @@ class CommandLineTestCase(unittest.TestCase):
             sorted(ctx.stdout.splitlines()),
             [os.path.join(self.wd, 'a.yaml')]
         )
+
+    def test_multiple_processes_w_2(self):
+        items = {'a.yaml': os.path.join(self.wd, 'a.yaml'),
+                 'en.yaml': os.path.join(self.wd, 'en.yaml'),
+                 'c.yaml': os.path.join(self.wd, 'c.yaml'),
+                 }
+
+        with RunContext(self) as ctx:
+            cli.run(["-w", "2", "-f", "parsable"] + list(items.values()))
+        self.assertEqual(ctx.returncode, 1)
+
+        path = items['a.yaml']
+        self.assertIn(
+            f'{path}:2:4: [error] trailing spaces (trailing-spaces)\n',
+            ctx.stdout
+        )
+        self.assertIn(
+            f'{path}:3:4: [error] no new line character at the end of file '
+            '(new-line-at-end-of-file)\n',
+            ctx.stdout
+        )
+
+        path = items['en.yaml']
+        self.assertIn(
+            f'{path}:3:8: [error] no new line character at the end of file '
+            '(new-line-at-end-of-file)\n',
+            ctx.stdout
+        )
+
+        path = items['c.yaml']
+        self.assertIn(
+            f'{path}:3:8: [error] no new line character at the end of file '
+            '(new-line-at-end-of-file)\n',
+            ctx.stdout
+        )
+
+    def test_multiple_processes_w_0(self):
+        items = {'a.yaml': os.path.join(self.wd, 'a.yaml'),
+                 'en.yaml': os.path.join(self.wd, 'en.yaml'),
+                 'c.yaml': os.path.join(self.wd, 'c.yaml'),
+                 }
+        with RunContext(self) as ctx:
+            cli.run(["-w", "0", "-f", "parsable"] + list(items.values()))
+        self.assertEqual(ctx.returncode, 1)
+
+        path = items['a.yaml']
+        self.assertIn(
+            f'{path}:2:4: [error] trailing spaces (trailing-spaces)\n',
+            ctx.stdout
+        )
+
+    def test_multiple_processes_non_existing_file(self):
+        items = {'a.yaml': os.path.join(self.wd, 'a.yaml'),
+                 'en.yaml': os.path.join(self.wd, 'en.yaml'),
+                 'c.yaml': os.path.join(self.wd, 'c.yaml'),
+                 'fails': os.path.join(self.wd, 'i-do-not-exist.yaml')
+                 }
+
+        with RunContext(self) as ctx:
+            cli.run(["-w", "2", "-f", "parsable"] + list(items.values()))
+        self.assertEqual(ctx.returncode, -1)
+        self.assertRegex(ctx.stderr, r'No such file or directory')
+
+    def test_multiple_processes_do_lint(self):
+        conf = config.YamlLintConfig('extends: default')
+        path = os.path.join(self.wd, 'a.yaml')
+        problems = cli.do_lint(path, conf, generator=False)
+        print(type(problems[0]))
+        self.assertEqual(
+            problems,
+            [LintProblem(2, 4, 'trailing spaces', 'trailing-spaces'),
+             LintProblem(3, 4, 'no new line character at the end of file',
+                         'new-line-at-end-of-file')])
 
 
 class CommandLineConfigTestCase(unittest.TestCase):
