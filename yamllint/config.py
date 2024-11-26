@@ -31,6 +31,7 @@ class YamlLintConfig:
         assert (content is None) ^ (file is None)
 
         self.ignore = None
+        self.config_dir = None
 
         self.yaml_files = pathspec.PathSpec.from_lines(
             'gitwildmatch', ['*.yaml', '*.yml', '.yamllint'])
@@ -38,6 +39,7 @@ class YamlLintConfig:
         self.locale = None
 
         if file is not None:
+            self.config_dir = os.path.dirname(file)
             with open(file) as f:
                 content = f.read()
 
@@ -45,6 +47,8 @@ class YamlLintConfig:
         self.validate()
 
     def is_file_ignored(self, filepath):
+        if self.config_dir:
+            filepath = os.path.relpath(filepath, start=self.config_dir)
         return self.ignore and self.ignore.match_file(filepath)
 
     def is_yaml_file(self, filepath):
@@ -109,6 +113,11 @@ class YamlLintConfig:
                 raise YamlLintConfigError(
                     'invalid config: ignore-from-file should contain '
                     'filename(s), either as a list or string')
+            if self.config_dir is not None:
+                conf["ignore-from-file"] = [
+                    f if os.path.basename(f) != f
+                    else os.path.join(self.config_dir, f)
+                    for f in conf["ignore-from-file"]]
             with fileinput.input(conf['ignore-from-file']) as f:
                 self.ignore = pathspec.PathSpec.from_lines('gitwildmatch', f)
         elif 'ignore' in conf:
@@ -145,94 +154,101 @@ class YamlLintConfig:
             except Exception as e:
                 raise YamlLintConfigError(f'invalid config: {e}') from e
 
-            self.rules[id] = validate_rule_conf(rule, self.rules[id])
+            self.rules[id] = self.validate_rule_conf(rule, self.rules[id])
 
+    def validate_rule_conf(self, rule, conf):
+        if conf is False:  # disable
+            return False
 
-def validate_rule_conf(rule, conf):
-    if conf is False:  # disable
-        return False
+        if isinstance(conf, dict):
+            if ('ignore-from-file' in conf and not isinstance(
+                    conf['ignore-from-file'], pathspec.pathspec.PathSpec)):
+                if isinstance(conf['ignore-from-file'], str):
+                    conf['ignore-from-file'] = [conf['ignore-from-file']]
+                if not (isinstance(conf['ignore-from-file'], list)
+                        and all(isinstance(line, str)
+                                for line in conf['ignore-from-file'])):
+                    raise YamlLintConfigError(
+                        'invalid config: ignore-from-file should contain '
+                        'valid filename(s), either as a list or string')
+                if self.config_dir is not None:
+                    conf["ignore-from-file"] = [
+                        f if os.path.basename(f) != f
+                        else os.path.join(self.config_dir, f)
+                        for f in conf["ignore-from-file"]]
+                with fileinput.input(conf['ignore-from-file']) as f:
+                    conf['ignore'] = pathspec.PathSpec.from_lines(
+                        'gitwildmatch', f)
+            elif ('ignore' in conf and not isinstance(
+                    conf['ignore'], pathspec.pathspec.PathSpec)):
+                if isinstance(conf['ignore'], str):
+                    conf['ignore'] = pathspec.PathSpec.from_lines(
+                        'gitwildmatch', conf['ignore'].splitlines())
+                elif (isinstance(conf['ignore'], list) and
+                        all(isinstance(line, str) for line in conf['ignore'])):
+                    conf['ignore'] = pathspec.PathSpec.from_lines(
+                        'gitwildmatch', conf['ignore'])
+                else:
+                    raise YamlLintConfigError(
+                        'invalid config: ignore should contain file patterns')
 
-    if isinstance(conf, dict):
-        if ('ignore-from-file' in conf and not isinstance(
-                conf['ignore-from-file'], pathspec.pathspec.PathSpec)):
-            if isinstance(conf['ignore-from-file'], str):
-                conf['ignore-from-file'] = [conf['ignore-from-file']]
-            if not (isinstance(conf['ignore-from-file'], list)
-                    and all(isinstance(line, str)
-                            for line in conf['ignore-from-file'])):
+            if 'level' not in conf:
+                conf['level'] = 'error'
+            elif conf['level'] not in ('error', 'warning'):
                 raise YamlLintConfigError(
-                    'invalid config: ignore-from-file should contain '
-                    'valid filename(s), either as a list or string')
-            with fileinput.input(conf['ignore-from-file']) as f:
-                conf['ignore'] = pathspec.PathSpec.from_lines(
-                    'gitwildmatch', f)
-        elif ('ignore' in conf and not isinstance(
-                conf['ignore'], pathspec.pathspec.PathSpec)):
-            if isinstance(conf['ignore'], str):
-                conf['ignore'] = pathspec.PathSpec.from_lines(
-                    'gitwildmatch', conf['ignore'].splitlines())
-            elif (isinstance(conf['ignore'], list) and
-                    all(isinstance(line, str) for line in conf['ignore'])):
-                conf['ignore'] = pathspec.PathSpec.from_lines(
-                    'gitwildmatch', conf['ignore'])
-            else:
-                raise YamlLintConfigError(
-                    'invalid config: ignore should contain file patterns')
+                    'invalid config: level should be "error" or "warning"')
 
-        if 'level' not in conf:
-            conf['level'] = 'error'
-        elif conf['level'] not in ('error', 'warning'):
+            options = getattr(rule, 'CONF', {})
+            options_default = getattr(rule, 'DEFAULT', {})
+            for optkey in conf:
+                if optkey in ('ignore', 'ignore-from-file', 'level'):
+                    continue
+                if optkey not in options:
+                    raise YamlLintConfigError(
+                        f'invalid config: unknown option "{optkey}" for rule '
+                        f'"{rule.ID}"')
+                # Example: CONF = {option: (bool, 'mixed')}
+                #          → {option: true}         → {option: mixed}
+                if isinstance(options[optkey], tuple):
+                    if (conf[optkey] not in options[optkey] and
+                            type(conf[optkey]) not in options[optkey]):
+                        raise YamlLintConfigError(
+                            f'invalid config: option "{optkey}" of "{rule.ID}"'
+                            f' should be in {options[optkey]}')
+                # Example: CONF = {option: ['flag1', 'flag2', int]}
+                #          → {option: [flag1]}   → {option: [42, flag1, flag2]}
+                elif isinstance(options[optkey], list):
+                    if (not isinstance(conf[optkey], list) or
+                            any(flag not in options[optkey] and
+                                type(flag) not in options[optkey]
+                                for flag in conf[optkey])):
+                        raise YamlLintConfigError(
+                            f'invalid config: option "{optkey}" of "{rule.ID}"'
+                            f' should only contain values in {options[optkey]}'
+                        )
+                # Example: CONF = {option: int}
+                #          → {option: 42}
+                else:
+                    if not isinstance(conf[optkey], options[optkey]):
+                        raise YamlLintConfigError(
+                            f'invalid config: option "{optkey}" of "{rule.ID}"'
+                            f' should be {options[optkey].__name__}')
+            for optkey in options:
+                if optkey not in conf:
+                    conf[optkey] = options_default[optkey]
+
+            if hasattr(rule, 'VALIDATE'):
+                res = rule.VALIDATE(conf)
+                if res:
+                    raise YamlLintConfigError(
+                        f'invalid config: {rule.ID}: {res}'
+                    )
+        else:
             raise YamlLintConfigError(
-                'invalid config: level should be "error" or "warning"')
+                f'invalid config: rule "{rule.ID}": should be either "enable",'
+                f' "disable" or a dict')
 
-        options = getattr(rule, 'CONF', {})
-        options_default = getattr(rule, 'DEFAULT', {})
-        for optkey in conf:
-            if optkey in ('ignore', 'ignore-from-file', 'level'):
-                continue
-            if optkey not in options:
-                raise YamlLintConfigError(
-                    f'invalid config: unknown option "{optkey}" for rule '
-                    f'"{rule.ID}"')
-            # Example: CONF = {option: (bool, 'mixed')}
-            #          → {option: true}         → {option: mixed}
-            if isinstance(options[optkey], tuple):
-                if (conf[optkey] not in options[optkey] and
-                        type(conf[optkey]) not in options[optkey]):
-                    raise YamlLintConfigError(
-                        f'invalid config: option "{optkey}" of "{rule.ID}" '
-                        f'should be in {options[optkey]}')
-            # Example: CONF = {option: ['flag1', 'flag2', int]}
-            #          → {option: [flag1]}      → {option: [42, flag1, flag2]}
-            elif isinstance(options[optkey], list):
-                if (not isinstance(conf[optkey], list) or
-                        any(flag not in options[optkey] and
-                            type(flag) not in options[optkey]
-                            for flag in conf[optkey])):
-                    raise YamlLintConfigError(
-                        f'invalid config: option "{optkey}" of "{rule.ID}" '
-                        f'should only contain values in {options[optkey]}')
-            # Example: CONF = {option: int}
-            #          → {option: 42}
-            else:
-                if not isinstance(conf[optkey], options[optkey]):
-                    raise YamlLintConfigError(
-                        f'invalid config: option "{optkey}" of "{rule.ID}" '
-                        f'should be {options[optkey].__name__}')
-        for optkey in options:
-            if optkey not in conf:
-                conf[optkey] = options_default[optkey]
-
-        if hasattr(rule, 'VALIDATE'):
-            res = rule.VALIDATE(conf)
-            if res:
-                raise YamlLintConfigError(f'invalid config: {rule.ID}: {res}')
-    else:
-        raise YamlLintConfigError(
-            f'invalid config: rule "{rule.ID}": should be either "enable", '
-            f'"disable" or a dict')
-
-    return conf
+        return conf
 
 
 def get_extended_config_file(name):
