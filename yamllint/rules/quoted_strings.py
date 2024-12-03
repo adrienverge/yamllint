@@ -204,12 +204,21 @@ def _quote_match(quote_type, token_style):
             (quote_type == 'double' and token_style == '"'))
 
 
-def _quotes_are_needed(string, is_inside_a_flow):
+def _quotes_are_needed(string, style, is_inside_a_flow):
     # Quotes needed on strings containing flow tokens
     if is_inside_a_flow and set(string) & {',', '[', ']', '{', '}'}:
         return True
 
-    loader = yaml.BaseLoader('key: ' + string)
+    try:
+        loader = yaml.BaseLoader('key: ' + string)
+    except yaml.reader.ReaderError as e:
+        if e.reason == "special characters are not allowed" and style == '"':
+            # Special characters in a double-quoted string
+            # are assumed to be backslash-escaped
+            return True
+        else:
+            raise
+
     # Remove the 5 first tokens corresponding to 'key: ' (StreamStartToken,
     # BlockMappingStartToken, KeyToken, ScalarToken(value=key), ValueToken)
     for _ in range(5):
@@ -299,6 +308,7 @@ def check(conf, token, prev, next, nextnext, context):
         # Quotes are not strictly needed here
         if (token.style and tag == DEFAULT_SCALAR_TAG and token.value and
                 not _quotes_are_needed(token.value,
+                                       token.style,
                                        context['flow_nest_count'] > 0)):
             is_extra_required = any(re.search(r, token.value)
                                     for r in conf['extra-required'])

@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from tests.common import RuleTestCase
+from yaml.reader import ReaderError as yaml_reader_ReaderError
 
 from yamllint import config
 
@@ -474,6 +475,28 @@ class QuotedValuesTestCase(RuleTestCase):
                    '- foo bar\n'
                    '- "foo bar"\n',
                    conf, problem1=(3, 3), problem2=(7, 3), problem3=(11, 3))
+
+    def test_only_when_needed_special_characters(self):
+        conf = 'quoted-strings: {required: only-when-needed}\n'
+        self.check('---\n'
+                   # double-quoted escaped special chars: ok
+                   'k1: "\\u001b"\n',
+                   conf)
+
+    def test_only_when_needed_special_characters_exceptions(self):
+        conf = 'quoted-strings: {required: only-when-needed}\n'
+        yamltext1 = ('---\n'
+                     # double-quoted unescaped special chars: yuck"
+                     'k1: "\u001b"\n')
+        yamltext2 = ('---\n'
+                     # single-quoted unescaped special chars: yuck"
+                     "k1: '\u001b'\n")
+        yamltext3 = ('---\n'
+                     # unquoted unescaped special chars: yuck"
+                     'k1: \u001b\n')
+        self.assertRaises(yaml_reader_ReaderError, self.check, yamltext1, conf)
+        self.assertRaises(yaml_reader_ReaderError, self.check, yamltext2, conf)
+        self.assertRaises(yaml_reader_ReaderError, self.check, yamltext3, conf)
 
     def test_octal_values(self):
         conf = 'quoted-strings: {required: true}\n'
