@@ -14,9 +14,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from tests.common import RuleTestCase
+from yaml.reader import ReaderError as yaml_reader_ReaderError
 
 from yamllint import config
-from yaml.reader import ReaderError as yaml_reader_ReaderError
 
 
 class QuotedValuesTestCase(RuleTestCase):
@@ -479,17 +479,21 @@ class QuotedValuesTestCase(RuleTestCase):
     def test_only_when_needed_special_characters(self):
         conf = 'quoted-strings: {required: only-when-needed}\n'
         self.check('---\n'
-                   'k1: "\\u001b (double-quoted backslash-escaped special characters are ok)"\n',
+                   # double-quoted escaped special chars: ok
+                   'k1: "\\u001b"\n',
                    conf)
 
     def test_only_when_needed_special_characters_exceptions(self):
         conf = 'quoted-strings: {required: only-when-needed}\n'
         yamltext1 = ('---\n'
-                     'k1: "\u001b (double-quoted unescaped special characters are not ok)"\n')
+                     # double-quoted unescaped special chars: yuck"
+                     'k1: "\u001b"\n')
         yamltext2 = ('---\n'
-                     "k1: '\u001b (single-quoted unescaped special characters are not ok)'\n")
+                     # single-quoted unescaped special chars: yuck"
+                     "k1: '\u001b'\n")
         yamltext3 = ('---\n'
-                     'k1: \u001b (unquoted unescaped special characters are not ok)\n')
+                     # unquoted unescaped special chars: yuck"
+                     'k1: \u001b\n')
         self.assertRaises(yaml_reader_ReaderError, self.check, yamltext1, conf)
         self.assertRaises(yaml_reader_ReaderError, self.check, yamltext2, conf)
         self.assertRaises(yaml_reader_ReaderError, self.check, yamltext3, conf)
