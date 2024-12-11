@@ -149,38 +149,27 @@ class KeyOrderingTestCase(RuleTestCase):
                    problem=(3, 1))
 
     def test_ignored_keys(self):
-        conf = 'key-ordering:\n  ignored-keys: ["n(am|omm)e", "^b.*$"]'
-        self.check('---\n'
-                   'versions:\n'
-                   '  - name: v1alpha1\n'
-                   '    foo: bar\n'
-                   '  - name: v2\n'
-                   '    baz: qux\n', conf)
-        self.check('---\n'
-                   'versions:\n'
-                   '  - nomme: v1alpha1\n'
-                   '    foo: bar\n'
-                   '    baz: qux\n'
-                   '  - nomme: v2\n'
-                   '    baz: qux\n'
-                   '  - baz: qux\n'
-                   '    nomme: v3\n'
-                   '    value: whatever\n', conf,
-                   problem=(5, 5))
-        self.check('---\n'
-                   'versions:\n'
-                   '  - name: v1alpha1\n'
-                   '    baz: qux\n'
-                   '    zzz: bad\n'
-                   '    foo: bar\n'
-                   '  - name: v2\n'
-                   '    bar: baz\n'
-                   '  - baz: qux\n'
-                   '    name: v3\n'
-                   '    value: whatever\n', conf,
-                   problem=(6, 5))
-        self.check('---\n'
-                   'age: 30\n'
-                   'name: John\n'
-                   'address: 123 Street\n', conf,
-                   problem=(4, 1))
+        conf = (
+            'key-ordering:\n'
+            '  ignored-keys: ["n(a|o)me", "^b"]\n'
+        )
+        self.check(
+            '---\n'
+            'a:\n'
+            'b:\n'
+            'c:\n'
+            'name: ignored\n'
+            'first-name: ignored\n'
+            'nome: ignored\n'
+            'gnomes: ignored\n'
+            'd:\n'
+            'e:\n'
+            'boat: ignored\n'
+            '.boat: ERROR\n'
+            'call: ERROR\n'
+            'f:\n'
+            'g:\n',
+            conf,
+            problem1=(12, 1),
+            problem2=(13, 1),
+        )
