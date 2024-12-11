@@ -209,16 +209,15 @@ def _quotes_are_needed(string, style, is_inside_a_flow):
     if is_inside_a_flow and set(string) & {',', '[', ']', '{', '}'}:
         return True
 
-    try:
-        loader = yaml.BaseLoader('key: ' + string)
-    except yaml.reader.ReaderError as e:
-        if e.reason == "special characters are not allowed" and style == '"':
+    if style == '"':
+        try:
+            yaml.reader.Reader('').check_printable('key: ' + string)
+        except yaml.reader.ReaderError:
             # Special characters in a double-quoted string
-            # are assumed to be backslash-escaped
+            # are assumed to have been backslash-escaped
             return True
-        else:
-            raise
 
+    loader = yaml.BaseLoader('key: ' + string)
     # Remove the 5 first tokens corresponding to 'key: ' (StreamStartToken,
     # BlockMappingStartToken, KeyToken, ScalarToken(value=key), ValueToken)
     for _ in range(5):
