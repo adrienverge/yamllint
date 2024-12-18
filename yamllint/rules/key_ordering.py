@@ -99,9 +99,12 @@ It also allows one to ignore certain keys by setting the ``ignored-keys``
    the following code snippet would **PASS**:
    ::
 
-    - name: John
-      age: 30
-      city: New York
+    - a:
+      b:
+      name: ignored
+      first-name: ignored
+      c:
+      d:
 """
 
 import re
@@ -143,15 +146,11 @@ def check(conf, token, prev, next, nextnext, context):
           isinstance(next, yaml.ScalarToken)):
         # This check is done because KeyTokens can be found inside flow
         # sequences... strange, but allowed.
-        if (
-            len(context['stack']) > 0
-            and context['stack'][-1].type == MAP
-            and not any(re.search(r, next.value) for r in conf['ignored-keys'])
-        ):
-            if any(
-                strcoll(next.value, key) < 0
-                for key in context['stack'][-1].keys
-            ):
+        if (len(context['stack']) > 0 and context['stack'][-1].type == MAP and
+                not any(re.search(r, next.value)
+                        for r in conf['ignored-keys'])):
+            if any(strcoll(next.value, key) < 0
+                   for key in context['stack'][-1].keys):
                 yield LintProblem(
                     next.start_mark.line + 1, next.start_mark.column + 1,
                     f'wrong ordering of key "{next.value}" in mapping')
