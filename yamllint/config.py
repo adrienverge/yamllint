@@ -31,6 +31,7 @@ class YamlLintConfig:
         assert (content is None) ^ (file is None)
 
         self.ignore = None
+        self.config_dir = None
 
         self.yaml_files = pathspec.PathSpec.from_lines(
             'gitwildmatch', ['*.yaml', '*.yml', '.yamllint'])
@@ -38,6 +39,7 @@ class YamlLintConfig:
         self.locale = None
 
         if file is not None:
+            self.config_dir = os.path.dirname(file)
             with open(file) as f:
                 content = f.read()
 
@@ -45,6 +47,8 @@ class YamlLintConfig:
         self.validate()
 
     def is_file_ignored(self, filepath):
+        if self.config_dir:
+            filepath = os.path.relpath(filepath, start=self.config_dir)
         return self.ignore and self.ignore.match_file(filepath)
 
     def is_yaml_file(self, filepath):
@@ -109,6 +113,11 @@ class YamlLintConfig:
                 raise YamlLintConfigError(
                     'invalid config: ignore-from-file should contain '
                     'filename(s), either as a list or string')
+            if self.config_dir is not None:
+                conf['ignore-from-file'] = [
+                    f if os.path.basename(f) != f
+                    else os.path.join(self.config_dir, f)
+                    for f in conf['ignore-from-file']]
             with fileinput.input(conf['ignore-from-file']) as f:
                 self.ignore = pathspec.PathSpec.from_lines('gitwildmatch', f)
         elif 'ignore' in conf:
@@ -145,10 +154,12 @@ class YamlLintConfig:
             except Exception as e:
                 raise YamlLintConfigError(f'invalid config: {e}') from e
 
-            self.rules[id] = validate_rule_conf(rule, self.rules[id])
+            self.rules[id] = validate_rule_conf(rule,
+                                                self.rules[id],
+                                                self.config_dir)
 
 
-def validate_rule_conf(rule, conf):
+def validate_rule_conf(rule, conf, config_dir=None):
     if conf is False:  # disable
         return False
 
@@ -163,6 +174,11 @@ def validate_rule_conf(rule, conf):
                 raise YamlLintConfigError(
                     'invalid config: ignore-from-file should contain '
                     'valid filename(s), either as a list or string')
+            if config_dir is not None:
+                conf['ignore-from-file'] = [
+                    f if os.path.basename(f) != f
+                    else os.path.join(config_dir, f)
+                    for f in conf['ignore-from-file']]
             with fileinput.input(conf['ignore-from-file']) as f:
                 conf['ignore'] = pathspec.PathSpec.from_lines(
                     'gitwildmatch', f)
