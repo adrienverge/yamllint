@@ -481,6 +481,12 @@ class QuotedValuesTestCase(RuleTestCase):
         self.check('---\n'
                    'k1: "\\u001b"\n',
                    conf)
+        self.check('---\n'
+                   "k1: '\\u001b'\n",
+                   conf, problem=(2, 5))
+        self.check('---\n'
+                   'k1: \\u001b\n',
+                   conf)
         self.assertRaises(yaml.reader.ReaderError, self.check,
                           '---\n'
                           'k1: "\u001b"\n',
