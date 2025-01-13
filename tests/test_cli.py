@@ -499,7 +499,7 @@ class CommandLineTestCase(unittest.TestCase):
 
         # Create a pseudo-TTY and redirect stdout to it
         master, slave = pty.openpty()
-        sys.stdout = sys.stderr = os.fdopen(slave, 'w')
+        sys.stdout = os.fdopen(slave, 'w')
 
         with self.assertRaises(SystemExit) as ctx:
             cli.run((path, ))
@@ -514,7 +514,6 @@ class CommandLineTestCase(unittest.TestCase):
         out = output.read().replace('\r\n', '\n')
 
         sys.stdout.close()
-        sys.stderr.close()
         output.close()
 
         self.assertEqual(out, (
