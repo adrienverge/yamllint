@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import fcntl
 import locale
 import os
 import pty
@@ -510,8 +509,7 @@ class CommandLineTestCase(unittest.TestCase):
 
         # Read output from TTY
         output = os.fdopen(master, 'r')
-        flag = fcntl.fcntl(master, fcntl.F_GETFD)
-        fcntl.fcntl(master, fcntl.F_SETFL, flag | os.O_NONBLOCK)
+        os.set_blocking(master, False)
 
         out = output.read().replace('\r\n', '\n')
 
