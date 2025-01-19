@@ -498,6 +498,29 @@ class IgnoreConfigTestCase(unittest.TestCase):
             config.YamlLintConfig, 'extends: default\n'
                                    'ignore-from-file: not_found_file\n')
 
+    def test_ignore_from_file_exist(self):
+        with open(os.path.join(self.wd, '.gitignore'), 'w') as f:
+            f.write('*.dont-lint-me.yaml\n'
+                    '/bin/\n'
+                    '!/bin/*.lint-me-anyway.yaml\n')
+        parsed = config.YamlLintConfig('extends: default\n'
+                                       'ignore-from-file: .gitignore\n')
+        assert parsed.is_file_ignored("/bin/ignored") is True
+
+    def test_ignore_from_file_from_subdir_fails_without_config_file(self):
+        with open(os.path.join(self.wd, '.gitignore'), 'w') as f:
+            f.write('*.dont-lint-me.yaml\n'
+                    '/bin/\n'
+                    '!/bin/*.lint-me-anyway.yaml\n')
+        try:
+            os.chdir(os.path.join(self.wd, 'bin'))
+            self.assertRaises(
+                FileNotFoundError,
+                config.YamlLintConfig, 'extends: default\n'
+                                       'ignore-from-file: .gitignore\n')
+        finally:
+            os.chdir(self.wd)
+
     def test_ignore_from_file_incorrect_type(self):
         self.assertRaises(
             YamlLintConfigError,
@@ -720,6 +743,74 @@ class IgnoreConfigTestCase(unittest.TestCase):
             './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:4:17: ' + trailing,
             './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:5:5: ' + hyphen,
         )))
+
+    def test_run_in_subdir_with_ignore_from_file(self):
+        with open(os.path.join(self.wd, '.yamllint'), 'w') as f:
+            f.write('extends: default\n'
+                    'ignore-from-file: .gitignore\n'
+                    'rules:\n'
+                    '  key-duplicates:\n'
+                    '    ignore-from-file: .ignore-key-duplicates\n')
+
+        with open(os.path.join(self.wd, '.gitignore'), 'w') as f:
+            f.write('*.dont-lint-me.yaml\n'
+                    '/bin/\n'
+                    '!/bin/*.lint-me-anyway.yaml\n')
+
+        with open(os.path.join(self.wd, '.ignore-key-duplicates'), 'w') as f:
+            f.write('/ign-dup\n')
+
+        sys.stdout = StringIO()
+        try:
+            os.chdir(os.path.join(self.wd, 'bin'))
+            with self.assertRaises(SystemExit):
+                cli.run(('-f', 'parsable', '.'))
+        finally:
+            os.chdir(self.wd)
+
+        out = sys.stdout.getvalue()
+        out = '\n'.join(sorted(out.splitlines()))
+
+        keydup = '[error] duplication of key "key" in mapping (key-duplicates)'
+        trailing = '[error] trailing spaces (trailing-spaces)'
+        hyphen = '[error] too many spaces after hyphen (hyphens)'
+
+        self.assertEqual(out, '\n'.join((
+            './file.lint-me-anyway.yaml:3:3: ' + keydup,
+            './file.lint-me-anyway.yaml:4:17: ' + trailing,
+            './file.lint-me-anyway.yaml:5:5: ' + hyphen,
+        )))
+
+    def test_run_in_subdir_with_ignore_from_file_in_subdir(self):
+        if os.path.exists(os.path.join(self.wd, '.gitignore')):
+            os.remove(os.path.join(self.wd, '.gitignore'))
+        with open(os.path.join(self.wd, '.yamllint'), 'w') as f:
+            f.write('extends: default\n'
+                    'ignore-from-file: .gitignore\n'
+                    'rules:\n'
+                    '  key-duplicates:\n'
+                    '    ignore-from-file: .ignore-key-duplicates\n')
+
+        with open(os.path.join(self.wd, 'bin', '.gitignore'), 'w') as f:
+            f.write('*.dont-lint-me.yaml\n'
+                    '/bin/\n'
+                    '!/bin/*.lint-me-anyway.yaml\n')
+
+        with open(os.path.join(self.wd, '.ignore-key-duplicates'), 'w') as f:
+            f.write('/ign-dup\n')
+
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+        try:
+            os.chdir(os.path.join(self.wd, 'bin'))
+            with self.assertRaises(FileNotFoundError):
+                cli.run(('-f', 'parsable', '.'))
+        finally:
+            os.chdir(self.wd)
+
+        out = sys.stdout.getvalue()
+
+        self.assertEqual(out, '')
 
     def test_run_with_ignored_from_file(self):
         with open(os.path.join(self.wd, '.yamllint'), 'w') as f:
