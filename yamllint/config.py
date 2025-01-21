@@ -36,6 +36,7 @@ class YamlLintConfig:
             'gitwildmatch', ['*.yaml', '*.yml', '.yamllint'])
 
         self.locale = None
+        self.no_warnings = False
 
         if file is not None:
             with open(file) as f:
@@ -137,6 +138,12 @@ class YamlLintConfig:
                 raise YamlLintConfigError(
                     'invalid config: locale should be a string')
             self.locale = conf['locale']
+
+        if 'no-warnings' in conf:
+            if not isinstance(conf['no-warnings'], bool):
+                raise YamlLintConfigError(
+                    'invalid config: no-warnings should be a bool')
+            self.no_warnings = bool(conf['no-warnings'])
 
     def validate(self):
         for id in self.rules:
