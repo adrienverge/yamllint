@@ -37,6 +37,11 @@ from yamllint.rules import (
     quoted_strings,
     trailing_spaces,
     truthy,
+    forbid_null,
+    forbid_bool,
+    forbid_int,
+    forbid_float,
+    forbid_str,
 )
 
 _RULES = {
@@ -63,6 +68,11 @@ _RULES = {
     quoted_strings.ID: quoted_strings,
     trailing_spaces.ID: trailing_spaces,
     truthy.ID: truthy,
+    forbid_null.ID: forbid_null,
+    forbid_bool.ID: forbid_bool,
+    forbid_int.ID: forbid_int,
+    forbid_float.ID: forbid_float,
+    forbid_str.ID: forbid_str,
 }
 
 
