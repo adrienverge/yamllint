@@ -229,7 +229,13 @@ def run(input, conf, filepath=None):
         return _run(input, conf, filepath)
     elif isinstance(input, io.IOBase):
         # We need to have everything in memory to parse correctly
-        content = input.read()
+        if hasattr(input, 'encoding') and input.encoding:
+            if input.encoding.lower() != 'utf-8' and hasattr(input, 'buffer'):
+                content = input.buffer.read().decode('utf-8')
+            else:
+                content = input.read()
+        else:
+            content = input.read().decode('utf-8')
         return _run(content, conf, filepath)
     else:
         raise TypeError('input should be a string or a stream')
