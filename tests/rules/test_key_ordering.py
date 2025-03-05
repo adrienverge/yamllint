@@ -147,3 +147,25 @@ class KeyOrderingTestCase(RuleTestCase):
                    'hais: true\n'
                    'haïr: true\n', conf,
                    problem=(3, 1))
+
+    def test_ignored_keys(self):
+        conf = ('key-ordering:\n'
+                '  ignored-keys: ["n(a|o)me", "^b"]\n')
+        self.check('---\n'
+                   'a:\n'
+                   'b:\n'
+                   'c:\n'
+                   'name: ignored\n'
+                   'first-name: ignored\n'
+                   'nome: ignored\n'
+                   'gnomes: ignored\n'
+                   'd:\n'
+                   'e:\n'
+                   'boat: ignored\n'
+                   '.boat: ERROR\n'
+                   'call: ERROR\n'
+                   'f:\n'
+                   'g:\n',
+                   conf,
+                   problem1=(12, 1),
+                   problem2=(13, 1))
