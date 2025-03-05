@@ -20,6 +20,19 @@ ordering is case-sensitive and not accent-friendly (see examples below).
 This can be changed by setting the global ``locale`` option.  This allows one
 to sort case and accents properly.
 
+.. rubric:: Options
+
+* ``ignored-keys`` is a list of PCRE regexes to ignore some keys while checking
+  order, if they match any regex.
+
+.. rubric:: Default values (when enabled)
+
+.. code-block:: yaml
+
+ rules:
+   key-ordering:
+     ignored-keys: []
+
 .. rubric:: Examples
 
 #. With ``key-ordering: {}``
@@ -78,8 +91,21 @@ to sort case and accents properly.
       haïr: true
       hais: true
       haïssable: true
+
+#. With rule ``key-ordering: {ignored-keys: ["name"]}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    - a:
+      b:
+      name: ignored
+      first-name: ignored
+      c:
+      d:
 """
 
+import re
 from locale import strcoll
 
 import yaml
@@ -89,6 +115,8 @@ from yamllint.linter import LintProblem
 ID = 'key-ordering'
 TYPE = 'token'
 
+CONF = {'ignored-keys': [str]}
+DEFAULT = {'ignored-keys': []}
 MAP, SEQ = range(2)
 
 
@@ -116,7 +144,9 @@ def check(conf, token, prev, next, nextnext, context):
           isinstance(next, yaml.ScalarToken)):
         # This check is done because KeyTokens can be found inside flow
         # sequences... strange, but allowed.
-        if len(context['stack']) > 0 and context['stack'][-1].type == MAP:
+        if (len(context['stack']) > 0 and context['stack'][-1].type == MAP and
+                not any(re.search(r, next.value)
+                        for r in conf['ignored-keys'])):
             if any(strcoll(next.value, key) < 0
                    for key in context['stack'][-1].keys):
                 yield LintProblem(
