@@ -227,6 +227,7 @@ or:
  ignore-from-file: [.gitignore, .yamlignore]
 
 .. note:: However, this is mutually exclusive with the ``ignore`` key.
+          Also, this filepath is considered relative to the config file.
 
 If you need to know the exact list of files that yamllint would process,
 without really linting them, you can use ``--list-files``:
