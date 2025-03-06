@@ -747,7 +747,7 @@ class CommandLineConfigTestCase(unittest.TestCase):
                                  (0, './a.yml:1:1: [warning] missing document '
                                      'start "---" (document-start)\n', ''))
 
-                with temp_workspace({**workspace, **{conf_file: conf}}):
+                with temp_workspace({**workspace, conf_file: conf}):
                     with RunContext(self) as ctx:
                         cli.run(('-f', 'parsable', '.'))
 
@@ -771,7 +771,7 @@ class CommandLineConfigTestCase(unittest.TestCase):
                                      'document start "---" (document-start)\n',
                                      ''))
 
-                with temp_workspace({**workspace, **{conf_file: conf}}):
+                with temp_workspace({**workspace, conf_file: conf}):
                     with RunContext(self) as ctx:
                         os.chdir('a/b/c/d/e/f')
                         cli.run(('-f', 'parsable', '.'))
@@ -806,7 +806,7 @@ class CommandLineConfigTestCase(unittest.TestCase):
                          (0, './3spaces.yml:2:4: [warning] wrong indentation: '
                          'expected 4 but found 3 (indentation)\n', ''))
 
-        with temp_workspace({**workspace, **{'a/b/.yamllint.yml': conf3}}):
+        with temp_workspace({**workspace, 'a/b/.yamllint.yml': conf3}):
             with RunContext(self) as ctx:
                 os.chdir('a/b/c')
                 cli.run(('-f', 'parsable', '.'))
