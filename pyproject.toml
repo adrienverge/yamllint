@@ -2,7 +2,7 @@
 name = "yamllint"
 description = "A linter for YAML files."
 readme = {file = "README.rst", content-type = "text/x-rst"}
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {text = "GPL-3.0-or-later"}
 authors = [{name = "Adrien Vergé"}]
 keywords = ["yaml", "lint", "linter", "syntax", "checker"]
