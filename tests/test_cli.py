@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import fcntl
 import locale
 import os
 import pty
@@ -500,7 +499,7 @@ class CommandLineTestCase(unittest.TestCase):
 
         # Create a pseudo-TTY and redirect stdout to it
         master, slave = pty.openpty()
-        sys.stdout = sys.stderr = os.fdopen(slave, 'w')
+        sys.stdout = os.fdopen(slave, 'w')
 
         with self.assertRaises(SystemExit) as ctx:
             cli.run((path, ))
@@ -510,13 +509,11 @@ class CommandLineTestCase(unittest.TestCase):
 
         # Read output from TTY
         output = os.fdopen(master, 'r')
-        flag = fcntl.fcntl(master, fcntl.F_GETFD)
-        fcntl.fcntl(master, fcntl.F_SETFL, flag | os.O_NONBLOCK)
+        os.set_blocking(master, False)
 
         out = output.read().replace('\r\n', '\n')
 
         sys.stdout.close()
-        sys.stderr.close()
         output.close()
 
         self.assertEqual(out, (
@@ -750,7 +747,7 @@ class CommandLineConfigTestCase(unittest.TestCase):
                                  (0, './a.yml:1:1: [warning] missing document '
                                      'start "---" (document-start)\n', ''))
 
-                with temp_workspace({**workspace, **{conf_file: conf}}):
+                with temp_workspace({**workspace, conf_file: conf}):
                     with RunContext(self) as ctx:
                         cli.run(('-f', 'parsable', '.'))
 
@@ -774,7 +771,7 @@ class CommandLineConfigTestCase(unittest.TestCase):
                                      'document start "---" (document-start)\n',
                                      ''))
 
-                with temp_workspace({**workspace, **{conf_file: conf}}):
+                with temp_workspace({**workspace, conf_file: conf}):
                     with RunContext(self) as ctx:
                         os.chdir('a/b/c/d/e/f')
                         cli.run(('-f', 'parsable', '.'))
@@ -809,7 +806,7 @@ class CommandLineConfigTestCase(unittest.TestCase):
                          (0, './3spaces.yml:2:4: [warning] wrong indentation: '
                          'expected 4 but found 3 (indentation)\n', ''))
 
-        with temp_workspace({**workspace, **{'a/b/.yamllint.yml': conf3}}):
+        with temp_workspace({**workspace, 'a/b/.yamllint.yml': conf3}):
             with RunContext(self) as ctx:
                 os.chdir('a/b/c')
                 cli.run(('-f', 'parsable', '.'))
