@@ -228,6 +228,21 @@ or:
 
 .. note:: However, this is mutually exclusive with the ``ignore`` key.
 
+.. note:: Files on the ``ignore-from-file`` list should use either UTF-8,
+   UTF-16 or UTF-32. Additionally, they should start with either an ASCII
+   character or a byte order mark.
+
+   If you have an ignore file that doesn’t follow those two rules, then you can
+   set the ``YAMLLINT_FILE_ENCODING`` environment variable to the name of the
+   character encoding that you want yamllint to use for ignore files.
+   Specifically, ``YAMLLINT_FILE_ENCODING`` should be set to `the name of one
+   of Python’s standard character encodings
+   <https://docs.python.org/3/library/codecs.html#standard-encodings>`_. Please
+   note, this should only be used as a temporary solution in order to make it
+   easier to migrate from older versions of yamllint to newer versions of
+   yamllint. See :doc:`Character Encoding Override
+   <character_encoding_override>` for details.
+
 If you need to know the exact list of files that yamllint would process,
 without really linting them, you can use ``--list-files``:
 
