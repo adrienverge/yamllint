@@ -231,7 +231,10 @@ def run(argv=None):
     # read yaml from stdin
     if args.stdin:
         try:
-            problems = linter.run(sys.stdin, conf, '')
+            # The .buffer part makes sure that we get the raw bytes. We need to
+            # get the raw bytes so that we can autodetect the character
+            # encoding.
+            problems = linter.run(sys.stdin.buffer, conf, '')
         except OSError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)

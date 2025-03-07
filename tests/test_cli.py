@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import glob
 import locale
 import os
 import pty
@@ -21,7 +22,6 @@ import shutil
 import sys
 import tempfile
 import unittest
-from io import StringIO
 
 from tests.common import (
     RunContext,
@@ -607,20 +607,32 @@ class CommandLineTestCase(unittest.TestCase):
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
     def test_run_read_from_stdin(self):
-        # prepares stdin with an invalid yaml string so that we can check
-        # for its specific error, and be assured that stdin was read
         self.addCleanup(setattr, sys, 'stdin', sys.__stdin__)
-        sys.stdin = StringIO(
-            'I am a string\n'
-            'therefore: I am an error\n')
+        # Normally, I would just use tempfile.TemporaryFile(), but here I want
+        # to first open the file for writing and then open it for reading. In
+        # other words, I need to make sure that the file continues to exist
+        # after I close it for the fist time. That’s why I’m using
+        # tempfile.TemporaryDirectory() instead of tempfile.TemporaryFile().
+        with tempfile.TemporaryDirectory() as temp_dir_path:
+            stdin_file_path = os.path.join(temp_dir_path, 'stdin')
+            with open(stdin_file_path, mode='w', encoding='utf_8') as file:
+                file.write(
+                    'I am a string\n'
+                    'therefore: I am an error\n')
+            with open(stdin_file_path, mode='r', encoding='utf-8') as file:
+                # prepares stdin with an invalid yaml string so that we can
+                # check for its specific error, and be assured that stdin was
+                # read
+                sys.stdin = file
 
-        with RunContext(self) as ctx:
-            cli.run(('-', '-f', 'parsable'))
-        expected_out = (
-            'stdin:2:10: [error] syntax error: '
-            'mapping values are not allowed here (syntax)\n')
-        self.assertEqual(
-            (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+                with RunContext(self) as ctx:
+                    cli.run(('-', '-f', 'parsable'))
+                expected_out = (
+                    'stdin:2:10: [error] syntax error: '
+                    'mapping values are not allowed here (syntax)\n')
+                self.assertEqual(
+                    (ctx.returncode, ctx.stdout, ctx.stderr),
+                    (1, expected_out, ''))
 
     def test_run_no_warnings(self):
         path = os.path.join(self.wd, 'a.yaml')
@@ -817,7 +829,35 @@ class CommandLineEncodingTestCase(unittest.TestCase):
         super().tearDownClass()
         unregister_test_codecs()
 
+    def valid_encodings_stdin_test_helper(
+        self,
+        config_path,
+        root_dir,
+        old_stdin
+    ):
+        for path in glob.glob(os.path.join(root_dir, '**')):
+            # We purposely choose the wrong text encoding here because the text
+            # encoding shouldn’t matter. yamllint should completely ignore the
+            # text encoding of stdin.
+            with open(path, mode="r", encoding="cp037") as file:
+                sys.stdin = file
+                with RunContext(self) as ctx:
+                    cli.run(('-c', config_path, '-'))
+                sys.stdin = old_stdin
+                if root_dir == 'sorted_correctly':
+                    self.assertEqual(ctx.returncode, 0)
+                elif root_dir == 'sorted_incorrectly':
+                    self.assertNotEqual(ctx.returncode, 0)
+                else:
+                    raise ValueError(
+                        f"root_dir was set to {repr(root_dir)}. It should only"
+                        "ever be set to 'sorted_correctly' or"
+                        "'sorted_incorrectly'."
+                    )
+
     def test_valid_encodings(self):
+        old_stdin = sys.stdin
+        self.addCleanup(setattr, sys, 'stdin', old_stdin)
         conf = ('---\n'
                 'rules:\n'
                 '  key-ordering: enable\n')
@@ -847,9 +887,23 @@ class CommandLineEncodingTestCase(unittest.TestCase):
 
         with temp_workspace(workspace):
             for config_path in config_files.keys():
+                # First, make sure that encoding autodetection works when the
+                # file’s path is given as a command-line argument.
                 with RunContext(self) as ctx:
                     cli.run(('-c', config_path, 'sorted_correctly'))
                 self.assertEqual(ctx.returncode, 0)
                 with RunContext(self) as ctx:
                     cli.run(('-c', config_path, 'sorted_incorrectly'))
                 self.assertNotEqual(ctx.returncode, 0)
+                # Second, make sure that encoding autodetection works when the
+                # file is piped to yamllint via stdin.
+                self.valid_encodings_stdin_test_helper(
+                    config_path,
+                    'sorted_correctly',
+                    old_stdin
+                )
+                self.valid_encodings_stdin_test_helper(
+                    config_path,
+                    'sorted_incorrectly',
+                    old_stdin
+                )
