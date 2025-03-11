@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.36.0 (2025-03-11)
+-------------------
+
+- Add support for Python 3.13, drop support for Python 3.8
+- Rule ``key-ordering``: add ``ignored-keys`` option
+- Rule ``quoted-strings``: fix ``only-when-needed`` and escaped special chars
+- Fix TTY-related tests on Python 3.14
+- Docs: fix import of ``yamllint.config`` rather than ``yamllint``
+
 1.35.1 (2024-02-16)
 -------------------
 
