@@ -38,26 +38,6 @@ def utf8_available():
         return True
 
 
-def setUpModule():
-    # yamllint uses these environment variables to find a config file.
-    env_vars_that_could_interfere = (
-        'YAMLLINT_CONFIG_FILE',
-        'XDG_CONFIG_HOME',
-        # These variables are used to determine where the user’s home
-        # directory is. See
-        # https://docs.python.org/3/library/os.path.html#os.path.expanduser
-        'HOME',
-        'USERPROFILE',
-        'HOMEPATH',
-        'HOMEDRIVE'
-    )
-    for name in env_vars_that_could_interfere:
-        try:
-            del os.environ[name]
-        except KeyError:
-            pass
-
-
 class CommandLineTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
