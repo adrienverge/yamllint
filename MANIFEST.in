@@ -1,0 +1,3 @@
+include *.rst
+include docs/Makefile docs/*.py docs/*.rst docs/*.png
+include tests/*.py tests/rules/*.py tests/yaml-1.2-spec-examples/example-*

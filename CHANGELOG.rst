@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.36.1 (2025-03-15)
+-------------------
+
+- Publish PyPI releases using GitHub Actions workflows
+
 1.36.0 (2025-03-11)
 -------------------
 

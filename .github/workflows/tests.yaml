@@ -1,6 +1,6 @@
 ---
 
-name: CI
+name: Tests
 
 on:  # yamllint disable-line rule:truthy
   push:
@@ -33,7 +33,7 @@ jobs:
         run: make -C docs linkcheck
 
   test:
-    name: Tests
+    name: Unit tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
