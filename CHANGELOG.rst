@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.36.2 (2025-03-17)
+-------------------
+
+- Build: Restore missing documentation and tests in sdist
+
 1.36.1 (2025-03-15)
 -------------------
 
