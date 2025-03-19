@@ -55,6 +55,10 @@ class LinterTestCase(unittest.TestCase):
         linter.run(s, self.fake_config())
         linter.run(s.encode('utf-8'), self.fake_config())
 
+    def test_run_on_ansible_vault(self):
+        linter.run('$ANSIBLE_VAULT;1.1;AES256\n1643039736532396535663733313\n',
+                   self.fake_config())
+
     def test_linter_problem_repr_without_rule(self):
         problem = linter.LintProblem(1, 2, 'problem')
 
