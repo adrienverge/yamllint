@@ -8,19 +8,29 @@ jobs:
   build:
     name: Build distribution package
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Fetch tags
+        if: github.ref_type != 'tag'
+        run: git fetch --prune --unshallow --tags
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
       - name: Install pypa/build
-        run: python -m pip install --user build
+        run: python -m pip install build twine
+      - name: Add '.devN' to version for non-tag builds
+        if: github.ref_type != 'tag'
+        run:
+          sed -i
+          "/^APP_VERSION = /s/'$/.dev$(git describe --tags | cut -d- -f2)'/"
+          yamllint/__init__.py
       - name: Build a binary wheel and a source tarball
         run: python -m build
+      - name: Twine check the distribution packages
+        run: python -Im twine check --strict dist/yamllint-*
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
         with:
@@ -29,6 +39,7 @@ jobs:
 
   publish-to-testpypi:
     name: Publish distribution package to TestPyPI
+    if: github.ref_name == github.event.repository.default_branch
     needs: build
     runs-on: ubuntu-latest
     environment:
@@ -46,11 +57,10 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
-          skip-existing: true
 
   publish-to-pypi:
     name: Publish distribution package to PyPI
-    if: startsWith(github.ref, 'refs/tags/')  # only for tags
+    if: github.ref_type == 'tag'
     needs: build
     runs-on: ubuntu-latest
     environment:
