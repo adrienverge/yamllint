@@ -86,11 +86,12 @@ DEFAULT = {'require-starting-space': True,
 
 
 def check(conf, comment):
-    if (conf['min-spaces-from-content'] != -1 and comment.is_inline() and
+    expected = conf['min-spaces-from-content']
+    if (expected != -1 and comment.is_inline() and
             comment.pointer - comment.token_before.end_mark.pointer <
-            conf['min-spaces-from-content']):
+            expected):
         yield LintProblem(comment.line_no, comment.column_no,
-                          'too few spaces before comment')
+                          f'too few spaces before comment, expected {expected}')
 
     if conf['require-starting-space']:
         text_start = comment.pointer + 1
