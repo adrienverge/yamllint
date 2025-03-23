@@ -24,8 +24,9 @@ jobs:
       - name: Add '.devN' to version for non-tag builds
         if: github.ref_type != 'tag'
         run:
+          N=$(git describe --tags --long | cut -d- -f2);
           sed -i
-          "/^APP_VERSION = /s/'$/.dev$(git describe --tags | cut -d- -f2)'/"
+          "/^APP_VERSION = /s/'$/.dev$N'/"
           yamllint/__init__.py
       - name: Build a binary wheel and a source tarball
         run: python -m build
