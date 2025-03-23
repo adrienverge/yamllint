@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.37.0 (2025-03-23)
+-------------------
+
+- Automatically detect Unicode character encoding of files
+- Publish pushes to master branch to TestPyPI
+
 1.36.2 (2025-03-17)
 -------------------
 
