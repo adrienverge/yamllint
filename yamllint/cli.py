@@ -18,7 +18,7 @@ import locale
 import os
 import platform
 import sys
-import concurrent.futures
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION, linter
 from yamllint.config import YamlLintConfig, YamlLintConfigError
@@ -248,19 +248,19 @@ def run(argv=None):
     problem_levels = []
     future_to_file = {}
 
-    with concurrent.futures.ProcessPoolExecutor(max_workers=proc_count) as executor:
+    with ProcessPoolExecutor(max_workers=proc_count) as executor:
         for file in find_files_recursively(args.files, conf):
             future = executor.submit(process_file, file, conf)
             future_to_file[future] = file
 
-        for future in concurrent.futures.as_completed(future_to_file):
+        for future in as_completed(future_to_file):
             file = future_to_file[future]
             try:
                 problems = future.result()
                 prob_level = show_problems(problems,
-                                file,
-                                args_format=args.format,
-                                no_warn=args.no_warnings)
+                                           file,
+                                           args_format=args.format,
+                                           no_warn=args.no_warnings)
                 problem_levels.append(prob_level)
             except Exception as exc:
                 print(f"Error processing file: {file}: {exc}")
