@@ -145,6 +145,13 @@ def find_project_config_filepath(path='.'):
 
 
 def process_file(args):
+    """
+    Opens a file, runs it through the linter, and returns problems
+
+    We pass an args tuple of (file, conf) because of the limitations
+    of multiprocessing.imap() only being able to pass one argument to
+    the function at a time.
+    """
     file, conf = args
     filepath = file.removeprefix('./')
     try:
