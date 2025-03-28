@@ -19,6 +19,7 @@ import os
 import platform
 import sys
 import multiprocessing
+import concurrent.futures
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION, linter
 from yamllint.config import YamlLintConfig, YamlLintConfigError
@@ -144,7 +145,7 @@ def find_project_config_filepath(path='.'):
     return find_project_config_filepath(path=os.path.join(path, '..'))
 
 
-def process_file(args):
+def process_file(file, conf):
     """
     Opens a file, runs it through the linter, and returns problems
 
@@ -152,7 +153,6 @@ def process_file(args):
     of multiprocessing.imap() only being able to pass one argument to
     the function at a time.
     """
-    file, conf = args
     filepath = file.removeprefix('./')
     try:
         with open(file, mode='rb') as f:
@@ -160,7 +160,7 @@ def process_file(args):
     except OSError as e:
         print(e, file=sys.stderr)
         sys.exit(-1)
-    return list(problems), file
+    return list(problems)
 
 
 def run(argv=None):
@@ -243,21 +243,25 @@ def run(argv=None):
     else:
         proc_count = args.num_procs
 
-    process_pool = multiprocessing.Pool(proc_count)
-
-    result = process_pool.imap(
-        process_file,
-        ((file, conf) for file in find_files_recursively(args.files, conf)),
-    )
-
     problem_levels = []
+    future_to_file = {}
 
-    for problems, file in result:
-        prob_level = show_problems(problems,
-                                   file,
-                                   args_format=args.format,
-                                   no_warn=args.no_warnings)
-        problem_levels.append(prob_level)
+    with concurrent.futures.ProcessPoolExecutor(max_workers=proc_count) as executor:
+        for file in find_files_recursively(args.files, conf):
+            future = executor.submit(process_file, file, conf)
+            future_to_file[future] = file
+
+        for future in concurrent.futures.as_completed(future_to_file):
+            file = future_to_file[future]
+            try:
+                problems = future.result()
+                prob_level = show_problems(problems,
+                                file,
+                                args_format=args.format,
+                                no_warn=args.no_warnings)
+                problem_levels.append(prob_level)
+            except Exception as exc:
+                print(f"Error processing file: {file}: {exc}")
 
     max_level = max(problem_levels)
 
