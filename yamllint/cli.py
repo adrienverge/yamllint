@@ -18,6 +18,7 @@ import locale
 import os
 import platform
 import sys
+import multiprocessing
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION, linter
 from yamllint.config import YamlLintConfig, YamlLintConfigError
@@ -143,6 +144,18 @@ def find_project_config_filepath(path='.'):
     return find_project_config_filepath(path=os.path.join(path, '..'))
 
 
+def process_file(args):
+    file, conf = args
+    filepath = file.removeprefix('./')
+    try:
+        with open(file, mode='rb') as f:
+            problems = linter.run(f, conf, filepath)
+    except OSError as e:
+        print(e, file=sys.stderr)
+        sys.exit(-1)
+    return list(problems), file
+
+
 def run(argv=None):
     parser = argparse.ArgumentParser(prog=APP_NAME,
                                      description=APP_DESCRIPTION)
@@ -174,6 +187,10 @@ def run(argv=None):
                         help='output only error level problems')
     parser.add_argument('-v', '--version', action='version',
                         version=f'{APP_NAME} {APP_VERSION}')
+    parser.add_argument('-p', '--processes', dest='num_procs',
+                        default=1, type=int,
+                        help='Number of concurrent processes to use, '
+                        'or 0 for one process per CPU core; default: 1')
 
     args = parser.parse_args(argv)
 
@@ -214,19 +231,28 @@ def run(argv=None):
                 print(file)
         sys.exit(0)
 
-    max_level = 0
+    if args.num_procs == 0:
+        proc_count = multiprocessing.cpu_count()
+    else:
+        proc_count = args.num_procs
 
-    for file in find_files_recursively(args.files, conf):
-        filepath = file.removeprefix('./')
-        try:
-            with open(file, mode='rb') as f:
-                problems = linter.run(f, conf, filepath)
-        except OSError as e:
-            print(e, file=sys.stderr)
-            sys.exit(-1)
-        prob_level = show_problems(problems, file, args_format=args.format,
+    process_pool = multiprocessing.Pool(proc_count)
+
+    result = process_pool.imap(
+        process_file,
+        ((file, conf) for file in find_files_recursively(args.files, conf)),
+    )
+
+    problem_levels = []
+
+    for problems, file in result:
+        prob_level = show_problems(problems,
+                                   file,
+                                   args_format=args.format,
                                    no_warn=args.no_warnings)
-        max_level = max(max_level, prob_level)
+        problem_levels.append(prob_level)
+
+    max_level = max(problem_levels)
 
     # read yaml from stdin
     if args.stdin:
