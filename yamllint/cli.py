@@ -18,7 +18,6 @@ import locale
 import os
 import platform
 import sys
-import multiprocessing
 import concurrent.futures
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION, linter
@@ -239,7 +238,10 @@ def run(argv=None):
         sys.exit(0)
 
     if args.num_procs == 0:
-        proc_count = multiprocessing.cpu_count()
+        try:
+            proc_count = os.process_cpu_count()
+        except AttributeError:
+            proc_count = os.cpu_count()
     else:
         proc_count = args.num_procs
 
