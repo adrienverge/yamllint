@@ -90,7 +90,8 @@ def check(conf, comment):
             comment.pointer - comment.token_before.end_mark.pointer <
             conf['min-spaces-from-content']):
         yield LintProblem(comment.line_no, comment.column_no,
-                          'too few spaces before comment')
+                          'too few spaces before comment: expected '
+                          f'{conf["min-spaces-from-content"]}')
 
     if conf['require-starting-space']:
         text_start = comment.pointer + 1
