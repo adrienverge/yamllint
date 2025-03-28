@@ -18,6 +18,7 @@ import locale
 import os
 import platform
 import sys
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION, linter
 from yamllint.config import YamlLintConfig, YamlLintConfigError
@@ -143,6 +144,24 @@ def find_project_config_filepath(path='.'):
     return find_project_config_filepath(path=os.path.join(path, '..'))
 
 
+def process_file(file, conf):
+    """
+    Opens a file, runs it through the linter, and returns problems
+
+    We pass an args tuple of (file, conf) because of the limitations
+    of multiprocessing.imap() only being able to pass one argument to
+    the function at a time.
+    """
+    filepath = file.removeprefix('./')
+    try:
+        with open(file, mode='rb') as f:
+            problems = linter.run(f, conf, filepath)
+    except OSError as e:
+        print(e, file=sys.stderr)
+        sys.exit(-1)
+    return list(problems)
+
+
 def run(argv=None):
     parser = argparse.ArgumentParser(prog=APP_NAME,
                                      description=APP_DESCRIPTION)
@@ -174,6 +193,10 @@ def run(argv=None):
                         help='output only error level problems')
     parser.add_argument('-v', '--version', action='version',
                         version=f'{APP_NAME} {APP_VERSION}')
+    parser.add_argument('-p', '--processes', dest='num_procs',
+                        default=1, type=int,
+                        help='Number of concurrent processes to use, '
+                        'or 0 for one process per CPU core; default: 1')
 
     args = parser.parse_args(argv)
 
@@ -214,19 +237,35 @@ def run(argv=None):
                 print(file)
         sys.exit(0)
 
-    max_level = 0
-
-    for file in find_files_recursively(args.files, conf):
-        filepath = file.removeprefix('./')
+    if args.num_procs == 0:
         try:
-            with open(file, mode='rb') as f:
-                problems = linter.run(f, conf, filepath)
-        except OSError as e:
-            print(e, file=sys.stderr)
-            sys.exit(-1)
-        prob_level = show_problems(problems, file, args_format=args.format,
-                                   no_warn=args.no_warnings)
-        max_level = max(max_level, prob_level)
+            proc_count = os.process_cpu_count()
+        except AttributeError:
+            proc_count = os.cpu_count()
+    else:
+        proc_count = args.num_procs
+
+    problem_levels = []
+    future_to_file = {}
+
+    with ProcessPoolExecutor(max_workers=proc_count) as executor:
+        for file in find_files_recursively(args.files, conf):
+            future = executor.submit(process_file, file, conf)
+            future_to_file[future] = file
+
+        for future in as_completed(future_to_file):
+            file = future_to_file[future]
+            try:
+                problems = future.result()
+                prob_level = show_problems(problems,
+                                           file,
+                                           args_format=args.format,
+                                           no_warn=args.no_warnings)
+                problem_levels.append(prob_level)
+            except Exception as exc:
+                print(f"Error processing file: {file}: {exc}")
+
+    max_level = max(problem_levels)
 
     # read yaml from stdin
     if args.stdin:
