@@ -432,6 +432,17 @@ class CommandLineTestCase(unittest.TestCase):
         for line in lines:
             self.assertRegex(line, r'No such file or directory')
 
+    def test_run_with_multiple_processes(self):
+        files = ['sub/ok.yaml']
+        paths = [os.path.join(self.wd, p) for p in files]
+
+        with RunContext(self) as ctx:
+            cli.run(('-f', 'parsable', '--processes', "2", *paths))
+        self.assertEqual(ctx.returncode, 0)
+        self.assertEqual(ctx.stdout, '')
+        self.assertEqual(ctx.stderr, '')
+        self.assertEqual(0, len(ctx.stderr.splitlines()))
+
     def test_run_one_problem_file(self):
         path = os.path.join(self.wd, 'a.yaml')
 
