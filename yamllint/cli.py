@@ -192,10 +192,11 @@ def run(argv=None):
     parser.add_argument('-p', '--processes', dest='num_procs',
                         default=1, type=int,
                         help='Number of concurrent processes to use, '
-                        'or 0 for one process per CPU core; default: 1')
-    parser.add_argument('--continue-on-error', action='store_true', default=False,
+                             'or 0 for one process per CPU core; default: 1')
+    parser.add_argument('--continue-on-error', action='store_true',
+                        default=False,
                         help='Don\'t exit immediately if an error occurs (but'
-                        'still exit with -1 error code on completion)')
+                             'still exit with -1 error code on completion)')
 
     args = parser.parse_args(argv)
 
