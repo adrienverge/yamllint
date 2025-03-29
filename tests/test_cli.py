@@ -437,7 +437,7 @@ class CommandLineTestCase(unittest.TestCase):
         paths = [os.path.join(self.wd, p) for p in files]
 
         with RunContext(self) as ctx:
-            cli.run(('-f', 'parsable', '--processes', "2", *paths))
+            cli.run(('-f', 'parsable', '--processes', '0', *paths))
         self.assertEqual(ctx.returncode, 0)
         self.assertEqual(ctx.stdout, '')
         self.assertEqual(ctx.stderr, '')
