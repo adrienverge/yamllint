@@ -193,6 +193,9 @@ def run(argv=None):
                         default=1, type=int,
                         help='Number of concurrent processes to use, '
                         'or 0 for one process per CPU core; default: 1')
+    parser.add_argument('--continue-on-error', action='store_true', default=False,
+                        help='Don\'t exit immediately if an error occurs (but'
+                        'still exit with -1 error code on completion)')
 
     args = parser.parse_args(argv)
 
@@ -262,7 +265,10 @@ def run(argv=None):
                 problem_levels.append(prob_level)
             except Exception as exc:
                 print(f"Error processing {file}: {exc}", file=sys.stderr)
-                exceptions.append(exc)
+                if not args.continue_on_error:
+                    sys.exit(-1)
+                else:
+                    exceptions.append(exc)
 
     # read yaml from stdin
     if args.stdin:
