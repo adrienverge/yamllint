@@ -245,7 +245,8 @@ def run(argv=None):
     else:
         proc_count = args.num_procs
 
-    problem_levels = []
+    # Prime this with a zero-value so that we don't crash if given no inputs
+    problem_levels = [0]
     future_to_file = {}
 
     with ProcessPoolExecutor(max_workers=proc_count) as executor:
@@ -265,7 +266,6 @@ def run(argv=None):
             except Exception as exc:
                 print(f"Error processing file: {file}: {exc}")
 
-    max_level = max(problem_levels)
 
     # read yaml from stdin
     if args.stdin:
@@ -279,7 +279,9 @@ def run(argv=None):
             sys.exit(-1)
         prob_level = show_problems(problems, 'stdin', args_format=args.format,
                                    no_warn=args.no_warnings)
-        max_level = max(max_level, prob_level)
+        problem_levels.append(prob_level)
+
+    max_level = max(problem_levels)
 
     if max_level == PROBLEM_LEVELS['error']:
         return_code = 1
