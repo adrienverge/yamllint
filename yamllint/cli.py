@@ -153,12 +153,8 @@ def process_file(file, conf):
     the function at a time.
     """
     filepath = file.removeprefix('./')
-    try:
-        with open(file, mode='rb') as f:
-            problems = linter.run(f, conf, filepath)
-    except OSError as e:
-        print(e, file=sys.stderr)
-        sys.exit(-1)
+    with open(file, mode='rb') as f:
+        problems = linter.run(f, conf, filepath)
     return list(problems)
 
 
@@ -247,6 +243,7 @@ def run(argv=None):
 
     # Prime this with a zero-value so that we don't crash if given no inputs
     problem_levels = [0]
+    exceptions = []
     future_to_file = {}
 
     with ProcessPoolExecutor(max_workers=proc_count) as executor:
@@ -264,8 +261,8 @@ def run(argv=None):
                                            no_warn=args.no_warnings)
                 problem_levels.append(prob_level)
             except Exception as exc:
-                print(f"Error processing file: {file}: {exc}")
-
+                print(f"Error processing {file}: {exc}", file=sys.stderr)
+                exceptions.append(exc)
 
     # read yaml from stdin
     if args.stdin:
@@ -282,6 +279,9 @@ def run(argv=None):
         problem_levels.append(prob_level)
 
     max_level = max(problem_levels)
+
+    if exceptions:
+        sys.exit(-1)
 
     if max_level == PROBLEM_LEVELS['error']:
         return_code = 1
