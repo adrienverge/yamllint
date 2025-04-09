@@ -20,12 +20,12 @@ import unittest
 
 from tests.common import (
     UTF_CODECS,
+    built_in_equivalent_of_test_codec,
     encoding_detectable,
     is_test_codec,
     register_test_codecs,
     temp_workspace,
     temp_workspace_with_files_in_many_codecs,
-    test_codec_built_in_equivalent,
     unregister_test_codecs,
     uses_bom,
 )
@@ -257,23 +257,23 @@ class EncodingStuffFromCommonTestCase(unittest.TestCase):
         self.assertFalse(is_test_codec('utf_8'))
         self.assertFalse(is_test_codec('utf_8_be'))
 
-    def test_test_codec_built_in_equivalent(self):
+    def test_built_in_equivalent_of_test_codec(self):
         self.assertEqual(
             'utf_32',
-            test_codec_built_in_equivalent('utf_32_be_sig')
+            built_in_equivalent_of_test_codec('utf_32_be_sig')
         )
         self.assertEqual(
             'utf_32',
-            test_codec_built_in_equivalent('utf_32_le_sig')
+            built_in_equivalent_of_test_codec('utf_32_le_sig')
         )
 
         self.assertEqual(
             'utf_16',
-            test_codec_built_in_equivalent('utf_16_be_sig')
+            built_in_equivalent_of_test_codec('utf_16_be_sig')
         )
         self.assertEqual(
             'utf_16',
-            test_codec_built_in_equivalent('utf_16_le_sig')
+            built_in_equivalent_of_test_codec('utf_16_le_sig')
         )
 
     def test_uses_bom(self):
@@ -386,7 +386,7 @@ class DecoderTestCase(unittest.TestCase):
                 elif not encoding_detectable(string, codec):
                     expected_codec = None
                 elif is_test_codec(codec):
-                    expected_codec = test_codec_built_in_equivalent(codec)
+                    expected_codec = built_in_equivalent_of_test_codec(codec)
                 else:
                     expected_codec = codec
                 self.detect_encoding_test_helper(
