@@ -113,3 +113,11 @@ option:
 
    If you have a ``.yamllint`` file in your working directory, it will be
    automatically loaded as configuration by yamllint.
+
+Source code
+-----------
+
+The source code of yamllint is currently hosted on GitHub at
+`https://github.com/adrienverge/yamllint/
+<https://github.com/adrienverge/yamllint/>`_. Releases can be found `on this
+page <https://github.com/adrienverge/yamllint/releases>`_.
