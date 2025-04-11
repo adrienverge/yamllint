@@ -8,8 +8,8 @@ repetition and cosmetic problems such as lines length, trailing spaces,
 indentation, etc.
 
 .. image::
-   https://github.com/adrienverge/yamllint/actions/workflows/ci.yaml/badge.svg?branch=master
-   :target: https://github.com/adrienverge/yamllint/actions/workflows/ci.yaml?query=branch%3Amaster
+   https://github.com/adrienverge/yamllint/actions/workflows/tests.yaml/badge.svg?branch=master
+   :target: https://github.com/adrienverge/yamllint/actions/workflows/tests.yaml?query=branch%3Amaster
    :alt: CI tests status
 .. image::
    https://coveralls.io/repos/github/adrienverge/yamllint/badge.svg?branch=master
