@@ -75,7 +75,7 @@ results as a `Code quality (Code Climate)
            } else {
                printf(",");
            }
-           printf("{\"location\":{\"path\":\"%s\",\"lines\":{\"begin\":%s",\
+           printf("{\"location\":{\"path\":\"%s\",\"lines\":{\"begin\":%s,"\
                   "\"end\":%s}},\"severity\":\"%s\",\"check_name\":\"%s\","\
                   "\"categories\":[\"Style\"],\"type\":\"issue\","\
                   "\"description\":\"%s\"}", $1, $2, $3, sev, a[3], a[2]);
