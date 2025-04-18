@@ -686,7 +686,7 @@ class CommandLineTestCase(unittest.TestCase):
         path = os.path.join(self.wd, 'a.yaml')
 
         with (RunContext(self) as ctx,
-              patch.dict(os.environ, {"CI": "something"})):
+              patch.dict(os.environ, {"GITLAB_CI": "something"})):
             cli.run((path, ))
         expected_out = json.dumps(
             [
