@@ -640,7 +640,7 @@ class CommandLineTestCase(unittest.TestCase):
 
         with RunContext(self) as ctx:
             cli.run((path, '--format', 'gitlab'))
-        
+
         expected_out = json.dumps(
             [
                 {
