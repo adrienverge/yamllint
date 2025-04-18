@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import json
 import locale
 import os
 import platform
@@ -85,6 +86,27 @@ class Format:
         if problem.rule:
             line += f'[{problem.rule}] '
         line += problem.desc
+        return line
+
+    @staticmethod
+    def gitlab(problem, filename, indent=2):
+        rule_name = problem.rule or "unknown"
+        line = json.dumps(
+            {
+                "check_name": rule_name,
+                "description": problem.desc,
+                "severity": "minor" if problem.level == 'warning' else "major",
+                "fingerprint": str(hash(f"{filename}{problem.line}{rule_name}")),
+                "location": {
+                    "path": filename,
+                    "lines": {
+                        "begin": problem.line,
+                        "end": problem.line,
+                    },
+                },
+            },
+            indent=indent,
+        )
         return line
 
 
