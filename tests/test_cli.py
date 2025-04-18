@@ -619,7 +619,9 @@ class CommandLineTestCase(unittest.TestCase):
                     "check_name": "new-line-at-end-of-file",
                     "description": "no new line character at the end of file",
                     "severity": "major",
-                    "fingerprint": str(hash(f"{path}3new-line-at-end-of-file")),
+                    "fingerprint": str(
+                        hash(f"{path}3new-line-at-end-of-file"),
+                    ),
                     "location": {
                         "path": path,
                         "lines": {
@@ -705,7 +707,9 @@ class CommandLineTestCase(unittest.TestCase):
                     "check_name": "new-line-at-end-of-file",
                     "description": "no new line character at the end of file",
                     "severity": "major",
-                    "fingerprint": str(hash(f"{path}3new-line-at-end-of-file")),
+                    "fingerprint": str(
+                        hash(f"{path}3new-line-at-end-of-file"),
+                    ),
                     "location": {
                         "path": path,
                         "lines": {
