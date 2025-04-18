@@ -140,7 +140,7 @@ def show_problems(problems, file, args_format, no_warn):
                 print("[")
                 first = False
             else:
-                print(",\n")
+                print(",")
             print(textwrap.indent(Format.gitlab(problem, file), "  "), end='')
         elif args_format == 'colored':
             if first:
@@ -157,9 +157,9 @@ def show_problems(problems, file, args_format, no_warn):
         print('::endgroup::')
 
     if not first and args_format == 'gitlab':
-        print("]")
+        print("\n]", end='')
 
-    if not first and args_format != 'parsable':
+    if not first and args_format not in {'parsable', 'gitlab'}:
         print('')
 
     return max_level
