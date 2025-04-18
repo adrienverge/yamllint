@@ -660,7 +660,7 @@ class CommandLineTestCase(unittest.TestCase):
             indent=2,
         )
         self.assertEqual(
-            (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+            (ctx.returncode, ctx.stdout, ctx.stderr), (0, expected_out, ''))
 
     def test_github_actions_detection(self):
         path = os.path.join(self.wd, 'a.yaml')
