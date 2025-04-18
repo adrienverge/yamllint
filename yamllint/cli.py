@@ -118,6 +118,8 @@ def show_problems(problems, file, args_format, no_warn):
         if ('GITHUB_ACTIONS' in os.environ and
                 'GITHUB_WORKFLOW' in os.environ):
             args_format = 'github'
+        elif ('CI' in os.environ):
+            args_format = 'gitlab'
         elif supports_color():
             args_format = 'colored'
 
