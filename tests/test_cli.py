@@ -23,7 +23,6 @@ import sys
 import json
 import tempfile
 import unittest
-
 from unittest.mock import patch
 
 from tests.common import (
