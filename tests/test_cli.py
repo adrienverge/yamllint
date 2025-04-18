@@ -20,6 +20,7 @@ import os
 import pty
 import shutil
 import sys
+import json
 import tempfile
 import unittest
 
@@ -589,6 +590,73 @@ class CommandLineTestCase(unittest.TestCase):
             f'::error file={path},line=3,col=4::3:4 [new-line-at-end-of-file]'
             f' no new line character at the end of file\n'
             f'::endgroup::\n\n')
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+
+    def test_run_format_gitlab(self):
+        path = os.path.join(self.wd, 'a.yaml')
+
+        with RunContext(self) as ctx:
+            cli.run((path, '--format', 'gitlab'))
+        
+        expected_out = json.dumps(
+            [
+                {
+                    "check_name": "trailing-spaces",
+                    "description": "trailing spaces",
+                    "severity": "major",
+                    "fingerprint": str(hash(f"{path}3trailing-spaces")),
+                    "location": {
+                        "path": path,
+                        "lines": {
+                            "begin": 3,
+                            "end": 3,
+                        },
+                    },
+                },
+                {
+                    "check_name": "new-line-at-end-of-file",
+                    "description": "no new line character at the end of file",
+                    "severity": "major",
+                    "fingerprint": str(hash(f"{path}3trailing-spaces")),
+                    "location": {
+                        "path": path,
+                        "lines": {
+                            "begin": 3,
+                            "end": 3,
+                        },
+                    },
+                },
+            ],
+            indent=2,
+        )
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+
+    def test_run_format_gitlab_on_warning(self):
+        path = os.path.join(self.wd, 'warn.yaml')
+
+        with RunContext(self) as ctx:
+            cli.run((path, '--format', 'gitlab'))
+        
+        expected_out = json.dumps(
+            [
+                {
+                    "check_name": "document-start",
+                    "description": 'missing document start "---"',
+                    "severity": "minor",
+                    "fingerprint": str(hash(f"{path}1document-start")),
+                    "location": {
+                        "path": path,
+                        "lines": {
+                            "begin": 1,
+                            "end": 1,
+                        },
+                    },
+                },
+            ],
+            indent=2,
+        )
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
