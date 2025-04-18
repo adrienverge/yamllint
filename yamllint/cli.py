@@ -97,7 +97,9 @@ class Format:
                 "check_name": rule_name,
                 "description": problem.desc,
                 "severity": "minor" if problem.level == 'warning' else "major",
-                "fingerprint": str(hash(f"{filename}{problem.line}{rule_name}")),
+                "fingerprint": str(
+                    hash(f"{filename}{problem.line}{rule_name}"),
+                ),
                 "location": {
                     "path": filename,
                     "lines": {
