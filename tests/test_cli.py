@@ -607,12 +607,12 @@ class CommandLineTestCase(unittest.TestCase):
                     "check_name": "trailing-spaces",
                     "description": "trailing spaces",
                     "severity": "major",
-                    "fingerprint": str(hash(f"{path}3trailing-spaces")),
+                    "fingerprint": str(hash(f"{path}2trailing-spaces")),
                     "location": {
                         "path": path,
                         "lines": {
-                            "begin": 3,
-                            "end": 3,
+                            "begin": 2,
+                            "end": 2,
                         },
                     },
                 },
@@ -620,7 +620,7 @@ class CommandLineTestCase(unittest.TestCase):
                     "check_name": "new-line-at-end-of-file",
                     "description": "no new line character at the end of file",
                     "severity": "major",
-                    "fingerprint": str(hash(f"{path}3trailing-spaces")),
+                    "fingerprint": str(hash(f"{path}3new-line-at-end-of-file")),
                     "location": {
                         "path": path,
                         "lines": {
