@@ -24,6 +24,8 @@ import json
 import tempfile
 import unittest
 
+from unittest.mock import patch
+
 from tests.common import (
     RunContext,
     build_temp_workspace,
@@ -676,6 +678,49 @@ class CommandLineTestCase(unittest.TestCase):
             f'::error file={path},line=3,col=4::3:4 [new-line-at-end-of-file]'
             f' no new line character at the end of file\n'
             f'::endgroup::\n\n')
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+
+    def test_gitlab_ci_detection(self):
+        path = os.path.join(self.wd, 'a.yaml')
+        self.addCleanup(os.environ.__delitem__, 'GITHUB_ACTIONS')
+        self.addCleanup(os.environ.__delitem__, 'GITHUB_WORKFLOW')
+
+        with (RunContext(self) as ctx,
+              patch.dict(os.environ, {"CI": "something"})):
+            cli.run((path, ))
+        expected_out = json.dumps(
+            [
+                {
+                    "check_name": "trailing-spaces",
+                    "description": "trailing spaces",
+                    "severity": "major",
+                    "fingerprint": str(hash(f"{path}3trailing-spaces")),
+                    "location": {
+                        "path": path,
+                        "lines": {
+                            "begin": 3,
+                            "end": 3,
+                        },
+                    },
+                },
+                {
+                    "check_name": "new-line-at-end-of-file",
+                    "description": "no new line character at the end of file",
+                    "severity": "major",
+                    "fingerprint": str(hash(f"{path}3trailing-spaces")),
+                    "location": {
+                        "path": path,
+                        "lines": {
+                            "begin": 3,
+                            "end": 3,
+                        },
+                    },
+                },
+            ],
+            indent=2,
+        )
+
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
