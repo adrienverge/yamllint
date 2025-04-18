@@ -185,7 +185,7 @@ def run(argv=None):
                         help='list files to lint and exit')
     parser.add_argument('-f', '--format',
                         choices=('parsable', 'standard', 'colored', 'github',
-                                 'auto'),
+                                 'gitlab', 'auto'),
                         default='auto', help='format for parsing output')
     parser.add_argument('-s', '--strict',
                         action='store_true',
