@@ -683,8 +683,6 @@ class CommandLineTestCase(unittest.TestCase):
 
     def test_gitlab_ci_detection(self):
         path = os.path.join(self.wd, 'a.yaml')
-        self.addCleanup(os.environ.__delitem__, 'GITHUB_ACTIONS')
-        self.addCleanup(os.environ.__delitem__, 'GITHUB_WORKFLOW')
 
         with (RunContext(self) as ctx,
               patch.dict(os.environ, {"CI": "something"})):
