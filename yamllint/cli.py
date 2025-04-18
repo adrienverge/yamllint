@@ -89,7 +89,7 @@ class Format:
         return line
 
     @staticmethod
-    def gitlab(problem, filename, indent=2):
+    def gitlab(problem, filename):
         rule_name = problem.rule or "unknown"
         line = json.dumps(
             {
@@ -105,7 +105,7 @@ class Format:
                     },
                 },
             },
-            indent=indent,
+            indent=2,
         )
         return line
 
