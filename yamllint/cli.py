@@ -19,6 +19,7 @@ import locale
 import os
 import platform
 import sys
+import textwrap
 
 from yamllint import APP_DESCRIPTION, APP_NAME, APP_VERSION, linter
 from yamllint.config import YamlLintConfig, YamlLintConfigError
@@ -134,6 +135,13 @@ def show_problems(problems, file, args_format, no_warn):
                 print(f'::group::{file}')
                 first = False
             print(Format.github(problem, file))
+        elif args_format == 'gitlab':
+            if first:
+                print("[")
+                first = False
+            else:
+                print(",\n")
+            print(textwrap.indent(Format.gitlab(problem, file), "  "), end='')
         elif args_format == 'colored':
             if first:
                 print(f'\033[4m{file}\033[0m')
@@ -147,6 +155,9 @@ def show_problems(problems, file, args_format, no_warn):
 
     if not first and args_format == 'github':
         print('::endgroup::')
+
+    if not first and args_format == 'gitlab':
+        print("]")
 
     if not first and args_format != 'parsable':
         print('')
