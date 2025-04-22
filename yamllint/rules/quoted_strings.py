@@ -276,6 +276,14 @@ def check(conf, token, prev, next, nextnext, context):
     if not token.plain and token.style in ("|", ">"):
         return
 
+    # Ignore double-quoted multi-line strings
+    if (
+        not token.plain and
+        token.style == '"' and
+        (token.start_mark.line != token.end_mark.line)
+    ):
+        return
+
     quote_type = conf['quote-type']
 
     msg = None

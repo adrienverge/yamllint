@@ -129,7 +129,7 @@ class QuotedValuesTestCase(RuleTestCase):
                    'multiline string 4:\n'
                    '  "word 1\\\n'
                    '   word 2"\n',
-                   conf, problem1=(9, 3), problem2=(12, 3))
+                   conf, problem1=(9, 3))
 
     def test_quote_type_double(self):
         conf = 'quoted-strings: {quote-type: double}\n'
@@ -263,9 +263,9 @@ class QuotedValuesTestCase(RuleTestCase):
                    '  word 1\n'
                    '  word 2\n'
                    'multiline string 4:\n'
-                   '  "word 1\\\n'            # fails
+                   '  "word 1\\\n'
                    '   word 2"\n',
-                   conf, problem1=(12, 3))
+                   conf)
 
     def test_only_when_needed(self):
         conf = 'quoted-strings: {required: only-when-needed}\n'
@@ -307,9 +307,9 @@ class QuotedValuesTestCase(RuleTestCase):
                    '  word 1\n'
                    '  word 2\n'
                    'multiline string 4:\n'
-                   '  "word 1\\\n'            # fails
+                   '  "word 1\\\n'
                    '   word 2"\n',
-                   conf, problem1=(12, 3))
+                   conf)
 
     def test_only_when_needed_single_quotes(self):
         conf = ('quoted-strings: {quote-type: single,\n'
@@ -354,9 +354,9 @@ class QuotedValuesTestCase(RuleTestCase):
                    '  word 1\n'
                    '  word 2\n'
                    'multiline string 4:\n'
-                   '  "word 1\\\n'            # fails
+                   '  "word 1\\\n'
                    '   word 2"\n',
-                   conf, problem1=(12, 3))
+                   conf)
 
     def test_only_when_needed_corner_cases(self):
         conf = 'quoted-strings: {required: only-when-needed}\n'
@@ -817,8 +817,7 @@ class QuotedKeysTestCase(RuleTestCase):
         self.check(key_strings, conf,
                    problem1=(4, 1), problem2=(5, 1), problem3=(6, 1),
                    problem4=(7, 1), problem5=(20, 3), problem6=(21, 3),
-                   problem7=(23, 2), problem8=(23, 10), problem9=(33, 3),
-                   problem10=(37, 3))
+                   problem7=(23, 2), problem8=(23, 10), problem9=(33, 3))
 
     def test_quote_type_double(self):
         conf = ('quoted-strings:\n'
@@ -968,7 +967,7 @@ class QuotedKeysTestCase(RuleTestCase):
                        ': 39\n')
         self.check(key_strings, conf,
                    problem1=(5, 1), problem2=(6, 1), problem3=(7, 1),
-                   problem4=(21, 3), problem5=(23, 10), problem6=(37, 3))
+                   problem4=(21, 3), problem5=(23, 10))
 
     def test_only_when_needed(self):
         conf = ('quoted-strings:\n'
@@ -1018,7 +1017,7 @@ class QuotedKeysTestCase(RuleTestCase):
                        ': 39\n')
         self.check(key_strings, conf,
                    problem1=(5, 1), problem2=(8, 1), problem3=(21, 3),
-                   problem4=(23, 10), problem5=(37, 3))
+                   problem4=(23, 10))
 
     def test_only_when_needed_single_quotes(self):
         conf = ('quoted-strings:\n'
@@ -1069,8 +1068,7 @@ class QuotedKeysTestCase(RuleTestCase):
                        ': 39\n')
         self.check(key_strings, conf,
                    problem1=(5, 1), problem2=(6, 1), problem3=(7, 1),
-                   problem4=(8, 1), problem5=(21, 3), problem6=(23, 10),
-                   problem7=(37, 3))
+                   problem4=(8, 1), problem5=(21, 3), problem6=(23, 10))
 
     def test_only_when_needed_corner_cases(self):
         conf = ('quoted-strings:\n'
