@@ -82,6 +82,8 @@ class YamlLintConfig:
             raise YamlLintConfigError('invalid config: not a dict')
 
         self.rules = conf.get('rules', {})
+        if not isinstance(self.rules, dict):
+            raise YamlLintConfigError('invalid config: rules should be a dict')
         for rule in self.rules:
             if self.rules[rule] == 'enable':
                 self.rules[rule] = {}
