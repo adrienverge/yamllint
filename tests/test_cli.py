@@ -270,7 +270,7 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-d', '', 'file'))
         self.assertEqual(ctx.returncode, -1)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegex(ctx.stderr, r'^invalid config: not a dict')
+        self.assertRegex(ctx.stderr, r'^invalid config: not a mapping')
 
     def test_run_with_implicit_extends_config(self):
         path = os.path.join(self.wd, 'warn.yaml')
