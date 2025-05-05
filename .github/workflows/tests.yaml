@@ -57,6 +57,7 @@ jobs:
       - run: pip install .
       # https://github.com/AndreMiras/coveralls-python-action/issues/18
       - run: echo -e "[run]\nrelative_files = True" > .coveragerc
+      - run: echo -e "concurrency=multiprocessing" >> .coveragerc
       - run: >-
           python
           -X warn_default_encoding
@@ -65,5 +66,6 @@ jobs:
           run
           -m unittest
           discover
+      - run: coverage combine
       - name: Coveralls
         uses: AndreMiras/coveralls-python-action@develop
