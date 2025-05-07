@@ -228,6 +228,11 @@ or:
 
 .. note:: However, this is mutually exclusive with the ``ignore`` key.
 
+.. note::
+   This file (e.g. ``.gitignore``) is searched relatively to the config file
+   (``.yamllint``). The paths of files to ignore are interpreted relatively to
+   the ignore file (e.g. ``.gitignore``).
+
 .. note:: Files on the ``ignore-from-file`` list should use either UTF-8,
    UTF-16 or UTF-32. See :doc:`Character Encoding <character_encoding>` for
    details and workarounds.
