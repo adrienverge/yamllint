@@ -79,9 +79,12 @@ class YamlLintConfig:
             raise YamlLintConfigError(f'invalid config: {e}') from e
 
         if not isinstance(conf, dict):
-            raise YamlLintConfigError('invalid config: not a dict')
+            raise YamlLintConfigError('invalid config: not a mapping')
 
         self.rules = conf.get('rules', {})
+        if not isinstance(self.rules, dict):
+            raise YamlLintConfigError('invalid config: rules should be a '
+                                      'mapping')
         for rule in self.rules:
             if self.rules[rule] == 'enable':
                 self.rules[rule] = {}
@@ -233,7 +236,7 @@ def validate_rule_conf(rule, conf):
     else:
         raise YamlLintConfigError(
             f'invalid config: rule "{rule.ID}": should be either "enable", '
-            f'"disable" or a dict')
+            f'"disable" or a mapping')
 
     return conf
 

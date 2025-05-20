@@ -104,7 +104,7 @@ def is_test_codec(codec):
     return codec in test_codec_infos.keys()
 
 
-def test_codec_built_in_equivalent(test_codec):
+def built_in_equivalent_of_test_codec(test_codec):
     return_value = test_codec
     for suffix in ('_sig', '_be', '_le'):
         return_value = return_value.replace(suffix, '')

@@ -204,20 +204,23 @@ def _quote_match(quote_type, token_style):
             (quote_type == 'double' and token_style == '"'))
 
 
-def _quotes_are_needed(string, style, is_inside_a_flow):
+def _quotes_are_needed(token, is_inside_a_flow):
     # Quotes needed on strings containing flow tokens
-    if is_inside_a_flow and set(string) & {',', '[', ']', '{', '}'}:
+    if is_inside_a_flow and set(token.value) & {',', '[', ']', '{', '}'}:
         return True
 
-    if style == '"':
+    if token.style == '"':
         try:
-            yaml.reader.Reader('').check_printable('key: ' + string)
+            yaml.reader.Reader('').check_printable('key: ' + token.value)
         except yaml.reader.ReaderError:
             # Special characters in a double-quoted string are assumed to have
             # been backslash-escaped
             return True
 
-    loader = yaml.BaseLoader('key: ' + string)
+        if _has_backslash_on_at_least_one_line_ending(token):
+            return True
+
+    loader = yaml.BaseLoader('key: ' + token.value)
     # Remove the 5 first tokens corresponding to 'key: ' (StreamStartToken,
     # BlockMappingStartToken, KeyToken, ScalarToken(value=key), ValueToken)
     for _ in range(5):
@@ -228,7 +231,7 @@ def _quotes_are_needed(string, style, is_inside_a_flow):
         return True
     else:
         if (isinstance(a, yaml.ScalarToken) and a.style is None and
-                isinstance(b, yaml.BlockEndToken) and a.value == string):
+                isinstance(b, yaml.BlockEndToken) and a.value == token.value):
             return False
         return True
 
@@ -237,6 +240,14 @@ def _has_quoted_quotes(token):
     return ((not token.plain) and
             ((token.style == "'" and '"' in token.value) or
              (token.style == '"' and "'" in token.value)))
+
+
+def _has_backslash_on_at_least_one_line_ending(token):
+    if token.start_mark.line == token.end_mark.line:
+        return False
+    buffer = token.start_mark.buffer[
+        token.start_mark.index + 1:token.end_mark.index - 1]
+    return '\\\n' in buffer or '\\\r\n' in buffer
 
 
 def check(conf, token, prev, next, nextnext, context):
@@ -306,9 +317,7 @@ def check(conf, token, prev, next, nextnext, context):
 
         # Quotes are not strictly needed here
         if (token.style and tag == DEFAULT_SCALAR_TAG and token.value and
-                not _quotes_are_needed(token.value,
-                                       token.style,
-                                       context['flow_nest_count'] > 0)):
+                not _quotes_are_needed(token, context['flow_nest_count'] > 0)):
             is_extra_required = any(re.search(r, token.value)
                                     for r in conf['extra-required'])
             is_extra_allowed = any(re.search(r, token.value)
