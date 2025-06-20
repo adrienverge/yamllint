@@ -33,3 +33,8 @@ rules:
   trailing-spaces: enable
   truthy:
     level: warning
+  forbid-null: disable
+  forbid-bool: disable
+  forbid-int: disable
+  forbid-float: disable
+  forbid-str: disable
