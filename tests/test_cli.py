@@ -855,7 +855,7 @@ class CommandLineEncodingTestCase(unittest.TestCase):
                     self.assertNotEqual(ctx.returncode, 0)
                 else:
                     raise ValueError(
-                        f"root_dir was set to {repr(root_dir)}. It should only"
+                        f"root_dir was set to {root_dir!r}. It should only"
                         "ever be set to 'sorted_correctly' or"
                         "'sorted_incorrectly'."
                     )
