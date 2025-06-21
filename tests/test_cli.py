@@ -891,7 +891,7 @@ class CommandLineEncodingTestCase(unittest.TestCase):
         }
 
         with temp_workspace(workspace):
-            for config_path in config_files.keys():
+            for config_path in config_files:
                 # First, make sure that encoding autodetection works when the
                 # file’s path is given as a command-line argument.
                 with RunContext(self) as ctx:
