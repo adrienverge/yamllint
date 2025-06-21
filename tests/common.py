@@ -112,10 +112,7 @@ def built_in_equivalent_of_test_codec(test_codec):
 
 
 def uses_bom(codec):
-    for suffix in ('_32', '_16', '_sig'):
-        if codec.endswith(suffix):
-            return True
-    return False
+    return any(codec.endswith(suffix) for suffix in ('_32', '_16', '_sig'))
 
 
 def encoding_detectable(string, codec):
