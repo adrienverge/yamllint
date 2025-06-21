@@ -101,7 +101,7 @@ def unregister_test_codecs():
 
 
 def is_test_codec(codec):
-    return codec in test_codec_infos.keys()
+    return codec in test_codec_infos
 
 
 def built_in_equivalent_of_test_codec(test_codec):
