@@ -323,8 +323,8 @@ def check(conf, token, prev, next, nextnext, context):
             is_extra_allowed = any(re.search(r, token.value)
                                    for r in conf['extra-allowed'])
             if not (is_extra_required or is_extra_allowed):
-                msg = f"string {node} is redundantly quoted with " \
-                      f"{quote_type} quotes"
+                msg = (f"string {node} is redundantly quoted with "
+                       f"{quote_type} quotes")
 
         # But when used need to match config
         elif (token.style and
