@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import codecs
+from codecs import CodecInfo
 import contextlib
 from io import StringIO
 import os
@@ -23,13 +24,11 @@ import sys
 import tempfile
 import unittest
 import warnings
-from codecs import CodecInfo
 
 import yaml
 
 from yamllint import linter
 from yamllint.config import YamlLintConfig
-
 
 # Encoding related stuff:
 UTF_CODECS = (

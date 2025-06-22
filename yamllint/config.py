@@ -18,8 +18,8 @@ import os.path
 import pathspec
 import yaml
 
-import yamllint.rules
 from yamllint import decoder
+import yamllint.rules
 
 
 class YamlLintConfigError(Exception):
