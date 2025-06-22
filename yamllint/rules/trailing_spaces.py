@@ -30,10 +30,10 @@ Use this rule to forbid trailing spaces at the end of lines.
    the following code snippet would **FAIL**:
    ::
 
-    this document contains     """ """
+    this document contains     
     trailing spaces
-    on lines 1 and 3         """ """
-"""
+    on lines 1 and 3         
+"""  # noqa: W291
 
 
 import string
