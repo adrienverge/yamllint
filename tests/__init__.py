@@ -34,5 +34,5 @@ env_vars_that_could_interfere_with_tests = (
 for name in env_vars_that_could_interfere_with_tests:
     try:
         del os.environ[name]
-    except KeyError:
+    except KeyError:  # noqa: PERF203
         pass
