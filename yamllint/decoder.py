@@ -1,4 +1,4 @@
-# Copyright (C) 2023–2025 Jason Yundt
+# Copyright (C) 2023-2025 Jason Yundt
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

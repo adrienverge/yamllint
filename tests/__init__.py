@@ -24,7 +24,7 @@ env_vars_that_could_interfere_with_tests = (
     # yamllint uses these environment variables to find a config file.
     'YAMLLINT_CONFIG_FILE',
     'XDG_CONFIG_HOME',
-    # These variables are used to determine where the user’s home
+    # These variables are used to determine where the user's home
     # directory is. See
     # https://docs.python.org/3/library/os.path.html#os.path.expanduser
     'HOME',
