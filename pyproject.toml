@@ -29,6 +29,7 @@ dev = [
     "flake8",
     "flake8-import-order",
     "rstcheck[sphinx]",
+    "ruff",
     "sphinx",
 ]
 
@@ -52,3 +53,47 @@ yamllint = ["conf/*.yaml"]
 
 [tool.setuptools.dynamic]
 version = {attr = "yamllint.__version__"}
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint]
+extend-select = [
+    "B",
+    "C4",
+    "EXE",
+    "FA",
+    "ISC",
+    "LOG",
+    "G",
+    "PIE",
+    "PYI",
+    "SIM",
+    "FLY",
+    "I",
+    "PERF",
+    "W",
+    "PGH",
+    "PLC",
+    "PLE",
+    "UP",
+    "FURB",
+    "RUF",
+]
+ignore = [
+    "B028",     # No explicit `stacklevel` keyword argument found
+    "SIM102",   # Use a single `if` statement instead of nested `if` statements
+    "SIM108",   # Use ternary operator instead of `if`-`else`-block
+    "SIM114",   # Combine `if` branches using logical `or` operator
+    "SIM117",   # Use a single `with` statement with multiple contexts
+    "FURB105",  # Unnecessary empty string passed to `print`
+    "RUF005",   # Consider unpacking instead of concatenation
+    "RUF100",   # Unused `noqa` directive
+]
+
+[tool.ruff.lint.isort]
+known-third-party = ["tests"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/test_cli.py" = ["RUF001"]
+"tests/test_decoder.py" = ["RUF001"]
