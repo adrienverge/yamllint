@@ -28,6 +28,7 @@ dev = [
     "flake8",
     "flake8-import-order",
     "rstcheck[sphinx]",
+    "ruff",
     "sphinx",
 ]
 
@@ -51,3 +52,49 @@ yamllint = ["conf/*.yaml"]
 
 [tool.setuptools.dynamic]
 version = {attr = "yamllint.__version__"}
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint]
+extend-select = [
+    "B",
+    "C4",
+    "EXE",
+    "FA",
+    "ISC",
+    "LOG",
+    "G",
+    "PIE",
+    "PYI",
+    "SIM",
+    "FLY",
+    "I",
+    "PERF",
+    "W",
+    "PGH",
+    "PLC",
+    "PLE",
+    "UP",
+    "FURB",
+    "RUF",
+]
+ignore = [
+    "B028",     # No explicit `stacklevel` keyword argument found
+    "SIM102",   # Use a single `if` statement instead of nested `if` statements
+    "SIM103",   # Return the negated condition directly
+    "SIM105",   # Use `contextlib.suppress(KeyError)` instead of `try`-`except`-`pass`
+    "SIM108",   # Use ternary operator instead of `if`-`else`-block
+    "SIM114",   # Combine `if` branches using logical `or` operator
+    "SIM117",   # Use a single `with` statement with multiple contexts
+    "FURB105",  # Unnecessary empty string passed to `print`
+    "RUF001",   # String contains ambiguous Unicode characters
+    "RUF002",   # Docstring contains ambiguous Unicode characters
+    "RUF003",   # Comment contains ambiguous Unicode characters
+    "RUF005",   # Consider unpacking instead of concatenation
+    "RUF100",   # Unused `noqa` directive
+]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+known-third-party = ["tests"]
