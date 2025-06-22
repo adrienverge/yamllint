@@ -20,6 +20,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
       - run:
           pip install flake8 flake8-import-order sphinx sphinx_rtd_theme
           rstcheck[sphinx] doc8
