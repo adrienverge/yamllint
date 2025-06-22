@@ -23,10 +23,11 @@ jobs:
         with:
           python-version: "3.x"
       - run:
-          pip install flake8 flake8-import-order sphinx sphinx_rtd_theme
+          pip install flake8 flake8-import-order ruff sphinx sphinx_rtd_theme
           rstcheck[sphinx] doc8
       - run: pip install .
       - run: flake8 .
+      - run: ruff check --output-format=github
       - run: doc8 $(git ls-files '*.rst')
       - run: rstcheck --ignore-directives automodule $(git ls-files '*.rst')
       - run: yamllint --strict $(git ls-files '*.yaml' '*.yml')
