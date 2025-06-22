@@ -23,9 +23,9 @@ import unittest
 from io import StringIO
 
 from tests.common import (
+    RunContext,
     build_temp_workspace,
     register_test_codecs,
-    RunContext,
     unregister_test_codecs,
 )
 

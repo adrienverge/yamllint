@@ -16,7 +16,6 @@
 
 import codecs
 import contextlib
-from io import StringIO
 import os
 import shutil
 import sys
@@ -24,12 +23,12 @@ import tempfile
 import unittest
 import warnings
 from codecs import CodecInfo
+from io import StringIO
 
 import yaml
 
 from yamllint import linter
 from yamllint.config import YamlLintConfig
-
 
 # Encoding related stuff:
 UTF_CODECS = (
