@@ -29,7 +29,7 @@ from tests.common import (
     register_test_codecs,
     temp_workspace,
     temp_workspace_with_files_in_many_codecs,
-    unregister_test_codecs
+    unregister_test_codecs,
 )
 
 from yamllint import cli, config

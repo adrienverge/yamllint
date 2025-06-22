@@ -105,8 +105,8 @@ to sort case and accents properly.
       d:
 """
 
-import re
 from locale import strcoll
+import re
 
 import yaml
 
