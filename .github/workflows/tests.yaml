@@ -46,6 +46,8 @@ jobs:
           - '3.11'
           - '3.12'
           - '3.13'
+          - '3.13t'
+          - '3.14'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,8 +55,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true  # needed for 3.14
       - name: Append GitHub Actions system path
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Keep the GIL disabled with free-threaded Python
+        if: endsWith(matrix.python-version, 't')
+        run: echo "PYTHON_GIL=0" >> $GITHUB_ENV
       - run: pip install coverage
       - run: pip install .
       # https://github.com/AndreMiras/coveralls-python-action/issues/18
