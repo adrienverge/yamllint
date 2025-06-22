@@ -129,7 +129,9 @@ def check_inline_mapping(line):
 
 
 def check(conf, line):
-    if line.end - line.start > conf['max']:
+    max_length = conf['max']
+    length = line.end - line.start
+    if length > max_length:
         conf['allow-non-breakable-words'] |= \
             conf['allow-non-breakable-inline-mappings']
         if conf['allow-non-breakable-words']:
@@ -152,6 +154,6 @@ def check(conf, line):
                         check_inline_mapping(line)):
                     return
 
-        yield LintProblem(line.line_no, conf['max'] + 1,
-                          'line too long (%d > %d characters)' %
-                          (line.end - line.start, conf['max']))
+        yield LintProblem(line.line_no, max_length + 1,
+                          f'line too long'
+                          f' ({length} > {max_length} characters)')
