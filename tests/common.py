@@ -94,7 +94,7 @@ def unregister_test_codecs():
         codecs.unregister(test_codec_infos.get)
     else:
         warnings.warn(
-            "This version of Python doesn’t allow us to unregister codecs.",
+            "This version of Python doesn't allow us to unregister codecs.",
             stacklevel=1
         )
 
