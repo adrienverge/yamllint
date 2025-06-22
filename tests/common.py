@@ -118,8 +118,8 @@ def encoding_detectable(string, codec):
     """
     Returns True if encoding can be detected after string is encoded
 
-    Encoding detection only works if you’re using a BOM or the first character
-    is ASCII. See yamllint.decoder.auto_decode()’s docstring.
+    Encoding detection only works if you're using a BOM or the first character
+    is ASCII. See yamllint.decoder.auto_decode()'s docstring.
     """
     return uses_bom(codec) or (len(string) > 0 and string[0].isascii())
 

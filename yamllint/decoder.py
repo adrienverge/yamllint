@@ -20,18 +20,18 @@ import warnings
 
 def detect_encoding(stream_data):
     """
-    Return stream_data’s character encoding
+    Return stream_data's character encoding
 
     Specifically, this function will take a bytes object and return a string
-    that contains the name of one of Python’s built-in codecs [1].
+    that contains the name of one of Python's built-in codecs [1].
 
     The YAML spec says that streams must begin with a BOM or an ASCII
-    character. If stream_data doesn’t begin with either of those, then this
+    character. If stream_data doesn't begin with either of those, then this
     function might return the wrong encoding. See chapter 5.2 of the YAML spec
     for details [2].
 
     Before this function was added, yamllint would sometimes decode text files
-    using a non-standard character encoding. It’s possible that there are users
+    using a non-standard character encoding. It's possible that there are users
     out there who still want to use yamllint with non-standard character
     encodings, so this function includes an override switch for those users. If
     the YAMLLINT_FILE_ENCODING environment variable is set to "example_codec",
