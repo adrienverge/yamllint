@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import codecs
+import contextlib
 import itertools
 import os
 import unittest
@@ -221,10 +222,8 @@ TEST_STRINGS_TO_ENCODE_AT_RUNTIME = (
 
 def setUpModule():
     register_test_codecs()
-    try:
+    with contextlib.suppress(KeyError):
         del os.environ['YAMLLINT_FILE_ENCODING']
-    except KeyError:
-        pass
 
 
 tearDownModule = unregister_test_codecs
