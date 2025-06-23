@@ -230,8 +230,10 @@ def _quotes_are_needed(token, is_inside_a_flow):
     except yaml.scanner.ScannerError:
         return True
     else:
-        if (isinstance(a, yaml.ScalarToken) and a.style is None and
-                isinstance(b, yaml.BlockEndToken) and a.value == token.value):
+        if (isinstance(a, yaml.ScalarToken) and  # noqa: SIM103
+                a.style is None and
+                isinstance(b, yaml.BlockEndToken) and
+                a.value == token.value):
             return False
         return True
 
