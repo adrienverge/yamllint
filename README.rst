@@ -19,7 +19,7 @@ indentation, etc.
    :target: https://yamllint.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation status
 
-Written in Python (compatible with Python 3 only).
+Written in Python.
 
 Documentation
 -------------
