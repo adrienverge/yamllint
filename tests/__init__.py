@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import contextlib
 import locale
 import os
 
@@ -23,7 +24,7 @@ env_vars_that_could_interfere_with_tests = (
     # yamllint uses these environment variables to find a config file.
     'YAMLLINT_CONFIG_FILE',
     'XDG_CONFIG_HOME',
-    # These variables are used to determine where the user’s home
+    # These variables are used to determine where the user's home
     # directory is. See
     # https://docs.python.org/3/library/os.path.html#os.path.expanduser
     'HOME',
@@ -32,7 +33,5 @@ env_vars_that_could_interfere_with_tests = (
     'HOMEDRIVE'
 )
 for name in env_vars_that_could_interfere_with_tests:
-    try:
+    with contextlib.suppress(KeyError):
         del os.environ[name]
-    except KeyError:
-        pass

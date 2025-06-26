@@ -1,5 +1,5 @@
 # Copyright (C) 2016 Adrien Vergé
-# Copyright (C) 2023–2025 Jason Yundt
+# Copyright (C) 2023-2025 Jason Yundt
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@ import unittest
 from io import StringIO
 
 from tests.common import (
+    RunContext,
     build_temp_workspace,
     register_test_codecs,
-    RunContext,
     unregister_test_codecs,
 )
 

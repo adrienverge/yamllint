@@ -1,5 +1,5 @@
 # Copyright (C) 2016 Adrien Vergé
-# Copyright (C) 2023–2025 Jason Yundt
+# Copyright (C) 2023-2025 Jason Yundt
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ from tests.common import (
     register_test_codecs,
     temp_workspace,
     temp_workspace_with_files_in_many_codecs,
-    unregister_test_codecs
+    unregister_test_codecs,
 )
 
 from yamllint import cli, config
@@ -616,7 +616,7 @@ class CommandLineTestCase(unittest.TestCase):
         # Normally, I would just use tempfile.TemporaryFile(), but here I want
         # to first open the file for writing and then open it for reading. In
         # other words, I need to make sure that the file continues to exist
-        # after I close it for the fist time. That’s why I’m using
+        # after I close it for the fist time. That's why I'm using
         # tempfile.TemporaryDirectory() instead of tempfile.TemporaryFile().
         with tempfile.TemporaryDirectory() as temp_dir_path:
             stdin_file_path = os.path.join(temp_dir_path, 'stdin')
@@ -624,7 +624,7 @@ class CommandLineTestCase(unittest.TestCase):
                 file.write(
                     'I am a string\n'
                     'therefore: I am an error\n')
-            with open(stdin_file_path, mode='r', encoding='utf-8') as file:
+            with open(stdin_file_path, encoding='utf-8') as file:
                 # prepares stdin with an invalid yaml string so that we can
                 # check for its specific error, and be assured that stdin was
                 # read
@@ -842,9 +842,9 @@ class CommandLineEncodingTestCase(unittest.TestCase):
     ):
         for path in glob.glob(os.path.join(root_dir, '**')):
             # We purposely choose the wrong text encoding here because the text
-            # encoding shouldn’t matter. yamllint should completely ignore the
+            # encoding shouldn't matter. yamllint should completely ignore the
             # text encoding of stdin.
-            with open(path, mode="r", encoding="cp037") as file:
+            with open(path, encoding="cp037") as file:
                 sys.stdin = file
                 with RunContext(self) as ctx:
                     cli.run(('-c', config_path, '-'))
@@ -893,7 +893,7 @@ class CommandLineEncodingTestCase(unittest.TestCase):
         with temp_workspace(workspace):
             for config_path in config_files:
                 # First, make sure that encoding autodetection works when the
-                # file’s path is given as a command-line argument.
+                # file's path is given as a command-line argument.
                 with RunContext(self) as ctx:
                     cli.run(('-c', config_path, 'sorted_correctly'))
                 self.assertEqual(ctx.returncode, 0)

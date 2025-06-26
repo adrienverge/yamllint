@@ -1,4 +1,4 @@
-# Copyright (C) 2023–2025 Jason Yundt
+# Copyright (C) 2023-2025 Jason Yundt
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import codecs
+import contextlib
 import itertools
 import os
 import unittest
@@ -221,10 +222,8 @@ TEST_STRINGS_TO_ENCODE_AT_RUNTIME = (
 
 def setUpModule():
     register_test_codecs()
-    try:
+    with contextlib.suppress(KeyError):
         del os.environ['YAMLLINT_FILE_ENCODING']
-    except KeyError:
-        pass
 
 
 tearDownModule = unregister_test_codecs
@@ -448,7 +447,7 @@ class DecoderTestCase(unittest.TestCase):
                         codec,
                         string
                     )
-                except UnicodeDecodeError:
+                except UnicodeDecodeError:  # noqa: PERF203
                     at_least_one_decode_error = True
         self.assertTrue(
             at_least_one_decode_error,

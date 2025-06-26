@@ -143,8 +143,8 @@ class LineLengthTestCase(RuleTestCase):
                    conf, problem=(2, 21))
 
     def test_non_breakable_inline_mappings(self):
-        conf = 'line-length: {max: 20, ' \
-               'allow-non-breakable-inline-mappings: true}'
+        conf = ('line-length: {max: 20, '
+                'allow-non-breakable-inline-mappings: true}')
         self.check('---\n'
                    'long_line: http://localhost/very/very/long/url\n'
                    'long line: http://localhost/very/very/long/url\n', conf)

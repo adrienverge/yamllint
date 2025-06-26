@@ -1,5 +1,5 @@
 # Copyright (C) 2016 Adrien Vergé
-# Copyright (C) 2023–2025 Jason Yundt
+# Copyright (C) 2023-2025 Jason Yundt
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@
 
 import codecs
 import contextlib
-from io import StringIO
 import os
 import shutil
 import sys
@@ -24,12 +23,12 @@ import tempfile
 import unittest
 import warnings
 from codecs import CodecInfo
+from io import StringIO
 
 import yaml
 
 from yamllint import linter
 from yamllint.config import YamlLintConfig
-
 
 # Encoding related stuff:
 UTF_CODECS = (
@@ -95,7 +94,7 @@ def unregister_test_codecs():
         codecs.unregister(test_codec_infos.get)
     else:
         warnings.warn(
-            "This version of Python doesn’t allow us to unregister codecs.",
+            "This version of Python doesn't allow us to unregister codecs.",
             stacklevel=1
         )
 
@@ -119,8 +118,8 @@ def encoding_detectable(string, codec):
     """
     Returns True if encoding can be detected after string is encoded
 
-    Encoding detection only works if you’re using a BOM or the first character
-    is ASCII. See yamllint.decoder.auto_decode()’s docstring.
+    Encoding detection only works if you're using a BOM or the first character
+    is ASCII. See yamllint.decoder.auto_decode()'s docstring.
     """
     return uses_bom(codec) or (len(string) > 0 and string[0].isascii())
 
