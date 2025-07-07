@@ -77,6 +77,9 @@ class QuotedValuesTestCase(RuleTestCase):
                    '  word 1\n'               # fails
                    '  word 2\n'
                    'multiline string 4:\n'
+                   '  "word 1\n'
+                   '   word 2"\n'
+                   'multiline string 5:\n'
                    '  "word 1\\\n'
                    '   word 2"\n',
                    conf, problem1=(9, 3))
@@ -127,9 +130,12 @@ class QuotedValuesTestCase(RuleTestCase):
                    '  word 1\n'               # fails
                    '  word 2\n'
                    'multiline string 4:\n'
-                   '  "word 1\\\n'
+                   '  "word 1\n'              # fails
+                   '   word 2"\n'
+                   'multiline string 5:\n'
+                   '  "word 1\\\n'            # fails
                    '   word 2"\n',
-                   conf, problem1=(9, 3), problem2=(12, 3))
+                   conf, problem1=(9, 3), problem2=(12, 3), problem3=(15, 3))
 
     def test_quote_type_double(self):
         conf = 'quoted-strings: {quote-type: double}\n'
@@ -173,6 +179,9 @@ class QuotedValuesTestCase(RuleTestCase):
                    '  word 1\n'               # fails
                    '  word 2\n'
                    'multiline string 4:\n'
+                   '  "word 1\n'
+                   '   word 2"\n'
+                   'multiline string 5:\n'
                    '  "word 1\\\n'
                    '   word 2"\n',
                    conf, problem1=(9, 3))
@@ -216,6 +225,9 @@ class QuotedValuesTestCase(RuleTestCase):
                    '  word 1\n'
                    '  word 2\n'
                    'multiline string 4:\n'
+                   '  "word 1\n'
+                   '   word 2"\n'
+                   'multiline string 5:\n'
                    '  "word 1\\\n'
                    '   word 2"\n',
                    conf)
@@ -263,9 +275,12 @@ class QuotedValuesTestCase(RuleTestCase):
                    '  word 1\n'
                    '  word 2\n'
                    'multiline string 4:\n'
+                   '  "word 1\n'              # fails
+                   '   word 2"\n'
+                   'multiline string 5:\n'
                    '  "word 1\\\n'            # fails
                    '   word 2"\n',
-                   conf, problem1=(12, 3))
+                   conf, problem1=(12, 3), problem2=(15, 3))
 
     def test_only_when_needed(self):
         conf = 'quoted-strings: {required: only-when-needed}\n'
@@ -307,7 +322,10 @@ class QuotedValuesTestCase(RuleTestCase):
                    '  word 1\n'
                    '  word 2\n'
                    'multiline string 4:\n'
-                   '  "word 1\\\n'            # fails
+                   '  "word 1\n'              # fails
+                   '   word 2"\n'
+                   'multiline string 5:\n'
+                   '  "word 1\\\n'
                    '   word 2"\n',
                    conf, problem1=(12, 3))
 
@@ -354,9 +372,12 @@ class QuotedValuesTestCase(RuleTestCase):
                    '  word 1\n'
                    '  word 2\n'
                    'multiline string 4:\n'
+                   '  "word 1\n'
+                   '   word 2"\n'
+                   'multiline string 5:\n'
                    '  "word 1\\\n'            # fails
                    '   word 2"\n',
-                   conf, problem1=(12, 3))
+                   conf, problem1=(12, 3), problem2=(15, 3))
 
     def test_only_when_needed_corner_cases(self):
         conf = 'quoted-strings: {required: only-when-needed}\n'
@@ -626,7 +647,8 @@ class QuotedKeysTestCase(RuleTestCase):
     rule_id = 'quoted-strings'
 
     def test_disabled(self):
-        conf_disabled = "quoted-strings: {}"
+        conf_disabled = ('quoted-strings: {}\n'
+                         'key-duplicates: disable\n')
         key_strings = ('---\n'
                        'true: 2\n'
                        '123: 3\n'
@@ -664,6 +686,10 @@ class QuotedKeysTestCase(RuleTestCase):
                        '  line 1\n'
                        '  line 2\n'
                        ': 35\n'
+                       '?\n'
+                       '  "line 1\n'
+                       '  line 2"\n'
+                       ': 37\n'
                        '?\n'
                        '  "line 1\\\n'
                        '   line 2"\n'
@@ -673,7 +699,8 @@ class QuotedKeysTestCase(RuleTestCase):
     def test_default(self):
         # Default configuration, but with check-keys
         conf_default = ("quoted-strings:\n"
-                        "  check-keys: true\n")
+                        "  check-keys: true\n"
+                        "key-duplicates: disable\n")
         key_strings = ('---\n'
                        'true: 2\n'
                        '123: 3\n'
@@ -711,6 +738,10 @@ class QuotedKeysTestCase(RuleTestCase):
                        '  line 1\n'
                        '  line 2\n'
                        ': 35\n'
+                       '?\n'
+                       '  "line 1\n'
+                       '  line 2"\n'
+                       ': 37\n'
                        '?\n'
                        '  "line 1\\\n'
                        '   line 2"\n'
@@ -721,7 +752,8 @@ class QuotedKeysTestCase(RuleTestCase):
     def test_quote_type_any(self):
         conf = ('quoted-strings:\n'
                 '  check-keys: true\n'
-                '  quote-type: any\n')
+                '  quote-type: any\n'
+                'key-duplicates: disable\n')
 
         key_strings = ('---\n'
                        'true: 2\n'
@@ -760,6 +792,10 @@ class QuotedKeysTestCase(RuleTestCase):
                        '  line 1\n'
                        '  line 2\n'
                        ': 35\n'
+                       '?\n'
+                       '  "line 1\n'
+                       '  line 2"\n'
+                       ': 37\n'
                        '?\n'
                        '  "line 1\\\n'
                        '   line 2"\n'
@@ -771,7 +807,8 @@ class QuotedKeysTestCase(RuleTestCase):
     def test_quote_type_single(self):
         conf = ('quoted-strings:\n'
                 '  check-keys: true\n'
-                '  quote-type: single\n')
+                '  quote-type: single\n'
+                'key-duplicates: disable\n')
 
         key_strings = ('---\n'
                        'true: 2\n'
@@ -810,6 +847,10 @@ class QuotedKeysTestCase(RuleTestCase):
                        '  line 1\n'
                        '  line 2\n'
                        ': 35\n'
+                       '?\n'
+                       '  "line 1\n'
+                       '  line 2"\n'
+                       ': 37\n'
                        '?\n'
                        '  "line 1\\\n'
                        '   line 2"\n'
@@ -818,12 +859,13 @@ class QuotedKeysTestCase(RuleTestCase):
                    problem1=(4, 1), problem2=(5, 1), problem3=(6, 1),
                    problem4=(7, 1), problem5=(20, 3), problem6=(21, 3),
                    problem7=(23, 2), problem8=(23, 10), problem9=(33, 3),
-                   problem10=(37, 3))
+                   problem10=(37, 3), problem11=(41, 3))
 
     def test_quote_type_double(self):
         conf = ('quoted-strings:\n'
                 '  check-keys: true\n'
-                '  quote-type: double\n')
+                '  quote-type: double\n'
+                'key-duplicates: disable\n')
 
         key_strings = ('---\n'
                        'true: 2\n'
@@ -862,6 +904,10 @@ class QuotedKeysTestCase(RuleTestCase):
                        '  line 1\n'
                        '  line 2\n'
                        ': 35\n'
+                       '?\n'
+                       '  "line 1\n'
+                       '  line 2"\n'
+                       ': 37\n'
                        '?\n'
                        '  "line 1\\\n'
                        '   line 2"\n'
@@ -874,7 +920,8 @@ class QuotedKeysTestCase(RuleTestCase):
         conf = ('quoted-strings:\n'
                 '  check-keys: true\n'
                 '  quote-type: any\n'
-                '  required: false\n')
+                '  required: false\n'
+                'key-duplicates: disable\n')
 
         key_strings = ('---\n'
                        'true: 2\n'
@@ -913,6 +960,10 @@ class QuotedKeysTestCase(RuleTestCase):
                        '  line 1\n'
                        '  line 2\n'
                        ': 35\n'
+                       '?\n'
+                       '  "line 1\n'
+                       '  line 2"\n'
+                       ': 37\n'
                        '?\n'
                        '  "line 1\\\n'
                        '   line 2"\n'
@@ -923,7 +974,8 @@ class QuotedKeysTestCase(RuleTestCase):
         conf = ('quoted-strings:\n'
                 '  check-keys: true\n'
                 '  quote-type: single\n'
-                '  required: false\n')
+                '  required: false\n'
+                'key-duplicates: disable\n')
 
         key_strings = ('---\n'
                        'true: 2\n'
@@ -962,18 +1014,24 @@ class QuotedKeysTestCase(RuleTestCase):
                        '  line 1\n'
                        '  line 2\n'
                        ': 35\n'
+                       '?\n'
+                       '  "line 1\n'
+                       '  line 2"\n'
+                       ': 37\n'
                        '?\n'
                        '  "line 1\\\n'
                        '   line 2"\n'
                        ': 39\n')
         self.check(key_strings, conf,
                    problem1=(5, 1), problem2=(6, 1), problem3=(7, 1),
-                   problem4=(21, 3), problem5=(23, 10), problem6=(37, 3))
+                   problem4=(21, 3), problem5=(23, 10), problem6=(37, 3),
+                   problem7=(41, 3))
 
     def test_only_when_needed(self):
         conf = ('quoted-strings:\n'
                 '  check-keys: true\n'
-                '  required: only-when-needed\n')
+                '  required: only-when-needed\n'
+                'key-duplicates: disable\n')
 
         key_strings = ('---\n'
                        'true: 2\n'
@@ -1012,6 +1070,10 @@ class QuotedKeysTestCase(RuleTestCase):
                        '  line 1\n'
                        '  line 2\n'
                        ': 35\n'
+                       '?\n'
+                       '  "line 1\n'
+                       '  line 2"\n'
+                       ': 37\n'
                        '?\n'
                        '  "line 1\\\n'
                        '   line 2"\n'
@@ -1024,7 +1086,8 @@ class QuotedKeysTestCase(RuleTestCase):
         conf = ('quoted-strings:\n'
                 '  check-keys: true\n'
                 '  quote-type: single\n'
-                '  required: only-when-needed\n')
+                '  required: only-when-needed\n'
+                'key-duplicates: disable\n')
 
         key_strings = ('---\n'
                        'true: 2\n'
@@ -1064,13 +1127,17 @@ class QuotedKeysTestCase(RuleTestCase):
                        '  line 2\n'
                        ': 35\n'
                        '?\n'
+                       '  "line 1\n'
+                       '  line 2"\n'
+                       ': 37\n'
+                       '?\n'
                        '  "line 1\\\n'
                        '   line 2"\n'
                        ': 39\n')
         self.check(key_strings, conf,
                    problem1=(5, 1), problem2=(6, 1), problem3=(7, 1),
                    problem4=(8, 1), problem5=(21, 3), problem6=(23, 10),
-                   problem7=(37, 3))
+                   problem7=(37, 3), problem8=(41, 3))
 
     def test_only_when_needed_corner_cases(self):
         conf = ('quoted-strings:\n'

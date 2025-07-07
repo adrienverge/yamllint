@@ -1,6 +1,19 @@
 Changelog
 =========
 
+1.37.1 (2025-05-04)
+-------------------
+
+- Rule ``comments``: tell how many spaces are expected
+- Rule ``quoted-strings``: Fix ``only-when-needed`` on multiline with backslash
+- Config: Report if ``rules`` is not a dict
+- Fix ``test_codec_built_in_equivalent()`` test when run with pytest
+- CI: Fix TestPyPI "dev0" versions for master commits on tags
+- Docs: Add links to GitHub repository and releases
+- Docs: Fix GitLab integration example
+- Docs: Fix GitLab integration link
+- Fix the tests badge link on the README
+
 1.37.0 (2025-03-23)
 -------------------
 

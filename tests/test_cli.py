@@ -272,7 +272,7 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-d', '', 'file'))
         self.assertEqual(ctx.returncode, -1)
         self.assertEqual(ctx.stdout, '')
-        self.assertRegex(ctx.stderr, r'^invalid config: not a dict')
+        self.assertRegex(ctx.stderr, r'^invalid config: not a mapping')
 
     def test_run_with_implicit_extends_config(self):
         path = os.path.join(self.wd, 'warn.yaml')
@@ -969,7 +969,7 @@ class CommandLineEncodingTestCase(unittest.TestCase):
                     self.assertNotEqual(ctx.returncode, 0)
                 else:
                     raise ValueError(
-                        f"root_dir was set to {repr(root_dir)}. It should only"
+                        f"root_dir was set to {root_dir!r}. It should only"
                         "ever be set to 'sorted_correctly' or"
                         "'sorted_incorrectly'."
                     )
@@ -1005,7 +1005,7 @@ class CommandLineEncodingTestCase(unittest.TestCase):
         }
 
         with temp_workspace(workspace):
-            for config_path in config_files.keys():
+            for config_path in config_files:
                 # First, make sure that encoding autodetection works when the
                 # file’s path is given as a command-line argument.
                 with RunContext(self) as ctx:

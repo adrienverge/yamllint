@@ -199,8 +199,12 @@ class SimpleConfigTestCase(unittest.TestCase):
     def test_invalid_rule(self):
         with self.assertRaisesRegex(
                 config.YamlLintConfigError,
+                'invalid config: rules should be a mapping'):
+            config.YamlLintConfig('rules:\n')
+        with self.assertRaisesRegex(
+                config.YamlLintConfigError,
                 'invalid config: rule "colons": should be either '
-                '"enable", "disable" or a dict'):
+                '"enable", "disable" or a mapping'):
             config.YamlLintConfig('rules:\n'
                                   '  colons: invalid\n')
 
