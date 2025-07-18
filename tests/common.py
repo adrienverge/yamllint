@@ -101,7 +101,7 @@ def unregister_test_codecs():
 
 
 def is_test_codec(codec):
-    return codec in test_codec_infos.keys()
+    return codec in test_codec_infos
 
 
 def built_in_equivalent_of_test_codec(test_codec):
@@ -112,10 +112,7 @@ def built_in_equivalent_of_test_codec(test_codec):
 
 
 def uses_bom(codec):
-    for suffix in ('_32', '_16', '_sig'):
-        if codec.endswith(suffix):
-            return True
-    return False
+    return any(codec.endswith(suffix) for suffix in ('_32', '_16', '_sig'))
 
 
 def encoding_detectable(string, codec):
@@ -193,17 +190,17 @@ class RuleTestCase(unittest.TestCase):
 
     def check(self, source, conf, **kwargs):
         expected_problems = []
-        for key in kwargs:
+        for key, value in kwargs.items():
             assert key.startswith('problem')
-            if len(kwargs[key]) > 2:
-                if kwargs[key][2] == 'syntax':
+            if len(value) > 2:
+                if value[2] == 'syntax':
                     rule_id = None
                 else:
-                    rule_id = kwargs[key][2]
+                    rule_id = value[2]
             else:
                 rule_id = self.rule_id
             expected_problems.append(linter.LintProblem(
-                kwargs[key][0], kwargs[key][1], rule=rule_id))
+                value[0], value[1], rule=rule_id))
         expected_problems.sort()
 
         real_problems = list(linter.run(source, self.build_fake_config(conf)))
