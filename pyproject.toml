@@ -4,7 +4,6 @@ description = "A linter for YAML files."
 readme = {file = "README.rst", content-type = "text/x-rst"}
 requires-python = ">=3.9"
 license = "GPL-3.0-or-later"
-license-files = ["LICENSE"]
 authors = [{name = "Adrien Vergé"}]
 keywords = ["yaml", "lint", "linter", "syntax", "checker"]
 classifiers = [
