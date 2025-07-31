@@ -248,9 +248,9 @@ It is possible to set the ``locale`` option globally. This is passed to Python's
 so an empty string ``""`` will use the system default locale, while e.g.
 ``"en_US.UTF-8"`` will use that.
 
-Currently this only affects the ``key-ordering`` rule. The default will order
-by Unicode code point number, while locales will sort case and accents
-properly as well.
+Currently this only affects the ``key-ordering`` and ``list-ordering`` rules.
+The default will order by Unicode code point number, while locales will sort
+case and accents properly as well.
 
 .. code-block:: yaml
 
