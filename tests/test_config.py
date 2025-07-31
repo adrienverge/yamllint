@@ -494,6 +494,11 @@ class IgnoreConfigTestCase(unittest.TestCase):
 
         shutil.rmtree(cls.wd)
 
+    def tearDown(self):
+        if os.path.exists(os.path.join(self.wd, '.gitignore')):
+            os.remove(os.path.join(self.wd, '.gitignore'))
+        os.chdir(self.wd)
+
     def test_mutually_exclusive_ignore_keys(self):
         self.assertRaises(
             YamlLintConfigError,
@@ -508,6 +513,42 @@ class IgnoreConfigTestCase(unittest.TestCase):
             FileNotFoundError,
             config.YamlLintConfig, 'extends: default\n'
                                    'ignore-from-file: not_found_file\n')
+
+    def test_ignore_from_file_exist(self):
+        with open(os.path.join(self.wd, '.gitignore'),
+                  'w', encoding='utf-8') as f:
+            f.write('*.dont-lint-me.yaml\n'
+                    '/bin/\n'
+                    '!/bin/*.lint-me-anyway.yaml\n')
+        parsed = config.YamlLintConfig('extends: default\n'
+                                       'ignore-from-file: .gitignore\n')
+        assert parsed.is_file_ignored('/bin/ignored') is True
+
+    def test_ignore_from_file_in_subdir_exist(self):
+        with open(os.path.join(self.wd, 'bin', '.gitignore'),
+                  'w', encoding='utf-8') as f:
+            f.write('*.dont-lint-me.yaml\n'
+                    '/bin/\n'
+                    '!/bin/*.lint-me-anyway.yaml\n')
+        parsed = config.YamlLintConfig('extends: default\n'
+                                       'ignore-from-file: bin/.gitignore\n')
+        assert parsed.is_file_ignored('/bin/ignored') is False
+        assert parsed.is_file_ignored('/bin/bin/ignored') is True
+
+    def test_ignore_from_file_from_subdir_fails_without_config_file(self):
+        with open(os.path.join(self.wd, '.gitignore'),
+                  'w', encoding='utf-8') as f:
+            f.write('*.dont-lint-me.yaml\n'
+                    '/bin/\n'
+                    '!/bin/*.lint-me-anyway.yaml\n')
+        try:
+            os.chdir(os.path.join(self.wd, 'bin'))
+            self.assertRaises(
+                FileNotFoundError,
+                config.YamlLintConfig, 'extends: default\n'
+                                       'ignore-from-file: .gitignore\n')
+        finally:
+            os.chdir(self.wd)
 
     def test_ignore_from_file_incorrect_type(self):
         self.assertRaises(
@@ -737,6 +778,376 @@ class IgnoreConfigTestCase(unittest.TestCase):
             './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:5:5: ' + hyphen,
         )))
 
+    def test_run_with_ignore_file_in_subdir(self):
+        # .                               ← yamllint is run from here
+        # ├── .yamllint
+        # └── bin
+        #     ├── .gitignore              ← correctly references other files
+        #     └── .ignore-key-duplicates
+        with open(os.path.join(self.wd, '.yamllint'),
+                  'w', encoding='utf-8') as f:
+            f.write('extends: default\n'
+                    'ignore-from-file: bin/.gitignore\n'
+                    'rules:\n'
+                    '  key-duplicates:\n'
+                    '    ignore-from-file: bin/.ignore-key-duplicates\n')
+
+        with open(os.path.join(self.wd, 'bin', '.gitignore'),
+                  'w', encoding='utf-8') as f:
+            f.write('*.dont-lint-me.yaml\n'
+                    '/\n'
+                    '!/*.lint-me-anyway.yaml\n')
+
+        with open(os.path.join(self.wd, 'bin', '.ignore-key-duplicates'),
+                  'w', encoding='utf-8') as f:
+            f.write('/../ign-dup\n')
+
+        sys.stdout = StringIO()
+        with self.assertRaises(SystemExit):
+            cli.run(('-f', 'parsable', '.'))
+
+        os.remove(os.path.join(self.wd, 'bin', '.gitignore'))
+        os.remove(os.path.join(self.wd, 'bin', '.ignore-key-duplicates'))
+
+        out = sys.stdout.getvalue()
+        out = '\n'.join(sorted(out.splitlines()))
+
+        docstart = '[warning] missing document start "---" (document-start)'
+        keydup = '[error] duplication of key "key" in mapping (key-duplicates)'
+        trailing = '[error] trailing spaces (trailing-spaces)'
+        hyphen = '[error] too many spaces after hyphen (hyphens)'
+
+        self.assertEqual(out, '\n'.join((
+            './.yamllint:1:1: ' + docstart,
+            './bin/file.lint-me-anyway.yaml:3:3: ' + keydup,
+            './bin/file.lint-me-anyway.yaml:4:17: ' + trailing,
+            './bin/file.lint-me-anyway.yaml:5:5: ' + hyphen,
+            './bin/file.yaml:3:3: ' + keydup,
+            './bin/file.yaml:4:17: ' + trailing,
+            './bin/file.yaml:5:5: ' + hyphen,
+            './file-at-root.yaml:3:3: ' + keydup,
+            './file-at-root.yaml:4:17: ' + trailing,
+            './file-at-root.yaml:5:5: ' + hyphen,
+            # not in bin so gitignore does not apply
+            './file.dont-lint-me.yaml:3:3: ' + keydup,
+            './file.dont-lint-me.yaml:4:17: ' + trailing,
+            './file.dont-lint-me.yaml:5:5: ' + hyphen,
+            './ign-dup/file.yaml:3:3: ' + keydup,  # not in bin
+            './ign-dup/file.yaml:4:17: ' + trailing,
+            './ign-dup/file.yaml:5:5: ' + hyphen,
+            './ign-dup/sub/dir/file.yaml:3:3: ' + keydup,
+            './ign-dup/sub/dir/file.yaml:4:17: ' + trailing,
+            './ign-dup/sub/dir/file.yaml:5:5: ' + hyphen,
+            './ign-trail/file.yaml:3:3: ' + keydup,
+            './ign-trail/file.yaml:4:17: ' + trailing,
+            './ign-trail/file.yaml:5:5: ' + hyphen,
+            './include/ign-dup/sub/dir/file.yaml:3:3: ' + keydup,
+            './include/ign-dup/sub/dir/file.yaml:4:17: ' + trailing,
+            './include/ign-dup/sub/dir/file.yaml:5:5: ' + hyphen,
+            './s/s/ign-trail/file.yaml:3:3: ' + keydup,
+            './s/s/ign-trail/file.yaml:4:17: ' + trailing,
+            './s/s/ign-trail/file.yaml:5:5: ' + hyphen,
+            './s/s/ign-trail/s/s/file.yaml:3:3: ' + keydup,
+            './s/s/ign-trail/s/s/file.yaml:4:17: ' + trailing,
+            './s/s/ign-trail/s/s/file.yaml:5:5: ' + hyphen,
+            './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:3:3: ' + keydup,
+            './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:4:17: ' + trailing,
+            './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:5:5: ' + hyphen,
+        )))
+
+    def test_run_with_ignore_file_not_in_parents(self):
+        # .
+        # ├── .yamllint
+        # ├── include
+        #     └── ing-dup
+        #       └── ing-dup               ← yamllint is run from here
+        # └── bin
+        #     ├── .gitignore
+        #     └── .ignore-key-duplicates
+        with open(os.path.join(self.wd, '.yamllint'),
+                  'w', encoding='utf-8') as f:
+            f.write('extends: default\n'
+                    'ignore-from-file: bin/.gitignore\n'
+                    'rules:\n'
+                    '  key-duplicates:\n'
+                    '    ignore-from-file: bin/.ignore-key-duplicates\n')
+
+        with open(os.path.join(self.wd, 'bin', '.gitignore'),
+                  'w', encoding='utf-8') as f:
+            f.write('*.yaml\n'
+                    '/\n'
+                    '!/*.lint-me-anyway.yaml\n')
+
+        with open(os.path.join(self.wd, 'bin', '.ignore-key-duplicates'),
+                  'w', encoding='utf-8') as f:
+            f.write('/../ign-dup\n')
+
+        sys.stdout = StringIO()
+        try:
+            os.chdir(os.path.join(self.wd, 'include', 'ign-dup', 'sub'))
+            with self.assertRaises(SystemExit):
+                cli.run(('-f', 'parsable', '.'))
+        finally:
+            os.chdir(self.wd)
+
+        os.remove(os.path.join(self.wd, 'bin', '.gitignore'))
+        os.remove(os.path.join(self.wd, 'bin', '.ignore-key-duplicates'))
+
+        out = sys.stdout.getvalue()
+        out = '\n'.join(sorted(out.splitlines()))
+
+        keydup = '[error] duplication of key "key" in mapping (key-duplicates)'
+        trailing = '[error] trailing spaces (trailing-spaces)'
+        hyphen = '[error] too many spaces after hyphen (hyphens)'
+
+        self.assertEqual(out, '\n'.join((
+            './dir/file.yaml:3:3: ' + keydup,
+            './dir/file.yaml:4:17: ' + trailing,
+            './dir/file.yaml:5:5: ' + hyphen,
+        )))
+
+    def test_run_with_ignore_file_in_parents(self):
+        # .
+        # ├── .yamllint
+        # ├── include
+        #     └── ing-dup
+        #       └── ing-dup               ← yamllint is run from here
+        # ├── .gitignore
+        # └── .ignore-key-duplicates
+        with open(os.path.join(self.wd, '.yamllint'),
+                  'w', encoding='utf-8') as f:
+            f.write('extends: default\n'
+                    'ignore-from-file: .gitignore\n'
+                    'rules:\n'
+                    '  key-duplicates:\n'
+                    '    ignore-from-file: .ignore-key-duplicates\n')
+
+        with open(os.path.join(self.wd, '.gitignore'),
+                  'w', encoding='utf-8') as f:
+            f.write('*.yaml\n'
+                    '/\n'
+                    '!/*.lint-me-anyway.yaml\n')
+
+        with open(os.path.join(self.wd, '.ignore-key-duplicates'),
+                  'w', encoding='utf-8') as f:
+            f.write('/../ign-dup\n')
+
+        sys.stdout = StringIO()
+        try:
+            os.chdir(os.path.join(self.wd, 'include', 'ign-dup', 'sub'))
+            with self.assertRaises(SystemExit):
+                cli.run(('-f', 'parsable', '.'))
+        finally:
+            os.chdir(self.wd)
+
+        os.remove(os.path.join(self.wd, '.gitignore'))
+        os.remove(os.path.join(self.wd, '.ignore-key-duplicates'))
+
+        out = sys.stdout.getvalue()
+        out = '\n'.join(sorted(out.splitlines()))
+
+        self.assertEqual(out, '')
+
+    def test_run_with_broken_ignore_file_in_subdir(self):
+        # .                               ← yamllint is run from here
+        # ├── .yamllint
+        # └── bin
+        #     ├── .gitignore              ← incorrectly references other files
+        #     └── .ignore-key-duplicates
+        with open(os.path.join(self.wd, '.yamllint'),
+                  'w', encoding='utf-8') as f:
+            f.write('extends: default\n'
+                    'ignore-from-file: bin/.gitignore\n'
+                    'rules:\n'
+                    '  key-duplicates:\n'
+                    '    ignore-from-file: bin/.ignore-key-duplicates\n')
+
+        with open(os.path.join(self.wd, 'bin', '.gitignore'),
+                  'w', encoding='utf-8') as f:
+            f.write('*.dont-lint-me.yaml\n'
+                    '/bin/\n'
+                    '!/bin/*.lint-me-anyway.yaml\n')
+
+        with open(os.path.join(self.wd, 'bin', '.ignore-key-duplicates'),
+                  'w', encoding='utf-8') as f:
+            f.write('/ign-dup\n')
+
+        sys.stdout = StringIO()
+        with self.assertRaises(SystemExit):
+            cli.run(('-f', 'parsable', '.'))
+
+        os.remove(os.path.join(self.wd, 'bin', '.gitignore'))
+        os.remove(os.path.join(self.wd, 'bin', '.ignore-key-duplicates'))
+
+        out = sys.stdout.getvalue()
+        out = '\n'.join(sorted(out.splitlines()))
+
+        docstart = '[warning] missing document start "---" (document-start)'
+        keydup = '[error] duplication of key "key" in mapping (key-duplicates)'
+        trailing = '[error] trailing spaces (trailing-spaces)'
+        hyphen = '[error] too many spaces after hyphen (hyphens)'
+
+        self.assertEqual(out, '\n'.join((
+            './.yamllint:1:1: ' + docstart,
+            './bin/file.lint-me-anyway.yaml:3:3: ' + keydup,
+            './bin/file.lint-me-anyway.yaml:4:17: ' + trailing,
+            './bin/file.lint-me-anyway.yaml:5:5: ' + hyphen,
+            './bin/file.yaml:3:3: ' + keydup,
+            './bin/file.yaml:4:17: ' + trailing,
+            './bin/file.yaml:5:5: ' + hyphen,
+            './file-at-root.yaml:3:3: ' + keydup,
+            './file-at-root.yaml:4:17: ' + trailing,
+            './file-at-root.yaml:5:5: ' + hyphen,
+            # not in bin/ so not ignored
+            './file.dont-lint-me.yaml:3:3: ' + keydup,
+            './file.dont-lint-me.yaml:4:17: ' + trailing,
+            './file.dont-lint-me.yaml:5:5: ' + hyphen,
+            './ign-dup/file.yaml:3:3: ' + keydup,  # not in bin/ so not ignored
+            './ign-dup/file.yaml:4:17: ' + trailing,
+            './ign-dup/file.yaml:5:5: ' + hyphen,
+            './ign-dup/sub/dir/file.yaml:3:3: ' + keydup,  # not in bin/
+            './ign-dup/sub/dir/file.yaml:4:17: ' + trailing,
+            './ign-dup/sub/dir/file.yaml:5:5: ' + hyphen,
+            './ign-trail/file.yaml:3:3: ' + keydup,
+            './ign-trail/file.yaml:4:17: ' + trailing,
+            './ign-trail/file.yaml:5:5: ' + hyphen,
+            './include/ign-dup/sub/dir/file.yaml:3:3: ' + keydup,
+            './include/ign-dup/sub/dir/file.yaml:4:17: ' + trailing,
+            './include/ign-dup/sub/dir/file.yaml:5:5: ' + hyphen,
+            './s/s/ign-trail/file.yaml:3:3: ' + keydup,
+            './s/s/ign-trail/file.yaml:4:17: ' + trailing,
+            './s/s/ign-trail/file.yaml:5:5: ' + hyphen,
+            './s/s/ign-trail/s/s/file.yaml:3:3: ' + keydup,
+            './s/s/ign-trail/s/s/file.yaml:4:17: ' + trailing,
+            './s/s/ign-trail/s/s/file.yaml:5:5: ' + hyphen,
+            './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:3:3: ' + keydup,
+            './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:4:17: ' + trailing,
+            './s/s/ign-trail/s/s/file2.lint-me-anyway.yaml:5:5: ' + hyphen,
+        )))
+
+    def test_run_with_ignore_from_file_from_subdir(self):
+        # .
+        # ├── .yamllint
+        # ├── .gitignore
+        # ├── .ignore-key-duplicates
+        # └── bin                         ← yamllint is run from here
+        with open(os.path.join(self.wd, '.yamllint'),
+                  'w', encoding='utf-8') as f:
+            f.write('extends: default\n'
+                    'ignore-from-file: .gitignore\n'
+                    'rules:\n'
+                    '  key-duplicates:\n'
+                    '    ignore-from-file: .ignore-key-duplicates\n')
+
+        with open(os.path.join(self.wd, '.gitignore'),
+                  'w', encoding='utf-8') as f:
+            f.write('*.dont-lint-me.yaml\n'
+                    '/bin/\n'
+                    '!/bin/*.lint-me-anyway.yaml\n')
+
+        with open(os.path.join(self.wd, '.ignore-key-duplicates'),
+                  'w', encoding='utf-8') as f:
+            f.write('/ign-dup\n')
+
+        sys.stdout = StringIO()
+        try:
+            os.chdir(os.path.join(self.wd, 'bin'))
+            with self.assertRaises(SystemExit):
+                cli.run(('-f', 'parsable', '.'))
+        finally:
+            os.chdir(self.wd)
+
+        os.remove(os.path.join(self.wd, '.gitignore'))
+        os.remove(os.path.join(self.wd, '.ignore-key-duplicates'))
+
+        out = sys.stdout.getvalue()
+        out = '\n'.join(sorted(out.splitlines()))
+
+        keydup = '[error] duplication of key "key" in mapping (key-duplicates)'
+        trailing = '[error] trailing spaces (trailing-spaces)'
+        hyphen = '[error] too many spaces after hyphen (hyphens)'
+
+        self.assertEqual(out, '\n'.join((
+            './file.lint-me-anyway.yaml:3:3: ' + keydup,
+            './file.lint-me-anyway.yaml:4:17: ' + trailing,
+            './file.lint-me-anyway.yaml:5:5: ' + hyphen,
+        )))
+
+    def test_run_with_ignore_from_file_from_subdir_on_root_dir(self):
+        # .
+        # ├── .yamllint
+        # ├── .gitignore
+        # ├── .ignore-key-duplicates
+        # └── bin                         ← yamllint is run from here
+        with open(os.path.join(self.wd, '.yamllint'),
+                  'w', encoding='utf-8') as f:
+            f.write('extends: default\n'
+                    'ignore-from-file: .gitignore\n'
+                    'rules:\n'
+                    '  key-duplicates:\n'
+                    '    ignore-from-file: .ignore-key-duplicates\n')
+
+        with open(os.path.join(self.wd, '.gitignore'),
+                  'w', encoding='utf-8') as f:
+            f.write('*.dont-lint-me.yaml\n'
+                    '/bin/\n'
+                    '!/bin/*.lint-me-anyway.yaml\n')
+
+        with open(os.path.join(self.wd, '.ignore-key-duplicates'),
+                  'w', encoding='utf-8') as f:
+            f.write('/ign-dup\n')
+
+        sys.stdout = StringIO()
+        try:
+            os.chdir(os.path.join(self.wd, 'bin'))
+            with self.assertRaises(SystemExit):
+                cli.run(('-f', 'parsable', '.'))
+        finally:
+            os.chdir(self.wd)
+
+        os.remove(os.path.join(self.wd, '.gitignore'))
+        os.remove(os.path.join(self.wd, '.ignore-key-duplicates'))
+
+        out = sys.stdout.getvalue()
+        out = '\n'.join(sorted(out.splitlines()))
+
+        keydup = '[error] duplication of key "key" in mapping (key-duplicates)'
+        trailing = '[error] trailing spaces (trailing-spaces)'
+        hyphen = '[error] too many spaces after hyphen (hyphens)'
+
+        self.assertEqual(out, '\n'.join((
+            './file.lint-me-anyway.yaml:3:3: ' + keydup,
+            './file.lint-me-anyway.yaml:4:17: ' + trailing,
+            './file.lint-me-anyway.yaml:5:5: ' + hyphen,
+        )))
+
+    def test_run_with_inaccessible_ignore_file_from_subdir(self):
+        # .
+        # ├── .yamllint
+        # └── bin                         ← yamllint is run from here
+        #     └── .gitignore
+        with open(os.path.join(self.wd, '.yamllint'),
+                  'w', encoding='utf-8') as f:
+            f.write('extends: default\n'
+                    'ignore-from-file: .gitignore\n')
+
+        with open(os.path.join(self.wd, 'bin', '.gitignore'),
+                  'w', encoding='utf-8') as f:
+            f.write('*.dont-lint-me.yaml\n'
+                    '/bin/\n'
+                    '!/bin/*.lint-me-anyway.yaml\n')
+
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+        try:
+            os.chdir(os.path.join(self.wd, 'bin'))
+            with self.assertRaises(FileNotFoundError):
+                cli.run(('-f', 'parsable', '.'))
+        finally:
+            os.chdir(self.wd)
+
+        os.remove(os.path.join(self.wd, 'bin', '.gitignore'))
+
     def test_run_with_ignored_from_file(self):
         path = os.path.join(self.wd, '.yamllint')
         with open(path, 'w', encoding='utf_8') as f:
@@ -806,7 +1217,8 @@ class IgnoreConfigTestCase(unittest.TestCase):
             cli.run(('-f', 'parsable', '.'))
         self.assertNotEqual(ctx.returncode, 0)
 
-        with open(os.path.join(wd, '.yamllint'), 'w', encoding='utf_8') as f:
+        with open(os.path.join(wd, '.yamllint'),
+                  'w', encoding='utf_8') as f:
             f.write('extends: default\n'
                     'ignore: |\n'
                     '  *404.yaml\n')
@@ -843,6 +1255,8 @@ class IgnoreConfigTestCase(unittest.TestCase):
 
     def create_ignore_file(self, text, codec):
         path = os.path.join(self.wd, f'{codec}.ignore')
+        # print(path)
+        # print(text)
         with open(path, 'wb') as f:
             f.write(text.encode(codec))
         self.addCleanup(lambda: os.remove(path))
@@ -881,3 +1295,33 @@ class IgnoreConfigTestCase(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             cli.run(('-d', conf, '.'))
         self.assertEqual(cm.exception.code, 0)
+
+    def test_relative_ignore_pattern(self):
+        result = config.relative_ignore_pattern('./.gitignore', '/bin')
+        self.assertEqual('/bin', result)
+
+        result = config.relative_ignore_pattern('../.gitignore', '/bin')
+        self.assertEqual('/bin', result)
+
+        result = config.relative_ignore_pattern('.gitignore', '/bin')
+        self.assertEqual('/bin', result)
+
+        result = config.relative_ignore_pattern('bin/.gitignore', '/bin')
+        self.assertEqual('bin/bin', result)
+
+        result = config.relative_ignore_pattern('./bin/.gitignore', '/bin')
+        self.assertEqual('bin/bin', result)
+
+        result = config.relative_ignore_pattern('../bin/.gitignore', '/bin')
+        self.assertEqual('../bin/bin', result)
+
+    def test_accept_ignore(self):
+        root = os.getcwd()
+        result = config.accept_ignore('.gitignore', root)
+        self.assertIs(result, True)
+        os.chdir('bin')
+        result = config.accept_ignore('../bin/.gitignore', root)
+        self.assertIs(result, True)
+        os.chdir('../include')
+        result = config.accept_ignore('../bin/.gitignore', root)
+        self.assertIs(result, False)
