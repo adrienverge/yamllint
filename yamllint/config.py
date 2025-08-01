@@ -246,10 +246,6 @@ def get_extended_config_file(name):
     if name.startswith('~'):
         name = os.path.expanduser(name)
 
-    # Expand variables if present
-    if '$' in name:
-        name = os.path.expandvars(name)
-
     # Is it a standard conf shipped with yamllint...
     if '/' not in name:
         std_conf = os.path.join(os.path.dirname(os.path.realpath(__file__)),

@@ -40,13 +40,6 @@ class ConfigFilenameExpansion(unittest.TestCase):
         result = get_extended_config_file(input_path)
         self.assertEqual(result, expected)
 
-    def test_env_var_expansion(self):
-        os.environ["TEST_PATH"] = "/tmp/test.yml"
-        input_path = "$TEST_PATH"
-        expected = "/tmp/test.yml"
-        result = get_extended_config_file(input_path)
-        self.assertEqual(result, expected)
-
     def test_no_expansion(self):
         result = get_extended_config_file('asis.yml')
         self.assertEqual(result, 'asis.yml')
