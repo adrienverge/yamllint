@@ -186,6 +186,47 @@ class QuotedValuesTestCase(RuleTestCase):
                    '   word 2"\n',
                    conf, problem1=(9, 3))
 
+    def test_quote_type_consistent(self):
+        conf = 'quoted-strings: {quote-type: consistent}'
+        self.check('---\n'
+                   'string1: "foo"\n'
+                   'string2: "bar"\n'
+                   'string3: \'baz\'\n'              # fails
+                   'string4: "quux"\n',
+                   conf, problem1=(4, 10))
+
+        conf = ('quoted-strings:\n'
+                '  quote-type: consistent\n'
+                '  check-keys: true\n')
+        self.check('---\n'
+                   '"string1": "foo"\n'
+                   'string2: "bar"\n'                # fails
+                   '\'string3\': "baz"\n'            # fails
+                   '"string4": {"key": "val"}\n'
+                   '"string5": {\'key\': "val"}\n',  # fails
+                   conf, problem1=(3, 1), problem2=(4, 1), problem3=(6, 13))
+
+        conf = ('quoted-strings:\n'
+                '  quote-type: consistent\n'
+                '  check-keys: true\n'
+                '  required: false\n')
+        self.check('---\n'
+                   'string1: \'foo\'\n'
+                   'string2: "bar"\n'               # fails
+                   'string3: \'baz\'\n'
+                   'string4: {\'key\': "val"}\n'    # fails
+                   'string5: {"key": \'val\'}\n'    # fails
+                   'string6:\n'
+                   '  \'key\': "val"\n'             # fails
+                   'string7:\n'
+                   '  "key": \'val\'\n'             # fails
+                   'string8:\n'
+                   '  "string"\n'                   # fails
+                   'string9: >\n'
+                   '  "string"\n',
+                   conf, problem1=(3, 10), problem2=(5, 18), problem3=(6, 11),
+                   problem4=(8, 10), problem5=(10, 3), problem6=(12, 3))
+
     def test_any_quotes_not_required(self):
         conf = 'quoted-strings: {quote-type: any, required: false}\n'
 

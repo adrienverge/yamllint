@@ -139,6 +139,20 @@ used.
 
     foo: 'bar"baz'
 
+#. With ``quoted-strings: {quote-type: consistent}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    foo: 'bar'
+    baz: 'quux'
+
+   the following code snippet would **FAIL**:
+   ::
+
+    foo: 'bar'
+    baz: "quux"
+
 #. With ``quoted-strings: {required: only-when-needed, check-keys: true,
    extra-required: ["[:]"]}``
 
@@ -161,7 +175,7 @@ from yamllint.linter import LintProblem
 
 ID = 'quoted-strings'
 TYPE = 'token'
-CONF = {'quote-type': ('any', 'single', 'double'),
+CONF = {'quote-type': ('any', 'single', 'double', 'consistent'),
         'required': (True, False, 'only-when-needed'),
         'extra-required': [str],
         'extra-allowed': [str],
@@ -198,7 +212,14 @@ yaml.resolver.Resolver.add_implicit_resolver(
     list('-+0123456789'))
 
 
-def _quote_match(quote_type, token_style):
+def _quote_match(quote_type, token_style, context):
+    if quote_type == 'consistent' and token_style is not None:
+        # The canonical token style in a document is assumed to be the first
+        # one found for the purpose of 'consistent'
+        if 'quoted_strings_consistent_token_style' not in context:
+            context['quoted_strings_consistent_token_style'] = token_style
+        return context['quoted_strings_consistent_token_style'] == token_style
+
     return ((quote_type == 'any') or
             (quote_type == 'single' and token_style == "'") or
             (quote_type == 'double' and token_style == '"'))
@@ -294,7 +315,7 @@ def check(conf, token, prev, next, nextnext, context):
 
         # Quotes are mandatory and need to match config
         if (token.style is None or
-            not (_quote_match(quote_type, token.style) or
+            not (_quote_match(quote_type, token.style, context) or
                  (conf['allow-quoted-quotes'] and _has_quoted_quotes(token)))):
             msg = f"string {node} is not quoted with {quote_type} quotes"
 
@@ -302,7 +323,7 @@ def check(conf, token, prev, next, nextnext, context):
 
         # Quotes are not mandatory but when used need to match config
         if (token.style and
-                not _quote_match(quote_type, token.style) and
+                not _quote_match(quote_type, token.style, context) and
                 not (conf['allow-quoted-quotes'] and
                      _has_quoted_quotes(token))):
             msg = f"string {node} is not quoted with {quote_type} quotes"
@@ -328,7 +349,7 @@ def check(conf, token, prev, next, nextnext, context):
 
         # But when used need to match config
         elif (token.style and
-              not _quote_match(quote_type, token.style) and
+              not _quote_match(quote_type, token.style, context) and
               not (conf['allow-quoted-quotes'] and _has_quoted_quotes(token))):
             msg = f"string {node} is not quoted with {quote_type} quotes"
 
