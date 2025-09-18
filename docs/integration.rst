@@ -62,29 +62,9 @@ results as a `Code quality (Code Climate)
    script:
      - pip install yamllint
      - mkdir reports
-     - >
-       yamllint -f parsable . | tee >(awk '
-       BEGIN {FS = ":"; ORS="\n"; first=1}
-       {
-           gsub(/^[ \t]+|[ \t]+$|"/, "", $4);
-           match($4, /^\[(warning|error)\](.*)\((.*)\)$/, a);
-           sev = (a[1] == "error" ? "major" : "minor");
-           if (first) {
-               first=0;
-               printf("[");
-           } else {
-               printf(",");
-           }
-           printf("{\"location\":{\"path\":\"%s\",\"lines\":{\"begin\":%s,"\
-                  "\"end\":%s}},\"severity\":\"%s\",\"check_name\":\"%s\","\
-                  "\"categories\":[\"Style\"],\"type\":\"issue\","\
-                  "\"description\":\"%s\"}", $1, $2, $3, sev, a[3], a[2]);
-       }
-       END { if (!first) printf("]\n"); }' > reports/codequality.json)
+     - yamllint -f gitlab . > codequality.json)
    artifacts:
      when: always
-     paths:
-       - reports
      expire_in: 1 week
      reports:
        codequality: reports/codequality.json
