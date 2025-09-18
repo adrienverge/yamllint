@@ -15,12 +15,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import glob
+import json
 import locale
 import os
 import pty
 import shutil
 import sys
-import json
 import tempfile
 import unittest
 from unittest.mock import patch
