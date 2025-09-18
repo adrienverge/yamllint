@@ -603,30 +603,30 @@ class CommandLineTestCase(unittest.TestCase):
         expected_out = json.dumps(
             [
                 {
-                    "check_name": "trailing-spaces",
-                    "description": "trailing spaces",
-                    "severity": "major",
-                    "fingerprint": str(hash(f"{path}2trailing-spaces")),
-                    "location": {
-                        "path": path,
-                        "lines": {
-                            "begin": "2",
-                            "end": "2",
+                    'check_name': 'trailing-spaces',
+                    'description': 'trailing spaces',
+                    'severity': 'major',
+                    'fingerprint': str(hash(f'{path}2trailing-spaces')),
+                    'location': {
+                        'path': path,
+                        'lines': {
+                            'begin': '2',
+                            'end': '2',
                         },
                     },
                 },
                 {
-                    "check_name": "new-line-at-end-of-file",
-                    "description": "no new line character at the end of file",
-                    "severity": "major",
-                    "fingerprint": str(
-                        hash(f"{path}3new-line-at-end-of-file"),
+                    'check_name': 'new-line-at-end-of-file',
+                    'description': 'no new line character at the end of file',
+                    'severity': 'major',
+                    'fingerprint': str(
+                        hash(f'{path}3new-line-at-end-of-file'),
                     ),
-                    "location": {
-                        "path": path,
-                        "lines": {
-                            "begin": "3",
-                            "end": "3",
+                    'location': {
+                        'path': path,
+                        'lines': {
+                            'begin': '3',
+                            'end': '3',
                         },
                     },
                 },
@@ -645,15 +645,15 @@ class CommandLineTestCase(unittest.TestCase):
         expected_out = json.dumps(
             [
                 {
-                    "check_name": "document-start",
-                    "description": 'missing document start "---"',
-                    "severity": "minor",
-                    "fingerprint": str(hash(f"{path}1document-start")),
-                    "location": {
-                        "path": path,
-                        "lines": {
-                            "begin": "1",
-                            "end": "1",
+                    'check_name': 'document-start',
+                    'description': 'missing document start "---"',
+                    'severity': 'minor',
+                    'fingerprint': str(hash(f'{path}1document-start')),
+                    'location': {
+                        'path': path,
+                        'lines': {
+                            'begin': '1',
+                            'end': '1',
                         },
                     },
                 },
@@ -686,35 +686,35 @@ class CommandLineTestCase(unittest.TestCase):
         path = os.path.join(self.wd, 'a.yaml')
 
         with (RunContext(self) as ctx,
-              patch.dict(os.environ, {"GITLAB_CI": "something"})):
+              patch.dict(os.environ, {'GITLAB_CI': 'something'})):
             cli.run((path, ))
         expected_out = json.dumps(
             [
                 {
-                    "check_name": "trailing-spaces",
-                    "description": "trailing spaces",
-                    "severity": "major",
-                    "fingerprint": str(hash(f"{path}2trailing-spaces")),
-                    "location": {
-                        "path": path,
-                        "lines": {
-                            "begin": "2",
-                            "end": "2",
+                    'check_name': 'trailing-spaces',
+                    'description': 'trailing spaces',
+                    'severity': 'major',
+                    'fingerprint': str(hash(f'{path}2trailing-spaces')),
+                    'location': {
+                        'path': path,
+                        'lines': {
+                            'begin': '2',
+                            'end': '2',
                         },
                     },
                 },
                 {
-                    "check_name": "new-line-at-end-of-file",
-                    "description": "no new line character at the end of file",
-                    "severity": "major",
-                    "fingerprint": str(
-                        hash(f"{path}3new-line-at-end-of-file"),
+                    'check_name': 'new-line-at-end-of-file',
+                    'description': 'no new line character at the end of file',
+                    'severity': 'major',
+                    'fingerprint': str(
+                        hash(f'{path}3new-line-at-end-of-file'),
                     ),
-                    "location": {
-                        "path": path,
-                        "lines": {
-                            "begin": "3",
-                            "end": "3",
+                    'location': {
+                        'path': path,
+                        'lines': {
+                            'begin': '3',
+                            'end': '3',
                         },
                     },
                 },

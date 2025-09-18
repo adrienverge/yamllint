@@ -91,23 +91,23 @@ class Format:
 
     @staticmethod
     def gitlab(problem, filename):
-        rule_name = problem.rule or "unknown"
+        rule_name = problem.rule or 'unknown'
         line = json.dumps(
             {
-                "check_name": rule_name,
-                "description": problem.desc,
-                "severity": "minor" if problem.level == 'warning' else "major",
-                "fingerprint": str(
-                    hash(f"{filename}{problem.line}{rule_name}"),
+                'check_name': rule_name,
+                'description': problem.desc,
+                'severity': 'minor' if problem.level == 'warning' else 'major',
+                'fingerprint': str(
+                    hash(f'{filename}{problem.line}{rule_name}'),
                 ),
-                "location": {
-                    "path": filename,
-                    "lines": {
+                'location': {
+                    'path': filename,
+                    'lines': {
                         # Why the numbers are string?
                         # Look at:
                         # https://about.gitlab.com/blog/devops-workflows-json-format-jq-ci-cd-lint/#json-linting-best-practices
-                        "begin": str(problem.line),
-                        "end": str(problem.line),
+                        'begin': str(problem.line),
+                        'end': str(problem.line),
                     },
                 },
             },
@@ -124,7 +124,7 @@ def show_problems(problems, file, args_format, no_warn):
         if ('GITHUB_ACTIONS' in os.environ and
                 'GITHUB_WORKFLOW' in os.environ):
             args_format = 'github'
-        elif ("GITLAB_CI" in os.environ):
+        elif ('GITLAB_CI' in os.environ):
             args_format = 'gitlab'
         elif supports_color():
             args_format = 'colored'
@@ -142,11 +142,11 @@ def show_problems(problems, file, args_format, no_warn):
             print(Format.github(problem, file))
         elif args_format == 'gitlab':
             if first:
-                print("[")
+                print('[')
                 first = False
             else:
-                print(",")
-            print(textwrap.indent(Format.gitlab(problem, file), "  "), end='')
+                print(',')
+            print(textwrap.indent(Format.gitlab(problem, file), '  '), end='')
         elif args_format == 'colored':
             if first:
                 print(f'\033[4m{file}\033[0m')
@@ -162,7 +162,7 @@ def show_problems(problems, file, args_format, no_warn):
         print('::endgroup::')
 
     if not first and args_format == 'gitlab':
-        print("\n]", end='')
+        print('\n]', end='')
 
     if not first and args_format not in {'parsable', 'gitlab'}:
         print('')
