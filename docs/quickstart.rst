@@ -95,9 +95,6 @@ Add the ``-f parsable`` arguments if you need an output format parsable by a
 machine (for instance for :doc:`syntax highlighting in text editors
 <text_editors>`). The output will then look like:
 
-Add the ``-f gitlab`` arguments if you need an output format used by
-`Gitlab CI's code quality artifact <https://docs.gitlab.com/ci/testing/code_quality/#view-code-quality-results>`_.
-
 ::
 
  file.yml:6:2: [warning] missing starting space in comment (comments)
