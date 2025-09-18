@@ -103,8 +103,9 @@ class Format:
                 "location": {
                     "path": filename,
                     "lines": {
-                        "begin": problem.line,
-                        "end": problem.line,
+                        # Why the numbers are string? Look at: https://about.gitlab.com/blog/devops-workflows-json-format-jq-ci-cd-lint/#json-linting-best-practices
+                        "begin": str(problem.line),
+                        "end": str(problem.line),
                     },
                 },
             },

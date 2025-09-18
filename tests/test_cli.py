@@ -610,8 +610,8 @@ class CommandLineTestCase(unittest.TestCase):
                     "location": {
                         "path": path,
                         "lines": {
-                            "begin": 2,
-                            "end": 2,
+                            "begin": "2",
+                            "end": "2",
                         },
                     },
                 },
@@ -625,8 +625,8 @@ class CommandLineTestCase(unittest.TestCase):
                     "location": {
                         "path": path,
                         "lines": {
-                            "begin": 3,
-                            "end": 3,
+                            "begin": "3",
+                            "end": "3",
                         },
                     },
                 },
@@ -652,8 +652,8 @@ class CommandLineTestCase(unittest.TestCase):
                     "location": {
                         "path": path,
                         "lines": {
-                            "begin": 1,
-                            "end": 1,
+                            "begin": "1",
+                            "end": "1",
                         },
                     },
                 },
@@ -698,8 +698,8 @@ class CommandLineTestCase(unittest.TestCase):
                     "location": {
                         "path": path,
                         "lines": {
-                            "begin": 2,
-                            "end": 2,
+                            "begin": "2",
+                            "end": "2",
                         },
                     },
                 },
@@ -713,8 +713,8 @@ class CommandLineTestCase(unittest.TestCase):
                     "location": {
                         "path": path,
                         "lines": {
-                            "begin": 3,
-                            "end": 3,
+                            "begin": "3",
+                            "end": "3",
                         },
                     },
                 },
