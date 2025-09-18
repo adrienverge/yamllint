@@ -341,11 +341,11 @@ def _check(conf, token, prev, next, nextnext, context):
 
         if found_indentation != expected:
             if expected < 0:
-                message = f'wrong indentation: expected at least ' \
-                          f'{found_indentation + 1}'
+                message = (f'wrong indentation: expected at least '
+                           f'{found_indentation + 1}')
             else:
-                message = f'wrong indentation: expected {expected} but ' \
-                          f'found {found_indentation}'
+                message = (f'wrong indentation: expected {expected} but '
+                           f'found {found_indentation}')
             yield LintProblem(token.start_mark.line + 1,
                               found_indentation + 1, message)
 

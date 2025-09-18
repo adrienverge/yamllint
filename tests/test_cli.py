@@ -31,7 +31,7 @@ from tests.common import (
     register_test_codecs,
     temp_workspace,
     temp_workspace_with_files_in_many_codecs,
-    unregister_test_codecs
+    unregister_test_codecs,
 )
 
 from yamllint import cli, config
@@ -738,7 +738,7 @@ class CommandLineTestCase(unittest.TestCase):
                 file.write(
                     'I am a string\n'
                     'therefore: I am an error\n')
-            with open(stdin_file_path, mode='r', encoding='utf-8') as file:
+            with open(stdin_file_path, encoding='utf-8') as file:
                 # prepares stdin with an invalid yaml string so that we can
                 # check for its specific error, and be assured that stdin was
                 # read
@@ -958,7 +958,7 @@ class CommandLineEncodingTestCase(unittest.TestCase):
             # We purposely choose the wrong text encoding here because the text
             # encoding shouldn’t matter. yamllint should completely ignore the
             # text encoding of stdin.
-            with open(path, mode="r", encoding="cp037") as file:
+            with open(path, encoding="cp037") as file:
                 sys.stdin = file
                 with RunContext(self) as ctx:
                     cli.run(('-c', config_path, '-'))

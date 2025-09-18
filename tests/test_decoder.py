@@ -448,7 +448,7 @@ class DecoderTestCase(unittest.TestCase):
                         codec,
                         string
                     )
-                except UnicodeDecodeError:
+                except UnicodeDecodeError:  # noqa: PERF203
                     at_least_one_decode_error = True
         self.assertTrue(
             at_least_one_decode_error,
