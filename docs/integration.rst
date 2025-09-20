@@ -50,9 +50,10 @@ A minimal example workflow using GitHub Actions:
 Integration with GitLab
 -----------------------
 
-yamllint auto-detects when it's running inside of a GitLab CI/CD job and outputs the results as
-a `Code Quality (CodeClimate)<https://docs.gitlab.com/ee/ci/testing/code_quality.html>`_ report.
-You can also force GitLab Code Quality output with ``yamllint --format gitlab``.
+yamllint auto-detects when it's running inside of a
+GitLab CI/CD job and outputs the results as a
+`Code Quality (CodeClimate)<https://docs.gitlab.com/ee/ci/testing/code_quality.html>`_
+report. You can also force GitLab Code Quality output with ``yamllint --format gitlab``.
 
 .. code:: yaml
 
