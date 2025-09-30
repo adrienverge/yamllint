@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import itertools
 import os.path
 
 import pathspec
@@ -31,6 +32,7 @@ class YamlLintConfig:
         assert (content is None) ^ (file is None)
 
         self.ignore = None
+        self.config_dir = ''
 
         self.yaml_files = pathspec.PathSpec.from_lines(
             'gitwildmatch', ['*.yaml', '*.yml', '.yamllint'])
@@ -38,6 +40,7 @@ class YamlLintConfig:
         self.locale = None
 
         if file is not None:
+            self.config_dir = os.path.dirname(file)
             with open(file, mode='rb') as f:
                 content = decoder.auto_decode(f.read())
 
@@ -45,12 +48,16 @@ class YamlLintConfig:
         self.validate()
 
     def is_file_ignored(self, filepath):
+        if self.config_dir:
+            filepath = os.path.relpath(filepath, start=self.config_dir)
         return self.ignore and self.ignore.match_file(filepath)
 
     def is_yaml_file(self, filepath):
         return self.yaml_files.match_file(os.path.basename(filepath))
 
     def enabled_rules(self, filepath):
+        if self.config_dir:
+            filepath = os.path.relpath(filepath, start=self.config_dir)
         return [yamllint.rules.get(id) for id, val in self.rules.items()
                 if val is not False and (
                     filepath is None or 'ignore' not in val or
@@ -112,9 +119,23 @@ class YamlLintConfig:
                 raise YamlLintConfigError(
                     'invalid config: ignore-from-file should contain '
                     'filename(s), either as a list or string')
+            ignore_files = [
+                os.path.join(self.config_dir, f)
+                for f in conf['ignore-from-file']
+            ]
+            lines = [
+                [
+                    relative_ignore_pattern(ignore_file, line)
+                    for line in decoder.lines_in_files([ignore_file])
+                    if accept_ignore(ignore_file, self.config_dir)
+                ]
+                for ignore_file in ignore_files
+            ]
+            # flatten the list
+            lines = list(itertools.chain.from_iterable(lines))
             self.ignore = pathspec.PathSpec.from_lines(
                 'gitwildmatch',
-                decoder.lines_in_files(conf['ignore-from-file'])
+                lines
             )
         elif 'ignore' in conf:
             if isinstance(conf['ignore'], str):
@@ -150,10 +171,12 @@ class YamlLintConfig:
             except Exception as e:
                 raise YamlLintConfigError(f'invalid config: {e}') from e
 
-            self.rules[id] = validate_rule_conf(rule, self.rules[id])
+            self.rules[id] = validate_rule_conf(rule,
+                                                self.rules[id],
+                                                self.config_dir)
 
 
-def validate_rule_conf(rule, conf):
+def validate_rule_conf(rule, conf, config_dir=''):
     if conf is False:  # disable
         return False
 
@@ -168,9 +191,23 @@ def validate_rule_conf(rule, conf):
                 raise YamlLintConfigError(
                     'invalid config: ignore-from-file should contain '
                     'valid filename(s), either as a list or string')
+            ignore_files = [
+                os.path.join(config_dir, f)
+                for f in conf['ignore-from-file']
+            ]
+            lines = [
+                [
+                    relative_ignore_pattern(ignore_file, line)
+                    for line in decoder.lines_in_files([ignore_file])
+                    if accept_ignore(ignore_file, config_dir)
+                ]
+                for ignore_file in ignore_files
+            ]
+            # flatten the list
+            lines = list(itertools.chain.from_iterable(lines))
             conf['ignore'] = pathspec.PathSpec.from_lines(
                 'gitwildmatch',
-                decoder.lines_in_files(conf['ignore-from-file'])
+                lines
             )
         elif ('ignore' in conf and not isinstance(
                 conf['ignore'], pathspec.pathspec.PathSpec)):
@@ -252,3 +289,36 @@ def get_extended_config_file(name):
 
     # or a custom conf on filesystem?
     return name
+
+
+def relative_ignore_pattern(ignore_file, pattern):
+    ignore_file = os.path.relpath(ignore_file)
+    ignore_dir = os.path.dirname(ignore_file)
+
+    if (
+            os.path.basename(ignore_dir) == '..' or
+            ignore_dir == '' or
+            ignore_dir == '.'):
+        return pattern
+    if pattern == '/':
+        return '/'
+    if pattern.startswith("!"):
+        return f"!{os.path.join(ignore_dir, pattern[1:].removeprefix('/'))}"
+    return os.path.join(ignore_dir, pattern.removeprefix('/'))
+
+
+def accept_ignore(ignore_file, root_dir):
+    if root_dir == '':
+        return True
+    cwd = os.getcwd()
+    abs_root = os.path.abspath(root_dir)
+    abs_ignore = os.path.abspath(os.path.dirname(ignore_file))
+    if cwd == abs_root:
+        return True
+    while True:
+        if abs_ignore == cwd:
+            return True
+        if cwd == abs_root:
+            return False
+        cwd = os.path.dirname(cwd)
+    return False
