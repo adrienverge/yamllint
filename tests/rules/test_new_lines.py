@@ -41,6 +41,18 @@ class NewLinesTestCase(RuleTestCase):
         self.check('---\ntext\n', conf)
         self.check('---\r\ntext\r\n', conf, problem=(1, 4))
 
+    def test_unix_type_error_messages(self):
+        """Test that error messages show both expected and found characters."""
+        conf = ('new-line-at-end-of-file: disable\n'
+                'new-lines: {type: unix}\n')
+        # Test CRLF found when expecting LF
+        self.check('\r\n', conf,
+                   problem=(1, 1, 'wrong new line character: '
+                            'expected "\\n", found "\\r\\n"'))
+        self.check('---\r\ntext\r\n', conf,
+                   problem=(1, 4, 'wrong new line character: '
+                            'expected "\\n", found "\\r\\n"'))
+
     def test_unix_type_required_st_sp(self):
         # If we find a CRLF when looking for Unix newlines, yamllint
         # should always raise, regardless of logic with
@@ -61,10 +73,21 @@ class NewLinesTestCase(RuleTestCase):
         self.check('---\ntext\n', conf, problem=(1, 4))
         self.check('---\r\ntext\r\n', conf)
 
+    def test_dos_type_error_messages(self):
+        """Test that error messages show both expected and found characters."""
+        conf = ('new-line-at-end-of-file: disable\n'
+                'new-lines: {type: dos}\n')
+        # Test LF found when expecting CRLF
+        self.check('\n', conf,
+                   problem=(1, 1, 'wrong new line character: '
+                            'expected "\\r\\n", found "\\n"'))
+        self.check('---\ntext\n', conf,
+                   problem=(1, 4, 'wrong new line character: '
+                            'expected "\\r\\n", found "\\n"'))
+
     def test_platform_type(self):
         conf = ('new-line-at-end-of-file: disable\n'
                 'new-lines: {type: platform}\n')
-
         self.check('', conf)
 
         # mock the Linux new-line-character
@@ -94,3 +117,20 @@ class NewLinesTestCase(RuleTestCase):
             # ---
             # self.check('---\r\ntext\nfoo\r\n', conf, problem=(2, 4))
             # self.check('---\r\ntext\n', conf, problem=(2, 4))
+
+    def test_platform_type_error_messages(self):
+        """Test that error messages show both expected and found characters."""
+        conf = ('new-line-at-end-of-file: disable\n'
+                'new-lines: {type: platform}\n')
+
+        # Test on Linux platform
+        with mock.patch('yamllint.rules.new_lines.linesep', '\n'):
+            self.check('\r\n', conf,
+                       problem=(1, 1, 'wrong new line character: '
+                                'expected "\\n", found "\\r\\n"'))
+
+        # Test on Windows platform
+        with mock.patch('yamllint.rules.new_lines.linesep', '\r\n'):
+            self.check('\n', conf,
+                       problem=(1, 1, 'wrong new line character: '
+                                'expected "\\r\\n", found "\\n"'))
