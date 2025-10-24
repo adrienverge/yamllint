@@ -58,7 +58,7 @@ Usage
 
 .. code:: bash
 
- # Lint all YAML files in a directory (recursively)
+ # Recursively lint all YAML files in a directory
  yamllint .
 
 .. code:: bash
