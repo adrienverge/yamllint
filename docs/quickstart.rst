@@ -35,6 +35,12 @@ On OpenBSD:
 
   doas pkg_add py-yamllint
 
+On Alpine Linux:
+
+.. code:: bash
+
+  pkg add yamllint
+
 Alternatively using pip, the Python package manager:
 
 .. code:: bash
