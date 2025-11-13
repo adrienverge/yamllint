@@ -227,6 +227,55 @@ class QuotedValuesTestCase(RuleTestCase):
                    conf, problem1=(3, 10), problem2=(5, 18), problem3=(6, 11),
                    problem4=(8, 10), problem5=(10, 3), problem6=(12, 3))
 
+    def test_allow_double_quotes_for_escaping(self):
+        conf = ('quoted-strings:\n'
+                '  quote-type: single\n'
+                '  allow-double-quotes-for-escaping: true\n')
+        self.check('---\n'
+                   "string1: 'foo'\n"
+                   'string2: "bar\\nstool"\n'
+                   'string3: "baz"\n'             # fails
+                   "string4: 'quux'\n",
+                   conf, problem1=(4, 10))
+
+        conf = ('quoted-strings:\n'
+                '  quote-type: single\n'
+                '  allow-double-quotes-for-escaping: true\n'
+                '  check-keys: true\n')
+
+        self.check('---\n'
+                   "'string1': 'foo'\n"
+                   "\"string2\\tsplit\": 'foo'\n"
+                   "'string3': \"foo\\nbar\"\n"
+                   "string4: 'bar'\n"                # fails
+                   "\"string5\": 'baz'\n"            # fails
+                   "'string6': {'key': 'val'}\n"
+                   "'string7': \"foo\"\n",
+                   conf, problem1=(5, 1), problem2=(6, 1), problem3=(8, 12))
+
+        conf = ('quoted-strings:\n'
+                '  quote-type: single\n'
+                '  allow-double-quotes-for-escaping: true\n'
+                '  check-keys: true\n'
+                '  required: false\n')
+        self.check('---\n'
+                   'string1: \'foo\'\n'
+                   'string2: "bar"\n'               # fails
+                   'string3: \'baz\'\n'
+                   'string4: {\'key\': "val"}\n'    # fails
+                   'string5: {"key": \'val\'}\n'    # fails
+                   'string6:\n'
+                   '  \'key\': "val"\n'             # fails
+                   'string7:\n'
+                   '  "key": \'val\'\n'             # fails
+                   'string8:\n'
+                   '  "string"\n'                   # fails
+                   'string9: >\n'
+                   '  "string"\n'
+                   'string10: "bar\\nstool"\n',
+                   conf, problem1=(3, 10), problem2=(5, 18), problem3=(6, 11),
+                   problem4=(8, 10), problem5=(10, 3), problem6=(12, 3))
+
     def test_any_quotes_not_required(self):
         conf = 'quoted-strings: {quote-type: any, required: false}\n'
 
