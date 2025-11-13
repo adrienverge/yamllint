@@ -302,7 +302,7 @@ def check_scalar_indentation(conf, token, context):
 
         if indent != expected_indent:
             yield LintProblem(line_no, indent + 1,
-                              f'wrong indentation: expected {expected_indent}'
+                              f'wrong indentation: expected {expected_indent} '
                               f'but found {indent}')
 
 
