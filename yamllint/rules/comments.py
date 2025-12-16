@@ -26,6 +26,9 @@ Use this rule to control the position and formatting of comments.
 * ``min-spaces-from-content`` is used to visually separate inline comments from
   content. It defines the minimal required number of spaces between a comment
   and its preceding content.
+* ``ignore-regex`` is used to exclude specific comments from this check.
+  Only the comment itself will be matched to the regex, not the whole line on
+  inline comments.
 
 .. rubric:: Default values (when enabled)
 
@@ -36,6 +39,7 @@ Use this rule to control the position and formatting of comments.
      require-starting-space: true
      ignore-shebangs: true
      min-spaces-from-content: 2
+     ignore-regex: []
 
 .. rubric:: Examples
 
@@ -70,8 +74,24 @@ Use this rule to control the position and formatting of comments.
    ::
 
     x = 2 ^ 127 - 1 # Mersenne prime number
+
+#. With ``comments: {ignore-regex: [^#cloud-config]}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    #cloud-config
+
+#. With ``comments: {ignore-regex: [^#noqa]}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    enabled: true #noqa
+
 """
 
+import re
 
 from yamllint.linter import LintProblem
 
@@ -79,13 +99,20 @@ ID = 'comments'
 TYPE = 'comment'
 CONF = {'require-starting-space': bool,
         'ignore-shebangs': bool,
-        'min-spaces-from-content': int}
+        'min-spaces-from-content': int,
+        'ignore-regex': [str]}
 DEFAULT = {'require-starting-space': True,
            'ignore-shebangs': True,
-           'min-spaces-from-content': 2}
+           'min-spaces-from-content': 2,
+           'ignore-regex': []}
 
 
 def check(conf, comment):
+    # If the comment matched the ignore-regex, we don't perform any checks
+    if (len(conf['ignore-regex']) > 0 and
+            any(re.search(r, str(comment))
+                for r in conf['ignore-regex'])):
+        return
     if (conf['min-spaces-from-content'] != -1 and comment.is_inline() and
             comment.pointer - comment.token_before.end_mark.pointer <
             conf['min-spaces-from-content']):
