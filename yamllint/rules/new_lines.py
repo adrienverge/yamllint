@@ -43,7 +43,7 @@ CONF = {'type': ('unix', 'dos', 'platform')}
 DEFAULT = {'type': 'unix'}
 
 
-def check(conf, line):
+def check(conf, line, context):
     if conf['type'] == 'unix':
         newline_char = '\n'
     elif conf['type'] == 'platform':
