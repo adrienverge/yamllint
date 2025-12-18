@@ -44,6 +44,9 @@ DEFAULT = {'type': 'unix'}
 
 
 def check(conf, line, context):
+    if context.get("has_shown_problem") is True:
+        return
+
     if conf['type'] == 'unix':
         newline_char = '\n'
     elif conf['type'] == 'platform':
@@ -51,8 +54,9 @@ def check(conf, line, context):
     elif conf['type'] == 'dos':
         newline_char = '\r\n'
 
-    if line.start == 0 and len(line.buffer) > line.end:
+    if len(line.buffer) > line.end:
         if line.buffer[line.end:line.end + len(newline_char)] != newline_char:
+            context["has_shown_problem"] = True
             c = repr(newline_char).strip('\'')
-            yield LintProblem(1, line.end - line.start + 1,
+            yield LintProblem(line.line_no, line.end - line.start + 1,
                               f'wrong new line character: expected {c}')
