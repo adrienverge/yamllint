@@ -29,7 +29,7 @@ ID = 'new-line-at-end-of-file'
 TYPE = 'line'
 
 
-def check(conf, line):
+def check(conf, line, context):
     if line.end == len(line.buffer) and line.end > line.start:
         yield LintProblem(line.line_no, line.end - line.start + 1,
                           'no new line character at the end of file')

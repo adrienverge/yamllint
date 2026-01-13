@@ -44,7 +44,7 @@ ID = 'trailing-spaces'
 TYPE = 'line'
 
 
-def check(conf, line):
+def check(conf, line, context):
     if line.end == 0:
         return
 

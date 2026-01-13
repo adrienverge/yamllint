@@ -76,6 +76,8 @@ def get_cosmetic_problems(buffer, conf, filepath):
     context = {}
     for rule in token_rules:
         context[rule.ID] = {}
+    for rule in line_rules:
+        context[rule.ID] = {}
 
     class DisableDirective:
         def __init__(self):
@@ -156,7 +158,7 @@ def get_cosmetic_problems(buffer, conf, filepath):
         elif isinstance(elem, parser.Line):
             for rule in line_rules:
                 rule_conf = conf.rules[rule.ID]
-                for problem in rule.check(rule_conf, elem):
+                for problem in rule.check(rule_conf, elem, context[rule.ID]):
                     problem.rule = rule.ID
                     problem.level = rule_conf['level']
                     cache.append(problem)
