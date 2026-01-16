@@ -659,6 +659,16 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run((path, '--no-warnings', '-f', 'auto'))
         self.assertEqual(ctx.returncode, 0)
 
+    def test_run_no_warnings_from_config(self):
+        with open(os.path.join(self.wd, 'config'), 'w') as f:
+            f.write('no-warnings: true')
+
+        path = os.path.join(self.wd, 'warn.yaml')
+
+        with RunContext(self) as ctx:
+            cli.run((path, '-c', f.name, '-f', 'auto'))
+        self.assertEqual(ctx.returncode, 0)
+
     def test_run_no_warnings_and_strict(self):
         path = os.path.join(self.wd, 'warn.yaml')
 
