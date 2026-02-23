@@ -22,16 +22,6 @@ dependencies = [
 ]
 dynamic = ["version"]
 
-[project.optional-dependencies]
-dev = [
-    "doc8",
-    "flake8",
-    "flake8-import-order",
-    "rstcheck[sphinx]",
-    "ruff",
-    "sphinx",
-]
-
 [project.scripts]
 yamllint = "yamllint.cli:run"
 
@@ -39,6 +29,17 @@ yamllint = "yamllint.cli:run"
 homepage = "https://github.com/adrienverge/yamllint"
 repository = "https://github.com/adrienverge/yamllint"
 documentation = "https://yamllint.readthedocs.io"
+
+[dependency-groups]
+dev = [
+    "doc8",
+    "flake8",
+    "flake8-import-order",
+    "rstcheck[sphinx]",
+    "ruff",
+    "sphinx",
+    "sphinx_rtd_theme",
+]
 
 [build-system]
 build-backend = "setuptools.build_meta"
