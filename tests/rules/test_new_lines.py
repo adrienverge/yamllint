@@ -74,12 +74,8 @@ class NewLinesTestCase(RuleTestCase):
             self.check('---\ntext\n', conf)
             self.check('---\r\ntext\r\n', conf, problem=(1, 4))
             self.check('---\r\ntext\n', conf, problem=(1, 4))
-            # FIXME: the following tests currently don't work
-            # because only the first line is checked for line-endings
-            # see: issue #475
-            # ---
-            # self.check('---\ntext\r\nfoo\n', conf, problem=(2, 4))
-            # self.check('---\ntext\r\n', conf, problem=(2, 4))
+            self.check('---\ntext\r\nfoo\n', conf, problem=(2, 5))
+            self.check('---\ntext\r\n', conf, problem=(2, 5))
 
         # mock the Windows new-line-character
         with mock.patch('yamllint.rules.new_lines.linesep', '\r\n'):
@@ -88,9 +84,5 @@ class NewLinesTestCase(RuleTestCase):
             self.check('---\r\ntext\r\n', conf)
             self.check('---\ntext\n', conf, problem=(1, 4))
             self.check('---\ntext\r\n', conf, problem=(1, 4))
-            # FIXME: the following tests currently don't work
-            # because only the first line is checked for line-endings
-            # see: issue #475
-            # ---
-            # self.check('---\r\ntext\nfoo\r\n', conf, problem=(2, 4))
-            # self.check('---\r\ntext\n', conf, problem=(2, 4))
+            self.check('---\r\ntext\nfoo\r\n', conf, problem=(2, 5))
+            self.check('---\r\ntext\n', conf, problem=(2, 5))
