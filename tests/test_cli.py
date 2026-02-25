@@ -408,6 +408,41 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(ctx.stdout, '')
         self.assertRegex(ctx.stderr, r'No such file or directory')
 
+    def test_run_fails_immediately(self):
+        invalid_paths = ['a', 'b', 'c']
+        paths = [os.path.join(self.wd, p) for p in invalid_paths]
+
+        with RunContext(self) as ctx:
+            cli.run(('-f', 'parsable', *paths))
+        self.assertEqual(ctx.returncode, -1)
+        self.assertEqual(ctx.stdout, '')
+        self.assertRegex(ctx.stderr, r'No such file or directory')
+        self.assertEqual(1, len(ctx.stderr.splitlines()))
+
+    def test_run_continues_after_error(self):
+        invalid_paths = ['a', 'b', 'c']
+        paths = [os.path.join(self.wd, p) for p in invalid_paths]
+
+        with RunContext(self) as ctx:
+            cli.run(('-f', 'parsable', '--continue-on-error', *paths))
+        self.assertEqual(ctx.returncode, -1)
+        self.assertEqual(ctx.stdout, '')
+        lines = ctx.stderr.splitlines()
+        self.assertEqual(3, len(lines))
+        for line in lines:
+            self.assertRegex(line, r'No such file or directory')
+
+    def test_run_with_multiple_processes(self):
+        files = ['sub/ok.yaml']
+        paths = [os.path.join(self.wd, p) for p in files]
+
+        with RunContext(self) as ctx:
+            cli.run(('-f', 'parsable', '--processes', '0', *paths))
+        self.assertEqual(ctx.returncode, 0)
+        self.assertEqual(ctx.stdout, '')
+        self.assertEqual(ctx.stderr, '')
+        self.assertEqual(0, len(ctx.stderr.splitlines()))
+
     def test_run_one_problem_file(self):
         path = os.path.join(self.wd, 'a.yaml')
 
