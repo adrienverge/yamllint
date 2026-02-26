@@ -1,0 +1,46 @@
+---
+
+extends: default
+
+rules:
+  braces:
+    level: warning
+  brackets:
+    level: warning
+  colons:
+    level: warning
+  commas:
+    level: warning
+  comments:
+    level: warning
+  comments-indentation:
+    level: warning
+  document-end:
+    level: warning
+  document-start:
+    level: warning
+  empty-lines:
+    level: warning
+  empty-values:
+    level: warning
+  hyphens:
+    level: warning
+  indentation:
+    level: warning
+  key-duplicates: enable
+  key-ordering:
+    level: warning
+  line-length:
+    level: warning
+  new-line-at-end-of-file:
+    level: warning
+  new-lines:
+    level: warning
+  octal-values:
+    level: warning
+  quoted-strings:
+    level: warning
+  trailing-spaces:
+    level: warning
+  truthy:
+    level: error
