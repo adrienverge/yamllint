@@ -833,6 +833,7 @@ class IgnoreConfigTestCase(unittest.TestCase):
                     '    ignore: file-at-root.yaml\n')
 
         sys.stdout = StringIO()
+        sys.stderr = StringIO()
         with self.assertRaises(SystemExit):
             cli.run(('-f', 'parsable', 'file.dont-lint-me.yaml',
                      'file-at-root.yaml'))
@@ -840,6 +841,28 @@ class IgnoreConfigTestCase(unittest.TestCase):
             sys.stdout.getvalue().strip(),
             'file-at-root.yaml:4:17: [error] trailing spaces (trailing-spaces)'
         )
+        self.assertIn('file.dont-lint-me.yaml', sys.stderr.getvalue())
+        self.assertIn('ignore list', sys.stderr.getvalue())
+        sys.stderr = sys.__stderr__
+
+    def test_run_with_ignore_on_ignored_dir(self):
+        path = os.path.join(self.wd, '.yamllint')
+        with open(path, 'w', encoding='utf_8') as f:
+            f.write('ignore: ign-dup\n'
+                    'rules:\n'
+                    '  trailing-spaces: enable\n')
+
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+        with self.assertRaises(SystemExit):
+            cli.run(('-f', 'parsable', 'ign-dup', 'file-at-root.yaml'))
+        self.assertEqual(
+            sys.stdout.getvalue().strip(),
+            'file-at-root.yaml:4:17: [error] trailing spaces (trailing-spaces)'
+        )
+        self.assertIn('ign-dup', sys.stderr.getvalue())
+        self.assertIn('ignore list', sys.stderr.getvalue())
+        sys.stderr = sys.__stderr__
 
     def create_ignore_file(self, text, codec):
         path = os.path.join(self.wd, f'{codec}.ignore')
