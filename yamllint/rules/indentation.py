@@ -339,7 +339,7 @@ def _check(conf, token, prev, next, nextnext, context):
                 not isinstance(token, yaml.ValueToken)):
             expected = detect_indent(expected, token)
 
-        if found_indentation != expected:
+        if expected is not None and found_indentation != expected:
             if expected < 0:
                 message = (f'wrong indentation: expected at least '
                            f'{found_indentation + 1}')

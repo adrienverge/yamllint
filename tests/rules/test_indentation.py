@@ -1705,6 +1705,17 @@ class IndentationTestCase(RuleTestCase):
                    '   moustache}}\n',
                    conf, problem1=(4, 8), problem2=(5, 4))
 
+    def test_unmatched_flow_mapping_end(self):
+        # Regression test for TypeError crash when an unmatched '}'
+        # produces a FlowMappingEndToken in a block context (issue #771)
+        conf = ('indentation: {spaces: consistent}\n'
+                'document-start: disable\n')
+        self.check('data:\n'
+                   '  config.alloy: |\n'
+                   '\n'
+                   '  }\n',
+                   conf, problem=(4, 3, 'syntax'))
+
 
 class ScalarIndentationTestCase(RuleTestCase):
     rule_id = 'indentation'
