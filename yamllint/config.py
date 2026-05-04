@@ -15,7 +15,7 @@
 
 import os.path
 
-import pathspec
+from pathspec import GitIgnoreSpec
 import yaml
 
 from yamllint import decoder
@@ -32,8 +32,8 @@ class YamlLintConfig:
 
         self.ignore = None
 
-        self.yaml_files = pathspec.PathSpec.from_lines(
-            'gitwildmatch', ['*.yaml', '*.yml', '.yamllint'])
+        self.yaml_files = GitIgnoreSpec.from_lines(
+            ['*.yaml', '*.yml', '.yamllint'])
 
         self.locale = None
 
@@ -112,18 +112,16 @@ class YamlLintConfig:
                 raise YamlLintConfigError(
                     'invalid config: ignore-from-file should contain '
                     'filename(s), either as a list or string')
-            self.ignore = pathspec.PathSpec.from_lines(
-                'gitwildmatch',
+            self.ignore = GitIgnoreSpec.from_lines(
                 decoder.lines_in_files(conf['ignore-from-file'])
             )
         elif 'ignore' in conf:
             if isinstance(conf['ignore'], str):
-                self.ignore = pathspec.PathSpec.from_lines(
-                    'gitwildmatch', conf['ignore'].splitlines())
+                self.ignore = GitIgnoreSpec.from_lines(
+                    conf['ignore'].splitlines())
             elif (isinstance(conf['ignore'], list) and
                     all(isinstance(line, str) for line in conf['ignore'])):
-                self.ignore = pathspec.PathSpec.from_lines(
-                    'gitwildmatch', conf['ignore'])
+                self.ignore = GitIgnoreSpec.from_lines(conf['ignore'])
             else:
                 raise YamlLintConfigError(
                     'invalid config: ignore should contain file patterns')
@@ -134,8 +132,7 @@ class YamlLintConfig:
                 raise YamlLintConfigError(
                     'invalid config: yaml-files '
                     'should be a list of file patterns')
-            self.yaml_files = pathspec.PathSpec.from_lines('gitwildmatch',
-                                                           conf['yaml-files'])
+            self.yaml_files = GitIgnoreSpec.from_lines(conf['yaml-files'])
 
         if 'locale' in conf:
             if not isinstance(conf['locale'], str):
@@ -158,8 +155,8 @@ def validate_rule_conf(rule, conf):
         return False
 
     if isinstance(conf, dict):
-        if ('ignore-from-file' in conf and not isinstance(
-                conf['ignore-from-file'], pathspec.pathspec.PathSpec)):
+        if ('ignore-from-file' in conf and
+                not isinstance(conf['ignore-from-file'], GitIgnoreSpec)):
             if isinstance(conf['ignore-from-file'], str):
                 conf['ignore-from-file'] = [conf['ignore-from-file']]
             if not (isinstance(conf['ignore-from-file'], list)
@@ -168,19 +165,17 @@ def validate_rule_conf(rule, conf):
                 raise YamlLintConfigError(
                     'invalid config: ignore-from-file should contain '
                     'valid filename(s), either as a list or string')
-            conf['ignore'] = pathspec.PathSpec.from_lines(
-                'gitwildmatch',
+            conf['ignore'] = GitIgnoreSpec.from_lines(
                 decoder.lines_in_files(conf['ignore-from-file'])
             )
-        elif ('ignore' in conf and not isinstance(
-                conf['ignore'], pathspec.pathspec.PathSpec)):
+        elif ('ignore' in conf and
+                not isinstance(conf['ignore'], GitIgnoreSpec)):
             if isinstance(conf['ignore'], str):
-                conf['ignore'] = pathspec.PathSpec.from_lines(
-                    'gitwildmatch', conf['ignore'].splitlines())
+                conf['ignore'] = GitIgnoreSpec.from_lines(
+                    conf['ignore'].splitlines())
             elif (isinstance(conf['ignore'], list) and
                     all(isinstance(line, str) for line in conf['ignore'])):
-                conf['ignore'] = pathspec.PathSpec.from_lines(
-                    'gitwildmatch', conf['ignore'])
+                conf['ignore'] = GitIgnoreSpec.from_lines(conf['ignore'])
             else:
                 raise YamlLintConfigError(
                     'invalid config: ignore should contain file patterns')

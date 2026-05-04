@@ -1,6 +1,19 @@
 Changelog
 =========
 
+1.38.0 (2026-01-13)
+-------------------
+
+- Add support for Python 3.14, drop support for Python 3.9
+- Require pathspec ≥ 1.0.0
+- Config: Follow gitignore implementation in ``yaml-files`` and ``ignore``
+- Config: Use "mapping" instead of "dict" for user-facing errors
+- Rule ``indentation``: Fix error message for ``check-multi-line-strings``
+- Rule ``quoted-strings``: Add ``quote-type: consistent``
+- Docs: Update the name of BSD ports
+- Docs: Enhance wording of recursive directory lint in README
+- Docs: Add Alpine Linux installation instructions in README
+
 1.37.1 (2025-05-04)
 -------------------
 

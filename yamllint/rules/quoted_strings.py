@@ -20,8 +20,8 @@ used.
 
 .. rubric:: Options
 
-* ``quote-type`` defines allowed quotes: ``single``, ``double`` or ``any``
-  (default).
+* ``quote-type`` defines allowed quotes: ``single``, ``double``, ``consistent``
+  or ``any`` (default).
 * ``required`` defines whether using quotes in string values is required
   (``true``, default) or not (``false``), or only allowed when really needed
   (``only-when-needed``).

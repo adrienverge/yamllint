@@ -23,7 +23,6 @@ import shutil
 import sys
 import tempfile
 import unittest
-import warnings
 
 import yaml
 
@@ -90,13 +89,7 @@ def register_test_codecs():
 
 
 def unregister_test_codecs():
-    if sys.version_info >= (3, 10, 0):
-        codecs.unregister(test_codec_infos.get)
-    else:
-        warnings.warn(
-            "This version of Python doesn’t allow us to unregister codecs.",
-            stacklevel=1
-        )
+    codecs.unregister(test_codec_infos.get)
 
 
 def is_test_codec(codec):
