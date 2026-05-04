@@ -110,6 +110,10 @@ class Format:
                         'end': str(problem.line),
                     },
                 },
+                # Addded codeclimate fields described at:
+                # https://github.com/codeclimate/platform/blob/master/spec/analyzers/SPEC.md#data-types
+                'type': 'issue',
+                'categories': ['Style'],
             },
             indent=2,
         )
