@@ -664,6 +664,10 @@ class CommandLineTestCase(unittest.TestCase):
                             'end': '1',
                         },
                     },
+                    # Addded codeclimate fields described at:
+                    # https://github.com/codeclimate/platform/blob/master/spec/analyzers/SPEC.md#data-types
+                    'type': 'issue',
+                    'categories': ['Style'],
                 },
             ],
             indent=2,
@@ -710,6 +714,10 @@ class CommandLineTestCase(unittest.TestCase):
                             'end': '2',
                         },
                     },
+                    # Addded codeclimate fields described at:
+                    # https://github.com/codeclimate/platform/blob/master/spec/analyzers/SPEC.md#data-types
+                    'type': 'issue',
+                    'categories': ['Style'],
                 },
                 {
                     'check_name': 'new-line-at-end-of-file',
@@ -725,6 +733,10 @@ class CommandLineTestCase(unittest.TestCase):
                             'end': '3',
                         },
                     },
+                    # Addded codeclimate fields described at:
+                    # https://github.com/codeclimate/platform/blob/master/spec/analyzers/SPEC.md#data-types
+                    'type': 'issue',
+                    'categories': ['Style'],
                 },
             ],
             indent=2,
