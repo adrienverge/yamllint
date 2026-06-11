@@ -11,7 +11,7 @@ class LintProblem:
     line: Annotated[int, Ge(0)]
     column: Annotated[int, Ge(0)]
     desc: str = field(eq=False, order=False,)
-    rule: Annotated[str, MinLen(1)] = field(order=False,)
+    rule: None | Annotated[str, MinLen(1)] = field(order=False,)
     # Don't compare the level as if they
     # point to the same location and talk about
     # the same thing, that's enough.
