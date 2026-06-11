@@ -20,6 +20,7 @@ dependencies = [
     "pathspec >= 1.0.0",
     "pyyaml",
     "attrs",
+    "annotated-types",
 ]
 dynamic = ["version"]
 
