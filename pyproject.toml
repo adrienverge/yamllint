@@ -19,6 +19,7 @@ classifiers = [
 dependencies = [
     "pathspec >= 1.0.0",
     "pyyaml",
+    "attrs",
 ]
 dynamic = ["version"]
 
