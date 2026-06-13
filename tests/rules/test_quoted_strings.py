@@ -14,7 +14,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from tests.common import RuleTestCase
-import yaml.reader
 
 from yamllint import config
 
@@ -549,18 +548,18 @@ class QuotedValuesTestCase(RuleTestCase):
         self.check('---\n'
                    'k1: \\u001b\n',
                    conf)
-        self.assertRaises(yaml.reader.ReaderError, self.check,
-                          '---\n'
-                          'k1: "\u001b"\n',
-                          conf)
-        self.assertRaises(yaml.reader.ReaderError, self.check,
-                          '---\n'
-                          "k1: '\u001b'\n",
-                          conf)
-        self.assertRaises(yaml.reader.ReaderError, self.check,
-                          '---\n'
-                          'k1: \u001b\n',
-                          conf)
+        # A raw (non-escaped) non-printable character is invalid YAML; it
+        # must be reported as a syntax error rather than raising a
+        # ReaderError.
+        self.check('---\n'
+                   'k1: "\u001b"\n',
+                   conf, problem=(2, 6, 'syntax'))
+        self.check('---\n'
+                   "k1: '\u001b'\n",
+                   conf, problem=(2, 6, 'syntax'))
+        self.check('---\n'
+                   'k1: \u001b\n',
+                   conf, problem=(2, 5, 'syntax'))
 
     def test_octal_values(self):
         conf = 'quoted-strings: {required: true}\n'

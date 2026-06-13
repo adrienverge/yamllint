@@ -120,9 +120,12 @@ def comments_between_tokens(token1, token2):
 
 
 def token_or_comment_generator(buffer):
-    yaml_loader = yaml.BaseLoader(buffer)
-
     try:
+        # BaseLoader() can already raise (e.g. a ReaderError on non-printable
+        # characters), so construct it inside the try too. Any such failure is
+        # surfaced separately as a syntax error by the linter.
+        yaml_loader = yaml.BaseLoader(buffer)
+
         prev = None
         curr = yaml_loader.get_token()
         while curr is not None:
@@ -137,7 +140,7 @@ def token_or_comment_generator(buffer):
             prev = curr
             curr = next
 
-    except yaml.scanner.ScannerError:
+    except (yaml.scanner.ScannerError, yaml.reader.ReaderError):
         pass
 
 
