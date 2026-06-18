@@ -4,7 +4,7 @@ from pathlib import Path
 
 from typing_extensions import Self
 
-from yamllint.linter import LintProblem
+from yamllint.lint_problem import LintProblem
 
 
 class ProjectFormat(ABC):
