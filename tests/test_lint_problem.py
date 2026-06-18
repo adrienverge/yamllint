@@ -289,16 +289,16 @@ def test_equation_on_non_equal_problems(
         pytest.param(
             LintProblem(
                 file=Path("test.yaml"),
-                line=6,
-                column=6,
+                line=5,
+                column=20,
                 desc="Grrr",
                 rule="Grrr",
                 level="Heaven",
             ),
             LintProblem(
                 file=Path("test.yaml"),
-                line=5,
-                column=20,
+                line=6,
+                column=6,
                 desc="Grrr",
                 rule="Grrr",
                 level="Heaven",
