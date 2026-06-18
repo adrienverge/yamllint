@@ -12,7 +12,7 @@ class LintProblem:
     column: Annotated[int, Ge(0)]
     desc: str = field(eq=False, order=False,)
     rule: Annotated[str, MinLen(1)] | None = field(order=False,)
-    # Don't compare the level as if they
+    # Don't compare the level because if they
     # point to the same location and talk about
     # the same thing, that's enough.
     level: str | None = field(eq=False, order=False,)
