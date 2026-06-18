@@ -267,6 +267,44 @@ def test_equation_on_non_equal_problems(
             ),
             id="Different column",
         ),
+        pytest.param(
+            LintProblem(
+                file=Path("test1.yaml"),
+                line=6,
+                column=6,
+                desc="Grrr",
+                rule="Grrr",
+                level="Heaven",
+            ),
+            LintProblem(
+                file=Path("test2.yaml"),
+                line=8,
+                column=6,
+                desc="Grrr",
+                rule="Grrr",
+                level="Heaven",
+            ),
+            id="File and Line in reverse",
+        ),
+        pytest.param(
+            LintProblem(
+                file=Path("test.yaml"),
+                line=6,
+                column=6,
+                desc="Grrr",
+                rule="Grrr",
+                level="Heaven",
+            ),
+            LintProblem(
+                file=Path("test.yaml"),
+                line=5,
+                column=20,
+                desc="Grrr",
+                rule="Grrr",
+                level="Heaven",
+            ),
+            id="Line And Column",
+        ),
     ],
 )
 def test_order(first_problem: LintProblem, second_problem: LintProblem) -> None:
