@@ -120,7 +120,12 @@ def comments_between_tokens(token1, token2):
 
 
 def token_or_comment_generator(buffer):
-    yaml_loader = yaml.BaseLoader(buffer)
+    try:
+        yaml_loader = yaml.BaseLoader(buffer)
+    except yaml.reader.ReaderError:
+        # Failures like ReaderError on non-printable characters are surfaced
+        # separately as a syntax error by the linter, so ignore them here.
+        return
 
     try:
         prev = None

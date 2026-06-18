@@ -182,6 +182,17 @@ def get_syntax_error(buffer):
                               'syntax error: ' + e.problem + ' (syntax)')
         problem.level = 'error'
         return problem
+    except yaml.reader.ReaderError as e:
+        # ReaderError is raised for non-printable characters (e.g. control
+        # characters such as NUL) before the parser produces position marks.
+        # It is a YAMLError but not a MarkedYAMLError, so derive the line and
+        # column from its flat position into the buffer.
+        line = buffer.count('\n', 0, e.position)
+        column = e.position - (buffer.rfind('\n', 0, e.position) + 1)
+        problem = LintProblem(line + 1, column + 1,
+                              'syntax error: ' + e.reason + ' (syntax)')
+        problem.level = 'error'
+        return problem
 
 
 def _run(buffer, conf, filepath):

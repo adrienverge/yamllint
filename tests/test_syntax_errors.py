@@ -33,6 +33,26 @@ class YamlLintTestCase(RuleTestCase):
                    'doc: ument\n'
                    '...\n', None, problem=(3, 1))
 
+    def test_non_printable_characters(self):
+        # PyYAML rejects non-printable characters (control characters such as
+        # NUL or DEL) with a ReaderError, which is a YAMLError but not a
+        # MarkedYAMLError. yamllint must report these as syntax errors instead
+        # of letting the exception escape.
+        self.check('---\n'
+                   'key: val\x00ue\n', None, problem=(2, 9))
+        self.check('---\n'
+                   'this is ok\n'
+                   'this has a \x01 control char\n', None, problem=(3, 12))
+        self.check('\x7f\n', None, problem=(1, 1))
+        # A bare non-printable character with no other content.
+        self.check('\x00', None, problem=(1, 1))
+        # Cosmetic rules still run on the printable lines preceding the error.
+        self.check('---\n'
+                   'trailing:   \n'
+                   'oops\x00\n', None,
+                   problem1=(2, 10, 'trailing-spaces'),
+                   problem2=(3, 5))
+
     def test_empty_flows(self):
         self.check('---\n'
                    '- []\n'
