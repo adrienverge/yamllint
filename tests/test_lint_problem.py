@@ -272,3 +272,73 @@ def test_equation_on_non_equal_problems(
 def test_order(first_problem: LintProblem, second_problem: LintProblem) -> None:
     assert first_problem < second_problem
     assert not (first_problem >= second_problem)
+
+
+@pytest.mark.parametrize(
+    ("problem1", "problem2"),
+    [
+        pytest.param(
+            LintProblem(
+                file=Path("test1.yaml"),
+                line=6,
+                column=6,
+                desc="Grrr",
+                rule="rule1",
+                level="Heaven",
+            ),
+            LintProblem(
+                file=Path("test1.yaml"),
+                line=6,
+                column=6,
+                desc="Grrr",
+                rule="rule2",
+                level="Heaven",
+            ),
+            id="Different rule",
+        ),
+        pytest.param(
+            LintProblem(
+                file=Path("test1.yaml"),
+                line=6,
+                column=6,
+                desc="Grrr",
+                rule="Grrr",
+                level="1",
+            ),
+            LintProblem(
+                file=Path("test1.yaml"),
+                line=6,
+                column=6,
+                desc="Grrr",
+                rule="Grrr",
+                level="2",
+            ),
+            id="Different level",
+        ),
+        pytest.param(
+            LintProblem(
+                file=Path("test1.yaml"),
+                line=6,
+                column=6,
+                desc="desc1",
+                rule="Grrr",
+                level="Heaven",
+            ),
+            LintProblem(
+                file=Path("test1.yaml"),
+                line=6,
+                column=6,
+                desc="desc2",
+                rule="Grrr",
+                level="Heaven",
+            ),
+            id="Different decs",
+        ),
+    ],
+)
+def test_exluded_fields_dont_affect_order(
+    problem1: LintProblem,
+    problem2: LintProblem,
+) -> None:
+    assert not problem1 > problem2
+    assert not problem1 < problem2
