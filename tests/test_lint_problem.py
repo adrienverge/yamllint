@@ -204,14 +204,15 @@ def test_equation_on_non_equal_problems(
     assert problem1 != problem2
 
 
-@pytest.mark.parametrize((
+@pytest.mark.parametrize(
+    (
         "first_problem",
         "second_problem",
     ),
     [
         pytest.param(
             LintProblem(
-                file=Path("test.yaml"),
+                file=Path("test1.yaml"),
                 line=6,
                 column=6,
                 desc="Grrr",
@@ -219,7 +220,7 @@ def test_equation_on_non_equal_problems(
                 level="Heaven",
             ),
             LintProblem(
-                file=Path("actual_test.yaml"),
+                file=Path("test2.yaml"),
                 line=6,
                 column=6,
                 desc="Grrr",
@@ -227,8 +228,47 @@ def test_equation_on_non_equal_problems(
                 level="Heaven",
             ),
             id="Different file",
-        ),]
-    )
+        ),
+        pytest.param(
+            LintProblem(
+                file=Path("test1.yaml"),
+                line=6,
+                column=6,
+                desc="Grrr",
+                rule="Grrr",
+                level="Heaven",
+            ),
+            LintProblem(
+                file=Path("test1.yaml"),
+                line=7,
+                column=6,
+                desc="Grrr",
+                rule="Grrr",
+                level="Heaven",
+            ),
+            id="Different line",
+        ),
+        pytest.param(
+            LintProblem(
+                file=Path("test1.yaml"),
+                line=6,
+                column=6,
+                desc="Grrr",
+                rule="Grrr",
+                level="Heaven",
+            ),
+            LintProblem(
+                file=Path("test1.yaml"),
+                line=6,
+                column=7,
+                desc="Grrr",
+                rule="Grrr",
+                level="Heaven",
+            ),
+            id="Different column",
+        ),
+    ],
+)
 def test_order(first_problem: LintProblem, second_problem: LintProblem) -> None:
     assert first_problem < second_problem
     assert not (first_problem >= second_problem)
