@@ -186,6 +186,19 @@ class TruthyTestCase(RuleTestCase):
                    'boolean6: !!bool NO\n',
                    conf)
 
+    def test_explicit_yaml_version_does_not_leak_to_next_document(self):
+        conf = ('truthy: enable\n'
+                'document-start: disable\n')
+        # A %YAML directive only applies to the document it introduces. A
+        # following directive-less document (separated by '---', without
+        # '...') must be linted as YAML 1.1, where 'on' is truthy.
+        self.check('%YAML 1.2\n'
+                   '---\n'
+                   'on: 1\n'
+                   '---\n'
+                   'on: 2\n',
+                   conf, problem1=(5, 1))
+
     def test_check_keys_disabled(self):
         conf = ('truthy:\n'
                 '  allowed-values: []\n'
