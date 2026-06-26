@@ -38,6 +38,17 @@ def find_files_recursively(items, conf):
 
 
 def supports_color():
+    no_color = os.environ.get('NO_COLOR')
+    force_color = os.environ.get('FORCE_COLOR')
+    # https://force-color.org/ states an environment variable is taken in
+    # account when:
+    # - it is present
+    # - AND NOT an empty string
+    if (no_color is not None and no_color != ''):
+        return False
+    if (force_color is not None and force_color != ''):
+        return True
+
     supported_platform = not (platform.system() == 'Windows' and not
                               ('ANSICON' in os.environ or
                                ('TERM' in os.environ and
