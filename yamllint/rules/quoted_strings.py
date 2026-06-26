@@ -30,6 +30,10 @@ used.
   ``required: false`` and  ``required: only-when-needed``.
 * ``extra-allowed`` is a list of PCRE regexes to allow quoted string values,
   even if ``required: only-when-needed`` is set.
+* ``allow-double-quotes-for-escaping`` defines whether or not to allow
+    double quotes even if ``quote-type: single`` or
+    ``required: only-when-needed`` when the quoted
+    string contains escape sequences.
 * ``allow-quoted-quotes`` allows (``true``) using disallowed quotes for strings
   with allowed quotes inside. Default ``false``.
 * ``check-keys`` defines whether to apply the rules to keys in mappings. By
@@ -165,6 +169,20 @@ used.
    ::
 
     "foo:bar": baz
+#. With ``quoted-strings: {quote-type: singe,
+   allow-double-quotes-for-escaping: true}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    foo: 'bar'
+    baz: "quux\\nquux 2"
+
+   the following code snippet would **FAIL**:
+   ::
+
+    foo: 'bar'
+    baz: "quux quux 2"
 """
 
 import re
@@ -175,16 +193,24 @@ from yamllint.linter import LintProblem
 
 ID = 'quoted-strings'
 TYPE = 'token'
-CONF = {'quote-type': ('any', 'single', 'double', 'consistent'),
+CONF = {'quote-type':
+        (
+            'any',
+            'single',
+            'double',
+            'consistent',
+        ),
         'required': (True, False, 'only-when-needed'),
         'extra-required': [str],
         'extra-allowed': [str],
+        'allow-double-quotes-for-escaping': bool,
         'allow-quoted-quotes': bool,
         'check-keys': bool}
 DEFAULT = {'quote-type': 'any',
            'required': True,
            'extra-required': [],
            'extra-allowed': [],
+           'allow-double-quotes-for-escaping': False,
            'allow-quoted-quotes': False,
            'check-keys': False}
 
@@ -212,7 +238,9 @@ yaml.resolver.Resolver.add_implicit_resolver(
     list('-+0123456789'))
 
 
-def _quote_match(quote_type, token_style, context):
+def _quote_match(quote_type, token, context):
+    token_style = token.style
+
     if quote_type == 'consistent' and token_style is not None:
         # The canonical token style in a document is assumed to be the first
         # one found for the purpose of 'consistent'
@@ -261,6 +289,17 @@ def _has_quoted_quotes(token):
     return ((not token.plain) and
             ((token.style == "'" and '"' in token.value) or
              (token.style == '"' and "'" in token.value)))
+
+
+def _has_escaping_in_double_quotes(token):
+    if token.style != '"':
+        return False
+
+    plain_value = token.start_mark.buffer[
+        token.start_mark.pointer:token.end_mark.pointer
+    ]
+
+    return ('\\' in plain_value)
 
 
 def _has_backslash_on_at_least_one_line_ending(token):
@@ -315,17 +354,21 @@ def check(conf, token, prev, next, nextnext, context):
 
         # Quotes are mandatory and need to match config
         if (token.style is None or
-            not (_quote_match(quote_type, token.style, context) or
-                 (conf['allow-quoted-quotes'] and _has_quoted_quotes(token)))):
+            not (_quote_match(quote_type, token, context) or
+                 (conf['allow-quoted-quotes'] and _has_quoted_quotes(token)) or
+                 (conf['allow-double-quotes-for-escaping'] and
+                  _has_escaping_in_double_quotes(token)))):
             msg = f"string {node} is not quoted with {quote_type} quotes"
 
     elif conf['required'] is False:
 
         # Quotes are not mandatory but when used need to match config
         if (token.style and
-                not _quote_match(quote_type, token.style, context) and
+                not _quote_match(quote_type, token, context) and
                 not (conf['allow-quoted-quotes'] and
-                     _has_quoted_quotes(token))):
+                     _has_quoted_quotes(token)) and
+                not (conf['allow-double-quotes-for-escaping'] and
+                     _has_escaping_in_double_quotes(token))):
             msg = f"string {node} is not quoted with {quote_type} quotes"
 
         elif not token.style:
@@ -343,13 +386,14 @@ def check(conf, token, prev, next, nextnext, context):
                                     for r in conf['extra-required'])
             is_extra_allowed = any(re.search(r, token.value)
                                    for r in conf['extra-allowed'])
-            if not (is_extra_required or is_extra_allowed):
+            contains_escape = _has_escaping_in_double_quotes(token)
+            if not (is_extra_required or is_extra_allowed or contains_escape):
                 msg = (f"string {node} is redundantly quoted with "
                        f"{quote_type} quotes")
 
         # But when used need to match config
         elif (token.style and
-              not _quote_match(quote_type, token.style, context) and
+              not _quote_match(quote_type, token, context) and
               not (conf['allow-quoted-quotes'] and _has_quoted_quotes(token))):
             msg = f"string {node} is not quoted with {quote_type} quotes"
 
