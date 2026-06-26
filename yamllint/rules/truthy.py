@@ -168,6 +168,15 @@ def yaml_spec_version_for_document(context):
 def check(conf, token, prev, next, nextnext, context):
     if isinstance(token, yaml.tokens.DirectiveToken) and token.name == 'YAML':
         context['yaml_spec_version'] = token.value
+    elif isinstance(token, yaml.tokens.DocumentStartToken):
+        # A new document starts with this '---' marker. Its spec version is
+        # set by a directive, which always precedes the marker, so only forget
+        # the previous document's version when this document has no directive
+        # of its own -- otherwise the version would leak into a directive-less
+        # document separated by '---' (no '...' DocumentEndToken to reset it).
+        if not isinstance(prev, yaml.tokens.DirectiveToken):
+            context.pop('yaml_spec_version', None)
+        context.pop('bad_truthy_values', None)
     elif isinstance(token, yaml.tokens.DocumentEndToken):
         context.pop('yaml_spec_version', None)
         context.pop('bad_truthy_values', None)
