@@ -237,6 +237,10 @@ def validate_rule_conf(rule, conf):
 
 
 def get_extended_config_file(name):
+    # Expand tilde if present
+    if name.startswith('~'):
+        name = os.path.expanduser(name)
+
     # Is it a standard conf shipped with yamllint...
     if '/' not in name:
         std_conf = os.path.join(os.path.dirname(os.path.realpath(__file__)),
