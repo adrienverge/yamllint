@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import glob
+import json
 import locale
 import os
 import pty
@@ -22,6 +23,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from tests.common import (
     RunContext,
@@ -592,6 +594,87 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
+    def test_run_format_gitlab(self):
+        path = os.path.join(self.wd, 'a.yaml')
+
+        with RunContext(self) as ctx:
+            cli.run((path, '--format', 'gitlab'))
+
+        expected_out = json.dumps(
+            [
+                {
+                    'check_name': 'trailing-spaces',
+                    'description': 'trailing spaces',
+                    'severity': 'major',
+                    'fingerprint': str(hash(f'{path}2trailing-spaces')),
+                    'location': {
+                        'path': path,
+                        'lines': {
+                            'begin': '2',
+                            'end': '2',
+                        },
+                    },
+                    # Addded codeclimate fields described at:
+                    # https://github.com/codeclimate/platform/blob/master/spec/analyzers/SPEC.md#data-types
+                    'type': 'issue',
+                    'categories': ['Style'],
+                },
+                {
+                    'check_name': 'new-line-at-end-of-file',
+                    'description': 'no new line character at the end of file',
+                    'severity': 'major',
+                    'fingerprint': str(
+                        hash(f'{path}3new-line-at-end-of-file'),
+                    ),
+                    'location': {
+                        'path': path,
+                        'lines': {
+                            'begin': '3',
+                            'end': '3',
+                        },
+                    },
+                    # Addded codeclimate fields described at:
+                    # https://github.com/codeclimate/platform/blob/master/spec/analyzers/SPEC.md#data-types
+                    'type': 'issue',
+                    'categories': ['Style'],
+                },
+            ],
+            indent=2,
+        )
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+
+    def test_run_format_gitlab_on_warning(self):
+        path = os.path.join(self.wd, 'warn.yaml')
+
+        with RunContext(self) as ctx:
+            cli.run((path, '--format', 'gitlab'))
+
+        expected_out = json.dumps(
+            [
+                {
+                    'check_name': 'document-start',
+                    'description': 'missing document start "---"',
+                    'severity': 'minor',
+                    'fingerprint': str(hash(f'{path}1document-start')),
+                    'location': {
+                        'path': path,
+                        'lines': {
+                            'begin': '1',
+                            'end': '1',
+                        },
+                    },
+                    # Addded codeclimate fields described at:
+                    # https://github.com/codeclimate/platform/blob/master/spec/analyzers/SPEC.md#data-types
+                    'type': 'issue',
+                    'categories': ['Style'],
+                },
+            ],
+            indent=2,
+        )
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr), (0, expected_out, ''))
+
     def test_github_actions_detection(self):
         path = os.path.join(self.wd, 'a.yaml')
         self.addCleanup(os.environ.__delitem__, 'GITHUB_ACTIONS')
@@ -608,6 +691,57 @@ class CommandLineTestCase(unittest.TestCase):
             f'::error file={path},line=3,col=4::3:4 [new-line-at-end-of-file]'
             f' no new line character at the end of file\n'
             f'::endgroup::\n\n')
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+
+    def test_gitlab_ci_detection(self):
+        path = os.path.join(self.wd, 'a.yaml')
+
+        with (RunContext(self) as ctx,
+              patch.dict(os.environ, {'GITLAB_CI': 'something'})):
+            cli.run((path, ))
+        expected_out = json.dumps(
+            [
+                {
+                    'check_name': 'trailing-spaces',
+                    'description': 'trailing spaces',
+                    'severity': 'major',
+                    'fingerprint': str(hash(f'{path}2trailing-spaces')),
+                    'location': {
+                        'path': path,
+                        'lines': {
+                            'begin': '2',
+                            'end': '2',
+                        },
+                    },
+                    # Addded codeclimate fields described at:
+                    # https://github.com/codeclimate/platform/blob/master/spec/analyzers/SPEC.md#data-types
+                    'type': 'issue',
+                    'categories': ['Style'],
+                },
+                {
+                    'check_name': 'new-line-at-end-of-file',
+                    'description': 'no new line character at the end of file',
+                    'severity': 'major',
+                    'fingerprint': str(
+                        hash(f'{path}3new-line-at-end-of-file'),
+                    ),
+                    'location': {
+                        'path': path,
+                        'lines': {
+                            'begin': '3',
+                            'end': '3',
+                        },
+                    },
+                    # Addded codeclimate fields described at:
+                    # https://github.com/codeclimate/platform/blob/master/spec/analyzers/SPEC.md#data-types
+                    'type': 'issue',
+                    'categories': ['Style'],
+                },
+            ],
+            indent=2,
+        )
+
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
