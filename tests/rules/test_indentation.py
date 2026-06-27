@@ -1089,6 +1089,25 @@ class IndentationTestCase(RuleTestCase):
                    '  y, z\n'
                    ']\n', conf, problem=(3, 4))
 
+    def test_unmatched_flow_end(self):
+        # On invalid YAML, a closing flow token ('}' or ']') can appear with no
+        # matching opening one; PyYAML still emits the corresponding
+        # FlowMapping/FlowSequenceEndToken. yamllint must report the syntax
+        # error instead of crashing in the indentation rule.
+        # https://github.com/adrienverge/yamllint/issues/771
+        conf = ('indentation: {spaces: consistent}\n'
+                'document-start: disable\n')
+        self.check('data:\n'
+                   '  config.alloy: |\n'
+                   '\n'
+                   '  }\n', conf, problem=(4, 3, 'syntax'))
+        self.check('data:\n'
+                   '  config.alloy: |\n'
+                   '\n'
+                   '  ]\n', conf, problem=(4, 3, 'syntax'))
+        self.check('}\n', conf, problem=(1, 1, 'syntax'))
+        self.check(']\n', conf, problem=(1, 1, 'syntax'))
+
     def test_cleared_flows(self):
         # flow:
         #   [
