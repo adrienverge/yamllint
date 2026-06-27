@@ -128,7 +128,7 @@ def check_inline_mapping(line):
     return False
 
 
-def check(conf, line):
+def check(conf, line, context):
     max_length = conf['max']
     length = line.end - line.start
     if length > max_length:
