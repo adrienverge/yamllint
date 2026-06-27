@@ -20,6 +20,22 @@ plugin, add this to your ``.vimrc``:
 
  let g:syntastic_yaml_checkers = ['yamllint']
 
+Note that Vim >9.0 includes a so-called "compiler script" for yamllint.
+
+- Enable the compiler:
+
+  ::
+
+  :compiler yamllint
+
+- Use it on the current buffer:
+
+  ::
+
+  :make %
+
+See ``:help quickfix``.
+
 Neovim
 ------
 
