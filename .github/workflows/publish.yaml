@@ -9,7 +9,7 @@ jobs:
     name: Build distribution package
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Fetch tags
@@ -33,7 +33,7 @@ jobs:
       - name: Twine check the distribution packages
         run: python -Im twine check --strict dist/yamllint-*
       - name: Store the distribution packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: python-package-distributions
           path: dist/
@@ -50,7 +50,7 @@ jobs:
       id-token: write
     steps:
       - name: Download all the dists
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: python-package-distributions
           path: dist/
@@ -71,7 +71,7 @@ jobs:
       id-token: write
     steps:
       - name: Download all the dists
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: python-package-distributions
           path: dist/
@@ -87,12 +87,12 @@ jobs:
       id-token: write
     steps:
       - name: Download all the dists
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: python-package-distributions
           path: dist/
       - name: Sign the dists with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v3.0.0
+        uses: sigstore/gh-action-sigstore-python@v3.4.0
         with:
           inputs: dist/yamllint-*.tar.gz dist/yamllint-*.whl
       - name: Create GitHub Release
