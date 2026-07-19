@@ -43,8 +43,9 @@ jobs:
           - '3.11'
           - '3.12'
           - '3.13'
-          - '3.13t'
           - '3.14'
+          - '3.14t'
+          - '3.15'
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -52,7 +53,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
-          allow-prereleases: true  # needed for 3.14
+          allow-prereleases: true  # needed for 3.15
       - name: Append GitHub Actions system path
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Keep the GIL disabled with free-threaded Python
