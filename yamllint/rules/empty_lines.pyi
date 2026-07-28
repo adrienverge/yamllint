@@ -13,10 +13,14 @@ _Config = _TypedDict(
         "max-end": int,
     },
 )
+_Conf = _TypedDict(
+    "_Conf",
+    {"max": type[int], "max-start": type[int], "max-end": type[int]},
+)
 
 ID: _Literal["empty-lines"]
 TYPE: _Literal["line"]
-CONF: dict[str, object]
+CONF: _Conf
 DEFAULT: _Config
 
 def check(conf: _Config, line: _Line) -> _Iterator[LintProblem]: ...

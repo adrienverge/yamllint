@@ -14,10 +14,19 @@ _Config = _TypedDict(
         "forbid-explicit-octal": bool,
     },
 )
+_Conf = _TypedDict(
+    "_Conf",
+    {
+        "forbid-implicit-octal": type[bool],
+        "forbid-explicit-octal": type[bool],
+    },
+)
+
+class _Context(_TypedDict): ...
 
 ID: _Literal["octal-values"]
 TYPE: _Literal["token"]
-CONF: dict[str, object]
+CONF: _Conf
 DEFAULT: _Config
 IS_OCTAL_NUMBER_PATTERN: re.Pattern[str]
 
@@ -27,5 +36,5 @@ def check(
     prev: yaml.Token | None,
     next: yaml.Token | None,
     nextnext: yaml.Token | None,
-    context: dict[str, object],
+    context: _Context,
 ) -> _Iterator[LintProblem]: ...

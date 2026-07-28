@@ -22,10 +22,16 @@ _Config = _TypedDict(
         "max-spaces-after": int,
     },
 )
+_Conf = _TypedDict(
+    "_Conf",
+    {"max-spaces-before": type[int], "max-spaces-after": type[int]},
+)
+
+class _Context(_TypedDict): ...
 
 ID: _Literal["colons"]
 TYPE: _Literal["token"]
-CONF: dict[str, object]
+CONF: _Conf
 DEFAULT: _Config
 
 def check(
@@ -34,5 +40,5 @@ def check(
     prev: yaml.Token | None,
     next: yaml.Token | None,
     nextnext: yaml.Token | None,
-    context: dict[str, object],
+    context: _Context,
 ) -> _Iterator[_LintProblem]: ...

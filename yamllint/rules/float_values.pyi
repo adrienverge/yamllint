@@ -16,10 +16,21 @@ _Config = _TypedDict(
         "forbid-inf": bool,
     },
 )
+_Conf = _TypedDict(
+    "_Conf",
+    {
+        "require-numeral-before-decimal": type[bool],
+        "forbid-scientific-notation": type[bool],
+        "forbid-nan": type[bool],
+        "forbid-inf": type[bool],
+    },
+)
+
+class _Context(_TypedDict): ...
 
 ID: _Literal["float-values"]
 TYPE: _Literal["token"]
-CONF: dict[str, object]
+CONF: _Conf
 DEFAULT: _Config
 IS_NUMERAL_BEFORE_DECIMAL_PATTERN: re.Pattern[str]
 IS_SCIENTIFIC_NOTATION_PATTERN: re.Pattern[str]
@@ -32,5 +43,5 @@ def check(
     prev: yaml.Token | None,
     next: yaml.Token | None,
     nextnext: yaml.Token | None,
-    context: dict[str, object],
+    context: _Context,
 ) -> _Iterator[LintProblem]: ...

@@ -10,19 +10,26 @@ _Config = _TypedDict(
     "_Config",
     {"forbid-duplicated-merge-keys": bool},
 )
+_Conf = _TypedDict(
+    "_Conf",
+    {"forbid-duplicated-merge-keys": type[bool]},
+)
 
 ID: _Literal["key-duplicates"]
 TYPE: _Literal["token"]
-CONF: dict[str, object]
+CONF: _Conf
 DEFAULT: _Config
 MAP: _Literal[0]
 SEQ: _Literal[1]
 
 class Parent:
     type: int
-    keys: list[object]
+    keys: list[str]
 
     def __init__(self, type: int) -> None: ...
+
+class _Context(_TypedDict, total=False):
+    stack: list[Parent]
 
 def check(
     conf: _Config,
@@ -30,5 +37,5 @@ def check(
     prev: yaml.Token | None,
     next: yaml.Token | None,
     nextnext: yaml.Token | None,
-    context: dict[str, object],
+    context: _Context,
 ) -> _Iterator[LintProblem]: ...

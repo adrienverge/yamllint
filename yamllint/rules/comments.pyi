@@ -13,10 +13,18 @@ _Config = _TypedDict(
         "min-spaces-from-content": int,
     },
 )
+_Conf = _TypedDict(
+    "_Conf",
+    {
+        "require-starting-space": type[bool],
+        "ignore-shebangs": type[bool],
+        "min-spaces-from-content": type[int],
+    },
+)
 
 ID: _Literal["comments"]
 TYPE: _Literal["comment"]
-CONF: dict[str, object]
+CONF: _Conf
 DEFAULT: _Config
 
 def check(

@@ -14,10 +14,26 @@ _Config = _TypedDict(
         "forbid-unused-anchors": bool,
     },
 )
+_Conf = _TypedDict(
+    "_Conf",
+    {
+        "forbid-undeclared-aliases": type[bool],
+        "forbid-duplicated-anchors": type[bool],
+        "forbid-unused-anchors": type[bool],
+    },
+)
+
+class _AnchorInfo(_TypedDict):
+    line: int
+    column: int
+    used: bool
+
+class _Context(_TypedDict, total=False):
+    anchors: dict[str, _AnchorInfo]
 
 ID: _Literal["anchors"]
 TYPE: _Literal["token"]
-CONF: dict[str, object]
+CONF: _Conf
 DEFAULT: _Config
 
 def check(
@@ -26,5 +42,5 @@ def check(
     prev: yaml.Token | None,
     next: yaml.Token | None,
     nextnext: yaml.Token | None,
-    context: dict[str, object],
+    context: _Context,
 ) -> _Iterator[LintProblem]: ...

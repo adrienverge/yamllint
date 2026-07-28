@@ -22,10 +22,22 @@ _Config = _TypedDict(
         "check-multi-line-strings": bool,
     },
 )
+_Conf = _TypedDict(
+    "_Conf",
+    {
+        "spaces": tuple[type[int], _Literal["consistent"]],
+        "indent-sequences": tuple[
+            type[bool],
+            _Literal["whatever"],
+            _Literal["consistent"],
+        ],
+        "check-multi-line-strings": type[bool],
+    },
+)
 
 ID: _Literal["indentation"]
 TYPE: _Literal["token"]
-CONF: dict[str, object]
+CONF: _Conf
 DEFAULT: _Config
 
 ROOT: _Literal[0]
@@ -61,10 +73,24 @@ class Parent:
         line_indent: int | None = None,
     ) -> None: ...
 
+_Context = _TypedDict(
+    "_Context",
+    {
+        "stack": list[Parent],
+        "cur_line": int,
+        "spaces": int | _Literal["consistent"],
+        "indent-sequences": (
+            bool | _Literal["whatever", "consistent"]
+        ),
+        "cur_line_indent": int,
+    },
+    total=False,
+)
+
 def check_scalar_indentation(
     conf: _Config,
     token: yaml.Token,
-    context: dict[str, object],
+    context: _Context,
 ) -> _Iterator[LintProblem]: ...
 def check(
     conf: _Config,
@@ -72,5 +98,5 @@ def check(
     prev: yaml.Token | None,
     next: yaml.Token | None,
     nextnext: yaml.Token | None,
-    context: dict[str, object],
+    context: _Context,
 ) -> _Iterator[LintProblem]: ...

@@ -13,22 +13,33 @@ _Config = _TypedDict(
         "check-keys": bool,
     },
 )
+_Conf = _TypedDict(
+    "_Conf",
+    {
+        "allowed-values": list[str],
+        "check-keys": type[bool],
+    },
+)
+
+class _Context(_TypedDict, total=False):
+    yaml_spec_version: tuple[int, int]
+    bad_truthy_values: set[str]
 
 TRUTHY_1_1: list[str]
 TRUTHY_1_2: list[str]
 ID: _Literal["truthy"]
 TYPE: _Literal["token"]
-CONF: dict[str, object]
+CONF: _Conf
 DEFAULT: _Config
 
 def yaml_spec_version_for_document(
-    context: dict[str, object],
-) -> object: ...
+    context: _Context,
+) -> tuple[int, int]: ...
 def check(
     conf: _Config,
     token: yaml.Token,
     prev: yaml.Token | None,
     next: yaml.Token | None,
     nextnext: yaml.Token | None,
-    context: dict[str, object],
+    context: _Context,
 ) -> _Iterator[LintProblem]: ...

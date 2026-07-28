@@ -9,9 +9,14 @@ from yamllint.linter import LintProblem as LintProblem
 class _Config(_TypedDict):
     present: bool
 
+class _Conf(_TypedDict):
+    present: type[bool]
+
+class _Context(_TypedDict): ...
+
 ID: _Literal["document-end"]
 TYPE: _Literal["token"]
-CONF: dict[str, object]
+CONF: _Conf
 DEFAULT: _Config
 
 def check(
@@ -20,5 +25,5 @@ def check(
     prev: yaml.Token | None,
     next: yaml.Token | None,
     nextnext: yaml.Token | None,
-    context: dict[str, object],
+    context: _Context,
 ) -> _Iterator[LintProblem]: ...

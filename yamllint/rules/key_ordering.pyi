@@ -9,19 +9,23 @@ import yaml as yaml
 from yamllint.linter import LintProblem as LintProblem
 
 _Config = _TypedDict("_Config", {"ignored-keys": list[str]})
+_Conf = _TypedDict("_Conf", {"ignored-keys": list[type[str]]})
 
 ID: _Literal["key-ordering"]
 TYPE: _Literal["token"]
-CONF: dict[str, object]
+CONF: _Conf
 DEFAULT: _Config
 MAP: _Literal[0]
 SEQ: _Literal[1]
 
 class Parent:
     type: int
-    keys: list[object]
+    keys: list[str]
 
     def __init__(self, type: int) -> None: ...
+
+class _Context(_TypedDict, total=False):
+    stack: list[Parent]
 
 def check(
     conf: _Config,
@@ -29,5 +33,5 @@ def check(
     prev: yaml.Token | None,
     next: yaml.Token | None,
     nextnext: yaml.Token | None,
-    context: dict[str, object],
+    context: _Context,
 ) -> _Iterator[LintProblem]: ...

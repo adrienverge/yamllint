@@ -22,10 +22,22 @@ _Config = _TypedDict(
         "max-spaces-inside-empty": int,
     },
 )
+_Conf = _TypedDict(
+    "_Conf",
+    {
+        "forbid": tuple[type[bool], _Literal["non-empty"]],
+        "min-spaces-inside": type[int],
+        "max-spaces-inside": type[int],
+        "min-spaces-inside-empty": type[int],
+        "max-spaces-inside-empty": type[int],
+    },
+)
+
+class _Context(_TypedDict): ...
 
 ID: _Literal["brackets"]
 TYPE: _Literal["token"]
-CONF: dict[str, object]
+CONF: _Conf
 DEFAULT: _Config
 
 def check(
@@ -34,5 +46,5 @@ def check(
     prev: yaml.Token | None,
     next: yaml.Token | None,
     nextnext: yaml.Token | None,
-    context: dict[str, object],
+    context: _Context,
 ) -> _Iterator[LintProblem]: ...

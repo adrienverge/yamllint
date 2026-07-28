@@ -15,10 +15,18 @@ _Config = _TypedDict(
         "allow-non-breakable-inline-mappings": bool,
     },
 )
+_Conf = _TypedDict(
+    "_Conf",
+    {
+        "max": type[int],
+        "allow-non-breakable-words": type[bool],
+        "allow-non-breakable-inline-mappings": type[bool],
+    },
+)
 
 ID: _Literal["line-length"]
 TYPE: _Literal["line"]
-CONF: dict[str, object]
+CONF: _Conf
 DEFAULT: _Config
 
 def check_inline_mapping(line: _Line) -> bool: ...
