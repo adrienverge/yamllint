@@ -866,9 +866,9 @@ class IgnoreConfigTestCase(unittest.TestCase):
 
                 ('s/s/ign-trail/file.yaml\n', 'utf_8'),
                 (
-                    's/s/ign-trail/s/s/file.yaml\n'
-                    's/s/ign-trail/s/s/file2.lint-me-anyway.yaml\n'
-                    '.yamllint\n',
+                    ('s/s/ign-trail/s/s/file.yaml\n'
+                     's/s/ign-trail/s/s/file2.lint-me-anyway.yaml\n'
+                     '.yamllint\n'),
 
                     'utf_8_sig'
                 ),
