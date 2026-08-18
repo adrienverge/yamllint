@@ -677,7 +677,8 @@ class CommandLineTestCase(unittest.TestCase):
             cli.run(('-d', 'rules:\n  new-lines:\n    type: unix', path))
         expected_out = (
             f'{path}\n'
-            f'  1:4       error    wrong new line character: expected \\n'
+            f'  1:4       error    wrong new line character: '
+            f'expected "\\n", found "\\r\\n"'
             f'  (new-lines)\n'
             f'\n')
         self.assertEqual(

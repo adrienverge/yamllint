@@ -17,9 +17,47 @@ from unittest import mock
 
 from tests.common import RuleTestCase
 
+from yamllint import linter
+from yamllint.config import YamlLintConfig
+
 
 class NewLinesTestCase(RuleTestCase):
     rule_id = 'new-lines'
+
+    def message_for(self, source, conf):
+        config = YamlLintConfig('extends: default\n'
+                                'rules:\n' + conf)
+        problems = [p for p in linter.run(source, config)
+                    if p.rule == 'new-lines']
+        self.assertEqual(len(problems), 1)
+        return problems[0].desc
+
+    def test_error_message(self):
+        # When Unix newlines are expected but DOS newlines are found, and
+        # vice versa, the message reports both the expected and found
+        # characters (see issue #691).
+        unix_conf = ('  new-line-at-end-of-file: disable\n'
+                     '  new-lines: {type: unix}\n')
+        self.assertEqual(
+            self.message_for('---\r\ntext\r\n', unix_conf),
+            'wrong new line character: expected "\\n", found "\\r\\n"')
+
+        dos_conf = ('  new-line-at-end-of-file: disable\n'
+                    '  new-lines: {type: dos}\n')
+        self.assertEqual(
+            self.message_for('---\ntext\n', dos_conf),
+            'wrong new line character: expected "\\r\\n", found "\\n"')
+
+        platform_conf = ('  new-line-at-end-of-file: disable\n'
+                         '  new-lines: {type: platform}\n')
+        with mock.patch('yamllint.rules.new_lines.linesep', '\n'):
+            self.assertEqual(
+                self.message_for('---\r\ntext\r\n', platform_conf),
+                'wrong new line character: expected "\\n", found "\\r\\n"')
+        with mock.patch('yamllint.rules.new_lines.linesep', '\r\n'):
+            self.assertEqual(
+                self.message_for('---\ntext\n', platform_conf),
+                'wrong new line character: expected "\\r\\n", found "\\n"')
 
     def test_disabled(self):
         conf = ('new-line-at-end-of-file: disable\n'
