@@ -108,6 +108,15 @@ class SimpleConfigTestCase(unittest.TestCase):
         self.assertEqual(c.rules['indentation']['check-multi-line-strings'],
                          False)
 
+        c = config.YamlLintConfig('rules:\n'
+                                  '  indentation:\n'
+                                  '    spaces: 2\n'
+                                  '    indent-sequences: 4\n'
+                                  '    check-multi-line-strings: false\n')
+        self.assertEqual(c.rules['indentation']['indent-sequences'], 4)
+        self.assertEqual(c.rules['indentation']['check-multi-line-strings'],
+                         False)
+
         with self.assertRaisesRegex(
                 config.YamlLintConfigError,
                 'invalid config: option "indent-sequences" of "indentation" '

@@ -25,9 +25,13 @@ Use this rule to control the indentation.
 * ``indent-sequences`` defines whether block sequences should be indented or
   not (when in a mapping, this indentation is not mandatory -- some people
   perceive the ``-`` as part of the indentation). Possible values: ``true``,
-  ``false``, ``whatever`` and ``consistent``. ``consistent`` requires either
-  all block sequences to be indented, or none to be. ``whatever`` means either
-  indenting or not indenting individual block sequences is OK.
+  ``false``, ``whatever``, ``consistent`` and any non-negative integer.
+  ``consistent`` requires either all block sequences to be indented, or none to
+  be. ``whatever`` means either indenting or not indenting individual block
+  sequences is OK. An integer requires block sequences to be indented by
+  exactly that number of spaces past their parent key (for instance ``0``
+  behaves like ``false``, and a value equal to ``spaces`` behaves like
+  ``true``), which is useful to align the ``-`` with mapping values.
 * ``check-multi-line-strings`` defines whether to lint indentation in
   multi-line strings. Set to ``true`` to enable, ``false`` to disable.
 
@@ -161,6 +165,28 @@ Use this rule to control the indentation.
       - spaghetti
       - sauce
 
+#. With ``indentation: {spaces: 4, indent-sequences: 4}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    list:
+        - flying
+        - spaghetti
+        - monster
+    nested:
+        list:
+            - a
+            - b
+
+   the following code snippet would **FAIL**:
+   ::
+
+    list:
+      - flying
+      - spaghetti
+      - monster
+
 #. With ``indentation: {spaces: 4, check-multi-line-strings: true}``
 
    the following code snippet would **PASS**:
@@ -207,7 +233,7 @@ from yamllint.rules.common import get_real_end_line, is_explicit_key
 ID = 'indentation'
 TYPE = 'token'
 CONF = {'spaces': (int, 'consistent'),
-        'indent-sequences': (bool, 'whatever', 'consistent'),
+        'indent-sequences': (bool, int, 'whatever', 'consistent'),
         'check-multi-line-strings': bool}
 DEFAULT = {'spaces': 'consistent',
            'indent-sequences': True,
@@ -485,7 +511,15 @@ def _check(conf, token, prev, next, nextnext, context):
                 # yaml.scan()ning this:
                 #     '- lib:\n'
                 #     '  - var\n'
-                if context['indent-sequences'] is False:
+                if (isinstance(context['indent-sequences'], int) and
+                        not isinstance(context['indent-sequences'], bool)):
+                    #   key:
+                    #       - e1
+                    #       - e2
+                    # with a fixed number of spaces past the parent key
+                    indent = (context['stack'][-1].indent +
+                              context['indent-sequences'])
+                elif context['indent-sequences'] is False:
                     indent = context['stack'][-1].indent
                 elif context['indent-sequences'] is True:
                     if (context['spaces'] == 'consistent' and
