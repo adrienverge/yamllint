@@ -339,7 +339,13 @@ def _check(conf, token, prev, next, nextnext, context):
                 not isinstance(token, yaml.ValueToken)):
             expected = detect_indent(expected, token)
 
-        if found_indentation != expected:
+        # A closing flow token (']' or '}') is expected to align with the line
+        # that opened the collection, so `expected` is read from that opening
+        # token. On invalid YAML, PyYAML can emit a closing flow token with no
+        # matching opening token on the stack, leaving `expected` unset; skip
+        # the indentation check in that case and let the syntax error be
+        # reported instead of crashing.
+        if expected is not None and found_indentation != expected:
             if expected < 0:
                 message = (f'wrong indentation: expected at least '
                            f'{found_indentation + 1}')
