@@ -34,6 +34,21 @@ from yamllint.config import YamlLintConfigError
 
 
 class SimpleConfigTestCase(unittest.TestCase):
+    def test_no_warnings_config(self):
+        new = config.YamlLintConfig('extends: default')
+        self.assertFalse(new.no_warnings)
+
+        new = config.YamlLintConfig('no-warnings: false')
+        self.assertFalse(new.no_warnings)
+
+        new = config.YamlLintConfig('no-warnings: true')
+        self.assertTrue(new.no_warnings)
+
+        with self.assertRaisesRegex(
+                config.YamlLintConfigError,
+                'invalid config: no-warnings should be a bool'):
+            config.YamlLintConfig('no-warnings: foobar')
+
     def test_parse_config(self):
         new = config.YamlLintConfig('rules:\n'
                                     '  colons:\n'
