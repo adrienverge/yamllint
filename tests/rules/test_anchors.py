@@ -19,6 +19,41 @@ from tests.common import RuleTestCase
 class AnchorsTestCase(RuleTestCase):
     rule_id = 'anchors'
 
+    def test_forbid_anchors(self):
+        conf = 'anchors: {forbid-anchors: true}'
+        self.check('---\n'
+                   'base: &base {key: value}\n'
+                   'copy: *base\n'
+                   'merged:\n'
+                   '  <<: *base\n'
+                   '---\n'
+                   '- &item value\n'
+                   '- *item\n', conf,
+                   problem1=(2, 7), problem2=(3, 7), problem3=(5, 7),
+                   problem4=(7, 3), problem5=(8, 3))
+
+    def test_forbid_anchors_scalar_content(self):
+        self.check('---\n'
+                   '- "&anchor"\n'
+                   '- "*alias"\n'
+                   '- |\n'
+                   '  &anchor *alias\n',
+                   'anchors: {forbid-anchors: true}')
+
+    def test_forbid_anchors_other_checks(self):
+        conf = ('anchors:\n'
+                '  forbid-anchors: true\n'
+                '  forbid-undeclared-aliases: true\n'
+                '  forbid-duplicated-anchors: true\n'
+                '  forbid-unused-anchors: true\n')
+        self.check('---\n- &a one\n- &a two\n- *unknown\n', conf,
+                   problem1=(2, 3), problem2=(3, 3), problem3=(4, 3))
+
+    def test_forbid_anchors_disabled(self):
+        source = '---\n- &a value\n- *a\n'
+        self.check(source, 'anchors: {forbid-anchors: false}')
+        self.check(source, 'anchors: enable')
+
     def test_disabled(self):
         conf = 'anchors: disable'
         self.check('---\n'
