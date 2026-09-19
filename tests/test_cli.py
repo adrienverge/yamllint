@@ -135,12 +135,12 @@ class CommandLineTestCase(unittest.TestCase):
         )
 
         items = [os.path.join(self.wd, 'sub'),
-                 os.path.join(self.wd, '/etc/another/file')]
+                 '/etc/another/file']
         self.assertEqual(
             sorted(cli.find_files_recursively(items, conf)),
-            [os.path.join(self.wd, '/etc/another/file'),
-             os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
-             os.path.join(self.wd, 'sub/ok.yaml')],
+            sorted(['/etc/another/file',
+                    os.path.join(self.wd, 'sub/directory.yaml/empty.yml'),
+                    os.path.join(self.wd, 'sub/ok.yaml')]),
         )
 
         conf = config.YamlLintConfig('extends: default\n'
