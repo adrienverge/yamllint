@@ -99,6 +99,12 @@ def show_problems(problems, file, args_format, no_warn):
         elif supports_color():
             args_format = 'colored'
 
+    if args_format == 'github':
+        # GitHub Actions requires paths relative to the repository root
+        # ("dir/file.yaml"): work-flow annotations for paths that begin with
+        # "./" are silently not attached to the diff.
+        file = os.path.normpath(file)
+
     for problem in problems:
         max_level = max(max_level, PROBLEM_LEVELS[problem.level])
         if no_warn and (problem.level != 'error'):

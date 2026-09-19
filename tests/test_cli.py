@@ -592,6 +592,22 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
 
+    def test_run_format_github_relative_path(self):
+        # GitHub Actions does not attach annotations for paths that begin
+        # with "./", so the "./" prefix produced by walking "." must not
+        # reach the output. See issue #764.
+        workspace = {'trailing.yaml': '---\nkey: value \n'}
+        with temp_workspace(workspace):
+            with RunContext(self) as ctx:
+                cli.run(('.', '--format', 'github'))
+        expected_out = (
+            '::group::trailing.yaml\n'
+            '::error file=trailing.yaml,line=2,col=11::2:11 '
+            '[trailing-spaces] trailing spaces\n'
+            '::endgroup::\n\n')
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+
     def test_github_actions_detection(self):
         path = os.path.join(self.wd, 'a.yaml')
         self.addCleanup(os.environ.__delitem__, 'GITHUB_ACTIONS')
