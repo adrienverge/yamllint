@@ -369,6 +369,36 @@ class QuotedValuesTestCase(RuleTestCase):
                    '   word 2"\n',
                    conf, problem1=(12, 3))
 
+    def test_scientific_notation_only_when_needed(self):
+        conf = ('quoted-strings: {required: only-when-needed}\n'
+                'float-values: {forbid-scientific-notation: true}\n')
+        for value in ('5319E7', '1e3', '1E+3', '-1e-3', '+1e3',
+                      '.5e2', '1.e2', '0e0', '01e3', '1e99999'):
+            with self.subTest(value=value):
+                self.check(f'---\nvalue: \'{value}\'\n', conf)
+                self.check(f'---\nvalue: "{value}"\n', conf)
+                self.check(f'---\nvalue: {value}\n', conf,
+                           problem=(2, 8, 'float-values'))
+
+    def test_scientific_notation_boundaries(self):
+        conf = 'quoted-strings: {required: only-when-needed}\n'
+        for value in ('E7', '1e', '1e+', '1e2x', '1e2e3', '1e2.3'):
+            with self.subTest(value=value):
+                self.check(f'---\nvalue: \'{value}\'\n', conf,
+                           problem=(2, 8))
+        self.check('---\nvalue: !!str 1e3\n', conf)
+
+    def test_scientific_notation_quote_type(self):
+        conf = ('quoted-strings: {required: only-when-needed,\n'
+                '                 quote-type: single}\n')
+        self.check("---\nvalue: '1e3'\n", conf)
+        self.check('---\nvalue: "1e3"\n', conf, problem=(2, 8))
+
+    def test_scientific_notation_flow_keys(self):
+        conf = ('quoted-strings: {required: only-when-needed,\n'
+                '                 check-keys: true}\n')
+        self.check("---\n{'1e3': ['2E4', '-3e-2']}\n", conf)
+
     def test_only_when_needed_single_quotes(self):
         conf = ('quoted-strings: {quote-type: single,\n'
                 '                 required: only-when-needed}\n')

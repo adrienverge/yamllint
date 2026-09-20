@@ -172,6 +172,7 @@ import re
 import yaml
 
 from yamllint.linter import LintProblem
+from yamllint.rules.float_values import IS_SCIENTIFIC_NOTATION_PATTERN
 
 ID = 'quoted-strings'
 TYPE = 'token'
@@ -226,6 +227,10 @@ def _quote_match(quote_type, token_style, context):
 
 
 def _quotes_are_needed(token, is_inside_a_flow):
+    # YAML 1.2 recognizes scientific notation without a decimal point.
+    if IS_SCIENTIFIC_NOTATION_PATTERN.fullmatch(token.value):
+        return True
+
     # Quotes needed on strings containing flow tokens
     if is_inside_a_flow and set(token.value) & {',', '[', ']', '{', '}'}:
         return True
