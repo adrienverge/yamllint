@@ -234,3 +234,51 @@ class CommentsTestCase(RuleTestCase):
                    '    this is plain text\n'
                    '  \n'
                    '  # comment\n', conf)
+
+    def test_ignore_regex(self):
+        conf = ('comments:\n'
+                '  require-starting-space: true\n'
+                '  ignore-regex: ["^#ignore this"]\n')
+        self.check('---\n'
+                   '#ignore this\n', conf)
+        self.check('---\n'
+                   'string: "any" #ignore this\n', conf)
+        self.check('---\n'
+                   '#ignore this\n'
+                   '#but not this\n', conf,
+                   problem1=(3, 2))
+        self.check('---\n'
+                   'string: "any"  #ignore this\n'
+                   'string2: "any"  # this is valid\n'
+                   'string3: "any"  #but not this\n', conf,
+                   problem1=(4, 18))
+        self.check('---\n'
+                   'string: "any" #ignore this\n'
+                   'string2: "any"  #ignore this\n', conf)
+
+    def test_ignore_regex_substring(self):
+        conf = ('comments:\n'
+                '  require-starting-space: true\n'
+                '  ignore-regex: ["ignore this"]\n')
+        self.check('---\n'
+                   '#prefix ignore this suffix\n', conf)
+        self.check('---\n'
+                   'string: "any"  #prefix ignore this suffix\n',
+                   conf)
+        self.check('---\n'
+                   '#prefix ignore this suffix\n'
+                   '#but not this\n', conf,
+                   problem1=(3, 2))
+
+    def test_ignore_regex_suffix(self):
+        conf = ('comments:\n'
+                '  require-starting-space: true\n'
+                '  ignore-regex: ["ignore this$"]\n')
+        self.check('---\n'
+                   '#ignore this\n', conf)
+        self.check('---\n'
+                   'string: "any"  #ignore this\n', conf)
+        self.check('---\n'
+                   '#ignore this\n'
+                   '#ignore this not\n', conf,
+                   problem1=(3, 2))
