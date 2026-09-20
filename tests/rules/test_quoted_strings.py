@@ -461,6 +461,16 @@ class QuotedValuesTestCase(RuleTestCase):
                    'k6: ":wq"\n',                  # fails
                    conf, problem1=(3, 5), problem2=(5, 5), problem3=(7, 5))
 
+        # Plain scalars are more restricted inside flow collections, so
+        # quotes that are redundant in block context can be required here.
+        self.check('---\n'
+                   'k1: {a: ":wq"}\n'
+                   'k2: {a: "?wq"}\n'
+                   'k3: {a: "#wq"}\n'
+                   'k4: [":wq", "?wq", "#wq"]\n'
+                   'k5: {a: "plain"}\n',           # fails
+                   conf, problem1=(6, 9))
+
     def test_only_when_needed_extras(self):
         conf = ('quoted-strings:\n'
                 '  required: true\n'
