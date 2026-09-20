@@ -420,6 +420,17 @@ class CommandLineTestCase(unittest.TestCase):
             f'(new-line-at-end-of-file)\n'))
         self.assertEqual(ctx.stderr, '')
 
+    def test_hash_only_comment_without_final_newline(self):
+        with temp_workspace({'comment.yaml': '#' * 81}):
+            with RunContext(self) as ctx:
+                cli.run(('-d', 'default', '-f', 'parsable', 'comment.yaml'))
+            self.assertEqual(ctx.returncode, 1)
+            self.assertEqual(ctx.stdout, (
+                'comment.yaml:1:82: [error] '
+                'no new line character at the end of file '
+                '(new-line-at-end-of-file)\n'))
+            self.assertEqual(ctx.stderr, '')
+
     def test_run_one_warning(self):
         path = os.path.join(self.wd, 'warn.yaml')
 

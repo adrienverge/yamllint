@@ -141,7 +141,7 @@ def check(conf, line):
 
             if start != line.end:
                 if line.buffer[start] == '#':
-                    while line.buffer[start] == '#':
+                    while start < line.end and line.buffer[start] == '#':
                         start += 1
                     start += 1
                 elif line.buffer[start] == '-':

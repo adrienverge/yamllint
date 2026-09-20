@@ -19,6 +19,24 @@ from tests.common import RuleTestCase
 class LineLengthTestCase(RuleTestCase):
     rule_id = 'line-length'
 
+    def test_hash_only_comment_without_final_newline(self):
+        conf = ('line-length: {max: 20}\n'
+                'new-line-at-end-of-file: disable\n'
+                'document-start: disable\n')
+        for length in (19, 20, 21, 80, 81):
+            with self.subTest(length=length):
+                self.check('#' * length, conf)
+        self.check('  ' + '#' * 21, conf,
+                   problem=(1, 3, 'comments-indentation'))
+        self.check('#' * 21 + '\n', conf)
+        self.check('#' * 21 + '\r\n', conf + 'new-lines: {type: dos}\n')
+
+    def test_hash_only_comment_with_non_breakable_words_disabled(self):
+        conf = ('line-length: {max: 20, allow-non-breakable-words: false}\n'
+                'new-line-at-end-of-file: disable\n'
+                'document-start: disable\n')
+        self.check('#' * 21, conf, problem=(1, 21))
+
     def test_disabled(self):
         conf = ('line-length: disable\n'
                 'empty-lines: disable\n'
