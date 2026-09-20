@@ -74,7 +74,6 @@ float-values
 
 .. automodule:: yamllint.rules.float_values
 
-
 hyphens
 -------
 
@@ -94,6 +93,11 @@ key-ordering
 --------------
 
 .. automodule:: yamllint.rules.key_ordering
+
+key-types
+---------
+
+.. automodule:: yamllint.rules.key_types
 
 line-length
 -----------
