@@ -71,7 +71,7 @@ DEFAULT = {'max': 2,
            'max-end': 0}
 
 
-def check(conf, line):
+def check(conf, line, context):
     if line.start == line.end and line.end < len(line.buffer):
         # Only alert on the last blank line of a series
         if (line.end + 2 <= len(line.buffer) and
