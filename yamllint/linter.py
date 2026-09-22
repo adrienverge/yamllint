@@ -44,6 +44,7 @@ class LintProblem:
         self.desc = desc
         #: Identifier of the rule that detected the problem
         self.rule = rule
+        self.iscommentline = False
         self.level = None
 
     @property
@@ -129,6 +130,10 @@ def get_cosmetic_problems(buffer, conf, filepath):
     disabled_for_line = DisableLineDirective()
     disabled_for_next_line = DisableLineDirective()
 
+    def disabled_for_next_comment(problem):
+        return (problem.iscommentline and
+                disabled_for_next_line.is_disabled_by_directive(problem))
+
     for elem in parser.token_or_comment_or_line_generator(buffer):
         if isinstance(elem, parser.Token):
             for rule in token_rules:
@@ -145,6 +150,7 @@ def get_cosmetic_problems(buffer, conf, filepath):
                 rule_conf = conf.rules[rule.ID]
                 for problem in rule.check(rule_conf, elem):
                     problem.rule = rule.ID
+                    problem.iscommentline = True
                     problem.level = rule_conf['level']
                     cache.append(problem)
 
@@ -165,7 +171,8 @@ def get_cosmetic_problems(buffer, conf, filepath):
             # problems found (but filter them according to the directives)
             for problem in cache:
                 if not (disabled_for_line.is_disabled_by_directive(problem) or
-                        disabled.is_disabled_by_directive(problem)):
+                        disabled.is_disabled_by_directive(problem) or
+                        disabled_for_next_comment(problem)):
                     yield problem
 
             disabled_for_line = disabled_for_next_line

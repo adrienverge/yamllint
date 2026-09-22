@@ -329,6 +329,14 @@ class YamllintDirectivesTestCase(RuleTestCase):
                    '    c: [x]\n',
                    conf,
                    problem=(6, 2, 'comments-indentation'))
+        self.check('---\n'
+                   'example:\n'
+                   '  # keep-sorted start\n'
+                   '  - a: 1\n'
+                   '    b: 2\n'
+                   '  # yamllint disable-line rule:comments-indentation\n'
+                   '  # keep-sorted end\n',
+                   conf)
 
     def test_disable_file_directive(self):
         conf = ('comments: {min-spaces-from-content: 2}\n'
