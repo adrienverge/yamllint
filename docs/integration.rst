@@ -50,9 +50,11 @@ A minimal example workflow using GitHub Actions:
 Integration with GitLab
 -----------------------
 
-You can use the following GitLab CI/CD stage to run yamllint and get the
-results as a `Code quality (Code Climate)
-<https://docs.gitlab.com/ee/ci/testing/code_quality.html>`_ report.
+yamllint auto-detects when it's running inside of a
+GitLab CI/CD job and outputs the results as a
+`Code quality (Code Climate)
+<https://docs.gitlab.com/ee/ci/testing/code_quality.html>`_
+report. You can also force GitLab Code Quality output with ``yamllint --format gitlab``.
 
 .. code:: yaml
 
@@ -61,33 +63,12 @@ results as a `Code quality (Code Climate)
    stage: lint
    script:
      - pip install yamllint
-     - mkdir reports
-     - >
-       yamllint -f parsable . | tee >(awk '
-       BEGIN {FS = ":"; ORS="\n"; first=1}
-       {
-           gsub(/^[ \t]+|[ \t]+$|"/, "", $4);
-           match($4, /^\[(warning|error)\](.*)\((.*)\)$/, a);
-           sev = (a[1] == "error" ? "major" : "minor");
-           if (first) {
-               first=0;
-               printf("[");
-           } else {
-               printf(",");
-           }
-           printf("{\"location\":{\"path\":\"%s\",\"lines\":{\"begin\":%s,"\
-                  "\"end\":%s}},\"severity\":\"%s\",\"check_name\":\"%s\","\
-                  "\"categories\":[\"Style\"],\"type\":\"issue\","\
-                  "\"description\":\"%s\"}", $1, $2, $3, sev, a[3], a[2]);
-       }
-       END { if (!first) printf("]\n"); }' > reports/codequality.json)
+     - yamllint -f gitlab . | tee yamllint-codequality.json
    artifacts:
      when: always
-     paths:
-       - reports
      expire_in: 1 week
      reports:
-       codequality: reports/codequality.json
+       codequality: yamllint-codequality.json
 
 Integration with Arcanist
 -------------------------
