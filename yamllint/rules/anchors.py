@@ -15,10 +15,13 @@
 
 """
 Use this rule to report duplicated anchors and aliases referencing undeclared
-anchors.
+anchors, or to forbid anchors and aliases altogether.
 
 .. rubric:: Options
 
+* Set ``forbid-anchors`` to ``true`` to forbid all anchors and aliases. This
+  takes precedence over the other options to avoid reporting the same anchor
+  or alias more than once.
 * Set ``forbid-undeclared-aliases`` to ``true`` to avoid aliases that reference
   an anchor that hasn't been declared (either not declared at all, or declared
   later in the document).
@@ -33,11 +36,28 @@ anchors.
 
  rules:
    anchors:
+     forbid-anchors: false
      forbid-undeclared-aliases: true
      forbid-duplicated-anchors: false
      forbid-unused-anchors: false
 
 .. rubric:: Examples
+
+#. With ``anchors: {forbid-anchors: true}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    ---
+    first: {key: value}
+    second: {key: value}
+
+   the following code snippet would **FAIL**:
+   ::
+
+    ---
+    first: &anchor {key: value}
+    second: *anchor
 
 #. With ``anchors: {forbid-undeclared-aliases: true}``
 
@@ -110,15 +130,25 @@ from yamllint.linter import LintProblem
 
 ID = 'anchors'
 TYPE = 'token'
-CONF = {'forbid-undeclared-aliases': bool,
+CONF = {'forbid-anchors': bool,
+        'forbid-undeclared-aliases': bool,
         'forbid-duplicated-anchors': bool,
         'forbid-unused-anchors': bool}
-DEFAULT = {'forbid-undeclared-aliases': True,
+DEFAULT = {'forbid-anchors': False,
+           'forbid-undeclared-aliases': True,
            'forbid-duplicated-anchors': False,
            'forbid-unused-anchors': False}
 
 
 def check(conf, token, prev, next, nextnext, context):
+    if conf['forbid-anchors']:
+        if isinstance(token, (yaml.AnchorToken, yaml.AliasToken)):
+            kind = 'anchor' if isinstance(token, yaml.AnchorToken) else 'alias'
+            yield LintProblem(
+                token.start_mark.line + 1, token.start_mark.column + 1,
+                f'found forbidden {kind} "{token.value}"')
+        return
+
     if (conf['forbid-undeclared-aliases'] or
             conf['forbid-duplicated-anchors'] or
             conf['forbid-unused-anchors']):
