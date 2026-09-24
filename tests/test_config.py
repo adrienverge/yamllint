@@ -30,7 +30,19 @@ from tests.common import (
 )
 
 from yamllint import cli, config
-from yamllint.config import YamlLintConfigError
+from yamllint.config import YamlLintConfigError, get_extended_config_file
+
+
+class ConfigFilenameExpansion(unittest.TestCase):
+    def test_tilde_expansion(self):
+        input_path = "~/test.yml"
+        expected = os.path.expanduser("~/test.yml")
+        result = get_extended_config_file(input_path)
+        self.assertEqual(result, expected)
+
+    def test_no_expansion(self):
+        result = get_extended_config_file('asis.yml')
+        self.assertEqual(result, 'asis.yml')
 
 
 class SimpleConfigTestCase(unittest.TestCase):
