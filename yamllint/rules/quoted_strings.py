@@ -241,9 +241,22 @@ def _quotes_are_needed(token, is_inside_a_flow):
         if _has_backslash_on_at_least_one_line_ending(token):
             return True
 
-    loader = yaml.BaseLoader('key: ' + token.value)
+    # Probe the value in the same context it appears in: some scalars are
+    # plain in block context but not in a flow one. For instance a value
+    # starting with ':' is fine unquoted in `key: :value`, whereas in
+    # `{key: :value}` the leading ':' is read as a value indicator, so the
+    # quotes are required.
+    if is_inside_a_flow:
+        probe = '{key: ' + token.value + '}'
+        end_token = yaml.FlowMappingEndToken
+    else:
+        probe = 'key: ' + token.value
+        end_token = yaml.BlockEndToken
+
+    loader = yaml.BaseLoader(probe)
     # Remove the 5 first tokens corresponding to 'key: ' (StreamStartToken,
-    # BlockMappingStartToken, KeyToken, ScalarToken(value=key), ValueToken)
+    # BlockMappingStartToken or FlowMappingStartToken, KeyToken,
+    # ScalarToken(value=key), ValueToken)
     for _ in range(5):
         loader.get_token()
     try:
@@ -252,7 +265,7 @@ def _quotes_are_needed(token, is_inside_a_flow):
         return True
     else:
         if (isinstance(a, yaml.ScalarToken) and a.style is None and
-                isinstance(b, yaml.BlockEndToken) and a.value == token.value):
+                isinstance(b, end_token) and a.value == token.value):
             return False
         return True
 

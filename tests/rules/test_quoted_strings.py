@@ -461,6 +461,25 @@ class QuotedValuesTestCase(RuleTestCase):
                    'k6: ":wq"\n',                  # fails
                    conf, problem1=(3, 5), problem2=(5, 5), problem3=(7, 5))
 
+    def test_only_when_needed_in_flow_mapping(self):
+        conf = ('quoted-strings:\n'
+                '  required: only-when-needed\n')
+
+        # A scalar starting with ':' is plain in block context, but inside a
+        # flow mapping the leading ':' is read as a value indicator, so there
+        # the quotes are required and not redundant.
+        self.check('---\n'
+                   'block:\n'
+                   '  k1: ":value"\n'              # fails
+                   'flow: {k2: ":value"}\n',
+                   conf, problem1=(3, 7))
+
+        # Quotes that really are redundant inside a flow mapping are still
+        # reported.
+        self.check('---\n'
+                   'flow: {k1: "value"}\n',        # fails
+                   conf, problem1=(2, 12))
+
     def test_only_when_needed_extras(self):
         conf = ('quoted-strings:\n'
                 '  required: true\n'
