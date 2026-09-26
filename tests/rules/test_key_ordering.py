@@ -60,6 +60,16 @@ class KeyOrderingTestCase(RuleTestCase):
                    '  third:\n'
                    '    second: 2\n', conf)
 
+    def test_unmatched_closing_flow_token(self):
+        # On invalid YAML, PyYAML can emit a closing flow token without the
+        # matching opening one. The rule must report the syntax error instead
+        # of crashing.
+        conf = 'key-ordering: enable'
+        self.check('---\n'
+                   '{a: 1, b: 2}}\n', conf, problem=(2, 13, 'syntax'))
+        self.check('---\n'
+                   '[a, b, c]]\n', conf, problem=(2, 10, 'syntax'))
+
     def test_word_length(self):
         conf = 'key-ordering: enable'
         self.check('---\n'
