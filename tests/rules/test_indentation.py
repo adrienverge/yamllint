@@ -1088,6 +1088,11 @@ class IndentationTestCase(RuleTestCase):
                    '   x,\n'
                    '  y, z\n'
                    ']\n', conf, problem=(3, 4))
+        # An unmatched flow end token at the root level used to crash the
+        # rule with a TypeError (the root stack frame has no line_indent);
+        # the parser reports the syntax error instead.
+        self.check('---\n}\n', None, problem=(2, 1, 'syntax'))
+        self.check('---\n]\n', None, problem=(2, 1, 'syntax'))
 
     def test_cleared_flows(self):
         # flow:

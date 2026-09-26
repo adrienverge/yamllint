@@ -112,8 +112,10 @@ DEFAULT = {'max': 80,
 
 
 def check_inline_mapping(line):
-    loader = yaml.SafeLoader(line.content)
     try:
+        # SafeLoader raises a ReaderError (not a ScannerError) when the
+        # line contains a non-printable character such as NUL.
+        loader = yaml.SafeLoader(line.content)
         while loader.peek_token():
             if isinstance(loader.get_token(), yaml.BlockMappingStartToken):
                 while loader.peek_token():
@@ -122,7 +124,7 @@ def check_inline_mapping(line):
                         if isinstance(t, yaml.ScalarToken):
                             return (
                                 ' ' not in line.content[t.start_mark.column:])
-    except yaml.scanner.ScannerError:
+    except (yaml.reader.ReaderError, yaml.scanner.ScannerError):
         pass
 
     return False

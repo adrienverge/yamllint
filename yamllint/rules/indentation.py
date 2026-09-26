@@ -333,7 +333,12 @@ def _check(conf, token, prev, next, nextnext, context):
 
         if isinstance(token, (yaml.FlowMappingEndToken,
                               yaml.FlowSequenceEndToken)):
-            expected = context['stack'][-1].line_indent
+            # line_indent is None on the ROOT frame, which only happens with
+            # an unmatched flow end token (malformed input); the parser
+            # reports the syntax error, so keep the default expected indent.
+            line_indent = context['stack'][-1].line_indent
+            if line_indent is not None:
+                expected = line_indent
         elif (context['stack'][-1].type == KEY and
                 context['stack'][-1].explicit_key and
                 not isinstance(token, yaml.ValueToken)):
