@@ -148,6 +148,14 @@ class KeyOrderingTestCase(RuleTestCase):
                    'haïr: true\n', conf,
                    problem=(3, 1))
 
+    def test_unmatched_flow_end_token(self):
+        # An unmatched flow end token (malformed input) must not crash the
+        # rule: the parser reports the syntax error instead.
+        conf = 'key-ordering: enable'
+        self.check('---\n}\n', conf, problem=(2, 1, 'syntax'))
+        self.check('---\n]\n', conf, problem=(2, 1, 'syntax'))
+        self.check('---\na: 1\n}\n', conf, problem=(3, 1, 'syntax'))
+
     def test_ignored_keys(self):
         conf = ('key-ordering:\n'
                 '  ignored-keys: ["n(a|o)me", "^b"]\n')

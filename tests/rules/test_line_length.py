@@ -176,6 +176,17 @@ class LineLengthTestCase(RuleTestCase):
                    '  {% this line is' + 99 * ' really' + ' long %}\n',
                    conf, problem=(3, 81))
 
+        # A non-printable character (NUL) on a long line used to crash the
+        # rule with a ReaderError raised by SafeLoader in check_inline_mapping;
+        # the parser reports the syntax error instead.
+        conf = ('line-length: {max: 20,'
+                '              allow-non-breakable-inline-mappings: true}')
+        self.check('---\n'
+                   'long_line: http://localhost/very/very/long/url\n', conf)
+        self.check('---\n'
+                   'long_line: \x00http://localhost/very/very/long/url\n',
+                   conf, problem=(2, 12, 'syntax'))
+
     def test_unicode(self):
         conf = 'line-length: {max: 53}'
         self.check('---\n'
