@@ -33,7 +33,7 @@ def find_files_recursively(items, conf):
                     if (conf.is_yaml_file(filepath) and
                             not conf.is_file_ignored(filepath)):
                         yield filepath
-        else:
+        elif not conf.force_exclude or not conf.is_file_ignored(item):
             yield item
 
 
@@ -161,6 +161,9 @@ def run(argv=None):
                               help='custom configuration (as YAML source)')
     parser.add_argument('--list-files', action='store_true', dest='list_files',
                         help='list files to lint and exit')
+    parser.add_argument('--force-exclude', action='store_true',
+                        help='apply ignore patterns to explicitly specified '
+                             'files before opening them')
     parser.add_argument('-f', '--format',
                         choices=('parsable', 'standard', 'colored', 'github',
                                  'auto'),
@@ -205,13 +208,15 @@ def run(argv=None):
         print(e, file=sys.stderr)
         sys.exit(-1)
 
+    if args.force_exclude:
+        conf.force_exclude = True
+
     if conf.locale is not None:
         locale.setlocale(locale.LC_ALL, conf.locale)
 
     if args.list_files:
         for file in find_files_recursively(args.files, conf):
-            if not conf.is_file_ignored(file):
-                print(file)
+            print(file)
         sys.exit(0)
 
     max_level = 0
@@ -220,7 +225,8 @@ def run(argv=None):
         filepath = file.removeprefix('./')
         try:
             with open(file, mode='rb') as f:
-                problems = linter.run(f, conf, filepath)
+                # File selection has already applied global ignore patterns.
+                problems = linter.run(f, conf, filepath, no_ignore=True)
         except OSError as e:
             print(e, file=sys.stderr)
             sys.exit(-1)

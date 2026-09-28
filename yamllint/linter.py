@@ -227,15 +227,18 @@ def _run(buffer, conf, filepath):
         yield syntax_error
 
 
-def run(input, conf, filepath=None):
+def run(input, conf, filepath=None, *, no_ignore=False):
     """Lints a YAML source.
 
     Returns a generator of LintProblem objects.
 
     :param input: buffer, string or stream to read from
     :param conf: yamllint configuration object
+    :param no_ignore: bypass global ignore patterns, keeping rule-specific
+        ignores in effect
     """
-    if filepath is not None and conf.is_file_ignored(filepath):
+    if (not no_ignore and filepath is not None and
+            conf.is_file_ignored(filepath)):
         return ()
 
     if isinstance(input, (bytes, str)):

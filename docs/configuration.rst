@@ -151,7 +151,7 @@ It is possible to exclude specific files or directories, so that the linter
 doesn't process them. They can be provided either as a list of paths, or as a
 bulk string.
 
-You can either totally ignore files (they won't be looked at):
+You can exclude files found during directory traversal:
 
 .. code-block:: yaml
 
@@ -238,6 +238,43 @@ without really linting them, you can use ``--list-files``:
 .. code:: bash
 
  yamllint --list-files .
+
+Forcing exclusion of explicitly specified files
+-----------------------------------------------
+
+By default, yamllint lints files explicitly passed on the command line even if
+they match ``ignore`` or ``ignore-from-file`` patterns. This lets you check an
+individual file that would normally be excluded during directory traversal.
+
+Use ``--force-exclude`` to skip matching files before opening them:
+
+.. code:: bash
+
+ yamllint --force-exclude changed-file.yaml generated-file.yaml
+
+This is useful for tools that pass a list of changed files to yamllint, such as
+pre-commit hooks or continuous integration jobs. You can also enable it in your
+configuration:
+
+.. code-block:: yaml
+
+ extends: default
+ force-exclude: true
+ ignore: |
+   generated/
+   *.template.yaml
+
+``force-exclude`` is a boolean and defaults to ``false``. It is inherited from
+extended configurations and can be overridden in a derived configuration.
+The command-line flag enables it even if the configuration sets it to ``false``.
+Ignored files are skipped silently; if all files are skipped, yamllint exits
+successfully. This option applies to global ignore patterns, not rule-specific
+ignores.
+
+Files found by traversing directories always respect ignore patterns, including
+negated patterns that include files again. ``--list-files`` follows the same
+selection as linting: explicitly named files are included unless
+``force-exclude`` is enabled. Standard input is unaffected.
 
 Setting the locale
 ------------------

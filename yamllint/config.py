@@ -31,6 +31,7 @@ class YamlLintConfig:
         assert (content is None) ^ (file is None)
 
         self.ignore = None
+        self.force_exclude = False
 
         self.yaml_files = GitIgnoreSpec.from_lines(
             ['*.yaml', '*.yml', '.yamllint'])
@@ -68,6 +69,8 @@ class YamlLintConfig:
                 base_config.rules[rule] = self.rules[rule]
 
         self.rules = base_config.rules
+
+        self.force_exclude = base_config.force_exclude
 
         if base_config.ignore is not None:
             self.ignore = base_config.ignore
@@ -125,6 +128,12 @@ class YamlLintConfig:
             else:
                 raise YamlLintConfigError(
                     'invalid config: ignore should contain file patterns')
+
+        if 'force-exclude' in conf:
+            if not isinstance(conf['force-exclude'], bool):
+                raise YamlLintConfigError(
+                    'invalid config: force-exclude should be a boolean')
+            self.force_exclude = conf['force-exclude']
 
         if 'yaml-files' in conf:
             if not (isinstance(conf['yaml-files'], list)

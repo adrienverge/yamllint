@@ -22,6 +22,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from tests.common import (
     RunContext,
@@ -734,8 +735,126 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(ctx.returncode, 0)
         self.assertEqual(
             sorted(ctx.stdout.splitlines()),
-            [os.path.join(self.wd, 'a.yaml')]
+            [os.path.join(self.wd, name)
+             for name in ('a.yaml', 'c.yaml', 'en.yaml')]
         )
+
+
+class ForceExcludeTestCase(unittest.TestCase):
+    def test_explicit_ignored_files(self):
+        workspace = {
+            'ignored.yaml': 'key: value  \n',
+            'included.yaml': 'key: value  \n',
+            '.gitignore': 'ignored.yaml\nmissing.yaml\n',
+        }
+        for ignore in ('ignore: [ignored.yaml, missing.yaml]',
+                       'ignore-from-file: .gitignore'):
+            for setting, flags in (('', ()), ('force-exclude: false', ()),
+                                   ('force-exclude: true', ()),
+                                   ('', ('--force-exclude',)),
+                                   ('force-exclude: false',
+                                    ('--force-exclude',))):
+                with self.subTest(ignore=ignore, setting=setting, flags=flags):
+                    conf = (f'{ignore}\n{setting}\n'
+                            'rules: {trailing-spaces: enable}\n')
+                    force = setting == 'force-exclude: true' or bool(flags)
+                    with temp_workspace(workspace):
+                        # Force-excluded files must never be opened.
+                        with patch('yamllint.cli.open', wraps=open) as opened:
+                            with RunContext(self) as ctx:
+                                cli.run(('-d', conf, '-f', 'parsable', *flags,
+                                         'ignored.yaml', 'included.yaml'))
+                        paths = [call.args[0]
+                                 for call in opened.call_args_list]
+                        self.assertEqual('ignored.yaml' in paths, not force)
+                        self.assertIn('included.yaml', paths)
+                        self.assertEqual(ctx.returncode, 1)
+                        self.assertEqual(ctx.stderr, '')
+                        expected = ['included.yaml']
+                        if not force:
+                            expected.insert(0, 'ignored.yaml')
+                        self.assertEqual(
+                            ctx.stdout,
+                            ''.join(f'{name}:1:11: [error] trailing spaces '
+                                    '(trailing-spaces)\n'
+                                    for name in expected))
+                        with RunContext(self) as ctx:
+                            cli.run(('-d', conf, '--list-files', *flags,
+                                     'ignored.yaml', 'included.yaml'))
+                        self.assertEqual(ctx.returncode, 0)
+                        self.assertEqual(ctx.stderr, '')
+                        self.assertEqual(ctx.stdout.splitlines(), expected)
+
+                        with RunContext(self) as ctx:
+                            cli.run(('-d', conf, *flags, 'missing.yaml'))
+                        self.assertEqual(ctx.returncode, 0 if force else -1)
+                        self.assertEqual(ctx.stdout, '')
+                        if force:
+                            self.assertEqual(ctx.stderr, '')
+                        else:
+                            self.assertIn('missing.yaml', ctx.stderr)
+
+    def test_directories_and_list_files(self):
+        workspace = {
+            'ignored/drop.yaml': 'key: value  \n',
+            'ignored/keep.yaml': 'key: value  \n',
+            'included.yaml': 'key: value  \n',
+        }
+        conf = ('ignore: [ignored/*, "!ignored/keep.yaml"]\n'
+                'rules: {trailing-spaces: enable}\n')
+        with temp_workspace(workspace):
+            for flags in ((), ('--force-exclude',),
+                          ('-d', conf + 'force-exclude: true\n')):
+                for directory in ('ignored', 'ignored/'):
+                    with self.subTest(flags=flags, directory=directory):
+                        args = ('-d', conf, *flags, directory, 'included.yaml')
+                        with RunContext(self) as ctx:
+                            cli.run(('--list-files', *args))
+                        self.assertEqual(ctx.returncode, 0)
+                        self.assertEqual(ctx.stderr, '')
+                        self.assertEqual(
+                            ctx.stdout.splitlines(),
+                            ['ignored/keep.yaml', 'included.yaml'])
+                        with RunContext(self) as ctx:
+                            cli.run(('-f', 'parsable', *args))
+                        self.assertEqual(ctx.returncode, 1)
+                        self.assertEqual(ctx.stderr, '')
+                        self.assertEqual(
+                            [line.split(':')[0]
+                             for line in ctx.stdout.splitlines()],
+                            ['ignored/keep.yaml', 'included.yaml'])
+
+    def test_explicit_file_overrides_directory_ignore(self):
+        workspace = {'generated/bad.yaml': 'key: value  \n'}
+        conf = ('ignore: generated/\n'
+                'rules: {trailing-spaces: enable}\n')
+        with temp_workspace(workspace):
+            for path in ('generated/bad.yaml', './generated/bad.yaml'):
+                for force in (False, True):
+                    with self.subTest(path=path, force=force):
+                        flags = ('--force-exclude',) if force else ()
+                        with RunContext(self) as ctx:
+                            cli.run(('-d', conf, *flags, path))
+                        self.assertEqual(ctx.returncode, 0 if force else 1)
+                        self.assertEqual(ctx.stderr, '')
+                        self.assertEqual(bool(ctx.stdout), not force)
+            with RunContext(self) as ctx:
+                cli.run(('-d', conf, 'generated'))
+            self.assertEqual(ctx.returncode, 0)
+            self.assertEqual(ctx.stdout, '')
+            self.assertEqual(ctx.stderr, '')
+
+    def test_all_explicit_files_excluded(self):
+        with temp_workspace({'ignored.yaml': 'key: value  \n'}):
+            for flags in ((), ('--list-files',)):
+                with self.subTest(flags=flags):
+                    with RunContext(self) as ctx:
+                        cli.run(('--force-exclude', '-d',
+                                 'ignore: ignored.yaml', *flags,
+                                 './ignored.yaml'))
+                    self.assertEqual(ctx.returncode, 0)
+                    self.assertEqual(ctx.stdout, '')
+                    self.assertEqual(ctx.stderr, '')
 
 
 class CommandLineConfigTestCase(unittest.TestCase):

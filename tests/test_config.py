@@ -208,6 +208,21 @@ class SimpleConfigTestCase(unittest.TestCase):
             config.YamlLintConfig('rules:\n'
                                   '  colons: invalid\n')
 
+    def test_force_exclude(self):
+        self.assertFalse(config.YamlLintConfig('rules: {}').force_exclude)
+        for value in ('true', 'false'):
+            with self.subTest(value=value):
+                conf = config.YamlLintConfig(f'force-exclude: {value}')
+                self.assertEqual(conf.force_exclude, value == 'true')
+
+    def test_invalid_force_exclude(self):
+        for value in ('null', '0', '1', '"true"', '[]', '{}'):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(
+                        config.YamlLintConfigError,
+                        'invalid config: force-exclude should be a boolean'):
+                    config.YamlLintConfig(f'force-exclude: {value}')
+
     def test_invalid_ignore(self):
         with self.assertRaisesRegex(
                 config.YamlLintConfigError,
@@ -386,6 +401,20 @@ class ExtendedConfigTestCase(unittest.TestCase):
 
         self.assertEqual(c.rules['colons']['max-spaces-before'], 0)
         self.assertEqual(c.rules['colons']['max-spaces-after'], 1)
+
+    def test_extended_force_exclude(self):
+        for base_value in ('true', 'false'):
+            with tempfile.NamedTemporaryFile('w', encoding='utf_8') as f:
+                f.write(f'force-exclude: {base_value}\n')
+                f.flush()
+                for override in ('', 'true', 'false'):
+                    with self.subTest(base=base_value, override=override):
+                        content = f'extends: {f.name}\n'
+                        if override:
+                            content += f'force-exclude: {override}\n'
+                        conf = config.YamlLintConfig(content)
+                        self.assertEqual(conf.force_exclude,
+                                         (override or base_value) == 'true')
 
     def test_extended_ignore_str(self):
         with tempfile.NamedTemporaryFile('w', encoding='utf_8') as f:
@@ -838,6 +867,10 @@ class IgnoreConfigTestCase(unittest.TestCase):
                      'file-at-root.yaml'))
         self.assertEqual(
             sys.stdout.getvalue().strip(),
+            'file.dont-lint-me.yaml:3:3: [error] duplication of key "key" '
+            'in mapping (key-duplicates)\n'
+            'file.dont-lint-me.yaml:4:17: [error] trailing spaces '
+            '(trailing-spaces)\n'
             'file-at-root.yaml:4:17: [error] trailing spaces (trailing-spaces)'
         )
 

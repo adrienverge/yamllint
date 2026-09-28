@@ -36,6 +36,20 @@ class LinterTestCase(unittest.TestCase):
     def test_run_on_stream(self):
         linter.run(io.StringIO('hello'), self.fake_config())
 
+    def test_run_with_no_ignore(self):
+        conf = YamlLintConfig(
+            'ignore: ignored.yaml\n'
+            'rules:\n'
+            '  trailing-spaces: enable\n'
+            '  document-start: {ignore: ignored.yaml}\n')
+        source = 'key: value  \n'
+        self.assertEqual(list(linter.run(source, conf, 'ignored.yaml')), [])
+        problems = list(linter.run(source, conf, 'ignored.yaml',
+                                   no_ignore=True))
+        self.assertEqual([p.rule for p in problems], ['trailing-spaces'])
+        # Bypassing ignores for one call must not mutate the configuration.
+        self.assertEqual(list(linter.run(source, conf, 'ignored.yaml')), [])
+
     def test_run_on_int(self):
         self.assertRaises(TypeError, linter.run, 42, self.fake_config())
 
