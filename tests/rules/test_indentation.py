@@ -940,6 +940,52 @@ class IndentationTestCase(RuleTestCase):
                    '- b\n'
                    '- c\n', conf, problem1=(3, 2), problem2=(7, 1))
 
+    def test_indent_sequences_integer(self):
+        conf = 'indentation: {spaces: 4, indent-sequences: 4}'
+        self.check('---\n'
+                   'list:\n'
+                   '    - 1\n'
+                   '    - 2\n'
+                   '    - 3\n'
+                   'nested:\n'
+                   '    list:\n'
+                   '        - a\n'
+                   '        - b\n', conf)
+        self.check('---\n'
+                   'list:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  - 3\n', conf, problem=(3, 3))
+        self.check('---\n'
+                   'list:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n', conf, problem=(3, 1))
+        # the sequence offset is independent from `spaces`
+        conf = 'indentation: {spaces: 2, indent-sequences: 4}'
+        self.check('---\n'
+                   'list:\n'
+                   '    - name: a\n'
+                   '      value: 1\n'
+                   '    - name: b\n'
+                   '      value: 2\n', conf)
+        self.check('---\n'
+                   'list:\n'
+                   '  - name: a\n'
+                   '    value: 1\n', conf, problem=(3, 3))
+        # 0 behaves like `false`
+        conf = 'indentation: {spaces: 2, indent-sequences: 0}'
+        self.check('---\n'
+                   'list:\n'
+                   '- 1\n'
+                   '- 2\n'
+                   '- 3\n', conf)
+        self.check('---\n'
+                   'list:\n'
+                   '  - 1\n'
+                   '  - 2\n'
+                   '  - 3\n', conf, problem=(3, 3))
+
     def test_direct_flows(self):
         # flow: [ ...
         # ]
