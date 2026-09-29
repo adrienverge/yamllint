@@ -154,3 +154,35 @@ class CommentsIndentationTestCase(RuleTestCase):
         self.check('---\n'
                    ' # not ok\n'
                    '- a  # inline\n', conf, problem=(2, 2))
+
+    def test_comment_after_nested_mapping_in_sequence(self):
+        # Commented-out sibling sequence items should match the dash indent
+        # even when the previous item ended with a nested mapping key.
+        # https://github.com/adrienverge/yamllint/issues/384
+        conf = 'comments-indentation: enable'
+        self.check('---\n'
+                   'platforms:\n'
+                   '  # - name: centos7\n'
+                   '  - name: centos\n'
+                   '    version: 8\n'
+                   '  # - name: debian\n'
+                   '  #   version: 10\n', conf)
+        self.check('---\n'
+                   'platforms:\n'
+                   '  - name: centos\n'
+                   '    version: 8\n'
+                   '   # neither the dash nor the nested key\n', conf,
+                   problem=(5, 4))
+
+    def test_comment_at_enclosing_indent(self):
+        # Comments may use an enclosing mapping indent when a nested block
+        # has just ended.
+        # https://github.com/adrienverge/yamllint/issues/141
+        conf = 'comments-indentation: enable'
+        self.check('---\n'
+                   'config:\n'
+                   '    entry:\n'
+                   '        - things\n'
+                   '    # no default, so we fail on new entries\n'
+                   'options:\n'
+                   '    - more stuff\n', conf)
