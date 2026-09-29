@@ -126,11 +126,7 @@ def _enclosing_content_indents(buffer, pointer):
 
     while line_start > 0:
         start = buffer.rfind('\n', 0, line_start - 1) + 1
-        raw = buffer[start:line_start]
-        if raw.endswith('\n'):
-            raw = raw[:-1]
-        if raw.endswith('\r'):
-            raw = raw[:-1]
+        raw = buffer[start:line_start].removesuffix('\n').removesuffix('\r')
         line_start = start
         stripped = raw.lstrip(' ')
         if not stripped or stripped.startswith('#'):
