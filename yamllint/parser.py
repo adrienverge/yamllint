@@ -93,7 +93,8 @@ def comments_between_tokens(token1, token2):
         buf = token1.end_mark.buffer[token1.end_mark.pointer:]
     elif (token1.end_mark.line == token2.start_mark.line and
           not isinstance(token1, yaml.StreamStartToken) and
-          not isinstance(token2, yaml.StreamEndToken)):
+          not isinstance(token2, (yaml.StreamEndToken,
+                                  yaml.BlockEndToken))):
         return
     else:
         buf = token1.end_mark.buffer[token1.end_mark.pointer:
