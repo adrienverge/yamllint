@@ -219,6 +219,21 @@ class CommentsTestCase(RuleTestCase):
         self.check('# comment with no newline char:\n'
                    '#', conf)
 
+    def test_last_line_inline_comment(self):
+        conf = ('comments:\n'
+                '  require-starting-space: true\n'
+                '  min-spaces-from-content: -1\n'
+                'comments-indentation: disable\n'
+                'document-start: disable\n'
+                'new-lines: disable\n'
+                'new-line-at-end-of-file: disable\n')
+        self.check('a: 1 #x', conf, problem1=(1, 7))
+        self.check('a: 1\nb: 2 #x', conf, problem1=(2, 7))
+        self.check('a: 1\nb: 2 #x\n', conf, problem1=(2, 7))
+        self.check('a: 1\n#x', conf, problem1=(2, 2))
+        self.check('a: 1\n#x\n', conf, problem1=(2, 2))
+        self.check('a: 1\r\nb: 2 #x', conf, problem1=(2, 7))
+
     def test_multi_line_scalar(self):
         conf = ('comments:\n'
                 '  require-starting-space: true\n'
