@@ -22,6 +22,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 from tests.common import (
     RunContext,
@@ -44,6 +45,44 @@ def utf8_available():
         return False
     else:
         return True
+
+
+class SupportsColorTestCase(unittest.TestCase):
+
+    def assertSupportsColor(self, env):
+        self._assert_color(True, env)
+
+    def assertNotSupportsColor(self, env):
+        self._assert_color(False, env)
+
+    def _assert_color(self, expected, env):
+        with mock.patch.dict('os.environ', env, clear=True):
+            self.assertEqual(expected, cli.supports_color())
+
+    def test_no_color_set(self):
+        self.assertNotSupportsColor({'NO_COLOR': '1'})
+        self.assertNotSupportsColor({'NO_COLOR': '0'})
+        self.assertNotSupportsColor({'NO_COLOR': 'whatever'})
+        self.assertNotSupportsColor({'NO_COLOR': '1', 'FORCE_COLOR': '1'})
+
+    def test_force_color_set(self):
+        self.assertSupportsColor({'FORCE_COLOR': '1'})
+        self.assertSupportsColor({'FORCE_COLOR': '0'})
+        self.assertSupportsColor({'FORCE_COLOR': 'whatever'})
+
+    def test_empty_no_color_does_not_change_default(self):
+        with mock.patch.dict('os.environ', clear=True):
+            if cli.supports_color():
+                self.assertSupportsColor({'NO_COLOR': ''})
+            else:
+                self.assertNotSupportsColor({'NO_COLOR': ''})
+
+    def test_empty_force_color_does_not_change_default(self):
+        with mock.patch.dict('os.environ', clear=True):
+            if cli.supports_color():
+                self.assertSupportsColor({'FORCE_COLOR': ''})
+            else:
+                self.assertNotSupportsColor({'FORCE_COLOR': ''})
 
 
 class CommandLineTestCase(unittest.TestCase):
@@ -591,6 +630,40 @@ class CommandLineTestCase(unittest.TestCase):
             f'::endgroup::\n\n')
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (1, expected_out, ''))
+
+    def assertFormatColored(self, fmt, env):
+        self._assert_format_colored(self.assertIn, fmt, env)
+
+    def assertNotFormatColored(self, fmt, env):
+        self._assert_format_colored(self.assertNotIn, fmt, env)
+
+    def _assert_format_colored(self, asserter, fmt, env):
+        path = os.path.join(self.wd, 'warn.yaml')
+        with (
+            RunContext(self) as ctx,
+            mock.patch.dict('os.environ', env, clear=True),
+        ):
+            cli.run((path, '--format', fmt))
+
+        asserter('\033[', ctx.stdout)
+
+    def test_format_auto_has_no_color_with_NO_COLOR(self):
+        self.assertNotFormatColored('auto', {'NO_COLOR': '1'})
+
+    def test_format_auto_has_colors_with_FORCE_COLOR(self):
+        self.assertFormatColored('auto', {'FORCE_COLOR': '1'})
+
+    def test_format_standard_has_no_color_with_NO_COLOR(self):
+        self.assertNotFormatColored('standard', {'NO_COLOR': '1'})
+
+    def test_format_standard_has_no_color_with_FORCE_COLOR(self):
+        self.assertNotFormatColored('standard', {'FORCE_COLOR': '1'})
+
+    def test_format_colored_has_color_with_NO_COLOR(self):
+        self.assertFormatColored('colored', {'NO_COLOR': '1'})
+
+    def test_format_colored_has_color_with_FORCE_COLOR(self):
+        self.assertFormatColored('colored', {'FORCE_COLOR': '1'})
 
     def test_github_actions_detection(self):
         path = os.path.join(self.wd, 'a.yaml')
