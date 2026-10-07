@@ -26,6 +26,7 @@ rules:
   key-duplicates: enable
   key-ordering: disable
   line-length: enable
+  list-ordering: disable
   new-line-at-end-of-file: enable
   new-lines: enable
   octal-values: disable
