@@ -101,7 +101,17 @@ def check(conf, token, prev, next, nextnext, context):
         prev_is_directive = isinstance(prev, yaml.DirectiveToken)
 
         if is_stream_end and not prev_is_end_or_stream_start:
-            yield LintProblem(token.start_mark.line, 1,
+            # A StreamEndToken is marked just after the last character of the
+            # document: when the document ends with a new line, that position
+            # belongs to a phantom extra line, so `start_mark.line` already
+            # is the number of the document's last line. Otherwise the mark
+            # is on that very last line, which is 0-based and needs +1.
+            line = token.start_mark.line
+            if (token.start_mark.pointer == 0 or
+                    token.start_mark.buffer[token.start_mark.pointer - 1]
+                    not in '\r\n'):
+                line += 1
+            yield LintProblem(line, 1,
                               'missing document end "..."')
         elif is_start and not (prev_is_end_or_stream_start
                                or prev_is_directive):

@@ -41,6 +41,24 @@ class DocumentEndTestCase(RuleTestCase):
                    'without:\n'
                    '  document: end\n', conf, problem=(3, 1))
 
+    def test_required_without_final_newline(self):
+        conf = ('document-end: {present: true}\n'
+                'document-start: disable\n'
+                'new-line-at-end-of-file: disable\n')
+        # The stream end token sits just after the last character of the
+        # document, so when the document does not end with a new line the
+        # problem must still be reported on the document's last line, and
+        # never on line 0.
+        self.check('a: 1', conf, problem=(1, 1))
+        self.check('---\na: 1', conf, problem=(2, 1))
+        self.check('---\nwithout:\n'
+                   '  document: end', conf, problem=(3, 1))
+        # Same documents, this time with a final new line.
+        self.check('a: 1\n', conf, problem=(1, 1))
+        self.check('---\na: 1\n', conf, problem=(2, 1))
+        self.check('---\nwithout:\n'
+                   '  document: end\n', conf, problem=(3, 1))
+
     def test_forbidden(self):
         conf = 'document-end: {present: false}'
         self.check('---\n'
