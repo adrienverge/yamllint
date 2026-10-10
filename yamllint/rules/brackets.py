@@ -28,9 +28,11 @@ inside brackets (``[`` and ``]``).
 * ``max-spaces-inside`` defines the maximal number of spaces allowed inside
   brackets.
 * ``min-spaces-inside-empty`` defines the minimal number of spaces required
-  inside empty brackets.
+  inside empty brackets. Use ``-1`` (the default) to inherit the value of
+  ``min-spaces-inside``.
 * ``max-spaces-inside-empty`` defines the maximal number of spaces allowed
-  inside empty brackets.
+  inside empty brackets. Use ``-1`` (the default) to inherit the value of
+  ``max-spaces-inside``.
 
 .. rubric:: Default values (when enabled)
 
@@ -119,7 +121,7 @@ inside brackets (``[`` and ``]``).
 
     object: [ ]
 
-#. With ``brackets: {min-spaces-inside-empty: 1, max-spaces-inside-empty: -1}``
+#. With ``brackets: {min-spaces-inside-empty: 1, max-spaces-inside: -1}``
 
    the following code snippet would **PASS**:
    ::

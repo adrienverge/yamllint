@@ -335,3 +335,17 @@ class ColonTestCase(RuleTestCase):
                    problem1=(2, 9))
         self.check('---\n'
                    'array: [ ]\n', conf)
+
+    def test_inherit_spaces_inside_empty_brackets(self):
+        # Example from the rule's documentation: when a
+        # min/max-spaces-inside-empty option is -1, the corresponding
+        # min/max-spaces-inside value is inherited.
+        conf = ('brackets:\n'
+                '  max-spaces-inside: -1\n'
+                '  min-spaces-inside-empty: 1\n')
+        self.check('---\n'
+                   'array: [         ]\n', conf)
+        self.check('---\n'
+                   'array: []\n', conf, problem=(2, 9))
+        self.check('---\n'
+                   'array: [ ]\n', conf)

@@ -28,9 +28,11 @@ braces (``{`` and ``}``).
 * ``max-spaces-inside`` defines the maximal number of spaces allowed inside
   braces.
 * ``min-spaces-inside-empty`` defines the minimal number of spaces required
-  inside empty braces.
+  inside empty braces. Use ``-1`` (the default) to inherit the value of
+  ``min-spaces-inside``.
 * ``max-spaces-inside-empty`` defines the maximal number of spaces allowed
-  inside empty braces.
+  inside empty braces. Use ``-1`` (the default) to inherit the value of
+  ``max-spaces-inside``.
 
 .. rubric:: Default values (when enabled)
 
@@ -118,7 +120,7 @@ braces (``{`` and ``}``).
 
     object: { }
 
-#. With ``braces: {min-spaces-inside-empty: 1, max-spaces-inside-empty: -1}``
+#. With ``braces: {min-spaces-inside-empty: 1, max-spaces-inside: -1}``
 
    the following code snippet would **PASS**:
    ::
