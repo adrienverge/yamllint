@@ -52,6 +52,24 @@ When writing a custom configuration file, you don't need to redefine every
 rule. Just extend the ``default`` configuration (or any already-existing
 configuration file).
 
+Relative paths in ``extends`` are resolved relative to the directory of the
+configuration file containing them, including in nested extensions. For
+example,
+``extends: ../.yamllint`` in ``.github/.yamllint`` loads ``.yamllint`` from the
+project root, regardless of the working directory. Absolute paths and built-in
+configuration names such as ``default`` and ``relaxed`` remain supported.
+For symbolic links, the directory of the selected configuration path is used,
+not the directory of the link target.
+
+This changes the previous behavior, which resolved relative paths from the
+working directory. Update existing paths that relied on that behavior to be
+relative to their containing configuration file, or use absolute paths.
+Configurations passed as inline content (with ``-d`` or the Python API) have no
+file directory, so their initial ``extends`` path is still relative to the
+working directory. Paths inside an extended file are relative to that file.
+This does not change how ``ignore`` patterns or ``ignore-from-file`` paths are
+resolved.
+
 For instance, if you just want to disable the ``comments-indentation`` rule,
 your file could look like this:
 

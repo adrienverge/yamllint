@@ -41,7 +41,8 @@ class YamlLintConfig:
             with open(file, mode='rb') as f:
                 content = decoder.auto_decode(f.read())
 
-        self.parse(content)
+        self.parse(content, config_dir=(os.path.dirname(os.fsdecode(file))
+                                        if file is not None else None))
         self.validate()
 
     def is_file_ignored(self, filepath):
@@ -72,7 +73,7 @@ class YamlLintConfig:
         if base_config.ignore is not None:
             self.ignore = base_config.ignore
 
-    def parse(self, raw_content):
+    def parse(self, raw_content, config_dir=None):
         try:
             conf = yaml.safe_load(raw_content)
         except Exception as e:
@@ -93,7 +94,7 @@ class YamlLintConfig:
 
         # Does this conf override another conf that we need to load?
         if 'extends' in conf:
-            path = get_extended_config_file(conf['extends'])
+            path = get_extended_config_file(conf['extends'], config_dir)
             base = YamlLintConfig(file=path)
             try:
                 self.extend(base)
@@ -236,7 +237,7 @@ def validate_rule_conf(rule, conf):
     return conf
 
 
-def get_extended_config_file(name):
+def get_extended_config_file(name, config_dir=None):
     # Is it a standard conf shipped with yamllint...
     if '/' not in name:
         std_conf = os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -246,4 +247,6 @@ def get_extended_config_file(name):
             return std_conf
 
     # or a custom conf on filesystem?
+    if config_dir is not None:
+        return os.path.join(config_dir, name)
     return name

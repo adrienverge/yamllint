@@ -17,15 +17,18 @@
 from io import StringIO
 import itertools
 import os
+from pathlib import Path
 import shutil
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from tests.common import (
     RunContext,
     build_temp_workspace,
     register_test_codecs,
+    temp_workspace,
     unregister_test_codecs,
 )
 
@@ -406,6 +409,135 @@ class ExtendedConfigTestCase(unittest.TestCase):
 
         self.assertEqual(c.ignore.match_file('test.template.yaml'), True)
         self.assertEqual(c.ignore.match_file('test.yaml'), False)
+
+
+class RelativeExtendedConfigTestCase(unittest.TestCase):
+    def test_relative_to_config_file(self):
+        with temp_workspace({
+            '.yamllint': 'rules: {trailing-spaces: enable}',
+            '.github/.yamllint': 'extends: ../.yamllint',
+        }):
+            for path in ('.github/.yamllint',
+                         os.path.abspath('.github/.yamllint')):
+                with self.subTest(path=path):
+                    c = config.YamlLintConfig(file=path)
+                    self.assertIn('trailing-spaces', c.rules)
+            os.chdir('.github')
+            c = config.YamlLintConfig(file='.yamllint')
+            self.assertIn('trailing-spaces', c.rules)
+
+    def test_bytes_and_pathlike_config_paths(self):
+        with temp_workspace({
+            'configs/base.yaml': 'rules: {trailing-spaces: enable}',
+            'configs/.yamllint': 'extends: base.yaml',
+        }):
+            for path in (b'configs/.yamllint', Path('configs/.yamllint')):
+                with self.subTest(path=path):
+                    c = config.YamlLintConfig(file=path)
+                    self.assertIn('trailing-spaces', c.rules)
+
+    def test_recursive_paths_and_overrides(self):
+        with temp_workspace({
+            'configs/base.yaml':
+                'extends: default\nrules: {line-length: {max: 100}}',
+            'configs/team/base.yaml':
+                'extends: ../base.yaml\n'
+                'rules: {line-length: {level: warning}}',
+            'project/.yamllint':
+                'extends: ../configs/team/base.yaml\n'
+                'rules: {line-length: {max: 120}}',
+        }):
+            c = config.YamlLintConfig(file='project/.yamllint')
+            self.assertEqual(c.rules['line-length']['max'], 120)
+            self.assertEqual(c.rules['line-length']['level'], 'warning')
+            self.assertIn('trailing-spaces', c.rules)
+
+    def test_bare_filename_and_cwd_decoy(self):
+        with temp_workspace({
+            'base.yaml': 'rules: {trailing-spaces: disable}',
+            'configs/base.yaml': 'rules: {trailing-spaces: enable}',
+            'configs/.yamllint': 'extends: base.yaml',
+        }):
+            c = config.YamlLintConfig(file='configs/.yamllint')
+            self.assertIsNot(c.rules['trailing-spaces'], False)
+
+    def test_missing_base_does_not_fall_back_to_cwd(self):
+        with temp_workspace({
+            'base.yaml': 'rules: {trailing-spaces: enable}',
+            'configs/.yamllint': 'extends: base.yaml',
+        }):
+            with self.assertRaises(FileNotFoundError) as cm:
+                config.YamlLintConfig(file='configs/.yamllint')
+            self.assertEqual(cm.exception.filename,
+                             os.path.join('configs', 'base.yaml'))
+
+    def test_absolute_base(self):
+        with temp_workspace({
+            'base.yaml': 'rules: {trailing-spaces: enable}',
+            'configs/.yamllint': '',
+        }):
+            with open('configs/.yamllint', 'w', encoding='utf-8') as f:
+                f.write('extends: ' + os.path.abspath('base.yaml'))
+            c = config.YamlLintConfig(file='configs/.yamllint')
+            self.assertIn('trailing-spaces', c.rules)
+
+    def test_builtin_names_take_precedence(self):
+        with temp_workspace({
+            'configs/default': 'rules: {}',
+            'configs/relaxed': 'rules: {}',
+            'configs/.yamllint': 'extends: default',
+            'configs/relaxed.yaml': 'extends: relaxed',
+        }):
+            for name in ('default', 'relaxed'):
+                with self.subTest(name=name):
+                    path = ('.yamllint' if name == 'default'
+                            else 'relaxed.yaml')
+                    c = config.YamlLintConfig(
+                        file=os.path.join('configs', path))
+                    expected = config.YamlLintConfig('extends: ' + name)
+                    self.assertEqual(c.rules, expected.rules)
+
+    def test_inline_config_uses_cwd_then_base_directory(self):
+        with temp_workspace({
+            'configs/base.yaml': 'extends: sibling.yaml',
+            'configs/sibling.yaml': 'rules: {trailing-spaces: enable}',
+        }):
+            c = config.YamlLintConfig('extends: configs/base.yaml')
+            self.assertIn('trailing-spaces', c.rules)
+
+    @unittest.skipUnless(hasattr(os, 'symlink'), 'requires symbolic links')
+    def test_symlink_uses_directory_of_selected_path(self):
+        with temp_workspace({
+            'original/config.yaml': 'extends: base.yaml',
+            'original/base.yaml': 'rules: {trailing-spaces: disable}',
+            'selected/base.yaml': 'rules: {trailing-spaces: enable}',
+            'selected/config.yaml': 'symlink://../original/config.yaml',
+        }):
+            c = config.YamlLintConfig(file='selected/config.yaml')
+            self.assertIsNot(c.rules['trailing-spaces'], False)
+
+    def test_cli_config_sources(self):
+        with temp_workspace({
+            'configs/base.yaml': 'rules: {trailing-spaces: enable}',
+            'configs/.yamllint': 'extends: base.yaml',
+            'project/.yamllint': 'extends: ../configs/base.yaml',
+            'project/nested/valid.yaml': 'valid: yaml\n',
+            'valid.yaml': 'valid: yaml\n',
+        }):
+            with RunContext(self) as ctx:
+                cli.run(('-c', 'configs/.yamllint', 'valid.yaml'))
+            self.assertEqual(ctx.returncode, 0)
+            with patch.dict(os.environ, {
+                'YAMLLINT_CONFIG_FILE':
+                    os.path.abspath('configs/.yamllint'),
+            }):
+                with RunContext(self) as ctx:
+                    cli.run(('valid.yaml',))
+                self.assertEqual(ctx.returncode, 0)
+            os.chdir('project/nested')
+            with RunContext(self) as ctx:
+                cli.run(('valid.yaml',))
+            self.assertEqual(ctx.returncode, 0)
 
 
 class ExtendedLibraryConfigTestCase(unittest.TestCase):

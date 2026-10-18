@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+- Config: Resolve relative ``extends`` paths from the containing configuration
+  file rather than the working directory. Existing file-based configurations
+  relying on working-directory-relative paths need to be updated. Inline
+  configurations still resolve their initial path from the working directory.
+
 1.38.0 (2026-01-13)
 -------------------
 
