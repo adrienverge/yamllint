@@ -215,6 +215,7 @@ def run(argv=None):
         sys.exit(0)
 
     max_level = 0
+    no_warnings = args.no_warnings or conf.no_warnings
 
     for file in find_files_recursively(args.files, conf):
         filepath = file.removeprefix('./')
@@ -225,7 +226,7 @@ def run(argv=None):
             print(e, file=sys.stderr)
             sys.exit(-1)
         prob_level = show_problems(problems, file, args_format=args.format,
-                                   no_warn=args.no_warnings)
+                                   no_warn=no_warnings)
         max_level = max(max_level, prob_level)
 
     # read yaml from stdin
@@ -239,7 +240,7 @@ def run(argv=None):
             print(e, file=sys.stderr)
             sys.exit(-1)
         prob_level = show_problems(problems, 'stdin', args_format=args.format,
-                                   no_warn=args.no_warnings)
+                                   no_warn=no_warnings)
         max_level = max(max_level, prob_level)
 
     if max_level == PROBLEM_LEVELS['error']:
