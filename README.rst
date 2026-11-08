@@ -134,6 +134,12 @@ Specific files can be ignored (totally or for some rules only) using a
 
 `Read more in the complete documentation! <https://yamllint.readthedocs.io/>`__
 
+Contributing
+------------
+
+See `CONTRIBUTING.rst <CONTRIBUTING.rst>`_ for test and lint commands, including
+setup of the optional, pinned YAML Test Suite regression corpus.
+
 License
 -------
 

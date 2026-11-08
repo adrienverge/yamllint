@@ -32,6 +32,21 @@ jobs:
       - name: Check for broken links in documentation
         run: make -C docs linkcheck
 
+  corpus:
+    name: YAML Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout pinned test data
+        uses: actions/checkout@v7
+        with:
+          submodules: true
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: pip install .
+      - run: python -m tests.test_yaml_test_suite
+
   test:
     name: Unit tests
     runs-on: ubuntu-latest
