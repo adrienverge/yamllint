@@ -100,11 +100,7 @@ class YamlLintConfig:
             except Exception as e:
                 raise YamlLintConfigError(f'invalid config: {e}') from e
 
-        if 'ignore' in conf and 'ignore-from-file' in conf:
-            raise YamlLintConfigError(
-                'invalid config: ignore and ignore-from-file keys cannot be '
-                'used together')
-        elif 'ignore-from-file' in conf:
+        if 'ignore-from-file' in conf:
             if isinstance(conf['ignore-from-file'], str):
                 conf['ignore-from-file'] = [conf['ignore-from-file']]
             if not (isinstance(conf['ignore-from-file'], list) and all(
@@ -112,19 +108,23 @@ class YamlLintConfig:
                 raise YamlLintConfigError(
                     'invalid config: ignore-from-file should contain '
                     'filename(s), either as a list or string')
-            self.ignore = GitIgnoreSpec.from_lines(
-                decoder.lines_in_files(conf['ignore-from-file'])
-            )
-        elif 'ignore' in conf:
+            ignore_lines = list(
+                decoder.lines_in_files(conf['ignore-from-file']))
+        else:
+            ignore_lines = []
+
+        if 'ignore' in conf:
             if isinstance(conf['ignore'], str):
-                self.ignore = GitIgnoreSpec.from_lines(
-                    conf['ignore'].splitlines())
+                ignore_lines.extend(conf['ignore'].splitlines())
             elif (isinstance(conf['ignore'], list) and
                     all(isinstance(line, str) for line in conf['ignore'])):
-                self.ignore = GitIgnoreSpec.from_lines(conf['ignore'])
+                ignore_lines.extend(conf['ignore'])
             else:
                 raise YamlLintConfigError(
                     'invalid config: ignore should contain file patterns')
+
+        if 'ignore' in conf or 'ignore-from-file' in conf:
+            self.ignore = GitIgnoreSpec.from_lines(ignore_lines)
 
         if 'yaml-files' in conf:
             if not (isinstance(conf['yaml-files'], list)

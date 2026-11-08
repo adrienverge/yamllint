@@ -245,6 +245,30 @@ class SimpleConfigTestCase(unittest.TestCase):
 
 
 class ExtendedConfigTestCase(unittest.TestCase):
+    def test_combined_ignore_overrides_extended_ignore(self):
+        with tempfile.NamedTemporaryFile('w', encoding='utf_8') as base, \
+                tempfile.NamedTemporaryFile('w', encoding='utf_8') as extra:
+            base.write('ignore: base.yaml\n')
+            base.flush()
+            extra.write('local.yaml\n')
+            extra.flush()
+            c = config.YamlLintConfig(
+                f'extends: {base.name}\n'
+                f'ignore-from-file: {extra.name}\n'
+                'ignore: extra.yaml\n')
+
+        self.assertFalse(c.is_file_ignored('base.yaml'))
+        self.assertTrue(c.is_file_ignored('local.yaml'))
+        self.assertTrue(c.is_file_ignored('extra.yaml'))
+
+    def test_empty_ignore_overrides_extended_ignore(self):
+        with tempfile.NamedTemporaryFile('w', encoding='utf_8') as base:
+            base.write('ignore: base.yaml\n')
+            base.flush()
+            c = config.YamlLintConfig(f'extends: {base.name}\nignore: []\n')
+
+        self.assertFalse(c.is_file_ignored('base.yaml'))
+
     def test_extend_on_object(self):
         old = config.YamlLintConfig('rules:\n'
                                     '  colons:\n'
@@ -494,14 +518,24 @@ class IgnoreConfigTestCase(unittest.TestCase):
 
         shutil.rmtree(cls.wd)
 
-    def test_mutually_exclusive_ignore_keys(self):
-        self.assertRaises(
-            YamlLintConfigError,
-            config.YamlLintConfig, 'extends: default\n'
-                                   'ignore-from-file: .gitignore\n'
-                                   'ignore: |\n'
-                                   '  *.dont-lint-me.yaml\n'
-                                   '  /bin/\n')
+    def test_ignore_keys_can_be_combined(self):
+        with open('.gitignore', 'w', encoding='utf_8') as f:
+            f.write('*.yaml\n'
+                    '!file-at-root.yaml\n')
+        with open('.yamlignore', 'w', encoding='utf_8') as f:
+            f.write('!file.dont-lint-me.yaml\n')
+
+        c = config.YamlLintConfig('extends: default\n'
+                                  'ignore-from-file: [.gitignore, '
+                                  '.yamlignore]\n'
+                                  'ignore:\n'
+                                  '  - file-at-root.yaml\n'
+                                  '  - file.dont-lint-me.yaml\n'
+                                  '  - "!file.dont-lint-me.yaml"\n')
+
+        self.assertTrue(c.is_file_ignored('file-at-root.yaml'))
+        self.assertFalse(c.is_file_ignored('file.dont-lint-me.yaml'))
+        self.assertTrue(c.is_file_ignored('file.yaml'))
 
     def test_ignore_from_file_not_exist(self):
         self.assertRaises(
@@ -682,6 +716,8 @@ class IgnoreConfigTestCase(unittest.TestCase):
         with open(path, 'w', encoding='utf_8') as f:
             f.write('extends: default\n'
                     'ignore-from-file: .gitignore\n'
+                    'ignore:\n'
+                    '  - ign-trail/file.yaml\n'
                     'rules:\n'
                     '  key-duplicates:\n'
                     '    ignore-from-file: .ignore-key-duplicates\n')
@@ -720,9 +756,6 @@ class IgnoreConfigTestCase(unittest.TestCase):
             './ign-dup/file.yaml:5:5: ' + hyphen,
             './ign-dup/sub/dir/file.yaml:4:17: ' + trailing,
             './ign-dup/sub/dir/file.yaml:5:5: ' + hyphen,
-            './ign-trail/file.yaml:3:3: ' + keydup,
-            './ign-trail/file.yaml:4:17: ' + trailing,
-            './ign-trail/file.yaml:5:5: ' + hyphen,
             './include/ign-dup/sub/dir/file.yaml:3:3: ' + keydup,
             './include/ign-dup/sub/dir/file.yaml:4:17: ' + trailing,
             './include/ign-dup/sub/dir/file.yaml:5:5: ' + hyphen,

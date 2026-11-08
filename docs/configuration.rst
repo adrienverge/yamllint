@@ -226,7 +226,9 @@ or:
 
  ignore-from-file: [.gitignore, .yamlignore]
 
-.. note:: However, this is mutually exclusive with the ``ignore`` key.
+The patterns from these files are combined with patterns in the ``ignore``
+key, if present. Patterns in ``ignore`` are applied last, so they can override
+patterns from the files (for example, with a negated pattern).
 
 .. note:: Files on the ``ignore-from-file`` list should use either UTF-8,
    UTF-16 or UTF-32. See :doc:`Character Encoding <character_encoding>` for
