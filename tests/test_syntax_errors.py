@@ -15,6 +15,8 @@
 
 from tests.common import RuleTestCase
 
+from yamllint import linter
+
 
 class YamlLintTestCase(RuleTestCase):
     rule_id = None  # syntax error
@@ -52,6 +54,18 @@ class YamlLintTestCase(RuleTestCase):
                    'oops\x00\n', None,
                    problem1=(2, 10, 'trailing-spaces'),
                    problem2=(3, 5))
+
+    def test_non_printable_character_after_line_breaks(self):
+        for newline in ('\n', '\r\n', '\r', '\x85', '\u2028', '\u2029'):
+            with self.subTest(newline=repr(newline)):
+                problem = linter.get_syntax_error(
+                    f'---{newline}key: value{newline}bad: \x00')
+                self.assertEqual((problem.line, problem.column), (3, 6))
+                self.assertEqual(problem.level, 'error')
+                self.assertEqual(
+                    problem.desc,
+                    'syntax error: special characters are not allowed '
+                    '(syntax)')
 
     def test_empty_flows(self):
         self.check('---\n'

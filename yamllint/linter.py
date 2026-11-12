@@ -187,8 +187,11 @@ def get_syntax_error(buffer):
         # characters such as NUL) before the parser produces position marks.
         # It is a YAMLError but not a MarkedYAMLError, so derive the line and
         # column from its flat position into the buffer.
-        line = buffer.count('\n', 0, e.position)
-        column = e.position - (buffer.rfind('\n', 0, e.position) + 1)
+        # Match PyYAML's line breaks, treating CRLF as a single break.
+        lines = re.split(r'\r\n|[\n\r\x85\u2028\u2029]',
+                         buffer[:e.position])
+        line = len(lines) - 1
+        column = len(lines[-1])
         problem = LintProblem(line + 1, column + 1,
                               'syntax error: ' + e.reason + ' (syntax)')
         problem.level = 'error'
