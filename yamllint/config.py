@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
+import pathlib
 
 from pathspec import GitIgnoreSpec
 import yaml
@@ -32,8 +33,13 @@ class YamlLintConfig:
 
         self.ignore = None
 
+        # The '!*/' pattern makes sure that a pattern doesn't select every
+        # file inside a directory that it matches, for example
+        # 'dir.yaml/file.txt' for '*.yaml'. This needs the 'simple' backend
+        # of pathspec: the other ones don't always give priority to the
+        # patterns that match the file itself.
         self.yaml_files = GitIgnoreSpec.from_lines(
-            ['*.yaml', '*.yml', '.yamllint'])
+            ['*.yaml', '*.yml', '.yamllint', '!*/'], backend='simple')
 
         self.locale = None
 
@@ -48,7 +54,9 @@ class YamlLintConfig:
         return self.ignore and self.ignore.match_file(filepath)
 
     def is_yaml_file(self, filepath):
-        return self.yaml_files.match_file(os.path.basename(filepath))
+        # PurePath() removes the redundant './' and '/' of paths like
+        # './/file.yaml', which pathspec doesn't do itself.
+        return self.yaml_files.match_file(str(pathlib.PurePath(filepath)))
 
     def enabled_rules(self, filepath):
         return [yamllint.rules.get(id) for id, val in self.rules.items()
@@ -132,7 +140,8 @@ class YamlLintConfig:
                 raise YamlLintConfigError(
                     'invalid config: yaml-files '
                     'should be a list of file patterns')
-            self.yaml_files = GitIgnoreSpec.from_lines(conf['yaml-files'])
+            self.yaml_files = GitIgnoreSpec.from_lines(
+                conf['yaml-files'] + ['!*/'], backend='simple')
 
         if 'locale' in conf:
             if not isinstance(conf['locale'], str):
