@@ -228,6 +228,87 @@ class CommandLineTestCase(unittest.TestCase):
             [os.path.join(self.wd, 'non-ascii/éçäγλνπ¥/utf-8')]
         )
 
+    def test_find_files_recursively_with_dirs_in_yaml_files(self):
+        # https://github.com/adrienverge/yamllint/issues/334
+        with temp_workspace({'test.yaml': '',
+                             'sub/test.yaml': '',
+                             'sub/dir.yaml/test.yaml': '',
+                             'sub/dir.yaml/not-yaml.txt': ''}):
+            conf = config.YamlLintConfig('extends: default\n'
+                                         'yaml-files:\n'
+                                         '  - sub/*.yaml\n')
+            self.assertEqual(
+                sorted(cli.find_files_recursively(['.'], conf)),
+                ['./sub/test.yaml']
+            )
+            self.assertEqual(
+                sorted(cli.find_files_recursively(['sub', 'test.yaml'], conf)),
+                ['sub/test.yaml', 'test.yaml']
+            )
+            self.assertEqual(
+                sorted(cli.find_files_recursively(['././', 'sub//'], conf)),
+                ['././sub/test.yaml', 'sub//test.yaml']
+            )
+
+            conf = config.YamlLintConfig('extends: default')
+            self.assertEqual(
+                sorted(cli.find_files_recursively(['.//'], conf)),
+                ['.//sub/dir.yaml/test.yaml',
+                 './/sub/test.yaml',
+                 './/test.yaml']
+            )
+
+        # https://github.com/adrienverge/yamllint/issues/390
+        with temp_workspace({'group_vars/i_am_a_y-a-m-l_file': '',
+                             'group_vars/dir/file': '',
+                             'host_vars/file': '',
+                             'playbook.yml': ''}):
+            conf = config.YamlLintConfig('extends: default\n'
+                                         'yaml-files:\n'
+                                         '  - \'*.yml\'\n'
+                                         '  - group_vars/*\n')
+            self.assertEqual(
+                sorted(cli.find_files_recursively(['.'], conf)),
+                ['./group_vars/i_am_a_y-a-m-l_file',
+                 './playbook.yml']
+            )
+
+            conf = config.YamlLintConfig('extends: default\n'
+                                         'yaml-files:\n'
+                                         '  - group_vars/**\n')
+            self.assertEqual(
+                sorted(cli.find_files_recursively(['.'], conf)),
+                ['./group_vars/dir/file',
+                 './group_vars/i_am_a_y-a-m-l_file']
+            )
+
+            conf = config.YamlLintConfig('extends: default\n'
+                                         'yaml-files:\n'
+                                         '  - group_vars/**\n'
+                                         '  - group_vars\n')
+            self.assertEqual(
+                sorted(cli.find_files_recursively(['.'], conf)),
+                ['./group_vars/dir/file',
+                 './group_vars/i_am_a_y-a-m-l_file']
+            )
+
+        # https://github.com/adrienverge/yamllint/issues/546
+        with temp_workspace({'.github/file.yaml': '',
+                             '.github/dir/subdir/file.yaml': '',
+                             '.github/dir.yaml/file.yaml': '',
+                             '.github/dir.yaml/not-yaml.txt': '',
+                             'docs/file.yaml': '',
+                             'file.yaml': ''}):
+            conf = config.YamlLintConfig('extends: default\n'
+                                         'yaml-files:\n'
+                                         '  - .github/**/*.yaml\n')
+            self.assertEqual(
+                sorted(cli.find_files_recursively(['.'], conf)),
+                ['./.github/dir.yaml/file.yaml',
+                 './.github/dir/subdir/file.yaml',
+                 './.github/file.yaml']
+            )
+
     def test_run_with_bad_arguments(self):
         with RunContext(self) as ctx:
             cli.run(())
