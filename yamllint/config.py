@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
+import pathlib
 
 from pathspec import GitIgnoreSpec
 import yaml
@@ -32,8 +33,11 @@ class YamlLintConfig:
 
         self.ignore = None
 
+        # The '!*/' pattern makes sure that a pattern doesn't select every
+        # file inside a directory that it matches, for example
+        # 'dir.yaml/file.txt' for '*.yaml'.
         self.yaml_files = GitIgnoreSpec.from_lines(
-            ['*.yaml', '*.yml', '.yamllint'])
+            ['*.yaml', '*.yml', '.yamllint', '!*/'])
 
         self.locale = None
 
@@ -48,7 +52,11 @@ class YamlLintConfig:
         return self.ignore and self.ignore.match_file(filepath)
 
     def is_yaml_file(self, filepath):
-        return self.yaml_files.match_file(os.path.basename(filepath))
+        # PurePath() removes the redundant './' and '/' of paths like
+        # './/file.yaml', which pathspec doesn't do itself. It keeps a
+        # leading '//' though, hence lstrip().
+        return self.yaml_files.match_file(
+            str(pathlib.PurePath(filepath)).lstrip('/'))
 
     def enabled_rules(self, filepath):
         return [yamllint.rules.get(id) for id, val in self.rules.items()
@@ -132,7 +140,16 @@ class YamlLintConfig:
                 raise YamlLintConfigError(
                     'invalid config: yaml-files '
                     'should be a list of file patterns')
-            self.yaml_files = GitIgnoreSpec.from_lines(conf['yaml-files'])
+            # The patterns that end with a slash are there to select a
+            # directory, so they are added again after '!*/'.
+            # User patterns need the 'simple' backend of pathspec, because the
+            # 're2' and 'hyperscan' ones, used when these modules are
+            # installed, don't always give priority to the patterns that match
+            # the file itself.
+            self.yaml_files = GitIgnoreSpec.from_lines(
+                conf['yaml-files'] + ['!*/'] +
+                [p for p in conf['yaml-files'] if p.endswith('/')],
+                backend='simple')
 
         if 'locale' in conf:
             if not isinstance(conf['locale'], str):
