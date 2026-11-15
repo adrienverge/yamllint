@@ -119,7 +119,7 @@ Specific files can be ignored (totally or for some rules only) using a
  # For all rules
  ignore: |
    *.dont-lint-me.yaml
-   /bin/
+   /bin/*
    !/bin/*.lint-me-anyway.yaml
 
  rules:
