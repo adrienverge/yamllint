@@ -135,7 +135,18 @@ directories, set ``yaml-files`` configuration option. The default is:
    - '.yamllint'
 
 The same rules as for ignoring paths apply (``.gitignore``-style path pattern,
-see below).
+see below), with one difference: a pattern selects only the files that it
+matches, not the content of the directories that it matches, unless it ends
+with a slash. For example ``*.yaml`` doesn't select ``dir.yaml/file.txt``, and
+``group_vars/`` selects every file inside ``group_vars``:
+
+.. code-block:: yaml
+
+ yaml-files:
+   - '*.yaml'
+   - '*.yml'
+   - '.yamllint'
+   - 'group_vars/'
 
 If you need to know the exact list of files that yamllint would process,
 without really linting them, you can use ``--list-files``:
