@@ -199,7 +199,7 @@ example:
  # For all rules
  ignore: |
    *.dont-lint-me.yaml
-   /bin/
+   /bin/*
    !/bin/*.lint-me-anyway.yaml
 
  extends: default
@@ -213,6 +213,10 @@ example:
      ignore: |
        *.ignore-trailing-spaces.yaml
        ascii-art/*
+
+Git cannot re-include a file if a parent directory is ignored. Here,
+``/bin/*`` ignores the directory's contents rather than the directory itself,
+so the following negated pattern can re-include matching files.
 
 You can also use the ``.gitignore`` file (or any list of files) through:
 

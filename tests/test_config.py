@@ -573,7 +573,7 @@ class IgnoreConfigTestCase(unittest.TestCase):
             f.write('extends: default\n'
                     'ignore: |\n'
                     '  *.dont-lint-me.yaml\n'
-                    '  /bin/\n'
+                    '  /bin/*\n'
                     '  !/bin/*.lint-me-anyway.yaml\n'
                     'rules:\n'
                     '  key-duplicates:\n'
@@ -581,7 +581,8 @@ class IgnoreConfigTestCase(unittest.TestCase):
                     '      /ign-dup\n'
                     '  trailing-spaces:\n'
                     '    ignore: |\n'
-                    '      ign-trail\n'
+                    '      **/ign-trail/**\n'
+                    '      !*/\n'
                     '      !*.lint-me-anyway.yaml\n')
 
         sys.stdout = StringIO()
@@ -628,7 +629,7 @@ class IgnoreConfigTestCase(unittest.TestCase):
             f.write('extends: default\n'
                     'ignore:\n'
                     '  - "*.dont-lint-me.yaml"\n'
-                    '  - "/bin/"\n'
+                    '  - "/bin/*"\n'
                     '  - "!/bin/*.lint-me-anyway.yaml"\n'
                     'rules:\n'
                     '  key-duplicates:\n'
@@ -636,7 +637,8 @@ class IgnoreConfigTestCase(unittest.TestCase):
                     '      - "/ign-dup"\n'
                     '  trailing-spaces:\n'
                     '    ignore:\n'
-                    '      - "ign-trail"\n'
+                    '      - "**/ign-trail/**"\n'
+                    '      - "!*/"\n'
                     '      - "!*.lint-me-anyway.yaml"\n')
 
         sys.stdout = StringIO()
@@ -689,7 +691,7 @@ class IgnoreConfigTestCase(unittest.TestCase):
         path = os.path.join(self.wd, '.gitignore')
         with open(path, 'w', encoding='utf_8') as f:
             f.write('*.dont-lint-me.yaml\n'
-                    '/bin/\n'
+                    '/bin/*\n'
                     '!/bin/*.lint-me-anyway.yaml\n')
 
         path = os.path.join(self.wd, '.ignore-key-duplicates')
@@ -745,7 +747,7 @@ class IgnoreConfigTestCase(unittest.TestCase):
         path = os.path.join(self.wd, '.gitignore')
         with open(path, 'w', encoding='utf_8') as f:
             f.write('*.dont-lint-me.yaml\n'
-                    '/bin/\n')
+                    '/bin/*\n')
         path = os.path.join(self.wd, '.yamlignore')
         with open(path, 'w', encoding='utf_8') as f:
             f.write('!/bin/*.lint-me-anyway.yaml\n')
