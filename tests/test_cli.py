@@ -282,6 +282,33 @@ class CommandLineTestCase(unittest.TestCase):
         self.assertEqual(
             (ctx.returncode, ctx.stdout, ctx.stderr), (0, expected_out, ''))
 
+    def test_run_with_missing_config_file(self):
+        with RunContext(self) as ctx:
+            cli.run(('-c', 'this-config-does-not-exist', 'file'))
+        self.assertEqual(ctx.returncode, -1)
+        self.assertEqual(ctx.stdout, '')
+        self.assertRegex(ctx.stderr,
+                         r'^\[Errno 2\] No such file or directory')
+
+    def test_run_with_missing_extended_config_file(self):
+        with RunContext(self) as ctx:
+            cli.run(('-d', 'extends: this-config-does-not-exist', 'file'))
+        self.assertEqual(ctx.returncode, -1)
+        self.assertEqual(ctx.stdout, '')
+        self.assertRegex(ctx.stderr,
+                         r'^\[Errno 2\] No such file or directory')
+
+    def test_run_with_missing_ignore_from_file(self):
+        with RunContext(self) as ctx:
+            cli.run((
+                '-d',
+                'extends: default\nignore-from-file: missing-ignore-file',
+                'file'))
+        self.assertEqual(ctx.returncode, -1)
+        self.assertEqual(ctx.stdout, '')
+        self.assertRegex(ctx.stderr,
+                         r'^\[Errno 2\] No such file or directory')
+
     def test_run_with_config_file(self):
         with open(os.path.join(self.wd, 'config'), 'w', encoding='utf_8') as f:
             f.write('rules: {trailing-spaces: disable}')

@@ -204,6 +204,11 @@ def run(argv=None):
     except YamlLintConfigError as e:
         print(e, file=sys.stderr)
         sys.exit(-1)
+    except OSError as e:
+        # a config file (or a file it extends) that cannot be read is a user
+        # error, it used to escape as a traceback
+        print(e, file=sys.stderr)
+        sys.exit(-1)
 
     if conf.locale is not None:
         locale.setlocale(locale.LC_ALL, conf.locale)
