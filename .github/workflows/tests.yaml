@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.x"
       - run: pip install --group dev .
@@ -43,16 +43,17 @@ jobs:
           - '3.11'
           - '3.12'
           - '3.13'
-          - '3.13t'
           - '3.14'
+          - '3.14t'
+          - '3.15'
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
-          allow-prereleases: true  # needed for 3.14
+          allow-prereleases: true  # needed for 3.15
       - name: Append GitHub Actions system path
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Keep the GIL disabled with free-threaded Python

@@ -287,7 +287,7 @@ class EmptyValuesTestCase(RuleTestCase):
                    'foo:\n'
                    '  -\n', conf)
 
-    def test_in_block_sequences_primative_item(self):
+    def test_in_block_sequences_primitive_item(self):
         conf = ('empty-values: {forbid-in-block-mappings: false,\n'
                 '               forbid-in-flow-mappings: false,\n'
                 '               forbid-in-block-sequences: true}\n')

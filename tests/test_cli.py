@@ -381,15 +381,15 @@ class CommandLineTestCase(unittest.TestCase):
 
         # en_US + en.yaml should pass
         with RunContext(self) as ctx:
-            cli.run(('-d', 'locale: en_US.UTF-8\n'
-                           'rules: { key-ordering: enable }',
+            cli.run(('-d', ('locale: en_US.UTF-8\n'
+                            'rules: { key-ordering: enable }'),
                      os.path.join(self.wd, 'en.yaml')))
         self.assertEqual(ctx.returncode, 0)
 
         # en_US + c.yaml should fail
         with RunContext(self) as ctx:
-            cli.run(('-d', 'locale: en_US.UTF-8\n'
-                           'rules: { key-ordering: enable }',
+            cli.run(('-d', ('locale: en_US.UTF-8\n'
+                            'rules: { key-ordering: enable }'),
                      os.path.join(self.wd, 'c.yaml')))
         self.assertEqual(ctx.returncode, 1)
 
@@ -750,9 +750,10 @@ class CommandLineConfigTestCase(unittest.TestCase):
                     with RunContext(self) as ctx:
                         cli.run(('-f', 'parsable', '.'))
 
-                self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
-                                 (0, './a.yml:1:1: [warning] missing document '
-                                     'start "---" (document-start)\n', ''))
+                self.assertEqual(
+                    (ctx.returncode, ctx.stdout, ctx.stderr),
+                    (0, ('./a.yml:1:1: [warning] missing document '
+                         'start "---" (document-start)\n'), ''))
 
                 with temp_workspace({**workspace, conf_file: conf}):
                     with RunContext(self) as ctx:
@@ -773,10 +774,11 @@ class CommandLineConfigTestCase(unittest.TestCase):
                         os.chdir('a/b/c/d/e/f')
                         cli.run(('-f', 'parsable', '.'))
 
-                self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
-                                 (0, './g/a.yml:1:1: [warning] missing '
-                                     'document start "---" (document-start)\n',
-                                     ''))
+                self.assertEqual(
+                    (ctx.returncode, ctx.stdout, ctx.stderr),
+                    (0, ('./g/a.yml:1:1: [warning] missing '
+                         'document start "---" (document-start)\n'),
+                     ''))
 
                 with temp_workspace({**workspace, conf_file: conf}):
                     with RunContext(self) as ctx:
@@ -809,18 +811,20 @@ class CommandLineConfigTestCase(unittest.TestCase):
                 os.chdir('a/b/c')
                 cli.run(('-f', 'parsable', '.'))
 
-        self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
-                         (0, './3spaces.yml:2:4: [warning] wrong indentation: '
-                         'expected 4 but found 3 (indentation)\n', ''))
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr),
+            (0, ('./3spaces.yml:2:4: [warning] wrong indentation: '
+                 'expected 4 but found 3 (indentation)\n'), ''))
 
         with temp_workspace({**workspace, 'a/b/.yamllint.yml': conf3}):
             with RunContext(self) as ctx:
                 os.chdir('a/b/c')
                 cli.run(('-f', 'parsable', '.'))
 
-        self.assertEqual((ctx.returncode, ctx.stdout, ctx.stderr),
-                         (0, './4spaces.yml:2:5: [warning] wrong indentation: '
-                         'expected 3 but found 4 (indentation)\n', ''))
+        self.assertEqual(
+            (ctx.returncode, ctx.stdout, ctx.stderr),
+            (0, ('./4spaces.yml:2:5: [warning] wrong indentation: '
+                 'expected 3 but found 4 (indentation)\n'), ''))
 
 
 class CommandLineEncodingTestCase(unittest.TestCase):
