@@ -739,6 +739,15 @@ class CommandLineTestCase(unittest.TestCase):
 
 
 class CommandLineConfigTestCase(unittest.TestCase):
+    def test_config_file_does_not_exist(self):
+        with temp_workspace({'a.yml': 'hello: world\n'}):
+            with RunContext(self) as ctx:
+                cli.run(('-c', 'does-not-exist.yml', 'a.yml'))
+
+        self.assertEqual(ctx.returncode, -1)
+        self.assertIn(
+            'No such file or directory', ctx.stderr)
+
     def test_config_file(self):
         workspace = {'a.yml': 'hello: world\n'}
         conf = ('---\n'
