@@ -38,8 +38,11 @@ class YamlLintConfig:
         self.locale = None
 
         if file is not None:
-            with open(file, mode='rb') as f:
-                content = decoder.auto_decode(f.read())
+            try:
+                with open(file, mode='rb') as f:
+                    content = decoder.auto_decode(f.read())
+            except OSError as e:
+                raise YamlLintConfigError(str(e)) from e
 
         self.parse(content)
         self.validate()
