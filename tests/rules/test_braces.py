@@ -84,6 +84,25 @@ class ColonTestCase(RuleTestCase):
                    '  a: 1\n'
                    '}\n', conf, problem=(2, 8))
 
+    def test_forbid_multiline(self):
+        conf = 'braces: {forbid: multiline}'
+        self.check('---\n'
+                   'empty: {}\n'
+                   'inline: {a: 1, b: 2}\n'
+                   'block:\n'
+                   '  a: 1\n', conf)
+        self.check('---\n'
+                   'empty: {\n'
+                   '}\n', conf, problem=(3, 1))
+        self.check('---\n'
+                   'outer: {a: {b: 1},\n'
+                   '        c: {d: 2,\n'
+                   '            e: 3}}\n', conf,
+                   problem1=(4, 17), problem2=(4, 18))
+        self.check('---\n'
+                   'value: {key: [a,\n'
+                   '              b]}\n', conf, problem=(3, 17))
+
     def test_min_spaces(self):
         conf = ('braces:\n'
                 '  max-spaces-inside: -1\n'

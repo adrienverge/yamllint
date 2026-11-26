@@ -20,6 +20,15 @@ import yaml
 from yamllint.linter import LintProblem
 
 
+def is_multiline_flow_end(token, context, start_token, end_token):
+    """Track nested flow collections and check their matching delimiters."""
+    if isinstance(token, start_token):
+        context.setdefault('start_lines', []).append(token.start_mark.line)
+    elif isinstance(token, end_token) and context.get('start_lines'):
+        return context['start_lines'].pop() != token.start_mark.line
+    return False
+
+
 def spaces_after(token, prev, next, min=-1, max=-1,
                  min_desc=None, max_desc=None):
     if next is not None and token.end_mark.line == next.start_mark.line:

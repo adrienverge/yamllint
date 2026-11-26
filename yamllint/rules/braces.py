@@ -22,7 +22,8 @@ braces (``{`` and ``}``).
 * ``forbid`` is used to forbid the use of flow mappings which are denoted by
   surrounding braces (``{`` and ``}``). Use ``true`` to forbid the use of flow
   mappings completely. Use ``non-empty`` to forbid the use of all flow
-  mappings except for empty ones.
+  mappings except for empty ones. Use ``multiline`` to forbid flow mappings
+  whose opening and closing braces are on different lines.
 * ``min-spaces-inside`` defines the minimal number of spaces required inside
   braces.
 * ``max-spaces-inside`` defines the maximal number of spaces allowed inside
@@ -71,6 +72,19 @@ braces (``{`` and ``}``).
    ::
 
     object: { key1: 4, key2: 8 }
+
+#. With ``braces: {forbid: multiline}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    object: {key1: 4, key2: 8}
+
+   the following code snippet would **FAIL**:
+   ::
+
+    object: {key1: 4,
+             key2: 8}
 
 #. With ``braces: {min-spaces-inside: 0, max-spaces-inside: 0}``
 
@@ -135,11 +149,15 @@ braces (``{`` and ``}``).
 import yaml
 
 from yamllint.linter import LintProblem
-from yamllint.rules.common import spaces_after, spaces_before
+from yamllint.rules.common import (
+    is_multiline_flow_end,
+    spaces_after,
+    spaces_before,
+)
 
 ID = 'braces'
 TYPE = 'token'
-CONF = {'forbid': (bool, 'non-empty'),
+CONF = {'forbid': (bool, 'non-empty', 'multiline'),
         'min-spaces-inside': int,
         'max-spaces-inside': int,
         'min-spaces-inside-empty': int,
@@ -164,6 +182,13 @@ def check(conf, token, prev, next, nextnext, context):
         yield LintProblem(token.start_mark.line + 1,
                           token.end_mark.column + 1,
                           'forbidden flow mapping')
+
+    elif (conf['forbid'] == 'multiline' and
+          is_multiline_flow_end(token, context, yaml.FlowMappingStartToken,
+                                yaml.FlowMappingEndToken)):
+        yield LintProblem(token.start_mark.line + 1,
+                          token.start_mark.column + 1,
+                          'forbidden multiline flow mapping')
 
     elif (isinstance(token, yaml.FlowMappingStartToken) and
             isinstance(next, yaml.FlowMappingEndToken)):
