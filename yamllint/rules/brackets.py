@@ -22,7 +22,8 @@ inside brackets (``[`` and ``]``).
 * ``forbid`` is used to forbid the use of flow sequences which are denoted by
   surrounding brackets (``[`` and ``]``). Use ``true`` to forbid the use of
   flow sequences completely. Use ``non-empty`` to forbid the use of all flow
-  sequences except for empty ones.
+  sequences except for empty ones. Use ``multiline`` to forbid flow sequences
+  whose opening and closing brackets are on different lines.
 * ``min-spaces-inside`` defines the minimal number of spaces required inside
   brackets.
 * ``max-spaces-inside`` defines the maximal number of spaces allowed inside
@@ -72,6 +73,19 @@ inside brackets (``[`` and ``]``).
    ::
 
     object: [ 1, 2, abc ]
+
+#. With ``brackets: {forbid: multiline}``
+
+   the following code snippet would **PASS**:
+   ::
+
+    object: [1, 2, abc]
+
+   the following code snippet would **FAIL**:
+   ::
+
+    object: [1, 2,
+             abc]
 
 #. With ``brackets: {min-spaces-inside: 0, max-spaces-inside: 0}``
 
@@ -136,11 +150,15 @@ inside brackets (``[`` and ``]``).
 import yaml
 
 from yamllint.linter import LintProblem
-from yamllint.rules.common import spaces_after, spaces_before
+from yamllint.rules.common import (
+    is_multiline_flow_end,
+    spaces_after,
+    spaces_before,
+)
 
 ID = 'brackets'
 TYPE = 'token'
-CONF = {'forbid': (bool, 'non-empty'),
+CONF = {'forbid': (bool, 'non-empty', 'multiline'),
         'min-spaces-inside': int,
         'max-spaces-inside': int,
         'min-spaces-inside-empty': int,
@@ -165,6 +183,13 @@ def check(conf, token, prev, next, nextnext, context):
         yield LintProblem(token.start_mark.line + 1,
                           token.end_mark.column + 1,
                           'forbidden flow sequence')
+
+    elif (conf['forbid'] == 'multiline' and
+          is_multiline_flow_end(token, context, yaml.FlowSequenceStartToken,
+                                yaml.FlowSequenceEndToken)):
+        yield LintProblem(token.start_mark.line + 1,
+                          token.start_mark.column + 1,
+                          'forbidden multiline flow sequence')
 
     elif (isinstance(token, yaml.FlowSequenceStartToken) and
             isinstance(next, yaml.FlowSequenceEndToken)):

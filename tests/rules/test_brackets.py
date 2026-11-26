@@ -82,6 +82,28 @@ class ColonTestCase(RuleTestCase):
                    '  b\n'
                    ']\n', conf, problem=(2, 9))
 
+    def test_forbid_multiline(self):
+        conf = 'brackets: {forbid: multiline}'
+        self.check('---\n'
+                   'empty: []\n'
+                   'inline: [a, b]\n'
+                   'block:\n'
+                   '  - a\n', conf)
+        self.check('---\n'
+                   'empty: [\n'
+                   ']\n', conf, problem=(3, 1))
+        self.check('---\n'
+                   'outer: [[a, b],\n'
+                   '        [c,\n'
+                   '         d]]\n', conf,
+                   problem1=(4, 11), problem2=(4, 12))
+        self.check('---\n'
+                   'value: {key: [a,\n'
+                   '              b]}\n', conf, problem=(3, 16))
+        self.check('---\n'
+                   'value: [a,\n'
+                   '        b]  # yamllint disable-line rule:brackets\n', conf)
+
     def test_min_spaces(self):
         conf = ('brackets:\n'
                 '  max-spaces-inside: -1\n'
