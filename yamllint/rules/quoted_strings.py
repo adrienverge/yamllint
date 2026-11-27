@@ -189,6 +189,13 @@ DEFAULT = {'quote-type': 'any',
            'check-keys': False}
 
 
+def _regex_error(regex):
+    try:
+        re.compile(regex)
+    except re.error as e:
+        return str(e)
+
+
 def VALIDATE(conf):
     if conf['required'] is True and len(conf['extra-allowed']) > 0:
         return 'cannot use both "required: true" and "extra-allowed"'
@@ -198,10 +205,9 @@ def VALIDATE(conf):
         return 'cannot use both "required: false" and "extra-allowed"'
     for optkey in ('extra-required', 'extra-allowed'):
         for regex in conf[optkey]:
-            try:
-                re.compile(regex)
-            except re.error as e:
-                return f'invalid regular expression in "{optkey}": {e}'
+            error = _regex_error(regex)
+            if error:
+                return f'invalid regular expression in "{optkey}": {error}'
 
 
 DEFAULT_SCALAR_TAG = 'tag:yaml.org,2002:str'
