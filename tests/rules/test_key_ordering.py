@@ -16,6 +16,7 @@
 import locale
 
 from tests.common import RuleTestCase
+
 from yamllint import config
 
 
