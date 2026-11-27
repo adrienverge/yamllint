@@ -461,6 +461,17 @@ class QuotedValuesTestCase(RuleTestCase):
                    'k6: ":wq"\n',                  # fails
                    conf, problem1=(3, 5), problem2=(5, 5), problem3=(7, 5))
 
+    def test_extras_invalid_regex(self):
+        for option in ('extra-allowed', 'extra-required'):
+            conf = ('quoted-strings:\n'
+                    '  required: only-when-needed\n'
+                    '  ' + option + ': ["("]\n')
+            with self.assertRaisesRegex(
+                    config.YamlLintConfigError,
+                    r'invalid config: quoted-strings: invalid regular '
+                    r'expression in "' + option + '": '):
+                self.check('', conf)
+
     def test_only_when_needed_extras(self):
         conf = ('quoted-strings:\n'
                 '  required: true\n'
