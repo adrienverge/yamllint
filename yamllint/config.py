@@ -93,6 +93,9 @@ class YamlLintConfig:
 
         # Does this conf override another conf that we need to load?
         if 'extends' in conf:
+            if not isinstance(conf['extends'], str):
+                raise YamlLintConfigError(
+                    'invalid config: extends should be a string')
             path = get_extended_config_file(conf['extends'])
             base = YamlLintConfig(file=path)
             try:
