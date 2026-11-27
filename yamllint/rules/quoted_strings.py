@@ -196,6 +196,12 @@ def VALIDATE(conf):
         return 'cannot use both "required: true" and "extra-required"'
     if conf['required'] is False and len(conf['extra-allowed']) > 0:
         return 'cannot use both "required: false" and "extra-allowed"'
+    for optkey in ('extra-required', 'extra-allowed'):
+        for regex in conf[optkey]:
+            try:
+                re.compile(regex)
+            except re.error as e:
+                return f'invalid regular expression in "{optkey}": {e}'
 
 
 DEFAULT_SCALAR_TAG = 'tag:yaml.org,2002:str'
