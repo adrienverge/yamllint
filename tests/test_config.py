@@ -245,6 +245,13 @@ class SimpleConfigTestCase(unittest.TestCase):
 
 
 class ExtendedConfigTestCase(unittest.TestCase):
+    def test_invalid_extends(self):
+        for value in ('[default, relaxed]', '5', '{a: 1}', 'null', 'true'):
+            with self.assertRaisesRegex(
+                    config.YamlLintConfigError,
+                    'invalid config: extends should be a string'):
+                config.YamlLintConfig('extends: ' + value + '\n')
+
     def test_extend_on_object(self):
         old = config.YamlLintConfig('rules:\n'
                                     '  colons:\n'
