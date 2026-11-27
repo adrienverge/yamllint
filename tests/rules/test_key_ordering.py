@@ -16,6 +16,7 @@
 import locale
 
 from tests.common import RuleTestCase
+from yamllint import config
 
 
 class KeyOrderingTestCase(RuleTestCase):
@@ -147,6 +148,15 @@ class KeyOrderingTestCase(RuleTestCase):
                    'hais: true\n'
                    'haïr: true\n', conf,
                    problem=(3, 1))
+
+    def test_ignored_keys_invalid_regex(self):
+        conf = ('key-ordering:\n'
+                '  ignored-keys: ["("]\n')
+        with self.assertRaisesRegex(
+                config.YamlLintConfigError,
+                r'invalid config: key-ordering: invalid regular expression '
+                r'in "ignored-keys": '):
+            self.check('', conf)
 
     def test_ignored_keys(self):
         conf = ('key-ordering:\n'
