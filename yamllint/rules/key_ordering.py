@@ -120,6 +120,14 @@ DEFAULT = {'ignored-keys': []}
 MAP, SEQ = range(2)
 
 
+def VALIDATE(conf):
+    for regex in conf['ignored-keys']:
+        try:
+            re.compile(regex)
+        except re.error as e:
+            return f'invalid regular expression in "ignored-keys": {e}'
+
+
 class Parent:
     def __init__(self, type):
         self.type = type
